@@ -3,7 +3,7 @@
 import { Transition } from '@headlessui/react';
 import { usePrevious, useTimeoutEffect } from '@react-hookz/web';
 import React, { ReactNode, forwardRef, memo, useEffect, useMemo, useState } from 'react';
-import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
+import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 
 import { CitationPanel } from '@/components/Citations/CitationPanel';
 import MessageRow from '@/components/MessageRow';
@@ -37,20 +37,23 @@ type Props = {
 const MessagingContainer: React.FC<Props> = (props) => {
   const { scrollViewClassName = '', ...rest } = props;
   return (
-    <StickToBottom className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}>
-      <StickToBottom.Content
-        className={cn(
-          'relative mt-auto flex overflow-x-hidden',
-          {
-            // For vertically centering the content in @/components/Welcome.tsx
-            'mt-0 md:mt-auto': props.messages.length === 0,
-          },
-          scrollViewClassName
-        )}
-      >
-        <Content {...rest} />
-      </StickToBottom.Content>
-    </StickToBottom>
+    <ScrollToBottom
+      initialScrollBehavior="auto"
+      className={cn(ReservedClasses.MESSAGES, 'relative flex h-0 flex-grow flex-col')}
+      scrollViewClassName={cn(
+        '!h-full',
+        'flex relative mt-auto overflow-x-hidden',
+        {
+          // For vertically centering the content in @/components/Welcome.tsx
+          'mt-0 md:mt-auto': props.messages.length === 0,
+        },
+        scrollViewClassName
+      )}
+      followButtonClassName="hidden"
+      debounce={100}
+    >
+      <Content {...rest} />
+    </ScrollToBottom>
   );
 };
 export default memo(MessagingContainer);
@@ -61,7 +64,7 @@ export default memo(MessagingContainer);
  */
 const Content: React.FC<Props> = (props) => {
   const { isStreaming, messages, composer, streamingMessage } = props;
-  const { scrollToBottom, isAtBottom } = useStickToBottomContext();
+  const scrollToBottom = useScrollToBottom();
   const {
     agents: { isEditAgentPanelOpen },
   } = useAgentsStore();
@@ -70,6 +73,7 @@ const Content: React.FC<Props> = (props) => {
   } = useCitationsStore();
 
   useFixCopyBug();
+  const [isAtBottom] = useSticky();
   const prevIsStreaming = usePrevious(isStreaming);
 
   // Wait some time before being able to fetch previous messages
@@ -97,7 +101,7 @@ const Content: React.FC<Props> = (props) => {
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.type === MessageType.USER) {
-      scrollToBottom();
+      scrollToBottom({ behavior: 'smooth' });
     }
   }, [messages.length, scrollToBottom]);
 
@@ -105,7 +109,7 @@ const Content: React.FC<Props> = (props) => {
     useCalculateCitationStyles(messages, streamingMessage);
 
   const handleScrollToNewMessage = () => {
-    scrollToBottom();
+    scrollToBottom({ behavior: 'smooth' });
   };
 
   return (

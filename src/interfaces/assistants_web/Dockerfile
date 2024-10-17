@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json ./
+COPY patches ./patches
 RUN npm ci
 
 COPY src ./src
