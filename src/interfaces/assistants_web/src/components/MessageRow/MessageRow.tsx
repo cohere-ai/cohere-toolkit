@@ -12,8 +12,10 @@ import {
   LongPressMenu,
 } from '@/components/UI';
 import { Breakpoint, useBreakpoint } from '@/hooks';
+import { useSettingsStore } from '@/stores';
 import { useExperimentalFeatures } from '@/hooks/use-experimentalFeatures';
 import { SynthesisStatus } from '@/hooks/use-synthesizer';
+
 import {
   type ChatMessage,
   isAbortedMessage,
@@ -62,7 +64,14 @@ export const MessageRow = forwardRef<HTMLDivElement, Props>(function MessageRowI
 
   const [isShowing, setIsShowing] = useState(false);
   const [isLongPressMenuOpen, setIsLongPressMenuOpen] = useState(false);
+
+  // For showing thinking steps
+  const { showSteps } = useSettingsStore();
   const [isStepsExpanded, setIsStepsExpanded] = useState(true);
+      
+  useEffect(() => {
+    setIsStepsExpanded(showSteps);
+  }, [showSteps]);
 
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const { longPressProps } = useLongPress({
