@@ -1,4 +1,3 @@
-import os
 from typing import Annotated, Any, Generator
 
 from dotenv import load_dotenv
