@@ -40,7 +40,23 @@ Before starting, ensure you have:
 
 - Run `aws configure` and input the `Access key`, `Secret access key`, `region`, and `output format`.
 
-### 3. Deploy the Toolkit
+### 3. Set environment variables
+
+The deployment script uses configuration values from either the .env or configuration.yaml file. 
+Set the following environment variable in the .env file:
+```
+DATABASE_URL='postgresql+psycopg2://postgres:postgres@{service name}.{env name}.{app name}.local:5432'
+```
+Or, in the configuration.yaml file::
+```yaml
+database:
+  url: postgresql+psycopg2://postgres:postgres@{service name}.{env name}.{app name}.local:5432
+```
+For the current deployment, the database URL should be:
+```
+postgresql+psycopg2://postgres:postgres@toolkit-app-db.dev.toolkit-app.local:5432
+```
+### 4. Deploy the Toolkit
 
 1. Navigate to the root directory of the cloned repository.
 2. Run the deployment script:
@@ -49,7 +65,7 @@ Before starting, ensure you have:
    ```
 3. Wait for the deployment to complete. The script will output the URL of the deployed application.
 
-### 4. Clean Up
+### 5. Clean Up
 
 - To delete the deployed application, run:
    ```bash

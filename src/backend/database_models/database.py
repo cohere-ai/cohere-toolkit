@@ -10,13 +10,8 @@ from backend.config.settings import Settings
 from backend.database_models.base import CustomFilterQuery
 
 load_dotenv()
-SQLALCHEMY_DATABASE_URL = Settings().database.url
-# if deployed to AWS ECS, use the service discovery endpoint for the database
-TOOLKIT_AWS_DB_SERVICE = 'toolkit-app-db'
-aws_discovery_endpoint = os.environ.get("COPILOT_SERVICE_DISCOVERY_ENDPOINT", None)
-if aws_discovery_endpoint:
-    SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://postgres:postgres@{TOOLKIT_AWS_DB_SERVICE}.{aws_discovery_endpoint}:5432"
 
+SQLALCHEMY_DATABASE_URL = Settings().database.url
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, pool_size=5, max_overflow=10, pool_timeout=30
 )
