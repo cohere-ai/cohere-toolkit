@@ -2,7 +2,7 @@ import { uniqBy } from 'lodash';
 import Link from 'next/link';
 import { Dispatch, ReactNode, RefObject, SetStateAction, useRef } from 'react';
 
-import { Button, Icon, IconName, Spinner, Text } from '@/components/UI';
+import { Button, Icon, IconButton, IconName, Spinner, Text } from '@/components/UI';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useUploadAgentFile } from '@/hooks';
 import { DataSourceArtifact } from '@/types/tools';
@@ -222,7 +222,7 @@ const DataSourceFileList: React.FC<{
         </Text>
       </div>
       <div className="flex flex-col">
-        {artifacts.map(({ id, type, name }) => (
+        {artifacts.map(({ id, type, name, url }) => (
           <div
             key={id}
             className="flex w-full items-center gap-x-2 border-b border-mushroom-500 py-3 dark:border-volcanic-300"
@@ -231,7 +231,16 @@ const DataSourceFileList: React.FC<{
             <Text styleAs="label" className="dark:test-marble-950 mr-auto truncate">
               {name}
             </Text>
-            <Button icon="close" kind="secondary" onClick={() => handleRemoveFile(id)} />
+            <IconButton
+              iconName={url ? 'arrow-up-right' : 'show'}
+              tooltip={{ label: url ? 'Open url' : 'Show content' }}
+              className="h-auto w-auto flex-shrink-0 self-center group-hover:visible"
+            />
+            <IconButton
+              iconName="close"
+              tooltip={{ label: 'Delete' }}
+              onClick={() => handleRemoveFile(id)}
+            />
           </div>
         ))}
 
