@@ -5,7 +5,9 @@ import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { Banner, Button, Icon, IconButton, Text, Tooltip } from '@/components/UI';
+import { FileViewer } from '@/components/UI/FileViewer';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
+import { useContextStore } from '@/context';
 import {
   useAgent,
   useBrandedColors,
@@ -26,6 +28,7 @@ export const ConversationPanel: React.FC<Props> = () => {
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
+  const { open } = useContextStore();
 
   const {
     params: { fileIds },
@@ -68,6 +71,16 @@ export const ConversationPanel: React.FC<Props> = () => {
     ...agentToolMetadataArtifacts.files,
     ...agentToolMetadataArtifacts.folders,
   ];
+
+  const handleOpenFile = (fileId: string, url?: string) => {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      open({
+        content: <FileViewer fileId={fileId} />,
+      });
+    }
+  };
 
   const handleDeleteFile = async (fileId: string) => {
     if (isDeletingFile || !conversationId) return;
@@ -174,6 +187,7 @@ export const ConversationPanel: React.FC<Props> = () => {
                           iconName={file.url ? 'arrow-up-right' : 'show'}
                           tooltip={{ label: file.url ? 'Open url' : 'Show content' }}
                           className="h-auto w-auto flex-shrink-0 self-center group-hover:visible"
+                          onClick={() => handleOpenFile(file.id, file.url)}
                         />
                       </li>
                     ))}
@@ -214,6 +228,7 @@ export const ConversationPanel: React.FC<Props> = () => {
                         tooltip={{ label: 'Show content' }}
                         className="h-auto w-auto flex-shrink-0 self-center"
                         disabled={isDeletingFile}
+                        onClick={() => handleOpenFile(id)}
                       />
                       <IconButton
                         iconName="close"
