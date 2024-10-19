@@ -29,6 +29,9 @@ class ConversationFilePublic(BaseModel):
     file_size: int = Field(default=0, ge=0)
 
 
+class ConversationFileFull(ConversationFilePublic):
+    file_content: str
+
 
 class AgentFilePublic(BaseModel):
     id: str
@@ -37,6 +40,11 @@ class AgentFilePublic(BaseModel):
 
     file_name: str
     file_size: int = Field(default=0, ge=0)
+
+
+class AgentFileFull(AgentFilePublic):
+    file_content: str
+
 
 class ListConversationFile(ConversationFilePublic):
     pass

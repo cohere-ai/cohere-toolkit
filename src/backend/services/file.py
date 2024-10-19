@@ -287,7 +287,7 @@ class FileService:
 
 # Misc
 def validate_file(
-    session: DBSessionDep, file_id: str, user_id: str, index: str, ctx: Context
+    session: DBSessionDep, file_id: str, user_id: str
 ) -> File:
     """
     Validates if a file exists and belongs to the user
@@ -310,6 +310,8 @@ def validate_file(
             status_code=404,
             detail=f"File with ID: {file_id} not found.",
         )
+
+    return file
 
 
 async def insert_files_in_db(
