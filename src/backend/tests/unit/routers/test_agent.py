@@ -1,15 +1,22 @@
+import os
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
+from backend.crud import deployment as deployment_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
 from backend.tests.unit.factories import get_factory
 
+is_cohere_env_set = (
+    os.environ.get("COHERE_API_KEY") is not None
+    and os.environ.get("COHERE_API_KEY") != ""
+)
 
 def test_create_agent_missing_name(
     session_client: TestClient, session: Session, user
@@ -94,6 +101,31 @@ def test_create_agent_invalid_deployment(
     assert response.json() == {
         "detail": "Deployment not a real deployment not found or is not available in the Database."
     }
+
+
+@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+def test_create_agent_deployment_not_in_db(
+    session_client: TestClient, session: Session, user
+) -> None:
+    request_json = {
+        "name": "test agent",
+        "description": "test description",
+        "preamble": "test preamble",
+        "temperature": 0.5,
+        "model": "command-r-plus",
+        "deployment": ModelDeploymentName.CoherePlatform,
+    }
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    deployment_crud.delete_deployment(session, cohere_deployment.id)
+    response = session_client.post(
+        "/v1/agents", json=request_json, headers={"User-Id": user.id}
+    )
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    deployment_models = cohere_deployment.models
+    deployment_models_list = [model.name for model in deployment_models]
+    assert response.status_code == 200
+    assert cohere_deployment
+    assert "command-r-plus" in deployment_models_list
 
 
 def test_create_agent_invalid_tool(
