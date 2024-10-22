@@ -61,17 +61,6 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
   });
 };
 
-export const useDefaultAgent = (enabled?: boolean) => {
-  const cohereClient = useCohereClient();
-  return useQuery({
-    queryKey: ['defaultAgent'],
-    enabled: enabled,
-    queryFn: async () => {
-      return await cohereClient.getDefaultAgent();
-    },
-  });
-};
-
 /**
  * @description Returns a function to check if an agent name is unique.
  */

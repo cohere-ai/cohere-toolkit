@@ -115,16 +115,6 @@ class ListAgentsResponse(BaseModel):
     agents: list[Agent]
 
 
-class AgentTaskResponse(BaseModel):
-    task_id: str
-    status: str
-    result: Optional[Dict[str, Any]] = None
-    date_done: str
-    exception_snippet: Optional[str] = None
-    name: str
-    retries: int
-
-
 class UpdateAgentRequest(BaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
