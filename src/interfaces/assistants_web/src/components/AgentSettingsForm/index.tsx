@@ -59,7 +59,6 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
   const { data: listToolsData, status: listToolsStatus } = useListTools();
   const isAgentNameUnique = useIsAgentNameUnique();
   const params = useSearchParams();
-  const defaultStep = params.has('datasources');
   const defaultState = params.has('state');
 
   useEffect(() => {
@@ -78,7 +77,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
 
   const [currentStep, setCurrentStep] = useState<
     'define' | 'config' | 'dataSources' | 'tools' | 'visibility' | undefined
-  >(() => (defaultStep ? 'dataSources' : 'define'));
+  >('define');
 
   const [googleFiles, setGoogleFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
@@ -208,12 +207,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
         isExpanded={currentStep === 'config'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'config' : undefined)}
       >
-        <ConfigStep
-          fields={fields}
-          setFields={setFields}
-          nameError={nameError}
-          isNewAssistant={source === 'create'}
-        />
+        <ConfigStep fields={fields} setFields={setFields} nameError={nameError} />
         <StepButtons
           handleNext={() => setCurrentStep('dataSources')}
           hide={source !== 'create'}
