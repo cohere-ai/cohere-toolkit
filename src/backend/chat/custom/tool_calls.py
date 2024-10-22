@@ -10,7 +10,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
 
-TIMEOUT = 300
+TIMEOUT_SECONDS = 60
 
 logger = LoggerFactory().get_logger()
 
@@ -60,13 +60,13 @@ async def _call_all_tools_async(
     ]
     combined = asyncio.gather(*tasks)
     try:
-        tool_results = await asyncio.wait_for(combined, timeout=TIMEOUT)
+        tool_results = await asyncio.wait_for(combined, timeout=TIMEOUT_SECONDS)
         # Flatten a list of list of tool results
         return [n for m in tool_results for n in m]
     except asyncio.TimeoutError:
         raise HTTPException(
             status_code=500,
-            detail=f"Timeout while calling tools with timeout: {str(TIMEOUT)}",
+            detail=f"Timeout while calling tools with timeout: {TIMEOUT_SECONDS}",
         )
 
 

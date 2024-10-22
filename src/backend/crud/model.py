@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import AgentDeploymentModel
+from backend.database_models import AgentDeploymentModel, Deployment
 from backend.database_models.model import Model
+from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.services.transaction import validate_transaction
 
@@ -36,6 +37,20 @@ def get_model(db: Session, model_id: str) -> Model | None:
         Model: Model with the given ID.
     """
     return db.query(Model).filter(Model.id == model_id).first()
+
+
+def get_model_by_name(db: Session, model_name: str) -> Model | None:
+    """
+    Get a model by name.
+
+    Args:
+        db (Session): Database session.
+        model_name (str): Model name.
+
+    Returns:
+        Model: Model with the given name.
+    """
+    return db.query(Model).filter(Model.name == model_name).first()
 
 
 def get_models(db: Session, offset: int = 0, limit: int = 100) -> list[Model]:
@@ -140,3 +155,35 @@ def get_models_by_agent_id(
         .offset(offset)
         .all()
     )
+
+
+def create_model_by_config(db: Session, deployment: Deployment, deployment_config: DeploymentSchema, model: str) -> Model:
+    """
+    Create a new model by config if present
+
+    Args:
+        db (Session): Database session.
+        deployment (Deployment): Deployment data.
+        deployment_config (DeploymentSchema): Deployment config data.
+        model (str): Model data.
+
+    Returns:
+        Model: Created model.
+    """
+    deployment_config_models = deployment_config.models
+    deployment_db_models = get_models_by_deployment_id(db, deployment.id)
+    model_to_return = None
+    for deployment_config_model in deployment_config_models:
+        model_in_db = any(record.name == deployment_config_model for record in deployment_db_models)
+        if not model_in_db:
+            new_model = Model(
+                name=deployment_config_model,
+                cohere_name=deployment_config_model,
+                deployment_id=deployment.id,
+            )
+            db.add(new_model)
+            db.commit()
+            if model == new_model.name:
+                model_to_return = new_model
+
+    return model_to_return

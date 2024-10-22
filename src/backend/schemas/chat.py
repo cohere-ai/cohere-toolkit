@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, ClassVar, Dict, List, Union
 from uuid import uuid4
@@ -10,6 +11,13 @@ from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
 from backend.schemas.tool import Tool, ToolCall, ToolCallDelta
 
+
+@dataclass
+class EventState:
+    distances_plans: list
+    distances_actions: list
+    previous_plan: str
+    previous_action: str
 
 class ChatRole(StrEnum):
     """One of CHATBOT|USER|SYSTEM to identify who the message is coming from."""
@@ -300,9 +308,6 @@ class ChatResponseEvent(BaseModel):
 
 
 class BaseChatRequest(BaseModel):
-    # user_id: str = Field(
-    #     title="A user id to store to store the conversation under.", exclude=True
-    # )
     message: str = Field(
         title="The message to send to the chatbot.",
     )
@@ -314,7 +319,6 @@ class BaseChatRequest(BaseModel):
         default_factory=lambda: str(uuid4()),
         title="To store a conversation then create a conversation id and use it for every related request",
     )
-
     tools: List[Tool] | None = Field(
         default_factory=list,
         title="""

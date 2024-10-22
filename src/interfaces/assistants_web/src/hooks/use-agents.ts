@@ -114,8 +114,11 @@ export const useIsAgentNameUnique = () => {
 export const useUpdateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
+
   return useMutation<AgentPublic, ApiError, { request: UpdateAgentRequest; agentId: string }>({
-    mutationFn: ({ request, agentId }) => cohereClient.updateAgent(request, agentId),
+    mutationFn: ({ request, agentId }) => {
+      return cohereClient.updateAgent(request, agentId);
+    },
     onSettled: (agent) => {
       queryClient.invalidateQueries({ queryKey: ['agent', agent?.id] });
       queryClient.invalidateQueries({ queryKey: ['listAgents'] });

@@ -81,7 +81,7 @@ def test_async_call_tools_failure() -> None:
         ]
 
 
-@patch("backend.chat.custom.tool_calls.TIMEOUT", 1)
+@patch("backend.chat.custom.tool_calls.TIMEOUT_SECONDS", 1)
 def test_async_call_tools_timeout() -> None:
     class MockCalculator(BaseTool):
         NAME = "toolkit_calculator"
