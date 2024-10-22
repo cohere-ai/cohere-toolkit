@@ -287,7 +287,7 @@ class FileService:
 
 # Misc
 def validate_file(
-    session: DBSessionDep, file_id: str, user_id: str, index: str, ctx: Context
+    session: DBSessionDep, file_id: str, user_id: str
 ) -> File:
     """
     Validates if a file exists and belongs to the user
