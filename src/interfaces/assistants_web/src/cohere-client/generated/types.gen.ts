@@ -154,6 +154,7 @@ export type CohereChatRequest = {
 
 export type ConversationFilePublic = {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
   conversation_id: string;
@@ -361,6 +362,7 @@ export type ListAuthStrategy = {
 
 export type ListConversationFile = {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
   conversation_id: string;
@@ -735,6 +737,7 @@ export type UploadAgentFileResponse = {
 
 export type UploadConversationFileResponse = {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
   conversation_id: string;

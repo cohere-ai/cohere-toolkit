@@ -13,7 +13,7 @@ class ReadFileTool(BaseTool):
     Tool to read a file from the file system.
     """
 
-    NAME = "read_document"
+    NAME = "read_file"
     MAX_NUM_CHUNKS = 10
     SEARCH_LIMIT = 5
 
@@ -75,6 +75,7 @@ class SearchFileTool(BaseTool):
 
         file_ids = [file_id for _, file_id in files]
         retrieved_files = file_crud.get_files_by_ids(session, file_ids, user_id)
+
         if not retrieved_files:
             return []
 
