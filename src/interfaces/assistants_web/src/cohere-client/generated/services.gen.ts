@@ -957,7 +957,7 @@ export class DefaultService {
    * Response: Synthesized audio file.
    *
    * Raises:
-   * HTTPException: If the message with the given ID is not found.
+   * HTTPException: If the message with the given ID is not found or synthesis fails.
    * @param data The data for the request.
    * @param data.conversationId
    * @param data.messageId

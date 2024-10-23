@@ -10,7 +10,7 @@ import {
   CohereUnauthorizedError,
   CreateAgentRequest,
   CreateSnapshotRequest,
-  CreateUser,
+  CreateUserV1UsersPostData,
   Fetch,
   ToggleConversationPinRequest,
   UpdateAgentRequest,
@@ -206,10 +206,8 @@ export class CohereClient {
     return this.cohereService.default.getStrategiesV1AuthStrategiesGet();
   }
 
-  public createUser(requestBody: CreateUser) {
-    return this.cohereService.default.createUserV1UsersPost({
-      requestBody,
-    });
+  public createUser(requestBody: CreateUserV1UsersPostData) {
+    return this.cohereService.default.createUserV1UsersPost(requestBody);
   }
 
   public async googleSSOAuth({ code }: { code: string }) {

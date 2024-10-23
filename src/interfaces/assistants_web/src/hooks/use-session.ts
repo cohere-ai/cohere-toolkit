@@ -72,9 +72,11 @@ export const useSession = () => {
   const registerMutation = useMutation({
     mutationFn: async (params: RegisterParams) => {
       return cohereClient.createUser({
-        fullname: params.name,
-        email: params.email,
-        password: params.password,
+        requestBody: {
+          fullname: params.name,
+          email: params.email,
+          password: params.password,
+        },
       });
     },
   });
