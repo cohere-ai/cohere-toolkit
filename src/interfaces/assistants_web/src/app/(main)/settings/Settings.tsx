@@ -6,6 +6,7 @@ import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
+import {StatusConnection} from "@/components/AgentSettingsForm/StatusConnection";
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">
@@ -206,7 +207,6 @@ const SlackConnection = () => {
   };
 
   const isSlackConnected = !slackTool.is_auth_required ?? false;
-  const authUrl = getToolAuthUrl(slackTool.auth_url);
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
@@ -244,20 +244,5 @@ const SlackConnection = () => {
         )}
       </section>
     </article>
-  );
-};
-
-const StatusConnection: React.FC<{ connected: boolean }> = ({ connected }) => {
-  const label = connected ? 'Connected' : 'Disconnected';
-  return (
-    <Text styleAs="p-sm" className="flex items-center gap-2 uppercase dark:text-mushroom-950">
-      <span
-        className={cn('size-[10px] rounded-full', {
-          'bg-evolved-green-700': connected,
-          'bg-danger-500': !connected,
-        })}
-      />
-      {label}
-    </Text>
   );
 };

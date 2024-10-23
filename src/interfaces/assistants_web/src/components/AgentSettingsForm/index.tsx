@@ -177,6 +177,24 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     }
   };
 
+  const handleAuthButtonClick = (tool_name) => {
+    const tool = listToolsData?.find((t) => t.name === tool_name);
+    if (!tool?.is_available) {
+      return;
+    }
+    if (tool?.is_auth_required && !!tool.auth_url) {
+      const state = JSON.stringify(fields);
+
+      window.open(
+        getToolAuthUrl(
+          tool.auth_url,
+          `${window.location.href}?datasources=1&state=${btoa(state)}`
+        ),
+        '_self'
+      );
+    }
+  }
+
   return (
     <div className="flex flex-col space-y-6">
       {/* Step 1: Define your assistant - name, description, instruction */}
@@ -251,6 +269,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
           tools={listToolsData}
           activeTools={fields.tools ?? []}
           setActiveTools={(tools: string[]) => setFields({ ...fields, tools })}
+          handleAuthButtonClick={handleAuthButtonClick}
         />
         <StepButtons
           handleNext={() => setCurrentStep('visibility')}
