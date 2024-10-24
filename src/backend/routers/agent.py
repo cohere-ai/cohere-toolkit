@@ -52,7 +52,6 @@ router = APIRouter(
 )
 router.name = RouterName.AGENT
 
-
 @router.post(
     "",
     response_model=AgentPublic,
@@ -663,10 +662,3 @@ async def delete_agent_file(
     get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id, ctx)
 
     return DeleteAgentFileResponse()
-
-
-# Default Agent Router
-default_agent_router = APIRouter(
-    prefix="/v1/default_agent",
-)
-default_agent_router.name = RouterName.DEFAULT_AGENT

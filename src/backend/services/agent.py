@@ -6,7 +6,6 @@ from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent import Agent, AgentToolMetadata
 from backend.database_models.database import DBSessionDep
 
-TASK_TRACE_PREVIEW_LIMIT = 200
 
 def validate_agent_exists(session: DBSessionDep, agent_id: str, user_id: str) -> Agent:
     agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
