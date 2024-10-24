@@ -22,8 +22,8 @@ class SlackTool(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         settings = Settings()
-        cls.CLIENT_ID = settings.tools.slack.client_id if settings.tools and settings.tools.slack else None
-        cls.CLIENT_SECRET = settings.tools.slack.client_secret if settings.tools and settings.tools.slack else None
+        cls.CLIENT_ID = settings.tools.slack.client_id if settings.tools and settings.tools.slack and settings.tools.slack.client_id else None
+        cls.CLIENT_SECRET = settings.tools.slack.client_secret if settings.tools and settings.tools.slack and settings.tools.slack.client_secret else None
 
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
 

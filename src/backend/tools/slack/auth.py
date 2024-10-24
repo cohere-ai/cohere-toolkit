@@ -31,9 +31,9 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     def __init__(self):
         super().__init__()
         settings = Settings()
-        self.SLACK_CLIENT_ID = settings.tools.slack.client_id if settings.tools and settings.tools.slack else None
-        self.SLACK_CLIENT_SECRET = settings.tools.slack.client_secret if settings.tools and settings.tools.slack else None
-        self.USER_SCOPES = settings.tools.slack.user_scopes if settings.tools and settings.tools.slack else self.DEFAULT_USER_SCOPES
+        self.SLACK_CLIENT_ID = settings.tools.slack.client_id if settings.tools and settings.tools.slack and settings.tools.slack.client_id else None
+        self.SLACK_CLIENT_SECRET = settings.tools.slack.client_secret if settings.tools and settings.tools.slack and settings.tools.slack.client_secret else None
+        self.USER_SCOPES = settings.tools.slack.user_scopes if settings.tools and settings.tools.slack and settings.tools.slack.user_scopes else self.DEFAULT_USER_SCOPES
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
         if (
