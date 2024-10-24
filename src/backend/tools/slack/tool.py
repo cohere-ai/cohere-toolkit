@@ -1,7 +1,5 @@
 from typing import Any, Dict, List
 
-from google.auth.exceptions import RefreshError
-
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.services.logger.utils import LoggerFactory
@@ -18,18 +16,22 @@ class SlackTool(BaseTool):
     """
 
     NAME = SLACK_TOOL_ID
-
-    CLIENT_ID = Settings().tools.slack.client_id
-    CLIENT_SECRET = Settings().tools.slack.client_secret
+    CLIENT_ID = ""
+    CLIENT_SECRET = ""
 
     @classmethod
     def is_available(cls) -> bool:
+        settings = Settings()
+        cls.CLIENT_ID = settings.tools.slack.client_id if settings.tools and settings.tools.slack else None
+        cls.CLIENT_SECRET = settings.tools.slack.client_secret if settings.tools and settings.tools.slack else None
+
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
 
-    def _handle_tool_specific_errors(self, error: Exception, **kwargs: Any):
+    @classmethod
+    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
         message = "[Slack] Tool Error: {}".format(str(error))
 
-        if isinstance(error, RefreshError):
+        if error:
             session = kwargs["session"]
             user_id = kwargs["user_id"]
             tool_auth_crud.delete_tool_auth(
@@ -41,8 +43,8 @@ class SlackTool(BaseTool):
         )
         raise Exception(message)
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        user_id = kwargs.get("user_id")
+    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> List[Dict[str, Any]]:
+        user_id = kwargs.get("user_id", "")
         query = parameters.get("query", "")
 
         # Search Slack

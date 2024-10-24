@@ -30,9 +30,10 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
     def __init__(self):
         super().__init__()
-        self.SLACK_CLIENT_ID = Settings().tools.slack.client_id
-        self.SLACK_CLIENT_SECRET = Settings().tools.slack.client_secret
-        self.USER_SCOPES = Settings().tools.slack.user_scopes or self.DEFAULT_USER_SCOPES
+        settings = Settings()
+        self.SLACK_CLIENT_ID = settings.tools.slack.client_id if settings.tools and settings.tools.slack else None
+        self.SLACK_CLIENT_SECRET = settings.tools.slack.client_secret if settings.tools and settings.tools.slack else None
+        self.USER_SCOPES = settings.tools.slack.user_scopes if settings.tools and settings.tools.slack else self.DEFAULT_USER_SCOPES
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
         if (
@@ -82,7 +83,7 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             logger.error(
                 event=f"[Slack Tool] Error retrieving auth token: {response_body}"
             )
-            return response
+            return str(response)
 
         token_data = response_body.get("authed_user", None)
 
@@ -90,7 +91,7 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             logger.error(
                 event=f"[Slack Tool] Error retrieving auth token: {response_body}"
             )
-            return response
+            return str(response)
 
         tool_auth_crud.create_tool_auth(
             session,
@@ -104,6 +105,8 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 + datetime.timedelta(seconds=token_data.get("expires_in")),
             ),
         )
+
+        return ""
 
     def try_refresh_token(self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth) -> bool:
         body = {

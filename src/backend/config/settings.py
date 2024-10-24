@@ -213,11 +213,9 @@ class ToolSettings(BaseSettings, BaseModel):
     brave_web_search: Optional[BraveWebSearchSettings] = Field(
         default=BraveWebSearchSettings()
     )
-
     hybrid_web_search: Optional[HybridWebSearchSettings] = Field(
         default=HybridWebSearchSettings()
     )
-
     slack: Optional[SlackSettings] = Field(
         default=SlackSettings()
     )
