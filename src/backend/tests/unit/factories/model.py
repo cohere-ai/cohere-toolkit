@@ -11,6 +11,6 @@ class ModelFactory(BaseFactory):
 
     deployment = factory.SubFactory(DeploymentFactory)
     deployment_id = factory.SelfAttribute("deployment.id")
-    name = factory.Faker("name")
+    name = "command-r-plus"
     cohere_name = factory.Faker("name")
     description = factory.Faker("text")

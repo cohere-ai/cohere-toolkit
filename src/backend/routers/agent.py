@@ -280,7 +280,7 @@ async def update_agent(
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
         deployment_config = new_agent.deployment_config
         is_default_deployment = new_agent.is_default_deployment
-        # remove association fields
+        # Remove association fields - handled manually
         new_agent_cleaned = new_agent.dict(
             exclude={
                 "model",
@@ -290,7 +290,6 @@ async def update_agent(
                 "is_default_model",
             }
         )
-        # TODO Eugene - if no deployment or model is provide or if the deployment or model is not found, should we raise an error?
         if db_deployment and db_model:
             current_association = agent_crud.get_agent_model_deployment_association(
                 session, agent, db_model.id, db_deployment.id
@@ -658,7 +657,7 @@ async def delete_agent_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_agent_exists(session, agent_id)
-    validate_file(session, file_id, user_id, agent_id)
+    validate_file(session, file_id, user_id)
 
     # Delete the File DB object
     get_file_service().delete_agent_file_by_id(session, agent_id, file_id, user_id, ctx)

@@ -4,18 +4,16 @@ import { useState } from 'react';
 
 import { AgentSettingsFields } from '@/components/AgentSettingsForm';
 import { Dropdown } from '@/components/UI';
-import { DEFAULT_AGENT_MODEL } from '@/constants';
 import { useListAllDeployments } from '@/hooks';
 
 type Props = {
   fields: AgentSettingsFields;
-  isNewAssistant: boolean;
   nameError?: string;
   setFields: (fields: AgentSettingsFields) => void;
 };
 
 export const ConfigStep: React.FC<Props> = ({ fields, setFields }) => {
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(DEFAULT_AGENT_MODEL);
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(fields.model);
 
   const { data: deployments } = useListAllDeployments();
 

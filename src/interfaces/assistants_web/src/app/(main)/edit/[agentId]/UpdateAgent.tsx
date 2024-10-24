@@ -52,6 +52,7 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
         request: { ...fields, tools_metadata },
         agentId: agent.id,
       });
+      setIsSubmitting(false); // Reset button to allow new update after previous one
       info(`Updated ${newAgent?.name}`);
     } catch (e) {
       setIsSubmitting(false);

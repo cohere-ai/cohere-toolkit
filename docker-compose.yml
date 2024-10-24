@@ -76,8 +76,6 @@ services:
     volumes:
       # Mount alembic folder to sync migrations
       - ./src/backend/alembic:/workspace/src/backend/alembic
-      # Mount data folder to sync uploaded files
-      - ./src/backend/data:/workspace/src/backend/data
       # Mount configurations
       - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
       - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml

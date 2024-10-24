@@ -88,7 +88,11 @@ ALL_TOOLS = {
         implementation=PythonInterpreter,
         parameter_definitions={
             "code": {
-                "description": "Python code to execute using an interpreter",
+                "description": (
+                    "Python code to execute using the Python interpreter with no internet access. "
+                    "Do not generate code that tries to open files directly, instead use file contents passed to the interpreter, "
+                    "then print output or save output to a file."
+                ),
                 "type": "str",
                 "required": True,
             }

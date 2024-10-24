@@ -6,5 +6,7 @@ Looking to serve your application in production? Deploy the Toolkit to your pref
 
 1. **[Google Cloud Platform](deployment_guides/gcp_deployment.md)**  
    Help setup your Cloud SQL instance, then build, push, and deploy backend + frontend containers to Cloud Run.
+2. **[Amazon Web Services AWS Copilot](deployment_guides/aws_deployment.md)**  
+   Help setup your DB instance, then build, push, and deploy Toolkit containers to ECS Fargate using AWS Copilot.
 
-Note: Currently AWS and Azure deployments with Docker Compose are being worked on.
+Note: Azure deployment with Docker Compose is currently being worked on.
