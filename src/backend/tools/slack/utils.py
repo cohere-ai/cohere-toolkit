@@ -1,8 +1,8 @@
 
 from backend.database_models.database import get_session
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.slack import SlackAuth
 from backend.tools.base import ToolAuthException
+from backend.tools.slack import SlackAuth
 from backend.tools.slack.client import SlackClient
 from backend.tools.slack.constants import SEARCH_LIMIT, SLACK_TOOL_ID
 
