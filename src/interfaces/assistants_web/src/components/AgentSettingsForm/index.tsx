@@ -177,7 +177,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     }
   };
 
-  const handleAuthButtonClick = (tool_name) => {
+  const handleAuthButtonClick = (tool_name: string) => {
     const tool = listToolsData?.find((t) => t.name === tool_name);
     if (!tool?.is_available) {
       return;

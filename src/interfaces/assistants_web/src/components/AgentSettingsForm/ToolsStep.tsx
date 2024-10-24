@@ -39,7 +39,7 @@ export const ToolsStep: React.FC<Props> = ({ tools, activeTools, setActiveTools,
                       checked={!!activeTools?.includes(name)}
                       handleSwitch={(checked: boolean) => handleUpdateActiveTools(checked, name)}
                       isAuthRequired={is_auth_required}
-                      authUrl={auth_url}
+                      authUrl={auth_url?.toString()}
                       handleAuthButtonClick={handleAuthButtonClick}
                   />
               )
@@ -90,7 +90,7 @@ const ToolRow: React.FC<{
           kind="outline"
           theme="mushroom"
           label="Authenticate"
-          onClick={() => handleAuthButtonClick(name)}
+          onClick={() => handleAuthButtonClick ? handleAuthButtonClick(name) : ''}
       />)}
     </div>
   );
