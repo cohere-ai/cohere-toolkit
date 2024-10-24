@@ -61,7 +61,7 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         self, request: Request, session: DBSessionDep, user_id: str
     ) -> str:
         if request.query_params.get("error"):
-            error = request.query_params.get("error")
+            error = request.query_params.get("error") or "Unknown error"
             logger.error(event=f"[Slack Tool] Auth token error: {error}.")
             return error
 
