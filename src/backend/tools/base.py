@@ -91,7 +91,7 @@ class BaseToolAuthentication:
                 return False
 
             # Refresh failed, delete existing Auth
-            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
+            tool_auth_crud.delete_tool_auth(session, user_id, self.TOOL_ID)
             return True
 
         # Check access_token is retrievable
@@ -100,7 +100,7 @@ class BaseToolAuthentication:
             auth.refresh_token
         except Exception():
             # Retrieval failed, delete existing Auth
-            tool_auth_crud.delete_tool_auth(session, self.TOOL_ID, user_id)
+            tool_auth_crud.delete_tool_auth(session, user_id, self.TOOL_ID)
             return True
 
         # ToolAuth retrieved and is not expired

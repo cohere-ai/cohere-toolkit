@@ -14,6 +14,8 @@ from backend.tools import (
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
+    SlackAuth,
+    SlackTool,
     TavilyWebSearch,
     WebScrapeTool,
 )
@@ -43,6 +45,7 @@ class ToolName(StrEnum):
     Google_Web_Search = GoogleWebSearch.NAME
     Brave_Web_Search = BraveWebSearch.NAME
     Hybrid_Web_Search = HybridWebSearch.NAME
+    Slack = SlackTool.NAME
 
 
 ALL_TOOLS = {
@@ -238,6 +241,23 @@ ALL_TOOLS = {
         error_message="HybridWebSearch not available, please make sure to set at least one option in the tools.hybrid_web_search.enabled_web_searches variable in your configuration.yaml",
         category=Category.WebSearch,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using a mix of any existing Web Search tools.",
+    ),
+    ToolName.Slack: ManagedTool(
+        display_name="Slack",
+        implementation=SlackTool,
+        parameter_definitions={
+            "query": {
+                "description": "Query to search slack.",
+                "type": "str",
+                "required": True,
+            }
+        },
+        is_visible=True,
+        is_available=SlackTool.is_available(),
+        auth_implementation=SlackAuth,
+        error_message="SlackTool not available, please enable it in the SlackTool class.",
+        category=Category.DataLoader,
+        description="Returns a list of relevant document snippets from slack.",
     ),
 }
 

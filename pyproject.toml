@@ -57,6 +57,7 @@ llama-index = "^0.11.10"
 llama-index-llms-cohere = "^0.3.0"
 llama-index-embeddings-cohere = "^0.2.1"
 google-cloud-texttospeech = "^2.18.0"
+slack-sdk = "^3.33.1"
 
 [tool.poetry.group.dev]
 optional = true

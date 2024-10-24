@@ -34,6 +34,9 @@ tools:
       - tavily_web_search
   python_interpreter:
     url: http://terrarium:8080
+  slack:
+    user_scopes:
+      - search:read
 feature_flags:
   # Experimental features
   use_agents_view: false
