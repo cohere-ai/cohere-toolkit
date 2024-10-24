@@ -24,6 +24,7 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     TOOL_ID = SLACK_TOOL_ID
     AUTH_ENDPOINT = "https://slack.com/oauth/v2/authorize"
     TOKEN_ENDPOINT = "https://slack.com/api/oauth.v2.access"
+    EXCHANGE_ENDPOINT = "https://slack.com/api/oauth.v2.exchange"
     DEFAULT_BOT_SCOPES = ['search:read.public']
     DEFAULT_USER_SCOPES = ['search:read']
 
@@ -84,6 +85,7 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             return response
 
         token_data = response_body.get("authed_user", None)
+
         if token_data is None:
             logger.error(
                 event=f"[Slack Tool] Error retrieving auth token: {response_body}"
