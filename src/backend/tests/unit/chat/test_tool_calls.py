@@ -15,7 +15,7 @@ from backend.tools.base import BaseTool
 
 def test_async_call_tools_success() -> None:
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -48,7 +48,7 @@ def test_async_call_tools_success() -> None:
 
 def test_async_call_tools_failure() -> None:
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -84,7 +84,7 @@ def test_async_call_tools_failure() -> None:
 @patch("backend.chat.custom.tool_calls.TIMEOUT_SECONDS", 1)
 def test_async_call_tools_timeout() -> None:
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -112,7 +112,7 @@ def test_async_call_tools_timeout() -> None:
 
 def test_async_call_tools_failure_and_success() -> None:
     class MockWebScrape(BaseTool):
-        NAME = "web_scrape"
+        ID = "web_scrape"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -120,7 +120,7 @@ def test_async_call_tools_failure_and_success() -> None:
             raise Exception("Web scrape failed")
 
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any

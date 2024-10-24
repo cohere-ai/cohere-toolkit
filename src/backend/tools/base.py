@@ -21,7 +21,7 @@ class BaseTool:
         NAME (str): The name of the tool.
     """
 
-    NAME = None
+    ID = None
 
     def __init__(self, *args, **kwargs):
         self._post_init_check()
@@ -29,10 +29,10 @@ class BaseTool:
     def _post_init_check(self):
         if any(
             [
-                self.NAME is None,
+                self.ID is None,
             ]
         ):
-            raise ValueError(f"{self.__name__} must have NAME attribute defined.")
+            raise ValueError(f"{self.__name__} must have ID attribute defined.")
 
     @classmethod
     @abstractmethod

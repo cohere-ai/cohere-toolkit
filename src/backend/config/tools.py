@@ -32,17 +32,17 @@ Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
 """
 
 class ToolName(StrEnum):
-    Wiki_Retriever_LangChain = LangChainWikiRetriever.NAME
-    Search_File = SearchFileTool.NAME
-    Read_File = ReadFileTool.NAME
-    Python_Interpreter = PythonInterpreter.NAME
-    Calculator = Calculator.NAME
-    Google_Drive = GoogleDrive.NAME
-    Web_Scrape = WebScrapeTool.NAME
-    Tavily_Web_Search = TavilyWebSearch.NAME
-    Google_Web_Search = GoogleWebSearch.NAME
-    Brave_Web_Search = BraveWebSearch.NAME
-    Hybrid_Web_Search = HybridWebSearch.NAME
+    Wiki_Retriever_LangChain = LangChainWikiRetriever.ID
+    Search_File = SearchFileTool.ID
+    Read_File = ReadFileTool.ID
+    Python_Interpreter = PythonInterpreter.ID
+    Calculator = Calculator.ID
+    Google_Drive = GoogleDrive.ID
+    Web_Scrape = WebScrapeTool.ID
+    Tavily_Web_Search = TavilyWebSearch.ID
+    Google_Web_Search = GoogleWebSearch.ID
+    Brave_Web_Search = BraveWebSearch.ID
+    Hybrid_Web_Search = HybridWebSearch.ID
 
 
 ALL_TOOLS = {
@@ -261,7 +261,7 @@ def get_available_tools() -> dict[ToolName, dict]:
         # Conditionally set error message
         tool.error_message = tool.error_message if not tool.is_available else None
         # Retrieve name
-        tool.name = tool.implementation.NAME
+        tool.name = tool.implementation.ID
 
     enabled_tools = Settings().tools.enabled_tools
     if enabled_tools is not None and len(enabled_tools) > 0:

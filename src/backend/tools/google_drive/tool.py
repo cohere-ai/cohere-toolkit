@@ -23,8 +23,7 @@ class GoogleDrive(BaseTool):
     """
     Tool that searches Google Drive
     """
-
-    NAME = GOOGLE_DRIVE_TOOL_ID
+    ID = GOOGLE_DRIVE_TOOL_ID
 
     CLIENT_ID = Settings().tools.google_drive.client_id
     CLIENT_SECRET = Settings().tools.google_drive.client_secret

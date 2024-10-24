@@ -10,7 +10,7 @@ from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
 class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
-    NAME = "google_web_search"
+    ID = "google_web_search"
     API_KEY = Settings().tools.google_web_search.api_key
     CSE_ID = Settings().tools.google_web_search.cse_id
 

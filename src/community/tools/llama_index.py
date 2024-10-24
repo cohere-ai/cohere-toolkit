@@ -25,7 +25,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     This requires llama_index package to be installed.
     """
 
-    NAME = "file_reader_llamaindex"
+    ID = "file_reader_llamaindex"
     CHUNK_SIZE = 512
 
     def __init__(self):

@@ -13,12 +13,12 @@ from community.tools import (
 
 
 class CommunityToolName(StrEnum):
-    Arxiv = ArxivRetriever.NAME
-    Connector = ConnectorRetriever.NAME
-    Pub_Med = PubMedRetriever.NAME
-    File_Upload_LlamaIndex = LlamaIndexUploadPDFRetriever.NAME
-    Wolfram_Alpha = WolframAlpha.NAME
-    ClinicalTrials = ClinicalTrials.NAME
+    Arxiv = ArxivRetriever.ID
+    Connector = ConnectorRetriever.ID
+    Pub_Med = PubMedRetriever.ID
+    File_Upload_LlamaIndex = LlamaIndexUploadPDFRetriever.ID
+    Wolfram_Alpha = WolframAlpha.ID
+    ClinicalTrials = ClinicalTrials.ID
 
 
 COMMUNITY_TOOLS = {

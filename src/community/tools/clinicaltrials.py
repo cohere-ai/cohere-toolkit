@@ -12,7 +12,7 @@ class ClinicalTrials(BaseTool):
     See: https://clinicaltrials.gov/data-api/api
     """
 
-    NAME = "clinical_trials"
+    ID = "clinical_trials"
 
     def __init__(self, url="https://clinicaltrials.gov/api/v2/studies"):
         self._url = url

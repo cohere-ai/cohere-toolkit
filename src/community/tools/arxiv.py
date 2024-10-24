@@ -6,7 +6,7 @@ from community.tools import BaseTool
 
 
 class ArxivRetriever(BaseTool):
-    NAME = "arxiv"
+    ID = "arxiv"
 
     def __init__(self):
         self.client = ArxivAPIWrapper()

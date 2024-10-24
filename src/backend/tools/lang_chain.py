@@ -23,7 +23,7 @@ class LangChainWikiRetriever(BaseTool):
     This requires wikipedia package to be installed.
     """
 
-    NAME = "wikipedia"
+    ID = "wikipedia"
 
     def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):
         self.chunk_size = chunk_size
@@ -59,7 +59,7 @@ class LangChainVectorDBRetriever(BaseTool):
     This class retrieves documents from a vector database using the langchain package.
     """
 
-    NAME = "vector_retriever"
+    ID = "vector_retriever"
     COHERE_API_KEY = Settings().deployments.cohere_platform.api_key
 
     def __init__(self, filepath: str):

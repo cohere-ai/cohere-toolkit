@@ -16,7 +16,7 @@ class PythonInterpreter(BaseTool):
     It requires a URL at which the interpreter lives
     """
 
-    NAME = "toolkit_python_interpreter"
+    ID = "toolkit_python_interpreter"
     INTERPRETER_URL = Settings().tools.python_interpreter.url
 
     @classmethod

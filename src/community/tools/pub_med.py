@@ -6,7 +6,7 @@ from community.tools import BaseTool
 
 
 class PubMedRetriever(BaseTool):
-    NAME = "pub_med"
+    ID = "pub_med"
 
     def __init__(self):
         self.client = PubmedQueryRun()

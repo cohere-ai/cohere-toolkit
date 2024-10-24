@@ -13,7 +13,7 @@ class WolframAlpha(BaseTool):
     See: https://python.langchain.com/docs/integrations/tools/wolfram_alpha/
     """
 
-    NAME = "wolfram_alpha"
+    ID = "wolfram_alpha"
 
     wolfram_app_id = Settings().tools.wolfram_alpha.app_id
 

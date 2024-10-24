@@ -10,7 +10,7 @@ from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
 class BraveWebSearch(BaseTool, WebSearchFilteringMixin):
-    NAME = "brave_web_search"
+    ID = "brave_web_search"
     BRAVE_API_KEY = Settings().tools.brave_web_search.api_key
 
     def __init__(self):

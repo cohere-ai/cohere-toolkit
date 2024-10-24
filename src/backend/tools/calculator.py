@@ -10,7 +10,7 @@ class Calculator(BaseTool):
     Function Tool that evaluates mathematical expressions.
     """
 
-    NAME = "toolkit_calculator"
+    ID = "toolkit_calculator"
 
     @classmethod
     def is_available(cls) -> bool:

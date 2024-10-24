@@ -11,7 +11,7 @@ logger = LoggerFactory().get_logger()
 
 
 class WebScrapeTool(BaseTool):
-    NAME = "web_scrape"
+    ID = "web_scrape"
     ENDPOINT: ClassVar[str] = "http://co-reader"
     ENABLE_CHUNKING: ClassVar[bool] = True
 

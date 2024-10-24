@@ -15,7 +15,7 @@ from backend.tools.web_scrape import WebScrapeTool
 
 
 class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
-    NAME = "hybrid_web_search"
+    ID = "hybrid_web_search"
     POST_RERANK_MAX_RESULTS = 6
     AVAILABLE_WEB_SEARCH_TOOLS = [TavilyWebSearch, GoogleWebSearch, BraveWebSearch]
     ENABLED_WEB_SEARCH_TOOLS = Settings().tools.hybrid_web_search.enabled_web_searches
@@ -44,7 +44,7 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
 
         for search_name in cls.ENABLED_WEB_SEARCH_TOOLS:
             for search_tool in cls.AVAILABLE_WEB_SEARCH_TOOLS:
-                if search_name == search_tool.NAME and search_tool.is_available():
+                if search_name == search_tool.ID and search_tool.is_available():
                     available_search_tools.append(search_tool)
 
         return available_search_tools

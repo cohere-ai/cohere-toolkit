@@ -53,7 +53,7 @@ from community.tools import BaseTool
 
 
 class ArxivRetriever(BaseTool):
-    NAME = "arxiv"
+    ID = "arxiv"
 
     def __init__(self):
         self.client = ArxivAPIWrapper()
@@ -88,7 +88,7 @@ To enable your tool, you will need to go to the `configuration.yaml` file and ad
 
 Finally, you will need to add your tool definition to the config file. Locate it in `src/community/config/tools.py`, and import your tool at the top with `from backend.tools import ..`. 
 
-In the ToolName enum, add your tool as an enum value. For example, `My_Tool = MyTool.NAME`.
+In the ToolName enum, add your tool as an enum value. For example, `My_Tool = MyTool.ID`.
 
 In the `ALL_TOOLS` dictionary, add your tool definition. This should look like:
 
