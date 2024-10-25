@@ -1,4 +1,4 @@
-from backend.schemas.tool import ToolDefinition, ToolCategory
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from community.config.tools import CommunityToolName
 
 

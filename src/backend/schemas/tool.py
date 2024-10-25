@@ -4,7 +4,6 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 
-
 class Tool(BaseModel):
     name: Optional[str] = ""
     display_name: str = ""

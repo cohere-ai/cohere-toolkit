@@ -2,12 +2,12 @@ from enum import StrEnum
 
 from community.tools import (
     ArxivRetriever,
-    ToolCategory,
     ClinicalTrials,
     ConnectorRetriever,
     LlamaIndexUploadPDFRetriever,
-    ToolDefinition,
     PubMedRetriever,
+    ToolCategory,
+    ToolDefinition,
     WolframAlpha,
 )
 
