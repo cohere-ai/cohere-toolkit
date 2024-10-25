@@ -19,7 +19,6 @@ from backend.tools.utils.tools_checkers import tool_has_category
 
 MAX_STEPS = 15
 
-
 class CustomChat(BaseChat):
     """Custom chat flow not using integrations for models."""
 

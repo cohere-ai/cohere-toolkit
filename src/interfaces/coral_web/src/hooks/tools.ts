@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { ManagedTool, useCohereClient } from '@/cohere-client';
+import { ToolDefinition, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { STRINGS } from '@/constants/strings';
 import { env } from '@/env.mjs';
@@ -11,7 +11,7 @@ import { useNotify } from '@/hooks/toast';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
-  return useQuery<ManagedTool[], Error>({
+  return useQuery<ToolDefinition[], Error>({
     queryKey: ['tools'],
     queryFn: () => client.listTools({}),
     refetchOnWindowFocus: false,

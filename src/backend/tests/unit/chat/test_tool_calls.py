@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.config.tools import AVAILABLE_TOOLS, ToolName
-from backend.schemas.tool import ManagedTool
+from backend.schemas.tool import ToolDefinition
 from backend.services.context import Context
 from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 from backend.tools.base import BaseTool
@@ -30,7 +30,7 @@ def test_async_call_tools_success() -> None:
             ]
         }
     ]
-    MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
+    MOCKED_TOOLS = {ToolName.Calculator: ToolDefinition(implementation=MockCalculator)}
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(
             async_call_tools(chat_history, MockCohereDeployment(), ctx)
@@ -63,7 +63,7 @@ def test_async_call_tools_failure() -> None:
             ]
         }
     ]
-    MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
+    MOCKED_TOOLS = {ToolName.Calculator: ToolDefinition(implementation=MockCalculator)}
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(
             async_call_tools(chat_history, MockCohereDeployment(), ctx)
@@ -100,7 +100,7 @@ def test_async_call_tools_timeout() -> None:
             ]
         }
     ]
-    MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
+    MOCKED_TOOLS = {ToolName.Calculator: ToolDefinition(implementation=MockCalculator)}
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         with pytest.raises(HTTPException) as excinfo:
             asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
@@ -137,8 +137,8 @@ def test_async_call_tools_failure_and_success() -> None:
         }
     ]
     MOCKED_TOOLS = {
-        ToolName.Calculator: ManagedTool(implementation=MockCalculator),
-        ToolName.Web_Scrape: ManagedTool(implementation=MockWebScrape),
+        ToolName.Calculator: ToolDefinition(implementation=MockCalculator),
+        ToolName.Web_Scrape: ToolDefinition(implementation=MockWebScrape),
     }
     with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
         results = asyncio.run(

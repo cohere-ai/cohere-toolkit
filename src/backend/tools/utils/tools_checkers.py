@@ -21,7 +21,7 @@ def is_community_tool(tool: ToolDefinition) -> bool:
     Check if a tool is a community tool.
 
     Args:
-        tool (ManagedTool): The tool to check.
+        tool (ToolDefinition): The tool to check.
 
     Returns:
         bool: True if the tool is a community tool, False otherwise.

@@ -1,4 +1,4 @@
-import { FILE_TOOL_CATEGORY, ManagedTool } from '@/cohere-client';
+import { FILE_TOOL_CATEGORY, ToolDefinition } from '@/cohere-client';
 
 /**
  * Gets the file extension from its name.
@@ -42,5 +42,5 @@ export const getFileUploadTimeEstimateInMs = (fileSizeInBytes: number) => {
 /**
  * @description Determines if a tool is the default file loader tool.
  */
-export const isDefaultFileLoaderTool = (t: ManagedTool) =>
+export const isDefaultFileLoaderTool = (t: ToolDefinition) =>
   t.category === FILE_TOOL_CATEGORY && t.is_visible;

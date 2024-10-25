@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 
-import { ManagedTool } from '@/cohere-client';
+import { ToolDefinition } from '@/cohere-client';
 import { ToolsInfoBox } from '@/components/Settings/ToolsInfoBox';
 import { Button, Icon, Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
@@ -122,7 +122,7 @@ export const AgentsToolsTab: React.FC<{
  * @description Info box that prompts the user to connect their data to enable tools
  */
 const ConnectDataBox: React.FC<{
-  tools: ManagedTool[];
+  tools: ToolDefinition[];
 }> = ({ tools }) => {
   return (
     <div className="flex flex-col gap-y-4 rounded border border-dashed border-coral-800 bg-coral-800 p-4">

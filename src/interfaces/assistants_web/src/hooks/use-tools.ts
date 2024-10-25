@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
-import { AgentPublic, ApiError, ManagedTool, useCohereClient } from '@/cohere-client';
+import { AgentPublic, ApiError, ToolDefinition, useCohereClient } from '@/cohere-client';
 import { DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks';
@@ -12,7 +12,7 @@ import { ConfigurableParams } from '@/stores/slices/paramsSlice';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
-  return useQuery<ManagedTool[], Error>({
+  return useQuery<ToolDefinition[], Error>({
     queryKey: ['tools'],
     queryFn: async () => {
       const tools = await client.listTools({});
@@ -83,10 +83,10 @@ export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback
 
 export const useAvailableTools = ({
   agent,
-  managedTools,
+  allTools,
 }: {
   agent?: AgentPublic;
-  managedTools?: ManagedTool[];
+  allTools?: ToolDefinition[];
 }) => {
   const requiredTools = agent?.tools;
 
@@ -100,13 +100,13 @@ export const useAvailableTools = ({
     ) ?? [];
 
   const availableTools = useMemo(() => {
-    return (managedTools ?? []).filter(
+    return (allTools ?? []).filter(
       (t) =>
         t.is_visible &&
         t.is_available &&
         (!requiredTools || requiredTools.some((rt) => rt === t.name))
     );
-  }, [managedTools, requiredTools]);
+  }, [allTools, requiredTools]);
 
   const handleToggle = (name: string, checked: boolean) => {
     const newParams: Partial<ConfigurableParams> = {
