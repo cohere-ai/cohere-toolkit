@@ -38,8 +38,8 @@ class ToolName(StrEnum):
     Hybrid_Web_Search = HybridWebSearch.ID
 
 """
-Full list of all tools. Each tool dictionary definition must at least contain the
-non-optional variables in the `ToolDefinition` schema.
+Full list of all tools. Key is the enum value defined above, and the value should
+be a dictionary containing non-optional variables in the `ToolDefinition` schema.
 
 During run-time, the availables tools will be filtered out based on the tool's implemented
 `is_available()` method. Generally, this depends on some configuration variables.
