@@ -124,5 +124,5 @@ make dev
 ## 7. Troubleshooting
 
 If you encounter any issues with OAuth, please check the following [link](https://api.slack.com/authentication/oauth-v2#errors)
-For example, if you see the `invalid_team_for_non_distributed_app` error, please make sure that the app is distributed or 
-just loggin in with the workspace owner account.
+For example, if you see the invalid_team_for_non_distributed_app error,
+please ensure the app is distributed or try logging in with the workspace owner's account.
