@@ -4,16 +4,6 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 
-class Category(StrEnum):
-    DataLoader = "Data loader"
-    FileLoader = "File loader"
-    Function = "Function"
-    WebSearch = "Web search"
-
-
-class ToolInput(BaseModel):
-    pass
-
 
 class Tool(BaseModel):
     name: Optional[str] = ""
@@ -21,13 +11,18 @@ class Tool(BaseModel):
     description: Optional[str] = ""
     parameter_definitions: Optional[dict] = {}
 
+class ToolCategory(StrEnum):
+    DataLoader = "Data loader"
+    FileLoader = "File loader"
+    Function = "Function"
+    WebSearch = "Web search"
 
-class ManagedTool(Tool):
+class ToolDefinition(Tool):
     kwargs: dict = {}
     is_visible: bool = False
     is_available: bool = False
     error_message: Optional[str] = ""
-    category: Category = Category.DataLoader
+    category: ToolCategory = ToolCategory.DataLoader
 
     is_auth_required: bool = False  # Per user
     auth_url: Optional[str] = ""  # Per user

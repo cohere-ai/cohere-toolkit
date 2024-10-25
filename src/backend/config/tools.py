@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 from backend.config.settings import Settings
-from backend.schemas.tool import Category, ManagedTool
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
     BraveWebSearch,
@@ -21,16 +21,9 @@ from backend.tools import (
 logger = LoggerFactory().get_logger()
 
 """
-List of available tools. Each tool should have a name, implementation, is_visible and category.
-They can also have kwargs if necessary.
-
-You can switch the visibility of a tool by changing the is_visible parameter to True or False.
-If a tool is not visible, it will not be shown in the frontend.
-
-If you want to add a new tool, check the instructions on how to implement a retriever in the documentation.
-Don't forget to add the implementation to this AVAILABLE_TOOLS dictionary!
+Tool Name enum. To add a tool definition, ensure you create a ToolName entry, and
+add your tool definition to the `ALL_TOOLS` list.
 """
-
 class ToolName(StrEnum):
     Wiki_Retriever_LangChain = LangChainWikiRetriever.ID
     Search_File = SearchFileTool.ID
@@ -44,9 +37,15 @@ class ToolName(StrEnum):
     Brave_Web_Search = BraveWebSearch.ID
     Hybrid_Web_Search = HybridWebSearch.ID
 
+"""
+Full list of all tools. Each tool dictionary definition must at least contain the
+non-optional variables in the `ToolDefinition` schema.
 
+During run-time, the availables tools will be filtered out based on the tool's implemented
+`is_available()` method. Generally, this depends on some configuration variables.
+"""
 ALL_TOOLS = {
-    ToolName.Search_File: ManagedTool(
+    ToolName.Search_File: ToolDefinition(
         display_name="Search File",
         implementation=SearchFileTool,
         parameter_definitions={
@@ -64,10 +63,10 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=SearchFileTool.is_available(),
         error_message="SearchFileTool not available.",
-        category=Category.FileLoader,
+        category=ToolCategory.FileLoader,
         description="Performs a search over a list of one or more of the attached files for a textual search query",
     ),
-    ToolName.Read_File: ManagedTool(
+    ToolName.Read_File: ToolDefinition(
         display_name="Read Document",
         implementation=ReadFileTool,
         parameter_definitions={
@@ -80,10 +79,10 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=ReadFileTool.is_available(),
         error_message="ReadFileTool not available.",
-        category=Category.FileLoader,
+        category=ToolCategory.FileLoader,
         description="Returns the textual contents of an uploaded file, broken up in text chunks.",
     ),
-    ToolName.Python_Interpreter: ManagedTool(
+    ToolName.Python_Interpreter: ToolDefinition(
         display_name="Python Interpreter",
         implementation=PythonInterpreter,
         parameter_definitions={
@@ -100,10 +99,10 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=PythonInterpreter.is_available(),
         error_message="PythonInterpreterFunctionTool not available, please make sure to set the tools.python_interpreter.url variable in your configuration.yaml",
-        category=Category.Function,
+        category=ToolCategory.Function,
         description="Runs python code in a sandbox.",
     ),
-    ToolName.Wiki_Retriever_LangChain: ManagedTool(
+    ToolName.Wiki_Retriever_LangChain: ToolDefinition(
         display_name="Wikipedia",
         implementation=LangChainWikiRetriever,
         parameter_definitions={
@@ -117,10 +116,10 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=LangChainWikiRetriever.is_available(),
         error_message="LangChainWikiRetriever not available.",
-        category=Category.DataLoader,
+        category=ToolCategory.DataLoader,
         description="Retrieves documents from Wikipedia using LangChain.",
     ),
-    ToolName.Calculator: ManagedTool(
+    ToolName.Calculator: ToolDefinition(
         display_name="Calculator",
         implementation=Calculator,
         parameter_definitions={
@@ -133,10 +132,10 @@ ALL_TOOLS = {
         is_visible=False,
         is_available=Calculator.is_available(),
         error_message="Calculator tool not available.",
-        category=Category.Function,
+        category=ToolCategory.Function,
         description="This is a powerful multi-purpose calculator which is capable of a wide array of math calculations.",
     ),
-    ToolName.Google_Drive: ManagedTool(
+    ToolName.Google_Drive: ToolDefinition(
         display_name="Google Drive",
         implementation=GoogleDrive,
         parameter_definitions={
@@ -150,10 +149,10 @@ ALL_TOOLS = {
         is_available=GoogleDrive.is_available(),
         auth_implementation=GoogleDriveAuth,
         error_message="Google Drive not available, please enable it in the GoogleDrive tool class.",
-        category=Category.DataLoader,
+        category=ToolCategory.DataLoader,
         description="Returns a list of relevant document snippets for the user's google drive.",
     ),
-    ToolName.Web_Scrape: ManagedTool(
+    ToolName.Web_Scrape: ToolDefinition(
         name=ToolName.Web_Scrape,
         display_name="Web Scrape",
         implementation=WebScrapeTool,
@@ -172,10 +171,10 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=WebScrapeTool.is_available(),
         error_message="WebScrapeTool not available.",
-        category=Category.DataLoader,
+        category=ToolCategory.DataLoader,
         description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
     ),
-    ToolName.Tavily_Web_Search: ManagedTool(
+    ToolName.Tavily_Web_Search: ToolDefinition(
         display_name="Web Search",
         implementation=TavilyWebSearch,
         parameter_definitions={
@@ -188,10 +187,10 @@ ALL_TOOLS = {
         is_visible=False,
         is_available=TavilyWebSearch.is_available(),
         error_message="TavilyWebSearch not available, please make sure to set the tools.tavily_web_search.api_key variable in your secrets.yaml",
-        category=Category.WebSearch,
+        category=ToolCategory.WebSearch,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet.",
     ),
-    ToolName.Google_Web_Search: ManagedTool(
+    ToolName.Google_Web_Search: ToolDefinition(
         display_name="Google Web Search",
         implementation=GoogleWebSearch,
         parameter_definitions={
@@ -204,10 +203,10 @@ ALL_TOOLS = {
         is_visible=False,
         is_available=GoogleWebSearch.is_available(),
         error_message="Google Web Search not available, please enable it in the GoogleWebSearch tool class.",
-        category=Category.WebSearch,
+        category=ToolCategory.WebSearch,
         description="Returns relevant results by performing a Google web search.",
     ),
-    ToolName.Brave_Web_Search: ManagedTool(
+    ToolName.Brave_Web_Search: ToolDefinition(
         display_name="Brave Web Search",
         implementation=BraveWebSearch,
         parameter_definitions={
@@ -220,10 +219,10 @@ ALL_TOOLS = {
         is_visible=False,
         is_available=BraveWebSearch.is_available(),
         error_message="BraveWebSearch not available, please make sure to set the tools.brave_web_search.api_key variable in your secrets.yaml",
-        category=Category.WebSearch,
+        category=ToolCategory.WebSearch,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using Brave Search.",
     ),
-    ToolName.Hybrid_Web_Search: ManagedTool(
+    ToolName.Hybrid_Web_Search: ToolDefinition(
         display_name="Hybrid Web Search",
         implementation=HybridWebSearch,
         parameter_definitions={
@@ -236,7 +235,7 @@ ALL_TOOLS = {
         is_visible=True,
         is_available=HybridWebSearch.is_available(),
         error_message="HybridWebSearch not available, please make sure to set at least one option in the tools.hybrid_web_search.enabled_web_searches variable in your configuration.yaml",
-        category=Category.WebSearch,
+        category=ToolCategory.WebSearch,
         description="Returns a list of relevant document snippets for a textual query retrieved from the internet using a mix of any existing Web Search tools.",
     ),
 }

@@ -12,7 +12,7 @@ from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatMessage, ChatRole, EventState
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.schemas.tool import Category, Tool
+from backend.schemas.tool import ToolCategory, Tool
 from backend.services.chat import check_death_loop
 from backend.services.file import get_file_service
 from backend.tools.utils.tools_checkers import tool_has_category

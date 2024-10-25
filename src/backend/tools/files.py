@@ -51,6 +51,7 @@ class SearchFileTool(BaseTool):
     """
 
     ID = "search_file"
+    DISPLAY_NAME = "Search Files"
     MAX_NUM_CHUNKS = 10
     SEARCH_LIMIT = 5
 

@@ -93,7 +93,7 @@ In the ToolName enum, add your tool as an enum value. For example, `My_Tool = My
 In the `ALL_TOOLS` dictionary, add your tool definition. This should look like:
 
 ```python
-    ToolName.My_Tool: ManagedTool(  # THE TOOLNAME HERE CORRESPONDS TO THE ENUM YOU DEFINED EARLIER
+    ToolName.My_Tool: ToolDefinition(  # THE TOOLNAME HERE CORRESPONDS TO THE ENUM YOU DEFINED EARLIER
         display_name="My Tool",
         implementation=MyTool, # THIS IS THE CLASS YOU IMPORTED AT THE TOP
         parameter_definitions={ # THESE ARE PARAMS THE MODEL WILL SEND TO YOUR TOOL, ADJUST AS NEEDED
@@ -107,7 +107,7 @@ In the `ALL_TOOLS` dictionary, add your tool definition. This should look like:
         is_available=MyTool.is_available(), 
         auth_implementation=None, # EMPTY IF NO AUTH NEEDED
         error_message="Something went wrong",
-        category=Category.DataLoader,  # CHECK CATEGORY ENUM FOR POSSIBLE VALUES
+        category=ToolCategory.DataLoader,  # CHECK CATEGORY ENUM FOR POSSIBLE VALUES
         description="An example definition to get you started.",
     ),
 ```
