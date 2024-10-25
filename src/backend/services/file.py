@@ -118,6 +118,44 @@ class FileService:
 
         return uploaded_files
 
+    def get_file_ids_by_agent_id(
+        self, session: DBSessionDep, user_id: str, agent_id: str, ctx: Context
+    ) -> list[str]:
+        """
+        Get file IDs associated with a specific agent ID
+
+        Args:
+            session (DBSessionDep): The database session
+            user_id (str): The user ID
+            agent_id (str): The agent ID
+            ctx (Context): Context object
+
+        Returns:
+            list[str]: IDs of files that were created
+        """
+        from backend.config.tools import ToolName
+        from backend.tools.files import FileToolsArtifactTypes
+
+        agent = validate_agent_exists(session, agent_id, user_id)
+
+        if not agent.tools_metadata:
+            return []
+
+        artifacts = next(
+            (
+                tool_metadata.artifacts
+                for tool_metadata in agent.tools_metadata
+                if tool_metadata.tool_name == ToolName.Read_File or tool_metadata.tool_name == ToolName.Search_File
+            ),
+            [],  # Default value if the generator is empty
+        )
+
+        return [
+            artifact.get("id")
+            for artifact in artifacts
+            if artifact.get("type") == FileToolsArtifactTypes.local_file
+        ]
+
     def get_files_by_agent_id(
         self, session: DBSessionDep, user_id: str, agent_id: str, ctx: Context
     ) -> list[File]:
@@ -128,39 +166,17 @@ class FileService:
             session (DBSessionDep): The database session
             user_id (str): The user ID
             agent_id (str): The agent ID
+            ctx (Context): Context object
 
         Returns:
             list[File]: The files that were created
         """
-        from backend.config.tools import ToolName
-        from backend.tools.files import FileToolsArtifactTypes
+        file_ids = self.get_file_ids_by_agent_id(session, user_id, agent_id, ctx)
 
-        agent = validate_agent_exists(session, agent_id, user_id)
+        if not file_ids:
+            return []
 
-        files = []
-        agent_tool_metadata = agent.tools_metadata
-        if agent_tool_metadata is not None and len(agent_tool_metadata) > 0:
-            artifacts = next(
-                (
-                    tool_metadata.artifacts
-                    for tool_metadata in agent_tool_metadata
-                    if tool_metadata.tool_name == ToolName.Read_File
-                    or tool_metadata.tool_name == ToolName.Search_File
-                ),
-                [],  # Default value if the generator is empty
-            )
-
-            file_ids = list(
-                {
-                    artifact.get("id")
-                    for artifact in artifacts
-                    if artifact.get("type") == FileToolsArtifactTypes.local_file
-                }
-            )
-
-            files = file_crud.get_files_by_ids(session, file_ids, user_id)
-
-        return files
+        return file_crud.get_files_by_ids(session, file_ids, user_id)
 
     def get_files_by_conversation_id(
         self, session: DBSessionDep, user_id: str, conversation_id: str, ctx: Context

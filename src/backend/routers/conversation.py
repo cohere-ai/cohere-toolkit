@@ -484,21 +484,21 @@ async def get_file(
     user_id = ctx.get_user_id()
 
     conversation = validate_conversation(session, conversation_id, user_id)
-    file = validate_file(session, file_id, user_id)
 
-    if file.id not in conversation.file_ids:
+    if file_id not in conversation.file_ids:
         raise HTTPException(
             status_code=404,
-            detail=f"File with ID: {file_id} does not belong to the conversation with ID: {conversation_id}."
+            detail=f"File with ID: {file_id} does not belong to the conversation with ID: {conversation.id}."
         )
+
+    file = validate_file(session, file_id, user_id)
 
     return ConversationFileFull(
         id=file.id,
-        conversation_id=conversation_id,
+        conversation_id=conversation.id,
         file_name=file.file_name,
         file_content=file.file_content,
         file_size=file.file_size,
-        user_id=file.user_id,
         created_at=file.created_at,
         updated_at=file.updated_at,
     )
