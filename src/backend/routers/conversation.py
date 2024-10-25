@@ -467,7 +467,7 @@ async def get_file(
     conversation_id: str, file_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
 ) -> ConversationFileFull:
     """
-    Get a file by ID.
+    Get a conversation file by ID.
 
     Args:
         conversation_id (str): Conversation ID.

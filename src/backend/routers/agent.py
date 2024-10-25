@@ -638,13 +638,28 @@ async def batch_upload_file(
     return uploaded_files
 
 
-@router.get("/{agent_id}/files/{file_id}")
+@router.get("/{agent_id}/files/{file_id}", response_model=AgentFileFull)
 async def get_agent_file(
     agent_id: str,
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-):
+) -> AgentFileFull:
+    """
+    Get an agent file by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        file_id (str): File ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        AgentFileFull: File with the given ID.
+
+    Raises:
+        HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
+    """
     user_id = ctx.get_user_id()
 
     if file_id not in get_file_service().get_file_ids_by_agent_id(session, user_id, agent_id, ctx):
