@@ -499,6 +499,7 @@ async def get_file(
         file_name=file.file_name,
         file_content=file.file_content,
         file_size=file.file_size,
+        user_id=file.user_id,
         created_at=file.created_at,
         updated_at=file.updated_at,
     )
