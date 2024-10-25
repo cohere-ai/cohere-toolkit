@@ -240,10 +240,6 @@ export class CohereClient {
     return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
   }
 
-  public getDefaultAgent() {
-    return this.cohereService.default.getDefaultAgentV1DefaultAgentGet();
-  }
-
   public createAgent(requestBody: CreateAgent) {
     return this.cohereService.default.createAgentV1AgentsPost({ requestBody });
   }

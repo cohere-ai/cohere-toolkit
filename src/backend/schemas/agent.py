@@ -1,6 +1,6 @@
 import datetime
 from enum import StrEnum
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -113,16 +113,6 @@ class CreateAgentRequest(BaseModel):
 
 class ListAgentsResponse(BaseModel):
     agents: list[Agent]
-
-
-class AgentTaskResponse(BaseModel):
-    task_id: str
-    status: str
-    result: Optional[Dict[str, Any]] = None
-    date_done: str
-    exception_snippet: Optional[str] = None
-    name: str
-    retries: int
 
 
 class UpdateAgentRequest(BaseModel):

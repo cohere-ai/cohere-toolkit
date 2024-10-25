@@ -124,17 +124,6 @@ ROUTER_DEPENDENCIES = {
             Depends(validate_organization_header),
         ],
     },
-    RouterName.DEFAULT_AGENT: {
-        "default": [
-            Depends(get_session),
-            Depends(validate_organization_header),
-        ],
-        "auth": [
-            Depends(get_session),
-            Depends(validate_authorization),
-            Depends(validate_organization_header),
-        ],
-    },
     RouterName.SNAPSHOT: {
         "default": [
             Depends(get_session),
