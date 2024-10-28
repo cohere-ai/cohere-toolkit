@@ -4,7 +4,7 @@ import { useClickOutside } from '@react-hookz/web';
 import { uniq, uniqBy } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ToolDefinition } from '@/cohere-client';
+import { ManagedTool } from '@/cohere-client';
 import { ListboxOption, ListboxOptions } from '@/components/Conversation/Composer/ListboxOptions';
 import { IconButton } from '@/components/IconButton';
 import { IconName, Text } from '@/components/Shared';
@@ -118,7 +118,7 @@ export const DataSourceMenu: React.FC<Props> = ({
       switch (value.type) {
         case TagType.TOOL: {
           setParams({
-            tools: uniqBy([...(tools ?? []), value.tag.getValue() as ToolDefinition], 'name'),
+            tools: uniqBy([...(tools ?? []), value.tag.getValue() as ManagedTool], 'name'),
           });
           break;
         }

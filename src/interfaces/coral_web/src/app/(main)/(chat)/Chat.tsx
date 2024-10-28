@@ -62,7 +62,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
 
     const agentTools = (agent?.tools
       .map((name) => (tools ?? [])?.find((t) => t.name === name))
-      .filter((t) => t !== undefined) ?? []) as ToolDefinition[];
+      .filter((t) => t !== undefined) ?? []) as ManagedTool[];
 
     setParams({
       tools: agentTools,
