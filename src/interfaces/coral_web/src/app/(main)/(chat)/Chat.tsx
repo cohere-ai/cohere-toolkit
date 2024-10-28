@@ -2,7 +2,7 @@
 
 import { useContext, useEffect } from 'react';
 
-import { Document, ToolDefinition } from '@/cohere-client';
+import { Document, ManagedTool } from '@/cohere-client';
 import { ConnectDataModal } from '@/components/ConnectDataModal';
 import Conversation from '@/components/Conversation';
 import { ConversationError } from '@/components/ConversationError';
