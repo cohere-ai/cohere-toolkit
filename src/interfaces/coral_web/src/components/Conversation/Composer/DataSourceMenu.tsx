@@ -30,7 +30,7 @@ type TagValue = { tag: Tag; type: TagType };
 export type Tag = {
   id: string;
   name: string;
-  getValue: () => ToolDefinition | string;
+  getValue: () => ManagedTool | string;
   disabled?: boolean;
   icon?: IconName;
   description?: string;
