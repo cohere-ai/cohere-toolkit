@@ -74,7 +74,7 @@ export const useOidcAuthRoute = () => {
         redirect_uri: `${authConfig.baseUrl}/auth/${encodeURIComponent(
           strategyConfig.strategy.toLowerCase()
         )}`,
-        prompt: 'select_account consent',
+        prompt: 'select_account',
         state,
         ...(strategyConfig.client_id && { client_id: strategyConfig.client_id }),
         ...(pkceEnabled && { code_challenge: codeChallenge, code_challenge_method: 'S256' }),
