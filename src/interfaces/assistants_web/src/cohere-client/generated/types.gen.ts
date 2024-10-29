@@ -12,7 +12,6 @@ export type AgentPublic = {
   temperature: number;
   tools: Array<string> | null;
   tools_metadata?: Array<AgentToolMetadataPublic> | null;
-  deployments: Array<DeploymentWithModels>;
   deployment: string | null;
   model: string | null;
   is_private: boolean | null;
@@ -198,7 +197,6 @@ export type CreateAgentRequest = {
   deployment_config?: {
     [key: string]: string;
   } | null;
-  is_default_deployment?: boolean | null;
   model: string;
   deployment: string;
   organization_id?: string | null;
@@ -286,16 +284,6 @@ export type DeploymentUpdate = {
   default_deployment_config?: {
     [key: string]: string;
   } | null;
-};
-
-export type DeploymentWithModels = {
-  id?: string | null;
-  name: string;
-  description?: string | null;
-  is_available?: boolean;
-  is_community?: boolean | null;
-  env_vars: Array<string> | null;
-  models: Array<ModelSimple>;
 };
 
 export type Document = {
@@ -452,13 +440,6 @@ export type ModelCreate = {
   cohere_name: string | null;
   description: string | null;
   deployment_id: string;
-};
-
-export type ModelSimple = {
-  id: string;
-  name: string;
-  cohere_name: string | null;
-  description: string | null;
 };
 
 export type ModelUpdate = {
@@ -691,17 +672,12 @@ export type UpdateAgentRequest = {
   description?: string | null;
   preamble?: string | null;
   temperature?: number | null;
-  model?: string | null;
-  deployment?: string | null;
-  deployment_config?: {
-    [key: string]: string;
-  } | null;
-  is_default_deployment?: boolean | null;
-  is_default_model?: boolean | null;
-  organization_id?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  organization_id?: string | null;
   is_private?: boolean | null;
+  deployment?: string | null;
+  model?: string | null;
+  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
 };
 
 export type UpdateAgentToolMetadataRequest = {
@@ -1039,11 +1015,11 @@ export type DeleteAgentV1AgentsAgentIdDeleteData = {
 
 export type DeleteAgentV1AgentsAgentIdDeleteResponse = DeleteAgent;
 
-export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData = {
+export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData = {
   agentId: string;
 };
 
-export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
+export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
 
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
@@ -1786,7 +1762,7 @@ export type $OpenApiTs = {
   };
   '/v1/agents/{agent_id}/deployments': {
     get: {
-      req: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData;
+      req: GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData;
       res: {
         /**
          * Successful Response

@@ -25,6 +25,7 @@ from backend.schemas.agent import (
     CreateAgentToolMetadataRequest,
     DeleteAgent,
     DeleteAgentToolMetadata,
+    UpdateAgentDB,
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
@@ -81,45 +82,34 @@ async def create_agent(
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
 
-    agent_data = AgentModel(
-        name=agent.name,
-        description=agent.description,
-        preamble=agent.preamble,
-        temperature=agent.temperature,
-        user_id=user_id,
-        organization_id=agent.organization_id,
-        tools=agent.tools,
-        is_private=agent.is_private,
-    )
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     try:
-        created_agent = agent_crud.create_agent(session, agent_data)
-
-        if agent.tools_metadata:
-            for tool_metadata in agent.tools_metadata:
-                await update_or_create_tool_metadata(
-                    created_agent, tool_metadata, session, ctx
-                )
-
         if deployment_db and model_db:
-            deployment_config = (
-                agent.deployment_config
-                if agent.deployment_config
-                else deployment_db.default_deployment_config
-            )
-            agent_crud.assign_model_deployment_to_agent(
-                session,
-                agent=created_agent,
-                deployment_id=deployment_db.id,
-                model_id=model_db.id,
-                deployment_config=deployment_config,
-                set_default=True,
+            agent_data = AgentModel(
+                name=agent.name,
+                description=agent.description,
+                preamble=agent.preamble,
+                temperature=agent.temperature,
+                user_id=user_id,
+                organization_id=agent.organization_id,
+                tools=agent.tools,
+                is_private=agent.is_private,
+                deployment_id=deployment_db.id if deployment_db else None,
+                model_id=model_db.id if model_db else None,
             )
 
-        agent_schema = Agent.model_validate(created_agent)
-        ctx.with_agent(agent_schema)
+            created_agent = agent_crud.create_agent(session, agent_data)
 
-        return created_agent
+            if agent.tools_metadata:
+                for tool_metadata in agent.tools_metadata:
+                    await update_or_create_tool_metadata(
+                        created_agent, tool_metadata, session, ctx
+                    )
+
+            agent_schema = Agent.model_validate(created_agent)
+            ctx.with_agent(agent_schema)
+            return created_agent
+
     except Exception as e:
         logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
@@ -205,9 +195,9 @@ async def get_agent_by_id(
 
 
 @router.get("/{agent_id}/deployments", response_model=list[DeploymentSchema])
-async def get_agent_deployments(
+async def get_agent_deployment(
     agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
-) -> list[DeploymentSchema]:
+) -> DeploymentSchema:
     """
     Args:
         agent_id (str): Agent ID.
@@ -226,10 +216,7 @@ async def get_agent_deployments(
     agent_schema = Agent.model_validate(agent)
     ctx.with_agent(agent_schema)
 
-    return [
-        DeploymentSchema.custom_transform(deployment)
-        for deployment in agent.deployments
-    ]
+    return DeploymentSchema.custom_transform(agent.deployment)
 
 
 @router.put(
@@ -277,54 +264,12 @@ async def update_agent(
 
     try:
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
-        deployment_config = new_agent.deployment_config
-        is_default_deployment = new_agent.is_default_deployment
-        # Remove association fields - handled manually
-        new_agent_cleaned = new_agent.dict(
-            exclude={
-                "model",
-                "deployment",
-                "deployment_config",
-                "is_default_deployment",
-                "is_default_model",
-            }
-        )
+        new_agent_db = UpdateAgentDB(**new_agent.dict())
         if db_deployment and db_model:
-            current_association = agent_crud.get_agent_model_deployment_association(
-                session, agent, db_model.id, db_deployment.id
-            )
-            if current_association:
-                current_config = current_association.deployment_config
-                agent_crud.delete_agent_model_deployment_association(
-                    session, agent, db_model.id, db_deployment.id
-                )
-                if not deployment_config:
-                    deployment_config = (
-                        current_config
-                        if current_config
-                        else current_association.deployment.default_deployment_config
-                    )
-                agent = agent_crud.assign_model_deployment_to_agent(
-                    session,
-                    agent,
-                    db_model.id,
-                    db_deployment.id,
-                    deployment_config,
-                    is_default_deployment,
-                )
-            else:
-                deployment_config = db_deployment.default_deployment_config
-                agent = agent_crud.assign_model_deployment_to_agent(
-                    session,
-                    agent,
-                    db_model.id,
-                    db_deployment.id,
-                    deployment_config,
-                    is_default_deployment,
-                )
-
+            new_agent_db.model_id = db_model.id
+            new_agent_db.deployment_id = db_deployment.id
         agent = agent_crud.update_agent(
-            session, agent, UpdateAgentRequest(**new_agent_cleaned), user_id
+            session, agent, new_agent_db, user_id
         )
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)

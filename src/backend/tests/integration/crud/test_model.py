@@ -172,21 +172,3 @@ def test_delete_nonexistent_model(session):
     model_crud.delete_model(session, "123")  # no error
     model = model_crud.get_model(session, "123")
     assert model is None
-
-
-def test_get_models_by_agent_id(session, user, deployment):
-    agent = get_factory("Agent", session).create(user=user)
-    for i in range(10):
-        model = get_factory("Model", session).create(
-            name=f"Test Model {i}", deployment=deployment
-        )
-
-        _ = get_factory("AgentDeploymentModel", session).create(
-            agent=agent, deployment=deployment, model=model
-        )
-
-    models = model_crud.get_models_by_agent_id(session, agent.id)
-
-    assert len(models) == 10
-    for i, model in enumerate(models):
-        assert model.name == f"Test Model {i}"

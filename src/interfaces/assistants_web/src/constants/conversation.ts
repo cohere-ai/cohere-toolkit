@@ -21,7 +21,6 @@ export const DEFAULT_AGENT_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID, 
 
 export const BASE_AGENT: AgentPublic = {
   id: '',
-  deployments: [],
   name: 'Command R+',
   description: 'Ask questions and get answers based on your files.',
   created_at: new Date().toISOString(),
