@@ -12,7 +12,7 @@ logger = LoggerFactory().get_logger()
 
 class SlackTool(BaseTool):
     """
-    Tool that searches Slack
+    Tool that searches Slack for messages and files based on a query.
     """
 
     NAME = SLACK_TOOL_ID

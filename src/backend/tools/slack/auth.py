@@ -39,10 +39,10 @@ class SlackAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
-        if (
-            self.SLACK_CLIENT_ID is None
-            or self.SLACK_CLIENT_SECRET is None
-        ):
+        if any([
+            self.SLACK_CLIENT_ID is None,
+            self.SLACK_CLIENT_SECRET is None
+        ]):
             raise ValueError(
                 "SLACK_CLIENT_ID and SLACK_CLIENT_SECRET must be set to use Slack Tool Auth."
             )

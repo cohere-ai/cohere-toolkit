@@ -33,19 +33,16 @@ More information about the OAuth flow can be found [here](https://api.slack.com/
 
 ## 3. Set Up Environment Variables
 
-Then set the following environment variables. You can either set the below values in your `.env` file:
-
-```bash
-SLACK_CLIENT_ID=<your_client_id from step 1>
-SLACK_CLIENT_SECRET=<your_client_secret from step 1>
-```
-
-or update your `secrets.yaml` configuration to contain:
-
+Then set the following environment variables. You can either set the below values in your `secrets.yaml` file:
 ```bash
 slack:
     client_id: <your_client_id from step 1>
     client_secret: <your_client_secret from step 1>
+```
+or update your `.env` configuration to contain:
+```bash
+SLACK_CLIENT_ID=<your_client_id from step 1>
+SLACK_CLIENT_SECRET=<your_client_secret from step 1>
 ```
 
 ## 4. Enable the Slack Tool in the Frontend
