@@ -58,6 +58,12 @@ export const AGENT_SETTINGS_TOOLS = [
 ];
 ```
 
+To enable the Slack tool in the frontend for Base Agent, you will need to modify the `src/community/config/tools.py` file. Remove the `TOOL_SLACK_ID` from the `BASE_AGENT_EXCLUDED_TOOLS` list.
+By default, the Slack Tool is disabled for the Base Agent. Also if you need to exclude some tool from the Base Agent just add it to the `BASE_AGENT_EXCLUDED_TOOLS` list.
+```typescript
+export const BASE_AGENT_EXCLUDED_TOOLS = [];
+```
+
 ## 5. Setup HTTPS for Local Development
 
 To enable HTTPS for local development, the self-signed certificate needs to be generated.

@@ -8,6 +8,7 @@ import { CoralLogo, Icon, Text } from '@/components/UI';
 import { useAgent, useBrandedColors, useListTools } from '@/hooks';
 import { cn } from '@/utils';
 import { checkIsBaseAgent } from '@/utils';
+import {BASE_AGENT_EXCLUDED_TOOLS} from "@/constants";
 
 type Props = {
   show: boolean;
@@ -23,6 +24,11 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { contrastText, bg, contrastFill } = useBrandedColors(agentId);
 
   const isBaseAgent = checkIsBaseAgent(agent);
+  // Filter out tools that are excluded for the base agent
+  let toolsFiltered = [...tools];
+  if (isBaseAgent) {
+    toolsFiltered = tools.filter((tool) => !BASE_AGENT_EXCLUDED_TOOLS.includes(tool.name ?? ''));
+  }
 
   return (
     <Transition
@@ -71,7 +77,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
             <Text className="font-medium">Toggle Tools On/Off</Text>
           </div>
         )}
-        <AssistantTools agent={agent} tools={tools} />
+        <AssistantTools agent={agent} tools={toolsFiltered} />
       </div>
     </Transition>
   );
