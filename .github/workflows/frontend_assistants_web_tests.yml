@@ -1,10 +1,10 @@
-name: Coral Web Tests
+name: Assistants Web - Format and build
 
 on:
   push:
     branches: [main]
     paths:
-      - src/interfaces/coral_web/**
+      - src/interfaces/assistants_web/**
   pull_request: {}
   merge_group: {}
 
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: src/interfaces/coral_web
+        working-directory: src/interfaces/assistants_web
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 2
       - name: Set up Node.js and install dependencies
         uses: ./.github/actions/js-install
-      - name: Check coral_web is formatted
+      - name: Check assistants_web is formatted
         run: npm run format
-      - name: Check coral_web can build
+      - name: Check assistants_web can build
         run: npm run build
