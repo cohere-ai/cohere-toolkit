@@ -1,4 +1,4 @@
-name: Python Lint
+name: Backend - Lint
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Check for duplicate revision IDs
+name: Alembic - No duplicate IDs
 
 on:
   pull_request:

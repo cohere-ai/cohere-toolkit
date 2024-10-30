@@ -1,0 +1,27 @@
+name: Assistants Web - Format and build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/interfaces/assistants_web/**
+  pull_request: {}
+  merge_group: {}
+
+jobs:
+  interface_tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/interfaces/assistants_web
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Set up Node.js and install dependencies
+        uses: ./.github/actions/assistants-web-install
+      - name: Check assistants_web is formatted
+        run: npm run format
+      - name: Check assistants_web can build
+        run: npm run build
