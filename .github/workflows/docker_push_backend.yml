@@ -1,4 +1,4 @@
-name: Create and publish backend image
+name: Backend - Create and publish Docker image
 
 on:
   release:

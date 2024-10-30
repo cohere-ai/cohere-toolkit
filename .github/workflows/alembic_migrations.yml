@@ -1,4 +1,4 @@
-name: Automated Migrations
+name: Alembic - Automate migrations
 # This workflow provides a way to run Alembic migrations using SSH or migration API or database URL.
 on:
   push:

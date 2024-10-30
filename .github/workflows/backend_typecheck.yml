@@ -1,4 +1,4 @@
-name: Typecheck newly added Python files
+name: Backend - Typecheck new files
 
 on:
   push:
