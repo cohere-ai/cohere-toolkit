@@ -1,4 +1,7 @@
+import { Markdown } from '@/components/Markdown';
+import { Icon } from '@/components/UI/Icon';
 import { Spinner } from '@/components/UI/Spinner';
+import { Text } from '@/components/UI/Text';
 import { useFile } from '@/hooks';
 
 type Props = {
@@ -14,5 +17,19 @@ export const FileViewer: React.FC<Props> = ({ fileId, agentId, conversationId })
     return <Spinner />;
   }
 
-  return <div>{file!.file_name}</div>;
+  return (
+    <div className="space-y-2.5">
+      <header className="flex items-center gap-2">
+        <div className="rounded bg-mushroom-800 p-2.5 dark:bg-volcanic-150">
+          <Icon name="file" />
+        </div>
+        <Text styleAs="p-lg" className="truncate">
+          {file!.file_name}
+        </Text>
+      </header>
+      <article className="max-h-96 overflow-y-auto">
+        <Markdown className="font-variable" text={file!.file_content} />
+      </article>
+    </div>
+  );
 };
