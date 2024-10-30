@@ -1,4 +1,4 @@
-name: Coral Web Tests
+name: Coral Web - Format and build
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 2
       - name: Set up Node.js and install dependencies
-        uses: ./.github/actions/js-install
+        uses: ./.github/actions/coral-web-install
       - name: Check coral_web is formatted
         run: npm run format
       - name: Check coral_web can build
