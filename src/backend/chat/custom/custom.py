@@ -6,7 +6,7 @@ from backend.chat.base import BaseChat
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import get_available_tools
 from backend.database_models.file import File
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatMessage, ChatRole, EventState
@@ -247,17 +247,18 @@ class CustomChat(BaseChat):
         chat_request.chat_history.extend(tool_results)
 
     def get_managed_tools(self, chat_request: CohereChatRequest, full_schema=False):
+        available_tools = get_available_tools()
         if full_schema:
             return [
-                AVAILABLE_TOOLS.get(tool.name)
+                available_tools.get(tool.name)
                 for tool in chat_request.tools
-                if AVAILABLE_TOOLS.get(tool.name)
+                if available_tools.get(tool.name)
             ]
 
         return [
-            Tool(**AVAILABLE_TOOLS.get(tool.name).model_dump())
+            Tool(**available_tools.get(tool.name).model_dump())
             for tool in chat_request.tools
-            if AVAILABLE_TOOLS.get(tool.name)
+            if available_tools.get(tool.name)
         ]
 
     def add_files_to_chat_history(

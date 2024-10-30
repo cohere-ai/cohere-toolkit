@@ -9,7 +9,7 @@ from starlette.requests import Request
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
 from backend.config.routers import RouterName
 from backend.config.settings import Settings
-from backend.config.tools import AVAILABLE_TOOLS, ToolName
+from backend.config.tools import ToolName, get_available_tools
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
@@ -295,8 +295,9 @@ async def tool_auth(
         err = f"Tool Auth cache {tool_auth_cache} does not contain user_id or tool_id."
         log_and_redirect_err(err)
 
-    if tool_id in AVAILABLE_TOOLS:
-        tool = AVAILABLE_TOOLS.get(tool_id)
+    available_tools = get_available_tools()
+    if tool_id in available_tools:
+        tool = available_tools.get(tool_id)
         err = None
 
         # Tool not found
@@ -361,11 +362,11 @@ async def delete_tool_auth(
             event="tool_id must be present in the path of the request and must be a member of the ToolName string enum class.",
         )
 
-    tool = AVAILABLE_TOOLS.get(tool_id)
+    tool = get_available_tools().get(tool_id)
 
     if tool is None:
         logger.error_and_raise_http_exception(
-            event=f"Tool {tool_id} is not available in AVAILABLE_TOOLS."
+            event=f"Tool {tool_id} is not available."
         )
 
     if tool.auth_implementation is None:

@@ -266,6 +266,3 @@ def get_available_tools() -> dict[ToolName, dict]:
     if enabled_tools is not None and len(enabled_tools) > 0:
         tools = {key: value for key, value in tools.items() if key in enabled_tools}
     return tools
-
-
-AVAILABLE_TOOLS = get_available_tools()

@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from backend.chat.collate import rerank_and_chunk, to_dict
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import get_available_tools
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
@@ -76,7 +76,7 @@ async def _call_tool_async(
     tool_call: dict,
     deployment_model: BaseDeployment,
 ) -> List[Dict[str, Any]]:
-    tool = AVAILABLE_TOOLS.get(tool_call["name"])
+    tool = get_available_tools().get(tool_call["name"])
     if not tool:
         logger.info(
             event=f"[Custom Chat] Tool not included in tools parameter: {tool_call['name']}",
