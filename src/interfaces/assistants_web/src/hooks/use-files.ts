@@ -1,7 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  AgentFileFull,
   ApiError,
+  ConversationFileFull,
   DeleteAgentFileResponse,
   ListConversationFile,
   useCohereClient,
@@ -11,6 +13,29 @@ import { useNotify, useSession } from '@/hooks';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { UploadingFile } from '@/stores/slices/filesSlice';
 import { fileSizeToBytes, formatFileSize, getFileExtension, mapExtensionToMimeType } from '@/utils';
+
+export const useFile = ({
+  fileId,
+  agentId,
+  conversationId,
+}: {
+  fileId: string;
+  agentId?: string;
+  conversationId?: string;
+}): UseQueryResult<AgentFileFull | ConversationFileFull, Error> => {
+  const cohereClient = useCohereClient();
+  return useQuery({
+    queryKey: ['file', fileId],
+    queryFn: async () => {
+      if ((!agentId && !conversationId) || (agentId && conversationId)) {
+        throw new Error('Exactly one of agentId or conversationId must be provided');
+      }
+      return agentId
+        ? await cohereClient.getAgentFile({ agentId: agentId!, fileId })
+        : await cohereClient.getConversationFile({ conversationId: conversationId!, fileId });
+    },
+  });
+};
 
 export const useListConversationFiles = (
   conversationId?: string,

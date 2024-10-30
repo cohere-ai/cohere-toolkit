@@ -72,12 +72,22 @@ export const ConversationPanel: React.FC<Props> = () => {
     ...agentToolMetadataArtifacts.folders,
   ];
 
-  const handleOpenFile = (fileId: string, url?: string) => {
+  const handleOpenFile = ({
+    fileId,
+    agentId,
+    conversationId,
+    url,
+  }: {
+    fileId: string;
+    agentId?: string;
+    conversationId?: string;
+    url?: string;
+  }) => {
     if (url) {
       window.open(url, '_blank');
     } else {
       open({
-        content: <FileViewer fileId={fileId} />,
+        content: <FileViewer fileId={fileId} agentId={agentId} conversationId={conversationId} />,
       });
     }
   };
@@ -186,8 +196,10 @@ export const ConversationPanel: React.FC<Props> = () => {
                         <IconButton
                           iconName={file.url ? 'arrow-up-right' : 'show'}
                           tooltip={{ label: file.url ? 'Open url' : 'Show content' }}
-                          className="h-auto w-auto flex-shrink-0 self-center group-hover:visible"
-                          onClick={() => handleOpenFile(file.id, file.url)}
+                          className="invisible h-auto w-auto flex-shrink-0 self-center group-hover:visible"
+                          onClick={() =>
+                            handleOpenFile({ fileId: file.id, agentId: agent!.id, url: file.url })
+                          }
                         />
                       </li>
                     ))}
@@ -211,7 +223,7 @@ export const ConversationPanel: React.FC<Props> = () => {
           </div>
           {files && files.length > 0 && (
             <div className="flex flex-col gap-y-4">
-              {files.map(({ file_name: name, id }) => (
+              {files.map(({ id, conversation_id, file_name: name }) => (
                 <div key={id} className="flex w-full flex-col gap-y-2 rounded-lg">
                   <div className="group flex w-full items-center justify-between gap-x-4">
                     <div className="flex items-center gap-x-2 overflow-hidden">
@@ -228,7 +240,9 @@ export const ConversationPanel: React.FC<Props> = () => {
                         tooltip={{ label: 'Show content' }}
                         className="h-auto w-auto flex-shrink-0 self-center"
                         disabled={isDeletingFile}
-                        onClick={() => handleOpenFile(id)}
+                        onClick={() =>
+                          handleOpenFile({ fileId: id, conversationId: conversation_id })
+                        }
                       />
                       <IconButton
                         iconName="close"

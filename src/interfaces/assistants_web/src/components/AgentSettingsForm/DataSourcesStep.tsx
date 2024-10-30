@@ -6,7 +6,7 @@ import { Button, Icon, IconButton, IconName, Spinner, Text } from '@/components/
 import { FileViewer } from '@/components/UI/FileViewer';
 import { ACCEPTED_FILE_TYPES, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { useContextStore } from '@/context';
-import { useUploadAgentFile } from '@/hooks';
+import { useChatRoutes, useUploadAgentFile } from '@/hooks';
 import { DataSourceArtifact } from '@/types/tools';
 import { mapMimeTypeToExtension, pluralize } from '@/utils';
 
@@ -197,6 +197,7 @@ const DataSourceFileList: React.FC<{
   handleRemoveTool: VoidFunction;
 }> = ({ name, icon, artifacts = [], addFileButton, handleRemoveFile, handleRemoveTool }) => {
   const { open } = useContextStore();
+  const { agentId } = useChatRoutes();
   const filesCount = getCountString(
     'file',
     artifacts.filter((artifact) => artifact.type === 'file')
@@ -213,7 +214,7 @@ const DataSourceFileList: React.FC<{
       window.open(url, '_blank');
     } else {
       open({
-        content: <FileViewer fileId={fileId} />,
+        content: <FileViewer fileId={fileId} agentId={agentId} />,
       });
     }
   };
@@ -244,12 +245,14 @@ const DataSourceFileList: React.FC<{
             <Text styleAs="label" className="dark:test-marble-950 mr-auto truncate">
               {name}
             </Text>
-            <IconButton
-              iconName={url ? 'arrow-up-right' : 'show'}
-              tooltip={{ label: url ? 'Open url' : 'Show content' }}
-              className="h-auto w-auto flex-shrink-0 self-center group-hover:visible"
-              onClick={() => handleOpenFile(id, url)}
-            />
+            {agentId && (
+              <IconButton
+                iconName={url ? 'arrow-up-right' : 'show'}
+                tooltip={{ label: url ? 'Open url' : 'Show content' }}
+                className="h-auto w-auto flex-shrink-0 self-center group-hover:visible"
+                onClick={() => handleOpenFile(id, url)}
+              />
+            )}
             <IconButton
               iconName="close"
               tooltip={{ label: 'Delete' }}
