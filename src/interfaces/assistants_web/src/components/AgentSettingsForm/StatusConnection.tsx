@@ -1,5 +1,5 @@
-import {Text} from "@/components/UI";
-import {cn} from "@/utils";
+import { Text } from '@/components/UI';
+import { cn } from '@/utils';
 
 export const StatusConnection: React.FC<{ connected: boolean }> = ({ connected }) => {
   const label = connected ? 'Connected' : 'Disconnected';

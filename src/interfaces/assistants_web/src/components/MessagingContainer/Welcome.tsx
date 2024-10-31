@@ -5,10 +5,10 @@ import React from 'react';
 
 import { AssistantTools } from '@/components/MessagingContainer';
 import { CoralLogo, Icon, Text } from '@/components/UI';
+import { BASE_AGENT_EXCLUDED_TOOLS } from '@/constants';
 import { useAgent, useBrandedColors, useListTools } from '@/hooks';
 import { cn } from '@/utils';
 import { checkIsBaseAgent } from '@/utils';
-import {BASE_AGENT_EXCLUDED_TOOLS} from "@/constants";
 
 type Props = {
   show: boolean;

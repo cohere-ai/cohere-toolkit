@@ -48,6 +48,7 @@ import {
   Share,
   Show,
   SignOut,
+  Slack,
   Sparkle,
   Stop,
   Subtract,
@@ -60,7 +61,6 @@ import {
   Volume,
   Warning,
   Web,
-  Slack,
 } from '@/assets/icons';
 import { cn } from '@/utils';
 

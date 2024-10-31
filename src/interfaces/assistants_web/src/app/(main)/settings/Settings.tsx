@@ -2,11 +2,11 @@
 
 import { PropsWithChildren, useState } from 'react';
 
+import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
-import {StatusConnection} from "@/components/AgentSettingsForm/StatusConnection";
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">
@@ -133,7 +133,7 @@ const GoogleDriveConnection = () => {
     }
   };
 
-  const isGoogleDriveConnected = !googleDriveTool.is_auth_required ?? false;
+  const isGoogleDriveConnected = !(googleDriveTool.is_auth_required ?? false);
   const authUrl = getToolAuthUrl(googleDriveTool.auth_url);
 
   return (
@@ -206,7 +206,7 @@ const SlackConnection = () => {
     }
   };
 
-  const isSlackConnected = !slackTool.is_auth_required ?? false;
+  const isSlackConnected = !(slackTool.is_auth_required ?? false);
 
   return (
     <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
@@ -217,9 +217,7 @@ const SlackConnection = () => {
         </div>
         <StatusConnection connected={isSlackConnected} />
       </header>
-      <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">
-        Connect to Slack
-      </Text>
+      <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">Connect to Slack</Text>
       <section>
         {isSlackConnected ? (
           <div className="space-y-6">

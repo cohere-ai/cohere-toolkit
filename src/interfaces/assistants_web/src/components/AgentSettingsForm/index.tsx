@@ -186,14 +186,11 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
       const state = JSON.stringify(fields);
 
       window.open(
-        getToolAuthUrl(
-          tool.auth_url,
-          `${window.location.href}?datasources=1&state=${btoa(state)}`
-        ),
+        getToolAuthUrl(tool.auth_url, `${window.location.href}?datasources=1&state=${btoa(state)}`),
         '_self'
       );
     }
-  }
+  };
 
   return (
     <div className="flex flex-col space-y-6">
