@@ -47,6 +47,7 @@ Use Docker Compose directly if you want to quickly spin up and manage your conta
 git clone https://github.com/cohere-ai/cohere-toolkit.git
 cd cohere-toolkit
 docker compose up
+docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
 ```
 
 Navigate to [`localhost:4000`](http://localhost:4000`) to visit the frontend. 
