@@ -29,7 +29,7 @@ There are two main ways for quickly running Toolkit: local and cloud. See the sp
 *You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed. [Go here for a more detailed setup.](/docs/setup.md)*  
 Note: to include community tools when building locally, set the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` to `true`.
 
-Both options will make the frontend available on [`localhost:4000`](http://localhost:4000`).
+Both options will make the frontend available at http://localhost:4000.
 
 #### Using `make`
 Use the provided Makefile to simplify and automate your development workflow with Cohere Toolkit, including Docker Compose management, testing, linting, and environment setup.
@@ -49,8 +49,6 @@ cd cohere-toolkit
 docker compose up
 docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
 ```
-
-Navigate to [`localhost:4000`](http://localhost:4000`) to visit the frontend. 
 ### Cloud
 #### GitHub Codespaces
 
