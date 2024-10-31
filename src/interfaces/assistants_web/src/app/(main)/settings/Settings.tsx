@@ -7,6 +7,7 @@ import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
+import {TOOL_SLACK_ID} from "@/constants";
 
 const tabs = [
   <div className="flex items-center gap-2" key="company">
@@ -192,7 +193,7 @@ const SlackConnection = () => {
   const { data } = useListTools();
   const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
   const notify = useNotify();
-  const slackTool = data?.find((tool) => tool.name === 'slack');
+  const slackTool = data?.find((tool) => tool.name === TOOL_SLACK_ID);
 
   if (!slackTool) {
     return null;
