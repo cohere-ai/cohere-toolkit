@@ -88,6 +88,7 @@ export const ConversationPanel: React.FC<Props> = () => {
     } else {
       open({
         content: <FileViewer fileId={fileId} agentId={agentId} conversationId={conversationId} />,
+        dialogPaddingClassName: 'p-5',
       });
     }
   };

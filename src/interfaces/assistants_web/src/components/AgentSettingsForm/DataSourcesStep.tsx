@@ -215,6 +215,7 @@ const DataSourceFileList: React.FC<{
     } else {
       open({
         content: <FileViewer fileId={fileId} agentId={agentId} />,
+        dialogPaddingClassName: 'p-5',
       });
     }
   };
