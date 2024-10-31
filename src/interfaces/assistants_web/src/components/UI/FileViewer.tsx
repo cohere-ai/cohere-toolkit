@@ -20,7 +20,7 @@ export const FileViewer: React.FC<Props> = ({ fileId, agentId, conversationId })
   return (
     <div className="space-y-2.5">
       <header className="flex items-center gap-2">
-        <div className="p-2.5 rounded bg-mushroom-800 dark:bg-volcanic-150">
+        <div className="rounded bg-mushroom-800 p-2.5 dark:bg-volcanic-150">
           <Icon name="file" />
         </div>
         <Text styleAs="p-lg" className="truncate">
