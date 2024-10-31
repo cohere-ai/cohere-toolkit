@@ -1,4 +1,4 @@
-name: Slack Bot Tests
+name: Slack Bot - Format and build
 
 on:
   push:
