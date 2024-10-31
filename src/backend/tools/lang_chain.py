@@ -7,6 +7,7 @@ from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
 from backend.config.settings import Settings
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
 """
@@ -32,6 +33,26 @@ class LangChainWikiRetriever(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            display_name="Wikipedia",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            kwargs={"chunk_size": 300, "chunk_overlap": 0},
+            is_visible=True,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Retrieves documents from Wikipedia.",
+        ),
 
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any

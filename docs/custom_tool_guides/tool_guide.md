@@ -88,12 +88,12 @@ To enable your tool, you will need to go to the `configuration.yaml` file and ad
 
 Finally, you will need to add your tool definition to the config file. Locate it in `src/community/config/tools.py`, and import your tool at the top with `from backend.tools import ..`. 
 
-In the ToolName enum, add your tool as an enum value. For example, `My_Tool = MyTool.ID`.
+In the Tool enum, add your tool as an enum value. For example, `My_Tool = MyToolClass`.
 
 In the `ALL_TOOLS` dictionary, add your tool definition. This should look like:
 
 ```python
-    ToolName.My_Tool: ToolDefinition(  # THE TOOLNAME HERE CORRESPONDS TO THE ENUM YOU DEFINED EARLIER
+    Tool.My_Tool: ToolDefinition(  # THE TOOLNAME HERE CORRESPONDS TO THE ENUM YOU DEFINED EARLIER
         display_name="My Tool",
         implementation=MyTool, # THIS IS THE CLASS YOU IMPORTED AT THE TOP
         parameter_definitions={ # THESE ARE PARAMS THE MODEL WILL SEND TO YOUR TOOL, ADJUST AS NEEDED

@@ -293,7 +293,7 @@ export class DefaultService {
    * If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
    *
    * Args:
-   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the Tool enum.
    * request (Request): current Request object.
    * session (DBSessionDep): Database session.
    * ctx (Context): Context object.

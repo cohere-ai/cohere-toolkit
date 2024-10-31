@@ -5,6 +5,7 @@ import requests
 from dotenv import load_dotenv
 
 from backend.config.settings import Settings
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
 load_dotenv()
@@ -22,6 +23,33 @@ class PythonInterpreter(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         return cls.INTERPRETER_URL is not None
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            display_name="Python Interpreter",
+            implementation=cls,
+            parameter_definitions={
+                "code": {
+                    "description": (
+                        "Python code to execute using the Python interpreter with no internet access. "
+                        "Do not generate code that tries to open files directly, instead use file contents passed to the interpreter, "
+                        "then print output or save output to a file."
+                    ),
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=True,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.Function,
+            description=(
+                "Executes python code and returns the result. The code runs "
+                "in a static sandbox without internet access and without interactive mode, "
+                "so print output or save output to a file."
+            ),
+        ),
 
     async def call(self, parameters: dict, ctx: Any, **kwargs: Any):
         if not self.INTERPRETER_URL:

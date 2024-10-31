@@ -1,5 +1,5 @@
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from community.config.tools import CommunityToolName
+from community.config.tools import CommunityTool
 
 
 def tool_has_category(tool: ToolDefinition, category: ToolCategory) -> bool:
@@ -26,4 +26,4 @@ def is_community_tool(tool: ToolDefinition) -> bool:
     Returns:
         bool: True if the tool is a community tool, False otherwise.
     """
-    return tool.name in CommunityToolName
+    return tool.name in CommunityTool

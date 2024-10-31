@@ -6,7 +6,7 @@ import pytest
 from fastapi import HTTPException
 
 from backend.chat.custom.tool_calls import async_call_tools
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.schemas.tool import ToolDefinition
 from backend.services.context import Context
 from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
@@ -36,7 +36,7 @@ def test_async_call_tools_success(mock_get_available_tools) -> None:
             ]
         }
     ]
-    mock_get_available_tools.return_value = {ToolName.Calculator: ToolDefinition(implementation=MockCalculator)}
+    mock_get_available_tools.return_value = {Tool.Calculator: ToolDefinition(implementation=MockCalculator)}
     results = asyncio.run(
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
@@ -68,7 +68,7 @@ def test_async_call_tools_failure(mock_get_available_tools) -> None:
             ]
         }
     ]
-    mock_get_available_tools.return_value = {ToolName.Calculator: ToolDefinition(implementation=MockCalculator)}
+    mock_get_available_tools.return_value = {Tool.Calculator: ToolDefinition(implementation=MockCalculator)}
     results = asyncio.run(
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
@@ -104,7 +104,7 @@ def test_async_call_tools_timeout(mock_get_available_tools) -> None:
             ]
         }
     ]
-    mock_get_available_tools.return_value = {ToolName.Calculator: ToolDefinition(implementation=MockCalculator)}
+    mock_get_available_tools.return_value = {Tool.Calculator: ToolDefinition(implementation=MockCalculator)}
 
     with pytest.raises(HTTPException) as excinfo:
         asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
@@ -141,8 +141,8 @@ def test_async_call_tools_failure_and_success(mock_get_available_tools) -> None:
         }
     ]
     mock_get_available_tools.return_value = {
-        ToolName.Calculator: ToolDefinition(implementation=MockCalculator),
-        ToolName.Web_Scrape: ToolDefinition(implementation=MockWebScrape),
+        Tool.Calculator: ToolDefinition(implementation=MockCalculator),
+        Tool.Web_Scrape: ToolDefinition(implementation=MockWebScrape),
     }
 
     results = asyncio.run(

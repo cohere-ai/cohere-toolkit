@@ -22,7 +22,7 @@ class BuildTarget(StrEnum):
     PROD = "prod"
 
 
-class ToolName(StrEnum):
+class Tool(StrEnum):
     PythonInterpreter = "Python Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
 
@@ -50,12 +50,12 @@ DOT_ENV_FILE_PATH = ".env"
 
 
 TOOLS = {
-    ToolName.PythonInterpreter: {
+    Tool.PythonInterpreter: {
         "secrets": {
             "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
         },
     },
-    ToolName.TavilyInternetSearch: {
+    Tool.TavilyInternetSearch: {
         "secrets": {
             "TAVILY_API_KEY": None,
         },

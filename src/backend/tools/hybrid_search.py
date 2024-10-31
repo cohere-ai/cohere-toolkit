@@ -6,6 +6,7 @@ from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.agent import AgentToolMetadataArtifactsType
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 from backend.tools.brave_search.tool import BraveWebSearch
 from backend.tools.google_search import GoogleWebSearch
@@ -37,6 +38,28 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
 
         # False if empty, True otherwise
         return bool(available_searches)
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            display_name="Hybrid Web Search",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=True,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.WebSearch,
+            description=(
+                "Returns a list of relevant document snippets for a textual query "
+                "retrieved from the internet using a mix of any existing Web Search tools.",
+            )
+        )
 
     @classmethod
     def get_available_search_tools(cls):

@@ -132,7 +132,7 @@ class FileService:
         Returns:
             list[File]: The files that were created
         """
-        from backend.config.tools import ToolName
+        from backend.config.tools import Tool
         from backend.tools.files import FileToolsArtifactTypes
 
         agent = validate_agent_exists(session, agent_id, user_id)
@@ -144,8 +144,8 @@ class FileService:
                 (
                     tool_metadata.artifacts
                     for tool_metadata in agent_tool_metadata
-                    if tool_metadata.tool_name == ToolName.Read_File
-                    or tool_metadata.tool_name == ToolName.Search_File
+                    if tool_metadata.tool_name == Tool.Read_File
+                    or tool_metadata.tool_name == Tool.Search_File
                 ),
                 [],  # Default value if the generator is empty
             )

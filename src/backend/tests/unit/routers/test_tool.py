@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.tools import ToolName, get_available_tools
+from backend.config.tools import Tool, get_available_tools
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
@@ -36,7 +36,7 @@ def test_list_tools_with_agent(
     session_client: TestClient, session: Session, user: User
 ) -> None:
     agent = get_factory("Agent", session).create(
-        name="test agent", tools=[ToolName.Wiki_Retriever_LangChain], user=user
+        name="test agent", tools=[Tool.Wiki_Retriever_LangChain], user=user
     )
 
     response = session_client.get("/v1/tools", params={"agent_id": agent.id})
@@ -44,7 +44,7 @@ def test_list_tools_with_agent(
     assert len(response.json()) == 1
 
     tool = response.json()[0]
-    assert tool["name"] == ToolName.Wiki_Retriever_LangChain
+    assert tool["name"] == Tool.Wiki_Retriever_LangChain
 
     # get tool that has the same name as the tool in the response
     tool_definition = get_available_tools()[tool["name"]]

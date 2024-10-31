@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 
 from py_expression_eval import Parser
 
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
 
@@ -15,6 +16,25 @@ class Calculator(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            display_name="Calculator",
+            implementation=Calculator,
+            parameter_definitions={
+                "code": {
+                    "description": "The expression for the calculator to evaluate, it should be a valid mathematical expression.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=False,
+            is_available=Calculator.is_available(),
+            category=ToolCategory.Function,
+            error_message=cls.generate_error_message(),
+            description="A powerful multi-purpose calculator capable of a wide array of math calculations.",
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any

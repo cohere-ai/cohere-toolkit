@@ -1,6 +1,6 @@
 import factory
 
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 
 from .base import BaseFactory
@@ -16,13 +16,13 @@ class AgentToolMetadataFactory(BaseFactory):
             factory.Faker(
                 "random_element",
                 elements=[
-                    ToolName.Wiki_Retriever_LangChain,
-                    ToolName.Search_File,
-                    ToolName.Read_File,
-                    ToolName.Python_Interpreter,
-                    ToolName.Calculator,
-                    ToolName.Tavily_Web_Search,
-                    ToolName.Google_Drive,
+                    Tool.Wiki_Retriever_LangChain,
+                    Tool.Search_File,
+                    Tool.Read_File,
+                    Tool.Python_Interpreter,
+                    Tool.Calculator,
+                    Tool.Tavily_Web_Search,
+                    Tool.Google_Drive,
                 ],
             )
         ]

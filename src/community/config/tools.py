@@ -12,7 +12,7 @@ from community.tools import (
 )
 
 
-class CommunityToolName(StrEnum):
+class CommunityTool(StrEnum):
     Arxiv = ArxivRetriever.ID
     Connector = ConnectorRetriever.ID
     Pub_Med = PubMedRetriever.ID
@@ -22,7 +22,7 @@ class CommunityToolName(StrEnum):
 
 
 COMMUNITY_TOOLS = {
-    CommunityToolName.Arxiv: ToolDefinition(
+    CommunityTool.Arxiv: ToolDefinition(
         display_name="Arxiv",
         implementation=ArxivRetriever,
         parameter_definitions={
@@ -38,7 +38,7 @@ COMMUNITY_TOOLS = {
         category=ToolCategory.DataLoader,
         description="Retrieves documents from Arxiv.",
     ),
-    CommunityToolName.Connector: ToolDefinition(
+    CommunityTool.Connector: ToolDefinition(
         display_name="Example Connector",
         implementation=ConnectorRetriever,
         is_visible=True,
@@ -47,7 +47,7 @@ COMMUNITY_TOOLS = {
         category=ToolCategory.DataLoader,
         description="Connects to a data source.",
     ),
-    CommunityToolName.Pub_Med: ToolDefinition(
+    CommunityTool.Pub_Med: ToolDefinition(
         display_name="PubMed",
         implementation=PubMedRetriever,
         parameter_definitions={
@@ -63,7 +63,7 @@ COMMUNITY_TOOLS = {
         category=ToolCategory.DataLoader,
         description="Retrieves documents from Pub Med.",
     ),
-    CommunityToolName.File_Upload_LlamaIndex: ToolDefinition(
+    CommunityTool.File_Upload_LlamaIndex: ToolDefinition(
         display_name="Llama File Reader",
         implementation=LlamaIndexUploadPDFRetriever,
         parameter_definitions={
@@ -85,7 +85,7 @@ COMMUNITY_TOOLS = {
         category=ToolCategory.FileLoader,
         description="Retrieves the most relevant documents from the uploaded files based on the query using Llama Index.",
     ),
-    CommunityToolName.Wolfram_Alpha: ToolDefinition(
+    CommunityTool.Wolfram_Alpha: ToolDefinition(
         display_name="Wolfram Alpha",
         implementation=WolframAlpha,
         is_visible=False,
@@ -94,7 +94,7 @@ COMMUNITY_TOOLS = {
         category=ToolCategory.Function,
         description="Evaluate arithmetic expressions.",
     ),
-    CommunityToolName.ClinicalTrials: ToolDefinition(
+    CommunityTool.ClinicalTrials: ToolDefinition(
         display_name="Clinical Trials",
         implementation=ClinicalTrials,
         is_visible=True,
@@ -129,7 +129,7 @@ COMMUNITY_TOOLS = {
 
 # For main.py cli setup script
 COMMUNITY_TOOLS_SETUP = {
-    CommunityToolName.Wolfram_Alpha: {
+    CommunityTool.Wolfram_Alpha: {
         "secrets": {
             "WOLFRAM_APP_ID": None,  # default value
         },
