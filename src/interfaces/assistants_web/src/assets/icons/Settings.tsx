@@ -11,7 +11,7 @@ type Props = {
 export const Setttings: React.FC<Props> = ({ className, kind, ...props }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 28 28"
+    viewBox="0 0 32 32"
     className={cn('h-full w-full fill-inherit', className)}
     {...props}
   >
