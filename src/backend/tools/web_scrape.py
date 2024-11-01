@@ -23,6 +23,7 @@ class WebScrapeTool(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return  ToolDefinition(
+            name=cls.ID,
             display_name="Web Scrape",
             implementation=cls,
             parameter_definitions={

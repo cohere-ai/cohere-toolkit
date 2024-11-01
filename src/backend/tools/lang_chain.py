@@ -37,6 +37,7 @@ class LangChainWikiRetriever(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Wikipedia",
             implementation=cls,
             parameter_definitions={
@@ -52,7 +53,7 @@ class LangChainWikiRetriever(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Retrieves documents from Wikipedia.",
-        ),
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any

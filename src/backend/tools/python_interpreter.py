@@ -27,6 +27,7 @@ class PythonInterpreter(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Python Interpreter",
             implementation=cls,
             parameter_definitions={
@@ -49,7 +50,7 @@ class PythonInterpreter(BaseTool):
                 "in a static sandbox without internet access and without interactive mode, "
                 "so print output or save output to a file."
             ),
-        ),
+        )
 
     async def call(self, parameters: dict, ctx: Any, **kwargs: Any):
         if not self.INTERPRETER_URL:

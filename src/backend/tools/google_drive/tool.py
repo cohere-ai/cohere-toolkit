@@ -37,6 +37,7 @@ class GoogleDrive(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Google Drive",
             implementation=cls,
             parameter_definitions={

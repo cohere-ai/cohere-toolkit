@@ -25,6 +25,7 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Google Web Search",
             implementation=cls,
             parameter_definitions={

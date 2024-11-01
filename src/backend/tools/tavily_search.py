@@ -26,6 +26,7 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Web Search",
             implementation=cls,
             parameter_definitions={

@@ -84,8 +84,6 @@ return [{"text": "The fox is blue", "url": "wikipedia.org/foxes", "title": "Colo
 
 Next, add your tool class to the init file by locating it in `src/community/tools/__init__.py`. Import your tool here, then add it to the `__all__` list.
 
-To enable your tool, you will need to go to the `configuration.yaml` file and add your tool's name to the list of `enabled_tools`. This tool name will correspond to the one defined in the `NAME` attribute of your class.
-
 Finally, you will need to add your tool definition to the config file. Locate it in `src/community/config/tools.py`, and import your tool at the top with `from backend.tools import ..`. 
 
 In the Tool enum, add your tool as an enum value. For example, `My_Tool = MyToolClass`.

@@ -20,6 +20,7 @@ class Calculator(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Calculator",
             implementation=Calculator,
             parameter_definitions={

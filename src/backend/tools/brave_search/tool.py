@@ -25,6 +25,7 @@ class BraveWebSearch(BaseTool, WebSearchFilteringMixin):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Brave Web Search",
             implementation=cls,
             parameter_definitions={

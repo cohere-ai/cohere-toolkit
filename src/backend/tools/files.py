@@ -28,6 +28,7 @@ class ReadFileTool(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Read Document",
             implementation=cls,
             parameter_definitions={
@@ -42,7 +43,7 @@ class ReadFileTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.FileLoader,
             description="Returns the chunked textual contents of an uploaded file.",
-        ),
+        )
 
     def get_info(cls) -> ToolDefinition:
         return ToolDefinition(
@@ -92,6 +93,7 @@ class SearchFileTool(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Search File",
             implementation=cls,
             parameter_definitions={

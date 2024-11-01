@@ -42,6 +42,7 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
+            name=cls.ID,
             display_name="Hybrid Web Search",
             implementation=cls,
             parameter_definitions={
@@ -57,7 +58,7 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
             category=ToolCategory.WebSearch,
             description=(
                 "Returns a list of relevant document snippets for a textual query "
-                "retrieved from the internet using a mix of any existing Web Search tools.",
+                "retrieved from the internet using a mix of any existing Web Search tools."
             )
         )
 
