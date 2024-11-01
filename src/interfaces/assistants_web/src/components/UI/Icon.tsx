@@ -48,6 +48,7 @@ import {
   Share,
   Show,
   SignOut,
+  Slack,
   Sparkle,
   Stop,
   Subtract,
@@ -124,6 +125,7 @@ export const IconList = [
   'volume',
   'warning',
   'web',
+  'slack',
 ] as const;
 
 export type IconName = (typeof IconList)[number];
@@ -466,6 +468,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
     ['web']: (
       <AccessibleIcon label="Web">
         <Web kind={kind} />
+      </AccessibleIcon>
+    ),
+    ['slack']: (
+      <AccessibleIcon label="Slack">
+        <Slack />
       </AccessibleIcon>
     ),
   }[name];
