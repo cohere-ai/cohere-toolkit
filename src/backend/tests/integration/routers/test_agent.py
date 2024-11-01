@@ -18,11 +18,11 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
         "temperature": 0.5,
         "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [Tool.Calculator, Tool.Search_File, Tool.Read_File],
+        "tools": [Tool.Calculator.value.ID, Tool.Search_File.value.ID, Tool.Read_File.value.ID],
     }
 
     response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.id}
+        "/v1/agents", json=request_json, headers={"User-Id": user.value.ID}
     )
     assert response.status_code == 200
     response_agent = response.json()
@@ -59,10 +59,10 @@ def test_create_agent_with_tool_metadata(
         "temperature": 0.5,
         "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [Tool.Google_Drive, Tool.Search_File],
+        "tools": [Tool.Google_Drive.value.ID, Tool.Search_File.value.ID],
         "tools_metadata": [
             {
-                "tool_name": Tool.Google_Drive,
+                "tool_name": Tool.Google_Drive.value.ID,
                 "artifacts": [
                     {
                         "name": "/folder",
@@ -72,7 +72,7 @@ def test_create_agent_with_tool_metadata(
                 ],
             },
             {
-                "tool_name": Tool.Search_File,
+                "tool_name": Tool.Search_File.value.ID,
                 "artifacts": [
                     {
                         "name": "file.txt",
@@ -85,7 +85,7 @@ def test_create_agent_with_tool_metadata(
     }
 
     response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.id}
+        "/v1/agents", json=request_json, headers={"User-Id": user.value.ID}
     )
     assert response.status_code == 200
     response_agent = response.json()
@@ -96,11 +96,11 @@ def test_create_agent_with_tool_metadata(
         .all()
     )
     assert len(tool_metadata) == 2
-    assert tool_metadata[0].tool_name == Tool.Google_Drive
+    assert tool_metadata[0].tool_name == Tool.Google_Drive.value.ID
     assert tool_metadata[0].artifacts == [
         {"name": "/folder", "ids": "folder1", "type": "folder_ids"},
     ]
-    assert tool_metadata[1].tool_name == Tool.Search_File
+    assert tool_metadata[1].tool_name == Tool.Search_File.value.ID
     assert tool_metadata[1].artifacts == [
         {"name": "file.txt", "ids": "file1", "type": "file_ids"}
     ]
@@ -116,7 +116,7 @@ def test_create_agent_missing_non_required_fields(
     }
 
     response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.id}
+        "/v1/agents", json=request_json, headers={"User-Id": user.value.ID}
     )
     assert response.status_code == 200
     response_agent = response.json()
@@ -159,9 +159,9 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     }
 
     response = session_client.put(
-        f"/v1/agents/{agent.id}",
+        f"/v1/agents/{agent.value.ID}",
         json=request_json,
-        headers={"User-Id": user.id},
+        headers={"User-Id": user.value.ID},
     )
 
     assert response.status_code == 200

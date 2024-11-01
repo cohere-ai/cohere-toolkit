@@ -14,7 +14,7 @@ from backend.services.logger.utils import LoggerFactory
 logger = LoggerFactory().get_logger()
 
 
-class BaseTool(ABC):
+class BaseTool():
     """
     Abstract base class for all Tools.
 
@@ -26,9 +26,10 @@ class BaseTool(ABC):
     def __init__(self, *args, **kwargs):
         self._post_init_check()
 
-    def _post_init_check(self):
-        if self.ID is None:
-            raise ValueError(f"{self.__name__} must have ID attribute defined.")
+    @classmethod
+    def _post_init_check(cls):
+        if cls.ID is None:
+            raise ValueError(f"{cls.__name__} must have ID attribute defined.")
 
     @classmethod
     @abstractmethod
@@ -67,12 +68,13 @@ class BaseToolAuthentication(ABC):
 
         self._post_init_check()
 
-    def _post_init_check(self):
+    @classmethod
+    def _post_init_check(cls):
         if any(
             [
-                self.BACKEND_HOST is None,
-                self.FRONTEND_HOST is None,
-                self.AUTH_SECRET_KEY is None,
+                cls.BACKEND_HOST is None,
+                cls.FRONTEND_HOST is None,
+                cls.AUTH_SECRET_KEY is None,
             ]
         ):
             raise ValueError(

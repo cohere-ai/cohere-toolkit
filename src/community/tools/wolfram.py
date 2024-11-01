@@ -3,7 +3,9 @@ from typing import Any, Dict, List
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from backend.config.settings import Settings
-from community.tools import BaseTool
+from backend.tools.base import BaseTool
+from backend.schemas.tool import ToolDefinition, ToolCategory
+
 
 
 class WolframAlpha(BaseTool):
@@ -24,6 +26,19 @@ class WolframAlpha(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         return cls.wolfram_app_id is not None
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Wolfram Alpha",
+            implementation=cls,
+            is_visible=True,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.Function,
+            description="Evaluate arithmetic expressions using Wolfram Alpha.",
+        )
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")

@@ -7,7 +7,10 @@ from llama_index.embeddings.cohere import CohereEmbedding
 
 import backend.crud.file as file_crud
 from backend.config import Settings
-from community.tools import BaseTool
+from backend.tools.base import BaseTool
+from backend.schemas.tool import ToolDefinition, ToolCategory
+
+
 
 """
 Plug in your llama index retrieval implementation here.
@@ -39,10 +42,38 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
             input_type=embed_type,
         )
 
-
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod 
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Llama File Reader",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                },
+                "files": {
+                    "description": "A list of files represented as tuples of (filename, file ID) to search over",
+                    "type": "list[tuple[str, str]]",
+                    "required": True,
+                },
+
+            },
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message,
+            category=ToolCategory.FileLoader,
+            description=(
+                "Retrieves the most relevant documents from the uploaded "
+                "files based on the query using Llama Index."
+            )
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any

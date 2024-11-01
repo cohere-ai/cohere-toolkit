@@ -64,6 +64,27 @@ class ArxivRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
+    @classmethod
+    # You will need to add a tool definition here
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,    
+            display_name="Arxiv",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Retrieves documents from Arxiv.",
+        )
+
     # Your tool needs to implement this call() method
     def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
         result = self.client.run(parameters)
@@ -86,30 +107,7 @@ Next, add your tool class to the init file by locating it in `src/community/tool
 
 Finally, you will need to add your tool definition to the config file. Locate it in `src/community/config/tools.py`, and import your tool at the top with `from backend.tools import ..`. 
 
-In the Tool enum, add your tool as an enum value. For example, `My_Tool = MyToolClass`.
-
-In the `ALL_TOOLS` dictionary, add your tool definition. This should look like:
-
-```python
-    Tool.My_Tool: ToolDefinition(  # THE TOOLNAME HERE CORRESPONDS TO THE ENUM YOU DEFINED EARLIER
-        display_name="My Tool",
-        implementation=MyTool, # THIS IS THE CLASS YOU IMPORTED AT THE TOP
-        parameter_definitions={ # THESE ARE PARAMS THE MODEL WILL SEND TO YOUR TOOL, ADJUST AS NEEDED
-            "query": {
-                "description": "Query to search with",
-                "type": "str",
-                "required": True,
-            }
-        },
-        is_visible=True, 
-        is_available=MyTool.is_available(), 
-        auth_implementation=None, # EMPTY IF NO AUTH NEEDED
-        error_message="Something went wrong",
-        category=ToolCategory.DataLoader,  # CHECK CATEGORY ENUM FOR POSSIBLE VALUES
-        description="An example definition to get you started.",
-    ),
-```
-
+Finally, to enable your tool, add your tool as an enum value. For example, `My_Tool = MyToolClass`.
 
 ## Step 5: Test Your Tool!
 

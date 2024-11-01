@@ -16,13 +16,13 @@ class AgentToolMetadataFactory(BaseFactory):
             factory.Faker(
                 "random_element",
                 elements=[
-                    Tool.Wiki_Retriever_LangChain,
-                    Tool.Search_File,
-                    Tool.Read_File,
-                    Tool.Python_Interpreter,
-                    Tool.Calculator,
-                    Tool.Tavily_Web_Search,
-                    Tool.Google_Drive,
+                    Tool.Wiki_Retriever_LangChain.value.ID,
+                    Tool.Search_File.value.ID,
+                    Tool.Read_File.value.ID,
+                    Tool.Python_Interpreter.value.ID,
+                    Tool.Calculator.value.ID,
+                    Tool.Tavily_Web_Search.value.ID,
+                    Tool.Google_Drive.value.ID,
                 ],
             )
         ]

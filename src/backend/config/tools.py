@@ -46,14 +46,14 @@ def get_available_tools() -> dict[str, ToolDefinition]:
 
     # Handle adding Community-implemented tools
     use_community_tools = Settings().feature_flags.use_community_features
-    # if use_community_tools:
-    #     try:
-    #         from community.config.tools import COMMUNITY_TOOLS
-
-    #         tools.update(COMMUNITY_TOOLS)
-    #     except ImportError:
-    #         logger.warning(
-    #             event="[Tools] Error loading tools: Community tools not available."
-    #         )
+    if use_community_tools:
+        try:
+            from community.config.tools import get_community_tools
+            community_tools = get_community_tools()
+            tools.update(community_tools)
+        except ImportError:
+            logger.warning(
+                event="[Tools] Error loading tools: Community tools not available."
+            )
 
     return tools

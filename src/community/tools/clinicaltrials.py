@@ -2,7 +2,9 @@ from typing import Any, Dict, List
 
 import requests
 
-from community.tools import BaseTool
+from backend.tools.base import BaseTool
+from backend.schemas.tool import ToolDefinition, ToolCategory
+
 
 
 class ClinicalTrials(BaseTool):
@@ -20,6 +22,41 @@ class ClinicalTrials(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod 
+    def get_tool_definition(cls) -> ToolDefinition:
+        return  ToolDefinition(
+            name=cls.ID,
+            display_name="Clinical Trials",
+            implementation=cls,
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.Function,
+            description="Retrieves clinical studies from ClinicalTrials.gov.",
+            parameter_definitions={
+                "condition": {
+                    "description": "Filters clinical studies to a specified disease or condition",
+                    "type": "str",
+                    "required": False,
+                },
+                "location": {
+                    "description": "Filters clinical studies to a specified city, state, or country.",
+                    "type": "str",
+                    "required": False,
+                },
+                "intervention": {
+                    "description": "Filters clinical studies to a specified drug or treatment.",
+                    "type": "str",
+                    "required": False,
+                },
+                "is_recruiting": {
+                    "description": "Filters clinical studies to those that are actively recruiting.",
+                    "type": "bool",
+                    "required": False,
+                },
+            },
+        )
 
     async def call(
         self, parameters: Dict[str, Any], n_max_studies: int = 10, **kwargs

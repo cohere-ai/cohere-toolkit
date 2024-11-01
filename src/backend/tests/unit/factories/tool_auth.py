@@ -13,7 +13,7 @@ class ToolAuthFactory(BaseFactory):
         model = ToolAuth
 
     user_id = factory.Faker("uuid4")
-    tool_id = Tool.Google_Drive
+    tool_id = Tool.Google_Drive.value.ID
     token_type = "Bearer"
     encrypted_access_token = bytes(b"foobar")
     encrypted_refresh_token = bytes(b"foobar")

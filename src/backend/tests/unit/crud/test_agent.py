@@ -17,7 +17,7 @@ def test_create_agent(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        tools=[Tool.Wiki_Retriever_LangChain, Tool.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
         is_private=True,
     )
 
@@ -28,7 +28,7 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.tools == [Tool.Wiki_Retriever_LangChain, Tool.Search_File]
+    assert agent.tools == [Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID]
     assert agent.is_private
 
     agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
@@ -38,7 +38,7 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.tools == [Tool.Wiki_Retriever_LangChain, Tool.Search_File]
+    assert agent.tools == [Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID]
 
 
 def test_create_agent_empty_non_required_fields(session, user):
@@ -87,7 +87,7 @@ def test_create_agent_duplicate_name_version(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        tools=[Tool.Wiki_Retriever_LangChain, Tool.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
     )
 
     with pytest.raises(IntegrityError):
@@ -205,7 +205,7 @@ def test_update_agent(session, user):
         preamble="test",
         temperature=0.5,
         user=user,
-        tools=[Tool.Wiki_Retriever_LangChain, Tool.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
     )
 
     new_agent_data = UpdateAgentRequest(
@@ -214,7 +214,7 @@ def test_update_agent(session, user):
         version=2,
         preamble="new_test",
         temperature=0.6,
-        tools=[Tool.Python_Interpreter, Tool.Calculator],
+        tools=[Tool.Python_Interpreter.value.ID, Tool.Calculator.value.ID],
     )
 
     agent = agent_crud.update_agent(session, agent, new_agent_data, user.id)
@@ -223,7 +223,7 @@ def test_update_agent(session, user):
     assert agent.version == new_agent_data.version
     assert agent.preamble == new_agent_data.preamble
     assert agent.temperature == new_agent_data.temperature
-    assert agent.tools == [Tool.Python_Interpreter, Tool.Calculator]
+    assert agent.tools == [Tool.Python_Interpreter.value.ID, Tool.Calculator.value.ID]
 
 
 def test_delete_agent(session, user):

@@ -23,7 +23,6 @@ class LangChainWikiRetriever(BaseTool):
     This class retrieves documents from Wikipedia using the langchain package.
     This requires wikipedia package to be installed.
     """
-
     ID = "wikipedia"
 
     def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):

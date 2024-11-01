@@ -9,7 +9,7 @@ from backend.tests.unit.factories import get_factory
 def test_create_tool_auth(session, user):
     tool_auth_data = ToolAuth(
         user_id=user.id,
-        tool_id=Tool.Google_Drive,
+        tool_id=Tool.Google_Drive.value.ID,
         token_type="Bearer",
         encrypted_access_token=bytes(b"foobar"),
         encrypted_refresh_token=bytes(b"foobar"),
@@ -34,7 +34,7 @@ def test_create_tool_auth(session, user):
 def test_delete_tool_auth_by_tool_id(session, user):
     tool_auth = get_factory("ToolAuth", session).create(
         user_id=user.id,
-        tool_id=Tool.Google_Drive,
+        tool_id=Tool.Google_Drive.value.ID,
         token_type="Bearer",
         encrypted_access_token=bytes(b"foobar"),
         encrypted_refresh_token=bytes(b"foobar"),

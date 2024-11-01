@@ -1,5 +1,3 @@
-from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
 from community.tools.arxiv import ArxivRetriever
 from community.tools.clinicaltrials import ClinicalTrials
 from community.tools.connector import ConnectorRetriever
@@ -14,7 +12,4 @@ __all__ = [
     "ConnectorRetriever",
     "LlamaIndexUploadPDFRetriever",
     "PubMedRetriever",
-    "ToolCategory",
-    "ToolDefinition",
-    "BaseTool",
 ]

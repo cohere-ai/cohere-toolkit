@@ -36,7 +36,7 @@ def test_async_call_tools_success(mock_get_available_tools) -> None:
             ]
         }
     ]
-    mock_get_available_tools.return_value = {Tool.Calculator: ToolDefinition(implementation=MockCalculator)}
+    mock_get_available_tools.return_value = {Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator)}
     results = asyncio.run(
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
@@ -68,7 +68,7 @@ def test_async_call_tools_failure(mock_get_available_tools) -> None:
             ]
         }
     ]
-    mock_get_available_tools.return_value = {Tool.Calculator: ToolDefinition(implementation=MockCalculator)}
+    mock_get_available_tools.return_value = {Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator)}
     results = asyncio.run(
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
@@ -104,7 +104,7 @@ def test_async_call_tools_timeout(mock_get_available_tools) -> None:
             ]
         }
     ]
-    mock_get_available_tools.return_value = {Tool.Calculator: ToolDefinition(implementation=MockCalculator)}
+    mock_get_available_tools.return_value = {Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator)}
 
     with pytest.raises(HTTPException) as excinfo:
         asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
@@ -141,8 +141,8 @@ def test_async_call_tools_failure_and_success(mock_get_available_tools) -> None:
         }
     ]
     mock_get_available_tools.return_value = {
-        Tool.Calculator: ToolDefinition(implementation=MockCalculator),
-        Tool.Web_Scrape: ToolDefinition(implementation=MockWebScrape),
+        Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator),
+        Tool.Web_Scrape.value.ID: ToolDefinition(implementation=MockWebScrape),
     }
 
     results = asyncio.run(

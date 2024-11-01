@@ -25,6 +25,8 @@ class BuildTarget(StrEnum):
 class Tool(StrEnum):
     PythonInterpreter = "Python Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
+    Wolfram_Alpha = "Wolfram Alpha"
+
 
 
 WELCOME_MESSAGE = r"""
@@ -61,6 +63,16 @@ TOOLS = {
         },
     },
 }
+
+# For main.py cli setup script
+COMMUNITY_TOOLS = {
+    Tool.Wolfram_Alpha: {
+        "secrets": {
+            "WOLFRAM_APP_ID": None,  # default value
+        },
+    },
+}
+
 
 ENV_YAML_CONFIG_MAPPING = {
     "USE_COMMUNITY_FEATURES": {
