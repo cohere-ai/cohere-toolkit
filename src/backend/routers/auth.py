@@ -259,7 +259,7 @@ async def tool_auth(
         HTTPException: If no redirect_uri set.
     """
     logger = ctx.get_logger()
-    redirect_uri = Settings().auth.frontend_hostname
+    redirect_uri = Settings().get('auth.frontend_hostname')
 
     if not redirect_uri:
         raise HTTPException(

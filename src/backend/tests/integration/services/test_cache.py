@@ -4,7 +4,7 @@ from backend.config.settings import Settings
 from backend.services.cache import get_client
 
 # skip if redis is not available
-is_redis_env_set = Settings().redis.url
+is_redis_env_set = Settings().get('redis.url')
 
 
 @pytest.mark.skipif(not is_redis_env_set, reason="Redis is not set")

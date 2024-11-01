@@ -11,8 +11,8 @@ from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
     NAME = "google_web_search"
-    API_KEY = Settings().tools.google_web_search.api_key
-    CSE_ID = Settings().tools.google_web_search.cse_id
+    API_KEY = Settings().get('tools.google_web_search.api_key')
+    CSE_ID = Settings().get('tools.google_web_search.cse_id')
 
     def __init__(self):
         self.client = build("customsearch", "v1", developerKey=self.API_KEY)
