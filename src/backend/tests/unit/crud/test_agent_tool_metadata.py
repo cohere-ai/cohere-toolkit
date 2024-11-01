@@ -154,7 +154,7 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
         _ = get_factory("Agent", session).create(user_id=user.id)
         _ = get_factory("AgentToolMetadata", session).create(
             id=f"{i}",
-            tool_name=tool.value,
+            tool_name=tool.value.ID,
             artifacts=[mock_artifact_1, mock_artifact_2],
             user_id=user.id,
             agent_id=agent2.id,

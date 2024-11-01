@@ -135,14 +135,14 @@ def test_create_agent_invalid_tool(
         "name": "test agent",
         "model": "command-r-plus",
         "deployment": ModelDeploymentName.CoherePlatform,
-        "tools": [Tool.Calculator.value.ID, "not a real tool"],
+        "tools": [Tool.Calculator.value.ID, "fake_tool"],
     }
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
     assert response.status_code == 404
-    assert response.json() == {"detail": "Tool not a real tool not found."}
+    assert response.json() == {"detail": "Tool fake_tool not found."}
 
 
 def test_create_existing_agent(

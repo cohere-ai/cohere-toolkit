@@ -65,7 +65,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
             },
             is_visible=False,
             is_available=cls.is_available(),
-            error_message=cls.generate_error_message,
+            error_message=cls.generate_error_message(),
             category=ToolCategory.FileLoader,
             description=(
                 "Retrieves the most relevant documents from the uploaded "
