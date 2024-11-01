@@ -2,9 +2,8 @@ from typing import Any, Dict, List
 
 import requests
 
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
-from backend.schemas.tool import ToolDefinition, ToolCategory
-
 
 
 class ClinicalTrials(BaseTool):
@@ -23,7 +22,7 @@ class ClinicalTrials(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    @classmethod 
+    @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return  ToolDefinition(
             name=cls.ID,

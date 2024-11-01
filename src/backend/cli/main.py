@@ -1,6 +1,6 @@
 import argparse
 
-from backend.cli.constants import TOOLS, COMMUNITY_TOOLS
+from backend.cli.constants import COMMUNITY_TOOLS, TOOLS
 from backend.cli.prompts import (
     PROMPTS,
     community_tools_prompt,

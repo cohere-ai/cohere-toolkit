@@ -1,5 +1,6 @@
 from enum import Enum
 
+from backend.schemas.tool import ToolDefinition
 from community.tools import (
     ArxivRetriever,
     ClinicalTrials,
@@ -9,7 +10,7 @@ from community.tools import (
     WolframAlpha,
 )
 
-from backend.schemas.tool import ToolDefinition
+
 class CommunityTool(Enum):
     Arxiv = ArxivRetriever
     Connector = ConnectorRetriever
@@ -17,7 +18,7 @@ class CommunityTool(Enum):
     File_Upload_LlamaIndex = LlamaIndexUploadPDFRetriever
     Wolfram_Alpha = WolframAlpha
     ClinicalTrials = ClinicalTrials
-    
+
 
 def get_community_tools() -> dict[str, ToolDefinition]:
     # Get list of implementations from Tool Enum

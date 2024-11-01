@@ -2,8 +2,8 @@ from typing import Any, Dict, List
 
 from langchain_community.utilities import ArxivAPIWrapper
 
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
-from backend.schemas.tool import ToolDefinition, ToolCategory
 
 
 class ArxivRetriever(BaseTool):
@@ -19,7 +19,7 @@ class ArxivRetriever(BaseTool):
     @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
-            name=cls.ID,    
+            name=cls.ID,
             display_name="Arxiv",
             implementation=cls,
             parameter_definitions={
@@ -35,7 +35,7 @@ class ArxivRetriever(BaseTool):
             category=ToolCategory.DataLoader,
             description="Retrieves documents from Arxiv.",
         )
-    
+
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
         result = self.client.run(query)

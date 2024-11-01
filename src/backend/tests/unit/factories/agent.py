@@ -5,6 +5,7 @@ from backend.database_models.agent import Agent
 from backend.tests.unit.factories.base import BaseFactory
 from backend.tests.unit.factories.user import UserFactory
 
+
 class AgentFactory(BaseFactory):
     class Meta:
         model = Agent

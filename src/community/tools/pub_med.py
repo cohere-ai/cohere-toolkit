@@ -2,9 +2,8 @@ from typing import Any, Dict, List
 
 from langchain_community.tools.pubmed.tool import PubmedQueryRun
 
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
-from backend.schemas.tool import ToolDefinition, ToolCategory
-
 
 
 class PubMedRetriever(BaseTool):
@@ -17,7 +16,7 @@ class PubMedRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    @classmethod 
+    @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
             name=cls.ID,

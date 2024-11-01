@@ -3,9 +3,8 @@ from typing import Any, Dict, List
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from backend.config.settings import Settings
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
-from backend.schemas.tool import ToolDefinition, ToolCategory
-
 
 
 class WolframAlpha(BaseTool):

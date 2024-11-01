@@ -7,10 +7,8 @@ from llama_index.embeddings.cohere import CohereEmbedding
 
 import backend.crud.file as file_crud
 from backend.config import Settings
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
-from backend.schemas.tool import ToolDefinition, ToolCategory
-
-
 
 """
 Plug in your llama index retrieval implementation here.
@@ -46,7 +44,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     def is_available(cls) -> bool:
         return True
 
-    @classmethod 
+    @classmethod
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
             name=cls.ID,
