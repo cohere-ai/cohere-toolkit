@@ -6,6 +6,7 @@ from backend.tools.google_search import GoogleWebSearch
 from backend.tools.hybrid_search import HybridWebSearch
 from backend.tools.lang_chain import LangChainVectorDBRetriever, LangChainWikiRetriever
 from backend.tools.python_interpreter import PythonInterpreter
+from backend.tools.slack import SlackAuth, SlackTool
 from backend.tools.tavily_search import TavilyWebSearch
 from backend.tools.web_scrape import WebScrapeTool
 
@@ -23,4 +24,6 @@ __all__ = [
     "BraveWebSearch",
     "GoogleWebSearch",
     "HybridWebSearch",
+    "SlackTool",
+    "SlackAuth"
 ]
