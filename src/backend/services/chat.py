@@ -156,7 +156,7 @@ def process_chat(
 
     tools = chat_request.tools
     managed_tools = (
-        len([tool.name for tool in tools if tool.name in get_available_tools]) > 0
+        len([tool.name for tool in tools if tool.name in get_available_tools()]) > 0
     )
 
     return (

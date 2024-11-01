@@ -78,19 +78,22 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
             # Append original search result
             expanded.append(result)
 
-            # Get other snippets
-            snippets = result["raw_content"].split("\n")
-            for snippet in snippets:
-                if result["content"] != snippet:
-                    if len(snippet.split()) <= 10:
-                        continue  # Skip snippets with less than 10 words
+            # Retrieve snippets from raw content if exists
+            raw_content = result["raw_content"]
+            if raw_content:
+                # Get other snippets
+                snippets = result["raw_content"].split("\n")
+                for snippet in snippets:
+                    if result["content"] != snippet:
+                        if len(snippet.split()) <= 10:
+                            continue  # Skip snippets with less than 10 words
 
-                    new_result = {
-                        "url": result["url"],
-                        "title": result["title"],
-                        "content": snippet.strip(),
-                    }
-                    expanded.append(new_result)
+                        new_result = {
+                            "url": result["url"],
+                            "title": result["title"],
+                            "content": snippet.strip(),
+                        }
+                        expanded.append(new_result)
 
         reranked_results = await self.rerank_page_snippets(
             query, expanded, model=kwargs.get("model_deployment"), ctx=ctx, **kwargs

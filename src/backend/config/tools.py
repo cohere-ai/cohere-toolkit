@@ -44,7 +44,7 @@ def get_available_tools() -> dict[str, ToolDefinition]:
         tool.ID: tool.get_tool_definition() for tool in tool_classes
     }
 
-    # Handle adding Community-implemented tools 
+    # Handle adding Community-implemented tools
     use_community_tools = Settings().feature_flags.use_community_features
     # if use_community_tools:
     #     try:
