@@ -25,22 +25,33 @@ Toolkit is a deployable all-in-one RAG application that enables users to quickly
 ![](/docs/assets/toolkit.gif)
 
 ## Try Now:
-
-*You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed. [Go here for a more detailed setup.](/docs/setup.md)*
-
-There are two main ways of running Toolkit:
-
-**Docker Compose setup**
-
+There are two main ways for quickly running Toolkit: local and cloud. See the specific instructions given below. 
+### Local
+*You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed. [Go here for a more detailed setup.](/docs/setup.md)*  
 Note: to include community tools when building locally, set the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` to `true`.
 
+Both options will make the frontend available at http://localhost:4000.
+
+#### Using `make`
+Use the provided Makefile to simplify and automate your development workflow with Cohere Toolkit, including Docker Compose management, testing, linting, and environment setup.
 ```bash
 git clone https://github.com/cohere-ai/cohere-toolkit.git
 cd cohere-toolkit
 make first-run
 ```
 
-## GitHub Codespaces
+
+
+#### Docker Compose only
+Use Docker Compose directly if you want to quickly spin up and manage your container environment without the additional automation provided by the Makefile.
+```bash
+git clone https://github.com/cohere-ai/cohere-toolkit.git
+cd cohere-toolkit
+docker compose up
+docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
+```
+### Cloud
+#### GitHub Codespaces
 
 To run this project using GitHub Codespaces, please refer to our [Codespaces Setup Guide](/docs/github_codespaces.md).
 
