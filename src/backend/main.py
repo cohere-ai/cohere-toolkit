@@ -1,3 +1,5 @@
+import logging
+
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
@@ -28,6 +30,9 @@ from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
+
+# Only show errors for Pydantic
+logging.getLogger('pydantic').setLevel(logging.ERROR)
 
 load_dotenv()
 

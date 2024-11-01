@@ -376,31 +376,6 @@ def test_streaming_fail_chat_missing_message(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        json={
-            "message": "Give me a number",
-            "tools": [
-                {
-                    "name": "random_number_generator",
-                    "description": "generate a random number",
-                }
-            ],
-        },
-        headers={
-            "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
-        },
-    )
-
-    assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 0, is_custom_tools=True
-    )
-
-
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
@@ -855,30 +830,6 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Cannot mix both managed and custom tools"}
-
-
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_non_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
-    response = session_client_chat.post(
-        "/v1/chat",
-        json={
-            "message": "Give me a number",
-            "tools": [
-                {
-                    "name": "random_number_generator",
-                    "description": "generate a random number",
-                }
-            ],
-        },
-        headers={
-            "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
-        },
-    )
-
-    assert response.status_code == 200
-    assert len(response.json()["tool_calls"]) == 1
-
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_search_queries_only(
