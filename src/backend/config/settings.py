@@ -1,5 +1,5 @@
 import sys
-from typing import List, Optional, Tuple, Type, Any
+from typing import Any, List, Optional, Tuple, Type
 
 from pydantic import AliasChoices, BaseModel, Field
 from pydantic_settings import (
