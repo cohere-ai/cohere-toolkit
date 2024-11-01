@@ -1,0 +1,2 @@
+SEARCH_LIMIT = 10
+SLACK_TOOL_ID = "slack"

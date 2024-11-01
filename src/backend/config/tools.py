@@ -13,6 +13,7 @@ from backend.tools import (
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
+    SlackTool,
     TavilyWebSearch,
     WebScrapeTool,
 )
@@ -34,6 +35,7 @@ class Tool(Enum):
     Google_Web_Search = GoogleWebSearch
     Brave_Web_Search = BraveWebSearch
     Hybrid_Web_Search = HybridWebSearch
+    Slack = SlackTool
 
 
 def get_available_tools() -> dict[str, ToolDefinition]:

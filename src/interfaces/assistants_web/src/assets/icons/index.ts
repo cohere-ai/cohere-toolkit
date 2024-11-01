@@ -58,3 +58,4 @@ export * from './UsersThree';
 export * from './Volume';
 export * from './Warning';
 export * from './Web';
+export * from './Slack';

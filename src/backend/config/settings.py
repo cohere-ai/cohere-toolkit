@@ -146,6 +146,24 @@ class GDriveSettings(BaseSettings, BaseModel):
     )
 
 
+class SlackSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    client_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("SLACK_CLIENT_ID", "client_id"),
+    )
+    client_secret: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("SLACK_CLIENT_SECRET", "client_secret"),
+    )
+    user_scopes: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "SLACK_USER_SCOPES", "scopes"
+        ),
+    )
+
+
 class TavilyWebSearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
@@ -194,10 +212,13 @@ class ToolSettings(BaseSettings, BaseModel):
     brave_web_search: Optional[BraveWebSearchSettings] = Field(
         default=BraveWebSearchSettings()
     )
-
     hybrid_web_search: Optional[HybridWebSearchSettings] = Field(
         default=HybridWebSearchSettings()
     )
+    slack: Optional[SlackSettings] = Field(
+        default=SlackSettings()
+    )
+
 
 
 class DatabaseSettings(BaseSettings, BaseModel):
