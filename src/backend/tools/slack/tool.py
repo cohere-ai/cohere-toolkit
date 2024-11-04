@@ -17,7 +17,7 @@ class SlackTool(BaseTool):
     Tool that searches Slack for messages and files based on a query.
     """
 
-    NAME = SLACK_TOOL_ID
+    ID = SLACK_TOOL_ID
     CLIENT_ID = ""
     CLIENT_SECRET = ""
 

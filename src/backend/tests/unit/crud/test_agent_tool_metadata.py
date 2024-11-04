@@ -147,10 +147,12 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
         artifacts=[mock_artifact_1, mock_artifact_2],
     )
 
+
     # Constraint was added preventing multiple entries for the same user + agent + tool so fixing to change the tool used
     i = 0
     for tool in Tool:
         i += 1
+
         _ = get_factory("Agent", session).create(user_id=user.id)
         _ = get_factory("AgentToolMetadata", session).create(
             id=f"{i}",
