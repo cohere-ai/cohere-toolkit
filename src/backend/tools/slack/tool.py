@@ -16,16 +16,11 @@ class SlackTool(BaseTool):
     """
 
     NAME = SLACK_TOOL_ID
-    CLIENT_ID = ""
-    CLIENT_SECRET = ""
+    CLIENT_ID = Settings().get('tools.slack.client_id')
+    CLIENT_SECRET = Settings().get('tools.slack.client_secret')
 
     @classmethod
     def is_available(cls) -> bool:
-        settings = Settings()
-        slack_settings = settings.tools.slack if settings.tools and settings.tools.slack else None
-        cls.CLIENT_ID = getattr(slack_settings, 'client_id', None)
-        cls.CLIENT_SECRET = getattr(slack_settings, 'client_secret', None)
-
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
 
     @classmethod

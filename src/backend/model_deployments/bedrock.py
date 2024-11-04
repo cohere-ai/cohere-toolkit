@@ -24,7 +24,7 @@ BEDROCK_ENV_VARS = [
 class BedrockDeployment(BaseDeployment):
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
 
-    bedrock_config = Settings().deployments.bedrock
+    bedrock_config = Settings().get('deployments.bedrock')
     region_name = bedrock_config.region_name
     access_key = bedrock_config.access_key
     secret_access_key = bedrock_config.secret_key

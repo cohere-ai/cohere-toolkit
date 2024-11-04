@@ -1,5 +1,5 @@
 import sys
-from typing import List, Optional, Tuple, Type
+from typing import Any, List, Optional, Tuple, Type
 
 from pydantic import AliasChoices, BaseModel, Field
 from pydantic_settings import (
@@ -362,6 +362,15 @@ class Settings(BaseSettings):
     google_cloud: Optional[GoogleCloudSettings] = Field(default=GoogleCloudSettings())
     deployments: Optional[DeploymentSettings] = Field(default=DeploymentSettings())
     logger: Optional[LoggerSettings] = Field(default=LoggerSettings())
+
+    def get(self, path: str) -> Any:
+        keys = path.split('.')
+        value = self
+        for key in keys:
+            value = getattr(value, key, None)
+            if value is None:
+                return None
+        return value
 
     @classmethod
     def settings_customise_sources(

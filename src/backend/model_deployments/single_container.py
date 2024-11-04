@@ -19,7 +19,7 @@ class SingleContainerDeployment(BaseDeployment):
     """Single Container Deployment."""
 
     client_name = "cohere-toolkit"
-    config = Settings().deployments.single_container
+    config = Settings().get('deployments.single_container')
     default_url = config.url
     default_model = config.model
 
