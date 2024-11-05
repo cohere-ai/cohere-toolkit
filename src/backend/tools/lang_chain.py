@@ -60,7 +60,7 @@ class LangChainVectorDBRetriever(BaseTool):
     """
 
     NAME = "vector_retriever"
-    COHERE_API_KEY = Settings().deployments.cohere_platform.api_key
+    COHERE_API_KEY = Settings().get('deployments.cohere_platform.api_key')
 
     def __init__(self, filepath: str):
         self.filepath = filepath

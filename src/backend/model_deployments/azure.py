@@ -25,7 +25,7 @@ class AzureDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["azure-command"]
 
-    azure_config = Settings().deployments.azure
+    azure_config = Settings().get('deployments.azure')
     default_api_key = azure_config.api_key
     default_chat_endpoint_url = azure_config.endpoint_url
 

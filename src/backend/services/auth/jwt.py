@@ -15,7 +15,7 @@ class JWTService:
     ALGORITHM = "HS256"
 
     def __init__(self):
-        secret_key = Settings().auth.secret_key
+        secret_key = Settings().get('auth.secret_key')
 
         if not secret_key:
             raise ValueError(

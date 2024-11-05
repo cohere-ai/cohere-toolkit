@@ -23,7 +23,7 @@ def list_experimental_features(ctx: Context = Depends(get_context)) -> dict[str,
         Dict[str, bool]: Experimental feature and their isEnabled state
     """
     experimental_features = {
-        "USE_AGENTS_VIEW": Settings().feature_flags.use_agents_view,
-        "USE_TEXT_TO_SPEECH_SYNTHESIS": bool(Settings().google_cloud.api_key),
+        "USE_AGENTS_VIEW": Settings().get('feature_flags.use_agents_view'),
+        "USE_TEXT_TO_SPEECH_SYNTHESIS": bool(Settings().get('google_cloud.api_key')),
     }
     return experimental_features

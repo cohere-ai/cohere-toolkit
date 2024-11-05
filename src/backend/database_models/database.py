@@ -10,7 +10,7 @@ from backend.database_models.base import CustomFilterQuery
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = Settings().database.url
+SQLALCHEMY_DATABASE_URL = Settings().get('database.url')
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, pool_size=5, max_overflow=10, pool_timeout=30
 )

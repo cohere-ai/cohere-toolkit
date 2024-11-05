@@ -19,9 +19,9 @@ class GoogleOAuth(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            self.settings = Settings().auth.google_oauth
+            self.settings = Settings().get('auth.google_oauth')
             self.REDIRECT_URI = (
-                f"{Settings().auth.frontend_hostname}/auth/{self.NAME.lower()}"
+                f"{Settings().get('auth.frontend_hostname')}/auth/{self.NAME.lower()}"
             )
             self.client = OAuth2Session(
                 client_id=self.settings.client_id,
