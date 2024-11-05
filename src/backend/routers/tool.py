@@ -44,7 +44,9 @@ def list_tools(
         all_tools = agent_tools
 
     for tool in all_tools:
-        if tool.is_available and tool.auth_implementation is not None:
+        # Tools with auth implementation can be enabled and visible but not accessible (e.g., if secrets are not set).
+        # Therefore, we need to set is_auth_required for these types of tools as well for the frontend.
+        if (tool.is_available or tool.is_visible) and tool.auth_implementation is not None:
             try:
                 tool_auth_service = tool.auth_implementation()
 
@@ -55,7 +57,7 @@ def list_tools(
                 tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
                 logger.error(event=f"Error while fetching Tool Auth: {str(e)}")
-
+                tool.is_auth_required = True
                 tool.is_available = False
                 tool.error_message = (
                     f"Error while calling Tool Auth implementation {str(e)}"
