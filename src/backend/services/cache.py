@@ -9,7 +9,7 @@ logger = LoggerFactory().get_logger()
 
 
 def get_client() -> Redis:
-    redis_url = Settings().redis.url
+    redis_url = Settings().get('redis.url')
 
     if not redis_url:
         error = "Tried retrieving Redis client but redis.url in configuration.yaml is not set."

@@ -163,7 +163,7 @@ def test_generate_title_error_invalid_model(
 # SYNTHESIZE
 
 
-is_google_cloud_api_key_set = bool(Settings().google_cloud.api_key)
+is_google_cloud_api_key_set = bool(Settings().get('google_cloud.api_key'))
 
 
 @pytest.mark.skipif(not is_google_cloud_api_key_set, reason="Google Cloud API key not set, skipping test")

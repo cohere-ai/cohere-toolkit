@@ -29,7 +29,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
     CHUNK_SIZE = 512
 
     def __init__(self):
-        self.COHERE_API_KEY = Settings().deployments.cohere_platform.api_key
+        self.COHERE_API_KEY = Settings().get('deployments.cohere_platform.api_key')
 
 
     def _get_embedding(self, embed_type):

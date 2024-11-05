@@ -11,9 +11,9 @@ class LoggerFactory:
         if self.logger is not None:
             return self.logger
 
-        strategy = Settings().logger.strategy
-        level = Settings().logger.level
-        renderer = Settings().logger.renderer
+        strategy = Settings().get('logger.strategy')
+        level = Settings().get('logger.level')
+        renderer = Settings().get('logger.renderer')
 
         if strategy == "structlog":
             return StructuredLogging(level, renderer)

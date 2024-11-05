@@ -33,7 +33,7 @@ class SageMakerDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["sagemaker-command"]
 
-    sagemaker_config = Settings().deployments.sagemaker
+    sagemaker_config = Settings().get('deployments.sagemaker')
     endpoint = sagemaker_config.endpoint_name
     region_name = sagemaker_config.region_name
     aws_access_key_id = sagemaker_config.access_key

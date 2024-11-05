@@ -28,8 +28,8 @@ class GoogleDriveAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
     def __init__(self):
         super().__init__()
-        self.GOOGLE_DRIVE_CLIENT_ID = Settings().tools.google_drive.client_id
-        self.GOOGLE_DRIVE_CLIENT_SECRET = Settings().tools.google_drive.client_secret
+        self.GOOGLE_DRIVE_CLIENT_ID = Settings().get('tools.google_drive.client_id')
+        self.GOOGLE_DRIVE_CLIENT_SECRET = Settings().get('tools.google_drive.client_secret')
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
 
         if (
