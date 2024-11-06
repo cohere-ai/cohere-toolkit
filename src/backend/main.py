@@ -63,7 +63,7 @@ def create_app():
     dependencies_type = "default"
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        auth_secret = Settings().auth.secret_key
+        auth_secret = Settings().get('auth.secret_key')
         app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:

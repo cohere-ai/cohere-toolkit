@@ -20,9 +20,9 @@ class OpenIDConnect(BaseOAuthStrategy):
 
     def __init__(self):
         try:
-            self.settings = Settings().auth.oidc
+            self.settings = Settings().get('auth.oidc')
             self.REDIRECT_URI = (
-                f"{Settings().auth.frontend_hostname}/auth/{self.NAME.lower()}"
+                f"{Settings().get('auth.frontend_hostname')}/auth/{self.NAME.lower()}"
             )
             self.WELL_KNOWN_ENDPOINT = self.settings.well_known_endpoint
             self.client = OAuth2Session(

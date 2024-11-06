@@ -18,7 +18,7 @@ class PythonInterpreter(BaseTool):
     """
 
     ID = "toolkit_python_interpreter"
-    INTERPRETER_URL = Settings().tools.python_interpreter.url
+    INTERPRETER_URL = Settings().get('tools.python_interpreter.url')
 
     @classmethod
     def is_available(cls) -> bool:

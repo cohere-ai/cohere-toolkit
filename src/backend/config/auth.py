@@ -19,8 +19,8 @@ auth_map = {
 SKIP_AUTH = os.getenv("SKIP_AUTH", None)
 # Ex: [BasicAuthentication]
 ENABLED_AUTH_STRATEGIES = []
-if ENABLED_AUTH_STRATEGIES == [] and Settings().auth.enabled_auth is not None:
-    ENABLED_AUTH_STRATEGIES = [auth_map[auth] for auth in Settings().auth.enabled_auth]
+if ENABLED_AUTH_STRATEGIES == [] and Settings().get('auth.enabled_auth') is not None:
+    ENABLED_AUTH_STRATEGIES = [auth_map[auth] for auth in Settings().get('auth.enabled_auth')]
 if "pytest" in sys.modules or SKIP_AUTH == "true":
     ENABLED_AUTH_STRATEGIES = []
 
@@ -30,7 +30,7 @@ if "pytest" in sys.modules or SKIP_AUTH == "true":
 ENABLED_AUTH_STRATEGY_MAPPING = {cls.NAME: cls() for cls in ENABLED_AUTH_STRATEGIES}
 
 # Token to authorize migration requests
-MIGRATE_TOKEN = Settings().database.migrate_token
+MIGRATE_TOKEN = Settings().get('database.migrate_token')
 
 security = HTTPBearer()
 

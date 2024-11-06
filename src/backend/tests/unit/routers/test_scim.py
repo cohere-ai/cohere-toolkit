@@ -7,7 +7,7 @@ import backend.crud.group as group_repo
 import backend.crud.user as user_repo
 from backend.config import Settings
 
-scim = Settings().auth.scim
+scim = Settings().get('auth.scim')
 encoded_auth = base64.b64encode(
     f"{scim.username}:{scim.password}".encode("utf-8")
 ).decode("utf-8")

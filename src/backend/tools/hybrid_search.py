@@ -19,7 +19,7 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
     ID = "hybrid_web_search"
     POST_RERANK_MAX_RESULTS = 6
     AVAILABLE_WEB_SEARCH_TOOLS = [TavilyWebSearch, GoogleWebSearch, BraveWebSearch]
-    ENABLED_WEB_SEARCH_TOOLS = Settings().tools.hybrid_web_search.enabled_web_searches
+    ENABLED_WEB_SEARCH_TOOLS = Settings().get('tools.hybrid_web_search.enabled_web_searches')
     WEB_SCRAPE_TOOL = WebScrapeTool
 
     def __init__(self):
