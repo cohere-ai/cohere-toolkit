@@ -22,7 +22,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
     }
 
     response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.value.ID}
+        "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
     assert response.status_code == 200
     response_agent = response.json()
@@ -85,7 +85,7 @@ def test_create_agent_with_tool_metadata(
     }
 
     response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.value.ID}
+        "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
     assert response.status_code == 200
     response_agent = response.json()
@@ -116,7 +116,7 @@ def test_create_agent_missing_non_required_fields(
     }
 
     response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.value.ID}
+        "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
     assert response.status_code == 200
     response_agent = response.json()
@@ -159,9 +159,9 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     }
 
     response = session_client.put(
-        f"/v1/agents/{agent.value.ID}",
+        f"/v1/agents/{agent.id}",
         json=request_json,
-        headers={"User-Id": user.value.ID},
+        headers={"User-Id": user.id},
     )
 
     assert response.status_code == 200

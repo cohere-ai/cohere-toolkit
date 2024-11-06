@@ -260,6 +260,9 @@ async def generate_conversation_title(
             ctx=ctx,
         )
 
+        import pdb 
+        pdb.set_trace()
+
         title = response.text
         error = response.error
     except Exception as e:
