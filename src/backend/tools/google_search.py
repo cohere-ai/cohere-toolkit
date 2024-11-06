@@ -37,6 +37,8 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
             },
             is_visible=False,
             is_available=cls.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             error_message=cls.generate_error_message(),
             category=ToolCategory.WebSearch,
             description="Returns relevant results by performing a Google web search.",

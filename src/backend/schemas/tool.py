@@ -22,6 +22,8 @@ class ToolDefinition(Tool):
     kwargs: dict = {}
     is_visible: bool = False
     is_available: bool = False
+    is_default_tool: bool = False
+    is_background_tool: bool = False
     category: ToolCategory = ToolCategory.DataLoader
 
     is_auth_required: bool = False  # Per user

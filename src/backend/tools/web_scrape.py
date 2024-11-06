@@ -40,6 +40,8 @@ class WebScrapeTool(BaseTool):
             },
             is_visible=False,
             is_available=cls.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",

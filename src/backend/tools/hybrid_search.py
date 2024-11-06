@@ -54,6 +54,8 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
             },
             is_visible=True,
             is_available=cls.is_available(),
+            is_default_tool=True,
+            is_background_tool=False,
             error_message=cls.generate_error_message(),
             category=ToolCategory.WebSearch,
             description=(

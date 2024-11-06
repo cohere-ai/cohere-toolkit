@@ -32,6 +32,8 @@ class Calculator(BaseTool):
             },
             is_visible=False,
             is_available=Calculator.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             category=ToolCategory.Function,
             error_message=cls.generate_error_message(),
             description="A powerful multi-purpose calculator capable of a wide array of math calculations.",

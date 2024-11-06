@@ -45,6 +45,8 @@ class SlackTool(BaseTool):
             },
             is_visible=True,
             is_available=cls.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             auth_implementation=SlackAuth,
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,

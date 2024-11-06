@@ -49,6 +49,8 @@ class GoogleDrive(BaseTool):
             },
             is_visible=True,
             is_available=GoogleDrive.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             auth_implementation=GoogleDriveAuth,
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
