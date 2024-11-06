@@ -154,6 +154,13 @@ export class CohereClient {
     });
   }
 
+  public updateDeploymentConfig(deploymentId: string, requestBody: UpdateDeploymentEnv) {
+    return this.cohereService.default.updateConfigV1DeploymentsDeploymentIdUpdateConfigPost({
+      deploymentId: deploymentId,
+      requestBody,
+    });
+  }
+
   public getExperimentalFeatures() {
     return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet() as CancelablePromise<ExperimentalFeatures>;
   }

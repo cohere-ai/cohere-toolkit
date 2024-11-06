@@ -34,8 +34,16 @@ class SingleContainerDeployment(BaseDeployment):
             base_url=self.url, client_name=self.client_name, api_key="none"
         )
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Single Container"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return SC_ENV_VARS
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return SingleContainerDeployment.default_model.startswith("rerank")
 
     @classmethod

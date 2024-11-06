@@ -48,8 +48,16 @@ class BedrockDeployment(BaseDeployment):
             ),
         )
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Bedrock"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return BEDROCK_ENV_VARS
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod

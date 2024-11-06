@@ -15,7 +15,7 @@ from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
-from backend.schemas.deployment import Deployment as DeploymentSchema
+from backend.schemas.deployment import DeploymentInfo
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -186,39 +186,31 @@ def mock_available_model_deployments(request):
 
     is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
-        ModelDeploymentName.CoherePlatform: DeploymentSchema(
+        ModelDeploymentName.CoherePlatform: DeploymentInfo(
             id="cohere_platform",
             name=ModelDeploymentName.CoherePlatform,
             models=MockCohereDeployment.list_models(),
             is_available=is_available_values.get(
                 ModelDeploymentName.CoherePlatform, True
             ),
-            deployment_class=MockCohereDeployment,
-            env_vars=["COHERE_VAR_1", "COHERE_VAR_2"],
         ),
-        ModelDeploymentName.SageMaker: DeploymentSchema(
+        ModelDeploymentName.SageMaker: DeploymentInfo(
             id="sagemaker",
             name=ModelDeploymentName.SageMaker,
             models=MockSageMakerDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
-            deployment_class=MockSageMakerDeployment,
-            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
-        ModelDeploymentName.Azure: DeploymentSchema(
+        ModelDeploymentName.Azure: DeploymentInfo(
             id="azure",
             name=ModelDeploymentName.Azure,
             models=MockAzureDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.Azure, True),
-            deployment_class=MockAzureDeployment,
-            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
         ),
-        ModelDeploymentName.Bedrock: DeploymentSchema(
+        ModelDeploymentName.Bedrock: DeploymentInfo(
             id="bedrock",
             name=ModelDeploymentName.Bedrock,
             models=MockBedrockDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.Bedrock, True),
-            deployment_class=MockBedrockDeployment,
-            env_vars=["BEDROCK_VAR_1", "BEDROCK_VAR_2"],
         ),
     }
 

@@ -72,8 +72,16 @@ class SageMakerDeployment(BaseDeployment):
             "ContentType": "application/json",
         }
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "SageMaker"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return SAGE_MAKER_ENV_VARS
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod

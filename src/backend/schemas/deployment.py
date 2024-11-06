@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
-# from backend.model_deployments.base import BaseDeployment
+# from pydantic_settings import BaseSettings
 from backend.schemas.model import ModelSimple
 
 
@@ -22,49 +22,38 @@ class DeploymentWithModels(BaseModel):
     id: Optional[str] = None
     name: str
     description: Optional[str] = None
+    deployment_class_name: Optional[str] = Field(exclude=True, default="")
+    env_vars: Optional[List[str]]
     is_available: bool = False
     is_community: Optional[bool] = False
-    env_vars: Optional[List[str]]
-    deployment_class_name: Optional[str] = Field(exclude=True, default="")
     models: list[ModelSimple]
 
     class Config:
         from_attributes = True
 
 
-class Deployment(BaseModel):
-    id: Optional[str] = None
+class DeploymentInfo(BaseModel):
+    id: str
     name: str
-    models: list[str]
-    is_available: bool = False
-    deployment_class: Optional[Type[Any]] = Field(exclude=True, default=None)
-    env_vars: Optional[List[str]]
     description: Optional[str] = None
-    deployment_class_name: Optional[str] = Field(exclude=True, default="")
-    is_community: Optional[bool] = False
-    default_deployment_config: Optional[Dict[str, str]] = Field(
-        default_factory=dict, exclude=True
-    )
-    kwargs: Optional[dict] = Field(exclude=True, default={})
+    config: Dict[str, str] = {}
+    is_available: bool = False
+    is_community: bool = False
+    models: list[str]
 
     class Config:
         from_attributes = True
 
     @classmethod
-    def custom_transform(cls, obj):
+    def from_db_deployment(cls, obj):
         data = {
             "id": obj.id,
             "name": obj.name,
-            "description": obj.description,
-            "deployment_class": obj.deployment_class if obj.deployment_class else None,
-            "deployment_class_name": (
-                obj.deployment_class_name if obj.deployment_class_name else None
-            ),
+            "description": obj.description if obj.description else None,
             "models": [model.name for model in obj.models],
             "is_community": obj.is_community,
             "is_available": obj.is_available,
-            "env_vars": obj.env_vars,
-            "default_deployment_config": obj.default_deployment_config,
+            "config": obj.default_deployment_config,
         }
         return cls(**data)
 

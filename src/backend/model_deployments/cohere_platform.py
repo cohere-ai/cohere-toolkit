@@ -29,8 +29,16 @@ class CohereDeployment(BaseDeployment):
         )
         self.client = cohere.Client(api_key, client_name=self.client_name)
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Cohere Platform"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return COHERE_ENV_VARS
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return True
 
     @classmethod

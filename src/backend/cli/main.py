@@ -20,9 +20,6 @@ from backend.cli.utils import show_examples, show_welcome_message, wrap_up
 from backend.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as MANAGED_DEPLOYMENTS_SETUP,
 )
-from community.config.deployments import (
-    AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
-)
 from community.config.tools import COMMUNITY_TOOLS_SETUP
 
 
@@ -51,8 +48,8 @@ def start():
 
     # SET UP ENVIRONMENT FOR DEPLOYMENTS
     all_deployments = MANAGED_DEPLOYMENTS_SETUP.copy()
-    if use_community_features:
-        all_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
+    # if use_community_features:
+    #     all_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
 
     selected_deployments = select_deployments_prompt(all_deployments, secrets)
 

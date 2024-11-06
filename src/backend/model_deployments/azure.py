@@ -44,8 +44,16 @@ class AzureDeployment(BaseDeployment):
             base_url=self.chat_endpoint_url, api_key=self.api_key
         )
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Azure"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return AZURE_ENV_VARS
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod
