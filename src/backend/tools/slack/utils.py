@@ -24,7 +24,7 @@ class SlackService:
             document = self.extract_message_data(match)
             results.append(document)
         for match in response["files"]["matches"]:
-            document = self.extract_files_data(match)
+            document = self.extract_files_data(match, response["query"])
             results.append(document)
 
         return results
@@ -43,14 +43,14 @@ class SlackService:
         return document
 
     @staticmethod
-    def extract_files_data(message_json):
+    def extract_files_data(message_json, query=""):
         document = {}
         document["type"] = "file"
         if "permalink" in message_json:
             document["url"] = str(message_json.pop("permalink"))
         if "title" in message_json:
             document["title"] = str(message_json["title"])
-            document["text"] = str(message_json["title"])
+            document["text"] = f"{query} in {str(message_json['title'])}"
 
         return document
 

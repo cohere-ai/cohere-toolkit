@@ -28,7 +28,7 @@ class ModelDeploymentName(StrEnum):
     SingleContainer = "Single Container"
 
 
-use_community_features = Settings().feature_flags.use_community_features
+use_community_features = Settings().get('feature_flags.use_community_features')
 
 # TODO names in the map below should not be the display names but ids
 ALL_MODEL_DEPLOYMENTS = {
@@ -90,12 +90,12 @@ def get_available_deployments() -> dict[ModelDeploymentName, Deployment]:
                 event="[Deployments] No available community deployments have been configured"
             )
 
-    deployments = Settings().deployments.enabled_deployments
+    deployments = Settings().get('deployments.enabled_deployments')
     if deployments is not None and len(deployments) > 0:
         return {
             key: value
             for key, value in ALL_MODEL_DEPLOYMENTS.items()
-            if value.id in Settings().deployments.enabled_deployments
+            if value.id in Settings().get('deployments.enabled_deployments')
         }
 
     return ALL_MODEL_DEPLOYMENTS
@@ -109,7 +109,7 @@ def get_default_deployment(**kwargs) -> BaseDeployment:
             fallback = deployment.deployment_class(**kwargs)
             break
 
-    default = Settings().deployments.default_deployment
+    default = Settings().get('deployments.default_deployment')
     if default:
         return next(
             (

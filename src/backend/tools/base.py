@@ -62,9 +62,9 @@ class BaseToolAuthentication(ABC):
     """
 
     def __init__(self, *args, **kwargs):
-        self.BACKEND_HOST = Settings().auth.backend_hostname
-        self.FRONTEND_HOST = Settings().auth.frontend_hostname
-        self.AUTH_SECRET_KEY = Settings().auth.secret_key
+        self.BACKEND_HOST = Settings().get('auth.backend_hostname')
+        self.FRONTEND_HOST = Settings().get('auth.frontend_hostname')
+        self.AUTH_SECRET_KEY = Settings().get('auth.secret_key')
 
         self._post_init_check()
 
