@@ -107,7 +107,7 @@ def test_generate_title(
         .filter_by(id=conversation.id, user_id=conversation.user_id)
         .first()
     )
-    import pdb 
+    import pdb
     pdb.set_trace()
     assert conversation is not None
     assert conversation.title == response_json["title"]

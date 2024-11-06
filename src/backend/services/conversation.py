@@ -260,7 +260,7 @@ async def generate_conversation_title(
             ctx=ctx,
         )
 
-        import pdb 
+        import pdb
         pdb.set_trace()
 
         title = response.text
