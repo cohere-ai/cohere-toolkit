@@ -34,6 +34,8 @@ class WolframAlpha(BaseTool):
             implementation=cls,
             is_visible=True,
             is_available=cls.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             error_message=cls.generate_error_message(),
             category=ToolCategory.Function,
             description="Evaluate arithmetic expressions using Wolfram Alpha.",

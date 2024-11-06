@@ -36,6 +36,8 @@ class ConnectorRetriever(BaseTool):
             implementation=ConnectorRetriever,
             is_visible=False,
             is_available=cls.is_available(),
+            is_default_tool=False,
+            is_background_tool=False,
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Example connector for a data source using a basic API.",
