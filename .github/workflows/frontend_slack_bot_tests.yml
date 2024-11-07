@@ -6,7 +6,6 @@ on:
     paths:
       - src/interfaces/slack_bot/**
   pull_request: {}
-  merge_group: {}
 
 jobs:
   interface_tests:
