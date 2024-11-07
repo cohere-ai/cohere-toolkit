@@ -2,14 +2,15 @@ import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query
 import { NextPage } from 'next';
 
 import Chat from '@/app/(main)/(chat)/Chat';
-import { BASE_AGENT } from '@/constants';
+import { useGetDefaultAgent } from '@/hooks';
 
 const Page: NextPage = async () => {
   const queryClient = new QueryClient();
+  const defaultAgent = useGetDefaultAgent();
 
   await queryClient.prefetchQuery({
     queryKey: ['agent', null],
-    queryFn: () => BASE_AGENT,
+    queryFn: async () => defaultAgent,
   });
 
   return (

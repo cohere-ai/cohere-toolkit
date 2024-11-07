@@ -103,9 +103,7 @@ export const useAvailableTools = ({
 
   let availableTools = useMemo(() => {
     return (allTools ?? []).filter(
-      (t) =>
-        t.is_available &&
-        (!requiredTools || requiredTools.some((rt) => rt === t.name))
+      (t) => t.is_available && (!requiredTools || requiredTools.some((rt) => rt === t.name))
     );
   }, [allTools, requiredTools]);
 

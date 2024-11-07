@@ -18,9 +18,7 @@ export const ToolsStep: React.FC<Props> = ({
   setActiveTools,
   handleAuthButtonClick,
 }) => {
-  const availableTools = tools?.filter(
-    (tool) => tool.name && tool.is_available
-  );
+  const availableTools = tools?.filter((tool) => tool.name && tool.is_available);
   const toolsAuthRequired = tools?.filter((tool) => tool.is_auth_required && tool.auth_url);
 
   const handleUpdateActiveTools = (checked: boolean, name: string) => {

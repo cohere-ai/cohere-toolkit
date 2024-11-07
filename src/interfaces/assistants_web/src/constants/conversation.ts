@@ -10,17 +10,7 @@ export const CONVERSATION_HISTORY_OFFSET = 100;
 export const DEFAULT_PREAMBLE =
   "## Task And Context\nYou help people answer their questions and other requests interactively. You will be asked a very wide array of requests on all kinds of topics. You will be equipped with a wide range of search engines or similar tools to help you, which you use to research your answer. You should focus on serving the user's needs as best you can, which will be wide-ranging.\n\n## Style Guide\nUnless the user asks for a different style of answer, you should answer in full sentences, using proper grammar and spelling.";
 
-// Put this in appropriate file 
-export const someFetchBaseAgentmethod () => {
-  tools = getListofTools(); 
-
-  base_agent = copy of BASE_AGENT 
-  update BASE_AGENT.tools 
-
-  return base_agent
-}
-
-export const BASE_AGENT: AgentPublic = {
+export const DEFAULT_AGENT: AgentPublic = {
   id: '',
   deployments: [],
   name: 'Command R+',

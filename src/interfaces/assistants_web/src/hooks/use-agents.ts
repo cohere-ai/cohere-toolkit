@@ -9,16 +9,45 @@ import {
   UpdateAgentRequest,
   useCohereClient,
 } from '@/cohere-client';
-import { BASE_AGENT } from '@/constants';
+import { DEFAULT_AGENT } from '@/constants';
 import { useConversations } from '@/hooks';
+
+export const useGetDefaultAgent = () => {
+  const cohereClient = useCohereClient();
+  return useQuery({
+    queryKey: ['defaultAgent'],
+    queryFn: async () => {
+      const tools = await cohereClient.listTools({});
+      const defaultAgentTools = tools
+        .filter((t) => t.name && t.is_enabled && t.is_available && t.is_default_tool)
+        .map((t) => t.name!);
+
+      const default_agent = { ...DEFAULT_AGENT };
+      default_agent.tools = defaultAgentTools;
+
+      return default_agent || {};
+    },
+  });
+};
 
 export const useListAgents = () => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['listAgents'],
     queryFn: async () => {
+      // Get default agent
+      const tools = await cohereClient.listTools({});
+      const defaultAgentTools = tools
+        .filter((t) => t.name && t.is_enabled && t.is_available && t.is_default_tool)
+        .map((t) => t.name!);
+
+      const default_agent = { ...DEFAULT_AGENT };
+      default_agent.tools = defaultAgentTools;
+
+      // Get all agents
       const agents = await cohereClient.listAgents({});
-      return agents.concat(BASE_AGENT);
+
+      return agents.concat(default_agent);
     },
   });
 };
@@ -54,12 +83,13 @@ export const useDeleteAgent = () => {
 
 export const useAgent = ({ agentId }: { agentId?: string }) => {
   const cohereClient = useCohereClient();
+  const defaultAgent = useGetDefaultAgent();
   return useQuery({
     queryKey: ['agent', agentId],
     queryFn: async () => {
       try {
         if (!agentId) {
-          return BASE_AGENT;
+          return defaultAgent;
         }
         return await cohereClient.getAgent(agentId);
       } catch (e) {
@@ -103,6 +133,7 @@ export const useUpdateAgent = () => {
 export const useRecentAgents = (limit: number = 5) => {
   const { data: agents = [] } = useListAgents();
   const { data: conversations = [] } = useConversations({});
+  const { data: defaultAgent = DEFAULT_AGENT} = useGetDefaultAgent();
 
   const sortByDate = useCallback((a: { updated_at: string }, b: { updated_at: string }) => {
     return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');
@@ -111,7 +142,7 @@ export const useRecentAgents = (limit: number = 5) => {
   const recentAgents = useMemo(() => {
     let recent = uniq(conversations.sort(sortByDate).map((conversation) => conversation.agent_id))
       .map((agentId) => agents.find((agent) => agent.id === agentId))
-      .map((agent) => (!agent ? BASE_AGENT : agent))
+      .map((agent) => (!agent ? defaultAgent : agent))
       .slice(0, limit);
 
     // if there are less than `limit` recent agents, fill with the latest created agents
@@ -125,8 +156,8 @@ export const useRecentAgents = (limit: number = 5) => {
     }
 
     // if still there are less than `limit` recent agents, fill with base agent
-    if (recent.length < limit && recent.every((agent) => agent?.id !== BASE_AGENT.id)) {
-      recent = recent.concat(BASE_AGENT);
+    if (recent.length < limit && recent.every((agent) => agent?.id !== defaultAgent.id)) {
+      recent = recent.concat(defaultAgent);
     }
 
     return recent;
