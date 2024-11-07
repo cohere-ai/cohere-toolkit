@@ -1,7 +1,7 @@
 import { IconName } from '@/components/UI';
 
 /**
- * Tool IDs
+ * Tool IDs - Optionally add to define custom icons
  */
 export const TOOL_HYBRID_WEB_SEARCH_ID = 'hybrid_web_search';
 export const TOOL_WEB_SEARCH_ID = 'web_search';
