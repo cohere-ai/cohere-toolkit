@@ -1,9 +1,9 @@
 import { AgentPublic } from '@/cohere-client';
 
 /**
- * @description Checks if the agent is the base agent.
+ * @description Checks if the agent is the default agent.
  * @param agent - The agent to check.
  */
-export const checkIsBaseAgent = (agent: AgentPublic | undefined) => {
+export const checkIsDefaultAgent = (agent: AgentPublic | undefined) => {
   return agent?.id === '';
 };

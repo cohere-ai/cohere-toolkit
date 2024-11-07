@@ -14,7 +14,7 @@ import { cn } from '@/utils';
 
 type Props = {
   name: string;
-  isBaseAgent?: boolean;
+  isDefaultAgent?: boolean;
   id?: string;
 };
 
@@ -23,7 +23,7 @@ type Props = {
  * It shows a tooltip of the agent's name and a colored icon with the first letter of the agent's name.
  * If the agent is a base agent, it shows the Coral logo instead.
  */
-export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
+export const AgentIcon: React.FC<Props> = ({ name, id, isDefaultAgent }) => {
   const { conversationId } = useChatRoutes();
   const router = useRouter();
   const isDesktop = useIsDesktop();
@@ -31,7 +31,7 @@ export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const pathname = usePathname();
   const { setLeftPanelOpen } = useSettingsStore();
 
-  const isActive = isBaseAgent
+  const isActive = isDefaultAgent
     ? conversationId
       ? pathname === `/c/${conversationId}`
       : pathname === '/'
@@ -56,7 +56,7 @@ export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const handleClick = () => {
     if (isActive) return;
 
-    const url = isBaseAgent ? '/' : `/a/${id}`;
+    const url = isDefaultAgent ? '/' : `/a/${id}`;
 
     router.push(url);
 
@@ -81,7 +81,7 @@ export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
             bg
           )}
         >
-          {isBaseAgent ? (
+          {isDefaultAgent ? (
             <CoralLogo className={contrastFill} />
           ) : (
             <Text className={cn('uppercase', contrastText)} styleAs="p-lg">

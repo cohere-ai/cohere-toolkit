@@ -38,7 +38,7 @@ class SlackTool(BaseTool):
                     "required": True,
                 }
             },
-            is_visible=True,
+            is_enabled=True,
             is_available=cls.is_available(),
             is_default_tool=False,
             is_background_tool=False,

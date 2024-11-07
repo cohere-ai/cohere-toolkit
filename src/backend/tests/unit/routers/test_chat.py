@@ -379,7 +379,7 @@ def test_streaming_fail_chat_missing_message(
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
+    tool = [t for t in tools if t["is_enabled"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -421,7 +421,7 @@ def test_streaming_chat_with_managed_and_custom_tools(
 ):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
+    tool = [t for t in tools if t["is_enabled"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -781,7 +781,7 @@ def test_non_streaming_chat(
 def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
+    tool = [t for t in tools if t["is_enabled"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -806,7 +806,7 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
 ):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
+    tool = [t for t in tools if t["is_enabled"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 

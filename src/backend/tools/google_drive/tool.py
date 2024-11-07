@@ -46,7 +46,7 @@ class GoogleDrive(BaseTool):
                     "required": True,
                 }
             },
-            is_visible=True,
+            is_enabled=True,
             is_available=GoogleDrive.is_available(),
             is_default_tool=False,
             is_background_tool=False,

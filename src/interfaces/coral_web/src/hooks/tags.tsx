@@ -21,7 +21,7 @@ export const useDataSourceTags = ({ requiredTools }: { requiredTools?: string[] 
   const { data: tools = [] } = useListTools();
   const { data: files } = useListFiles(id);
   const onlyRequiredTools = useMemo(() => {
-    const availableTools = tools.filter((t) => t.is_visible && t.is_available);
+    const availableTools = tools.filter((t) => t.is_available);
     if (!requiredTools) {
       return availableTools;
     }

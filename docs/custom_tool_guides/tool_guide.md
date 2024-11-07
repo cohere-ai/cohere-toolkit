@@ -78,7 +78,7 @@ class ArxivRetriever(BaseTool):
                     "required": True,
                 }
             },
-            is_visible=False,
+            is_enabled=False,
             is_available=cls.is_available(),
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,

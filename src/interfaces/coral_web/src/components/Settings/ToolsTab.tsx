@@ -27,7 +27,6 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
 
   const { availableTools, unavailableTools } = useMemo(() => {
     return (data ?? [])
-      .filter((t) => t.is_visible)
       .reduce<{ availableTools: ManagedTool[]; unavailableTools: ManagedTool[] }>(
         (acc, tool) => {
           if (tool.is_available) {

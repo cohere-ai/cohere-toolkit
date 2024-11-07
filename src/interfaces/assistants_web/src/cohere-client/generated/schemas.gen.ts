@@ -3022,23 +3022,6 @@ export const $Tool = {
       title: 'Name',
       default: '',
     },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
     parameter_definitions: {
       anyOf: [
         {
@@ -3134,23 +3117,6 @@ export const $ToolDefinition = {
       title: 'Name',
       default: '',
     },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
     parameter_definitions: {
       anyOf: [
         {
@@ -3163,20 +3129,15 @@ export const $ToolDefinition = {
       title: 'Parameter Definitions',
       default: {},
     },
-    kwargs: {
-      type: 'object',
-      title: 'Kwargs',
-      default: {},
+    display_name: {
+      type: 'string',
+      title: 'Display Name',
+      default: '',
     },
-    is_visible: {
-      type: 'boolean',
-      title: 'Is Visible',
-      default: false,
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      default: false,
+    description: {
+      type: 'string',
+      title: 'Description',
+      default: '',
     },
     error_message: {
       anyOf: [
@@ -3189,6 +3150,31 @@ export const $ToolDefinition = {
       ],
       title: 'Error Message',
       default: '',
+    },
+    kwargs: {
+      type: 'object',
+      title: 'Kwargs',
+      default: {},
+    },
+    is_enabled: {
+      type: 'boolean',
+      title: 'Is Visible',
+      default: false,
+    },
+    is_available: {
+      type: 'boolean',
+      title: 'Is Available',
+      default: false,
+    },
+    is_default_tool: {
+      type: 'boolean',
+      title: 'Is Default Tool',
+      default: false,
+    },
+    is_background_tool: {
+      type: 'boolean',
+      title: 'Is Background Tool',
+      default: false,
     },
     category: {
       $ref: '#/components/schemas/ToolCategory',

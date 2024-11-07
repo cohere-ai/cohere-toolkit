@@ -276,7 +276,7 @@ export type ManagedTool = {
   kwargs?: {
     [key: string]: unknown;
   };
-  is_visible?: boolean;
+  is_enabled?: boolean;
   is_available?: boolean;
   error_message?: string | null;
   category?: Category;

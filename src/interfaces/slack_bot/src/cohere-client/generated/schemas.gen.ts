@@ -1500,9 +1500,9 @@ export const $ManagedTool = {
       title: 'Kwargs',
       default: {},
     },
-    is_visible: {
+    is_enabled: {
       type: 'boolean',
-      title: 'Is Visible',
+      title: 'Is Enabled',
       default: false,
     },
     is_available: {

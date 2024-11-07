@@ -29,7 +29,7 @@ class PubMedRetriever(BaseTool):
                     "required": True,
                 }
             },
-            is_visible=False,
+            is_enabled=False,
             is_available=cls.is_available(),
             is_default_tool=False,
             is_background_tool=False,

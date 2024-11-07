@@ -631,8 +631,6 @@ export type ToggleConversationPinRequest = {
 
 export type Tool = {
   name?: string | null;
-  display_name?: string;
-  description?: string | null;
   parameter_definitions?: {
     [key: string]: unknown;
   } | null;
@@ -660,17 +658,19 @@ export enum ToolCategory {
 
 export type ToolDefinition = {
   name?: string | null;
-  display_name?: string;
-  description?: string | null;
   parameter_definitions?: {
     [key: string]: unknown;
   } | null;
+  display_name?: string;
+  description?: string;
+  error_message?: string | null;
   kwargs?: {
     [key: string]: unknown;
   };
-  is_visible?: boolean;
+  is_enabled?: boolean;
   is_available?: boolean;
-  error_message?: string | null;
+  is_default_tool?: boolean;
+  is_background_tool?: boolean;
   category?: ToolCategory;
   is_auth_required?: boolean;
   auth_url?: string | null;

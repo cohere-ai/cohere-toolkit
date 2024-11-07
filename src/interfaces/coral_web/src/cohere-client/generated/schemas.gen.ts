@@ -1696,7 +1696,7 @@ export const $ManagedTool = {
       title: 'Kwargs',
       default: {},
     },
-    is_visible: {
+    is_enabled: {
       type: 'boolean',
       title: 'Is Visible',
       default: false,

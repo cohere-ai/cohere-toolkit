@@ -13,7 +13,7 @@ def test_list_tools(session_client: TestClient, session: Session) -> None:
     for tool in response.json():
         assert tool["name"] in available_tools.keys()
         assert tool["kwargs"] is not None
-        assert tool["is_visible"] is not None
+        assert tool["is_enabled"] is not None
         assert tool["is_available"] is not None
         assert tool["category"] is not None
         assert tool["description"] is not None
@@ -45,7 +45,7 @@ def test_list_tools_with_agent(
     tool_definition = get_available_tools()[tool["name"]]
 
     assert tool["kwargs"] == tool_definition.kwargs
-    assert tool["is_visible"] == tool_definition.is_visible
+    assert tool["is_enabled"] == tool_definition.is_enabled
     assert tool["is_available"] == tool_definition.is_available
     assert tool["error_message"] == tool_definition.error_message
     assert tool["category"] == tool_definition.category

@@ -20,7 +20,7 @@ class ToolDefinition(Tool):
     description: str = ""
     error_message: Optional[str] = ""
     kwargs: dict = {}
-    is_visible: bool = False
+    is_enabled: bool = False
     is_available: bool = False
     is_default_tool: bool = False
     is_background_tool: bool = False

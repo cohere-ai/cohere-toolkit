@@ -37,7 +37,6 @@ export const AgentsToolsTab: React.FC<{
   const availableTools = useMemo(() => {
     return (data ?? []).filter(
       (t) =>
-        t.is_visible &&
         t.is_available &&
         (!requiredTools || requiredTools.some((rt) => rt === t.name))
     );

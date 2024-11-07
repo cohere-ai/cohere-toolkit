@@ -43,4 +43,4 @@ export const getFileUploadTimeEstimateInMs = (fileSizeInBytes: number) => {
  * @description Determines if a tool is the default file loader tool.
  */
 export const isDefaultFileLoaderTool = (t: ManagedTool) =>
-  t.category === FILE_TOOL_CATEGORY && t.is_visible;
+  t.category === FILE_TOOL_CATEGORY

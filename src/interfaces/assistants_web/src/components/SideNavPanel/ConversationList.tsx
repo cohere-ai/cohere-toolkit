@@ -61,7 +61,7 @@ const RecentAgents: React.FC = () => {
           <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
             {(flippedProps) => (
               <div {...flippedProps}>
-                <AgentIcon name={agent.name} id={agent.id} isBaseAgent={!agent.id} />
+                <AgentIcon name={agent.name} id={agent.id} isDefaultAgent={!agent.id} />
               </div>
             )}
           </Flipped>

@@ -7,7 +7,7 @@ import { WelcomeGuideTooltip } from '@/components/MessagingContainer';
 import { Button, Icon, Text, ToggleCard } from '@/components/UI';
 import { useAvailableTools } from '@/hooks';
 import { useParamsStore } from '@/stores';
-import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
+import { checkIsDefaultAgent, cn, getToolIcon } from '@/utils';
 
 /**
  * @description Tools for the assistant to use in the conversation.
@@ -41,7 +41,7 @@ export const AssistantTools: React.FC<{
             {availableTools.map(({ name, display_name, description, error_message }) => {
               const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
               const checked = !!enabledTool;
-              const disabled = !checkIsBaseAgent(agent);
+              const disabled = !checkIsDefaultAgent(agent);
 
               return (
                 <ToggleCard

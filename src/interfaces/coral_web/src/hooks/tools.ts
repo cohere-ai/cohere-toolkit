@@ -13,7 +13,10 @@ export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
   return useQuery<ManagedTool[], Error>({
     queryKey: ['tools'],
-    queryFn: () => client.listTools({}),
+    queryFn: async () => {
+      const tools = await client.listTools({});
+      return tools.filter((tool) => tool.is_enabled);
+    },
     refetchOnWindowFocus: false,
     enabled,
   });

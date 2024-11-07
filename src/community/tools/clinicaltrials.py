@@ -28,7 +28,7 @@ class ClinicalTrials(BaseTool):
             name=cls.ID,
             display_name="Clinical Trials",
             implementation=cls,
-            is_visible=False,
+            is_enabled=False,
             is_available=cls.is_available(),
             is_default_tool=False,
             is_background_tool=False,

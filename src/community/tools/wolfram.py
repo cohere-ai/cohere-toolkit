@@ -32,7 +32,7 @@ class WolframAlpha(BaseTool):
             name=cls.ID,
             display_name="Wolfram Alpha",
             implementation=cls,
-            is_visible=True,
+            is_enabled=True,
             is_available=cls.is_available(),
             is_default_tool=False,
             is_background_tool=False,
