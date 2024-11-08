@@ -26,10 +26,9 @@ class BaseTool():
     def __init__(self, *args, **kwargs):
         self._post_init_check()
 
-    @classmethod
-    def _post_init_check(cls):
-        if cls.ID is None:
-            raise ValueError(f"{cls.__name__} must have ID attribute defined.")
+    def _post_init_check(self):
+        if self.ID is None:
+            raise ValueError(f"{self.__name__} must have ID attribute defined.")
 
     @classmethod
     @abstractmethod

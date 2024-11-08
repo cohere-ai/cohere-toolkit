@@ -117,7 +117,7 @@ export const useUpdateAgent = () => {
 export const useRecentAgents = (limit: number = 5) => {
   const { data: agents = [] } = useListAgents();
   const { data: conversations = [] } = useConversations({});
-  const { data: defaultAgent = DEFAULT_AGENT} = useGetDefaultAgent();
+  const { data: defaultAgent = DEFAULT_AGENT } = useGetDefaultAgent();
 
   const sortByDate = useCallback((a: { updated_at: string }, b: { updated_at: string }) => {
     return Date.parse(b.updated_at ?? '') - Date.parse(a.updated_at ?? '');

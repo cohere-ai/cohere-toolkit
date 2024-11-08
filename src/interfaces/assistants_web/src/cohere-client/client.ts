@@ -177,9 +177,9 @@ export class CohereClient {
       .filter((t) => t.name && t.is_enabled && t.is_default_tool)
       .map((t) => t.name) as string[];
 
-    const defaultAgent = {...DEFAULT_AGENT}
-    defaultAgent.tools?.push(...defaultTools)
-    
+    const defaultAgent = { ...DEFAULT_AGENT };
+    defaultAgent.tools?.push(...defaultTools);
+
     return defaultAgent;
   }
 

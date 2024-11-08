@@ -8,11 +8,7 @@ import React, { useState } from 'react';
 import { AgentSettingsFields, AgentSettingsForm } from '@/components/AgentSettingsForm';
 import { MobileHeader } from '@/components/Global';
 import { Button, Icon, Text } from '@/components/UI';
-import {
-  DEFAULT_AGENT_MODEL,
-  DEFAULT_PREAMBLE,
-  DEPLOYMENT_COHERE_PLATFORM,
-} from '@/constants';
+import { DEFAULT_AGENT_MODEL, DEFAULT_PREAMBLE, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
 import { useContextStore } from '@/context';
 import { useCreateAgent, useListDefaultTool, useNotify } from '@/hooks';
 
@@ -24,7 +20,7 @@ interface FieldValues {
   model: string;
   tools: string[]; // Specify the type here (e.g., string[])
   is_private: boolean;
-};
+}
 
 const DEFAULT_FIELD_VALUES: FieldValues = {
   name: '',
@@ -45,14 +41,14 @@ export const CreateAgent: React.FC = () => {
 
   const { error } = useNotify();
   const { mutateAsync: createAgent } = useCreateAgent();
-  const { data: defaultTools = []} = useListDefaultTool();
+  const { data: defaultTools = [] } = useListDefaultTool();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Set default fields
   const defaultToolIds = defaultTools
-  .map((t) => t.name)
-  .filter((name): name is string => name !== null && name !== undefined);
-  const defaultFieldValues = cloneDeep(DEFAULT_FIELD_VALUES)
+    .map((t) => t.name)
+    .filter((name): name is string => name !== null && name !== undefined);
+  const defaultFieldValues = cloneDeep(DEFAULT_FIELD_VALUES);
   defaultFieldValues.tools.push(...defaultToolIds);
   const [fields, setFields] = useState<AgentSettingsFields>(defaultFieldValues);
 

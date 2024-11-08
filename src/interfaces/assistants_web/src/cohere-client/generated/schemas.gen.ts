@@ -3158,7 +3158,7 @@ export const $ToolDefinition = {
     },
     is_enabled: {
       type: 'boolean',
-      title: 'Is Visible',
+      title: 'Is Enabled',
       default: false,
     },
     is_available: {

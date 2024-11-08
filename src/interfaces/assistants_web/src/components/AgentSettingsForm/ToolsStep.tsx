@@ -32,7 +32,7 @@ export const ToolsStep: React.FC<Props> = ({
   return (
     <div className="flex flex-col space-y-4">
       {availableTools?.map(
-        ({ name, description, is_auth_required, auth_url }) =>
+        ({ name, description, is_auth_required, auth_url, is_available, error_message }) =>
           !!name &&
           description && (
             <ToolRow
@@ -44,6 +44,8 @@ export const ToolsStep: React.FC<Props> = ({
               handleSwitch={(checked: boolean) => handleUpdateActiveTools(checked, name)}
               isAuthRequired={is_auth_required}
               authUrl={auth_url?.toString()}
+              isAvailable={is_available}
+              errorMessage={error_message}
               handleAuthButtonClick={handleAuthButtonClick}
             />
           )
@@ -66,6 +68,8 @@ const ToolRow: React.FC<{
   handleSwitch: (checked: boolean) => void;
   isAuthRequired?: boolean;
   authUrl?: string;
+  isAvailable?: boolean;
+  errorMessage?: string | null;
   handleAuthButtonClick?: (toolName: string) => void;
 }> = ({
   name,
@@ -75,6 +79,8 @@ const ToolRow: React.FC<{
   handleSwitch,
   isAuthRequired,
   authUrl,
+  isAvailable,
+  errorMessage,
   handleAuthButtonClick,
 }) => {
   return (
@@ -88,17 +94,25 @@ const ToolRow: React.FC<{
             {name}
           </Text>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={checked}
-            onChange={(checked: boolean) => !!name && handleSwitch(checked)}
-            showCheckedState
-          />
-        </div>
+        {isAvailable && (
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={checked}
+              onChange={(checked: boolean) => !!name && handleSwitch(checked)}
+              showCheckedState
+            />
+          </div>
+        )}
       </div>
       <Text className="dark:text-marble-800">{description}</Text>
       {!isAuthRequired && !!authUrl && <StatusConnection connected={!isAuthRequired} />}
-      {isAuthRequired && !!authUrl && (
+      {!isAvailable && (
+        <Text styleAs="caption" className="dark:text-danger-500">
+          {errorMessage ||
+            'Connection is not available. Please set the required configuration parameters.'}
+        </Text>
+      )}
+      {isAuthRequired && !!authUrl && isAvailable && (
         <Button
           kind="outline"
           theme="mushroom"
