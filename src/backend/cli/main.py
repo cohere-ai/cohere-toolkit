@@ -1,6 +1,6 @@
 import argparse
 
-from backend.cli.constants import TOOLS
+from backend.cli.constants import COMMUNITY_TOOLS, TOOLS
 from backend.cli.prompts import (
     PROMPTS,
     community_tools_prompt,
@@ -23,7 +23,6 @@ from backend.config.deployments import (
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
-from community.config.tools import COMMUNITY_TOOLS_SETUP
 
 
 def start():
@@ -43,7 +42,7 @@ def start():
     # ENABLE COMMUNITY TOOLS
     use_community_features = args.use_community and community_tools_prompt(secrets)
     if use_community_features:
-        TOOLS.update(COMMUNITY_TOOLS_SETUP)
+        TOOLS.update(COMMUNITY_TOOLS)
 
     # SET UP TOOLS
     for name, configs in TOOLS.items():

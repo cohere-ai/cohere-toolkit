@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Request
 
 from backend.config.routers import RouterName
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import get_available_tools
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
-from backend.schemas.tool import ManagedTool
+from backend.schemas.tool import ToolDefinition
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 
@@ -12,13 +12,13 @@ router = APIRouter(prefix="/v1/tools")
 router.name = RouterName.TOOL
 
 
-@router.get("", response_model=list[ManagedTool])
+@router.get("", response_model=list[ToolDefinition])
 def list_tools(
     request: Request,
     session: DBSessionDep,
     agent_id: str | None = None,
     ctx: Context = Depends(get_context),
-) -> list[ManagedTool]:
+) -> list[ToolDefinition]:
     """
     List all available tools.
 
@@ -28,19 +28,20 @@ def list_tools(
         agent_id (str): Agent ID.
         ctx (Context): Context object.
     Returns:
-        list[ManagedTool]: List of available tools.
+        list[ToolDefinition]: List of available tools.
     """
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
 
-    all_tools = AVAILABLE_TOOLS.values()
+    available_tools = get_available_tools()
+    all_tools = list(available_tools.values())
 
     if agent_id is not None:
         agent_tools = []
         agent = validate_agent_exists(session, agent_id, user_id)
 
         for tool in agent.tools:
-            agent_tools.append(AVAILABLE_TOOLS[tool])
+            agent_tools.append(available_tools[tool])
         all_tools = agent_tools
 
     for tool in all_tools:

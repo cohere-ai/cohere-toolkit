@@ -1,5 +1,5 @@
 import datetime
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 from fastapi import Request
@@ -8,31 +8,27 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.schemas.tool import ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 
 logger = LoggerFactory().get_logger()
 
 
-class BaseTool:
+class BaseTool():
     """
     Abstract base class for all Tools.
 
     Attributes:
-        NAME (str): The name of the tool.
+        ID (str): The name of the tool.
     """
-
-    NAME = None
+    ID = None
 
     def __init__(self, *args, **kwargs):
         self._post_init_check()
 
     def _post_init_check(self):
-        if any(
-            [
-                self.NAME is None,
-            ]
-        ):
-            raise ValueError(f"{self.__name__} must have NAME attribute defined.")
+        if self.ID is None:
+            raise ValueError(f"{self.__name__} must have ID attribute defined.")
 
     @classmethod
     @abstractmethod
@@ -40,6 +36,16 @@ class BaseTool:
 
     @classmethod
     @abstractmethod
+    def get_tool_definition(cls) -> ToolDefinition: ...
+
+    @classmethod
+    def generate_error_message(cls) -> str | None:
+        if cls.is_available():
+            return None
+
+        return f"{cls.__name__} is not available. Please make sure all required config variables are set."
+
+    @classmethod
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
         pass
 
@@ -49,7 +55,7 @@ class BaseTool:
     ) -> List[Dict[str, Any]]: ...
 
 
-class BaseToolAuthentication:
+class BaseToolAuthentication(ABC):
     """
     Abstract base class for Tool Authentication.
     """
