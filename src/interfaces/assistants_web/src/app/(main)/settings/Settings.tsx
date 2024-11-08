@@ -135,6 +135,8 @@ const GoogleDriveConnection = () => {
   };
 
   const isGoogleDriveConnected = !(googleDriveTool.is_auth_required ?? false);
+  const isGoogleDriveAvailable = googleDriveTool.is_available ?? false;
+  const googleDriveError = googleDriveTool.error_message ?? '';
   const authUrl = getToolAuthUrl(googleDriveTool.auth_url);
 
   return (
@@ -150,7 +152,16 @@ const GoogleDriveConnection = () => {
         Connect to Google Drive and add files to the assistant
       </Text>
       <section>
-        {isGoogleDriveConnected ? (
+        {!isGoogleDriveAvailable ? (
+          <div className="justify-items-start space-y-6">
+            <div className="flex items-center justify-between">
+              <p className="font-body text-p-sm uppercase text-danger-500">
+                {googleDriveError ||
+                  'Google Drive connection is not available. Please set the required configuration parameters.'}
+              </p>
+            </div>
+          </div>
+        ) : isGoogleDriveConnected ? (
           <div className="space-y-6">
             <div className="space-y-2">
               <Text styleAs="p-sm" className="uppercase text-volcanic-400 dark:text-mushroom-950">
@@ -208,20 +219,33 @@ const SlackConnection = () => {
   };
 
   const isSlackConnected = !(slackTool.is_auth_required ?? false);
+  const isSlackAvailable = slackTool.is_available ?? false;
+  const slackError = slackTool.error_message ?? '';
 
   return (
-    <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
-      <header className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon name="slack" size="xl" />
-          <Text className="text-volcanic-400 dark:text-mushroom-950">Slack</Text>
-        </div>
-        <StatusConnection connected={isSlackConnected} />
-      </header>
-      <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">Connect to Slack</Text>
+    <article className="flex flex-col justify-between rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
+      <div>
+        <header className="mb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="slack" size="xl" />
+            <Text className="text-volcanic-400 dark:text-mushroom-950">Slack</Text>
+          </div>
+          <StatusConnection connected={isSlackConnected} />
+        </header>
+        <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">Connect to Slack</Text>
+      </div>
       <section>
-        {isSlackConnected ? (
-          <div className="space-y-6">
+        {!isSlackAvailable ? (
+          <div className="justify-items-start space-y-6">
+            <div className="flex items-center justify-between">
+              <p className="font-body text-p-sm uppercase text-danger-500">
+                {slackError ||
+                  'Slack connection is not available. Please set the required configuration parameters.'}
+              </p>
+            </div>
+          </div>
+        ) : isSlackConnected ? (
+          <div className="justify-items-end space-y-6">
             <div className="flex items-center justify-between">
               <Button
                 label="Delete connection"
