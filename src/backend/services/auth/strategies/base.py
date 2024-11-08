@@ -43,14 +43,13 @@ class BaseOAuthStrategy:
     def __init__(self, *args, **kwargs):
         self._post_init_check()
 
-    @classmethod
-    def _post_init_check(cls):
+    def _post_init_check(self):
         if any(
             [
-                cls.NAME is None,
+                self.NAME is None,
             ]
         ):
-            raise ValueError(f"{cls.__name__} must have NAME attribute defined.")
+            raise ValueError(f"{self.__name__} must have NAME attribute defined.")
 
     @abstractmethod
     def get_client_id(self, **kwargs: Any):
