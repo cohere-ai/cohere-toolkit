@@ -2,7 +2,6 @@ import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query
 import { NextPage } from 'next';
 
 import Chat from '@/app/(main)/(chat)/Chat';
-import { useGetDefaultAgent } from '@/hooks';
 import { getCohereServerClient } from '@/server/cohereServerClient';
 
 type Props = {
@@ -15,7 +14,6 @@ type Props = {
 const Page: NextPage<Props> = async ({ params }) => {
   const cohereServerClient = getCohereServerClient();
   const queryClient = new QueryClient();
-  const defaultAgent = useGetDefaultAgent();
 
   await Promise.all([
     queryClient.prefetchQuery({
@@ -25,7 +23,7 @@ const Page: NextPage<Props> = async ({ params }) => {
     }),
     queryClient.prefetchQuery({
       queryKey: ['agent', null],
-      queryFn: () => defaultAgent,
+      queryFn: () => cohereServerClient.getDefaultAgent(),
     }),
   ]);
 

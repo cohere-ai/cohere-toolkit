@@ -2,15 +2,15 @@ import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query
 import { NextPage } from 'next';
 
 import Chat from '@/app/(main)/(chat)/Chat';
-import { useGetDefaultAgent } from '@/hooks';
+import { getCohereServerClient } from '@/server/cohereServerClient';
 
 const Page: NextPage = async () => {
   const queryClient = new QueryClient();
-  const defaultAgent = useGetDefaultAgent();
+  const cohereServerClient = getCohereServerClient();
 
   await queryClient.prefetchQuery({
     queryKey: ['agent', null],
-    queryFn: async () => defaultAgent,
+    queryFn: async () => cohereServerClient.getDefaultAgent(),
   });
 
   return (

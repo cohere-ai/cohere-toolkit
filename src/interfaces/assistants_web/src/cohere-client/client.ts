@@ -17,6 +17,7 @@ import {
   UpdateConversationRequest,
   UpdateDeploymentEnv,
 } from '@/cohere-client';
+import { DEFAULT_AGENT } from '@/constants';
 
 import { mapToChatRequest } from './mappings';
 
@@ -168,6 +169,18 @@ export class CohereClient {
 
   public async getExperimentalFeatures() {
     return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet();
+  }
+
+  public async getDefaultAgent() {
+    const tools = await this.cohereService.default.listToolsV1ToolsGet();
+    const defaultTools = tools
+      .filter((t) => t.name && t.is_enabled && t.is_default_tool)
+      .map((t) => t.name) as string[];
+
+    const defaultAgent = {...DEFAULT_AGENT}
+    defaultAgent.tools?.push(...defaultTools)
+    
+    return defaultAgent;
   }
 
   public listTools({ agentId }: { agentId?: string | null }) {

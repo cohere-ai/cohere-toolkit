@@ -10,22 +10,14 @@ import {
   useCohereClient,
 } from '@/cohere-client';
 import { DEFAULT_AGENT } from '@/constants';
-import { useConversations, useListTools } from '@/hooks';
+import { useConversations } from '@/hooks';
 
 export const useGetDefaultAgent = () => {
-  const {data: tools = []} = useListTools();
+  const cohereClient = useCohereClient();
+
   return useQuery({
     queryKey: ['defaultAgent'],
-    queryFn: async () => {
-      const defaultAgentTools = tools
-        .filter((t) => t.name && t.is_enabled && t.is_available && t.is_default_tool)
-        .map((t) => t.name!);
-
-      const default_agent = { ...DEFAULT_AGENT };
-      default_agent.tools = defaultAgentTools;
-
-      return default_agent || {};
-    },
+    queryFn: async () => cohereClient.getDefaultAgent(),
   });
 };
 
@@ -35,18 +27,11 @@ export const useListAgents = () => {
     queryKey: ['listAgents'],
     queryFn: async () => {
       // Get default agent
-      const tools = await cohereClient.listTools({});
-      const defaultAgentTools = tools
-        .filter((t) => t.name && t.is_enabled && t.is_available && t.is_default_tool)
-        .map((t) => t.name!);
-
-      const default_agent = { ...DEFAULT_AGENT };
-      default_agent.tools = defaultAgentTools;
-
+      const defaultAgent = await cohereClient.getDefaultAgent();
       // Get all agents
       const agents = await cohereClient.listAgents({});
 
-      return agents.concat(default_agent);
+      return agents.concat(defaultAgent);
     },
   });
 };
