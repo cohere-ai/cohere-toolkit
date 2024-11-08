@@ -66,7 +66,6 @@ async def rerank_and_chunk(
 
             if not text:
                 # If one doesn't have text, skip it
-                chunked_outputs = None
                 reranked_results[tool_call_hashable] = tool_result
                 continue
 

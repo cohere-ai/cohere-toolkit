@@ -1,0 +1,2 @@
+SEARCH_LIMIT = 10
+GMAIL_TOOL_ID = "gmail"

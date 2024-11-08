@@ -180,6 +180,23 @@ class GoogleWebSearchSettings(BaseSettings, BaseModel):
         default=None, validation_alias=AliasChoices("GOOGLE_SEARCH_CSE_ID", "cse_id")
     )
 
+class GmailSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    client_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("GMAIL_CLIENT_ID", "client_id"),
+    )
+    client_secret: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("GMAIL_CLIENT_SECRET", "client_secret"),
+    )
+    user_scopes: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "GMAIL_USER_SCOPES", "scopes"
+        ),
+    )
+
 
 class BraveWebSearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
@@ -218,7 +235,9 @@ class ToolSettings(BaseSettings, BaseModel):
     slack: Optional[SlackSettings] = Field(
         default=SlackSettings()
     )
-
+    gmail: Optional[GmailSettings] = Field(
+        default=GmailSettings()
+    )
 
 
 class DatabaseSettings(BaseSettings, BaseModel):

@@ -13,6 +13,7 @@ export const TOOL_CALCULATOR_ID = 'toolkit_calculator';
 export const TOOL_WEB_SCRAPE_ID = 'web_scrape';
 export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 export const TOOL_SLACK_ID = 'slack';
+export const TOOL_GMAIL_ID = 'gmail';
 export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
 export const AGENT_SETTINGS_TOOLS = [
   TOOL_HYBRID_WEB_SEARCH_ID,
@@ -21,7 +22,7 @@ export const AGENT_SETTINGS_TOOLS = [
 ];
 
 // Tools won't be available for the base agent
-export const BASE_AGENT_EXCLUDED_TOOLS: string[] = [TOOL_SLACK_ID];
+export const BASE_AGENT_EXCLUDED_TOOLS = [TOOL_SLACK_ID, TOOL_GMAIL_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
@@ -35,4 +36,5 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_GOOGLE_DRIVE_ID]: { icon: 'google-drive' },
   [TOOL_READ_DOCUMENT_ID]: { icon: 'desktop' },
   [TOOL_SLACK_ID]: { icon: 'slack' },
+  [TOOL_GMAIL_ID]: { icon: 'gmail' },
 };
