@@ -47,7 +47,7 @@ def list_tools(
     for tool in all_tools:
         # Tools with auth implementation can be enabled and visible but not accessible (e.g., if secrets are not set).
         # Therefore, we need to set is_auth_required for these types of tools as well for the frontend.
-        if (tool.is_available or tool.is_visible) and tool.auth_implementation is not None:
+        if (tool.is_available or tool.is_enabled) and tool.auth_implementation is not None:
             try:
                 tool_auth_service = tool.auth_implementation()
 
