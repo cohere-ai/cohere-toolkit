@@ -81,6 +81,8 @@ async def create_agent(
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
 
+    # TODOTJ: Add default tool ids here
+
     agent_data = AgentModel(
         name=agent.name,
         description=agent.description,

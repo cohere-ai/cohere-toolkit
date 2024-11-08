@@ -24,6 +24,19 @@ export const useListTools = (enabled: boolean = true) => {
   });
 };
 
+export const useListDefaultTool = (enabled: boolean = true) => {
+  const client = useCohereClient();
+  return useQuery<ToolDefinition[], Error>({
+    queryKey: ['defaultTools'],
+    queryFn: async () => {
+      const tools = await client.listTools({});
+      return tools.filter((tool) => tool.is_enabled && tool.is_default_tool);
+    },
+    refetchOnWindowFocus: false,
+    enabled,
+  });
+};
+
 export const useOpenGoogleDrivePicker = (callbackFunction: (data: PickerCallback) => void) => {
   const [openPicker] = useDrivePicker();
   const { data: toolsData } = useListTools();

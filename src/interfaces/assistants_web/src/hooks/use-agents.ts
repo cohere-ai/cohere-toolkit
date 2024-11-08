@@ -10,14 +10,13 @@ import {
   useCohereClient,
 } from '@/cohere-client';
 import { DEFAULT_AGENT } from '@/constants';
-import { useConversations } from '@/hooks';
+import { useConversations, useListTools } from '@/hooks';
 
 export const useGetDefaultAgent = () => {
-  const cohereClient = useCohereClient();
+  const {data: tools = []} = useListTools();
   return useQuery({
     queryKey: ['defaultAgent'],
     queryFn: async () => {
-      const tools = await cohereClient.listTools({});
       const defaultAgentTools = tools
         .filter((t) => t.name && t.is_enabled && t.is_available && t.is_default_tool)
         .map((t) => t.name!);
