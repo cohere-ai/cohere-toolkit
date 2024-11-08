@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-import { Document, ManagedTool } from '@/cohere-client';
+import { Document, ToolDefinition } from '@/cohere-client';
 import { Conversation, ConversationError } from '@/components/Conversation';
 import { TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useAgent, useAvailableTools, useConversation, useListTools } from '@/hooks';
@@ -24,7 +24,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
   const { setConversation } = useConversationStore();
   const { addCitation, saveOutputFiles } = useCitationsStore();
   const { setParams, resetFileParams } = useParamsStore();
-  const { availableTools } = useAvailableTools({ agent, managedTools: tools });
+  const { availableTools } = useAvailableTools({ agent, allTools: tools });
 
   const {
     data: conversation,
@@ -44,7 +44,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
         .map((name) => (tools ?? [])?.find((t) => t.name === name))
         .filter(
           (t) => t !== undefined && availableTools.some((at) => at.name === t?.name)
-        ) as ManagedTool[]);
+        ) as ToolDefinition[]);
 
     const fileIds = conversation?.files.map((file) => file.id);
 

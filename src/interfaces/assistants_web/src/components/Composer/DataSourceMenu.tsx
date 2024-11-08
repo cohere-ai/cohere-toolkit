@@ -3,7 +3,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import React from 'react';
 
-import { AgentPublic, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/UI';
 import { useAvailableTools, useBrandedColors } from '@/hooks';
 import { useParamsStore } from '@/stores';
@@ -11,7 +11,7 @@ import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
 
 export type Props = {
   agent?: AgentPublic;
-  tools?: ManagedTool[];
+  tools?: ToolDefinition[];
 };
 
 /**
@@ -23,7 +23,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
   } = useParamsStore();
   const { availableTools, handleToggle } = useAvailableTools({
     agent,
-    managedTools: tools,
+    allTools: tools,
   });
 
   const { text, contrastText, border, bg } = useBrandedColors(agent?.id);

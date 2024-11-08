@@ -2,7 +2,7 @@ from datetime import datetime
 
 import factory
 
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.database_models.tool_auth import ToolAuth
 
 from .base import BaseFactory
@@ -13,7 +13,7 @@ class ToolAuthFactory(BaseFactory):
         model = ToolAuth
 
     user_id = factory.Faker("uuid4")
-    tool_id = ToolName.Google_Drive
+    tool_id = Tool.Google_Drive.value.ID
     token_type = "Bearer"
     encrypted_access_token = bytes(b"foobar")
     encrypted_refresh_token = bytes(b"foobar")

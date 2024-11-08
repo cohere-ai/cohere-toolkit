@@ -1,12 +1,12 @@
 import Link from 'next/link';
 
-import { ManagedTool } from '@/cohere-client';
+import { ToolDefinition } from '@/cohere-client';
 import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { Button, Icon, IconName, Switch, Text } from '@/components/UI';
 import { AGENT_SETTINGS_TOOLS, TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type Props = {
-  tools?: ManagedTool[];
+  tools?: ToolDefinition[];
   activeTools?: string[];
   setActiveTools: (tools: string[]) => void;
   handleAuthButtonClick: (toolName: string) => void;

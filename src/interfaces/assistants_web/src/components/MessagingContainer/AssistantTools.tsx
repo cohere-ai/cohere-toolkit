@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { AgentPublic, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { WelcomeGuideTooltip } from '@/components/MessagingContainer';
 import { Button, Icon, Text, ToggleCard } from '@/components/UI';
 import { useAvailableTools } from '@/hooks';
@@ -13,7 +13,7 @@ import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
  * @description Tools for the assistant to use in the conversation.
  */
 export const AssistantTools: React.FC<{
-  tools: ManagedTool[];
+  tools: ToolDefinition[];
   agent?: AgentPublic;
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
@@ -23,7 +23,7 @@ export const AssistantTools: React.FC<{
   const enabledTools = paramTools ?? [];
   const { availableTools, unauthedTools, handleToggle } = useAvailableTools({
     agent,
-    managedTools: tools,
+    allTools: tools,
   });
 
   if (availableTools.length === 0) return null;
