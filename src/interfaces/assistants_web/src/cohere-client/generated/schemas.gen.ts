@@ -306,12 +306,6 @@ export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   title: 'Body_batch_upload_file_v1_conversations_batch_upload_file_post',
 } as const;
 
-export const $Category = {
-  type: 'string',
-  enum: ['Data loader', 'File loader', 'Function', 'Web search'],
-  title: 'Category',
-} as const;
-
 export const $ChatMessage = {
   properties: {
     role: {
@@ -2007,114 +2001,6 @@ export const $Logout = {
   title: 'Logout',
 } as const;
 
-export const $ManagedTool = {
-  properties: {
-    name: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Name',
-      default: '',
-    },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
-    parameter_definitions: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Parameter Definitions',
-      default: {},
-    },
-    kwargs: {
-      type: 'object',
-      title: 'Kwargs',
-      default: {},
-    },
-    is_visible: {
-      type: 'boolean',
-      title: 'Is Visible',
-      default: false,
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      default: false,
-    },
-    error_message: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Error Message',
-      default: '',
-    },
-    category: {
-      $ref: '#/components/schemas/Category',
-      default: 'Data loader',
-    },
-    is_auth_required: {
-      type: 'boolean',
-      title: 'Is Auth Required',
-      default: false,
-    },
-    auth_url: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Auth Url',
-      default: '',
-    },
-    token: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Token',
-      default: '',
-    },
-  },
-  type: 'object',
-  title: 'ManagedTool',
-} as const;
-
 export const $Message = {
   properties: {
     text: {
@@ -3314,6 +3200,120 @@ export const $ToolCallDelta = {
   type: 'object',
   required: ['name', 'index', 'parameters'],
   title: 'ToolCallDelta',
+} as const;
+
+export const $ToolCategory = {
+  type: 'string',
+  enum: ['Data loader', 'File loader', 'Function', 'Web search'],
+  title: 'ToolCategory',
+} as const;
+
+export const $ToolDefinition = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Name',
+      default: '',
+    },
+    display_name: {
+      type: 'string',
+      title: 'Display Name',
+      default: '',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+      default: '',
+    },
+    parameter_definitions: {
+      anyOf: [
+        {
+          type: 'object',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Parameter Definitions',
+      default: {},
+    },
+    kwargs: {
+      type: 'object',
+      title: 'Kwargs',
+      default: {},
+    },
+    is_visible: {
+      type: 'boolean',
+      title: 'Is Visible',
+      default: false,
+    },
+    is_available: {
+      type: 'boolean',
+      title: 'Is Available',
+      default: false,
+    },
+    error_message: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error Message',
+      default: '',
+    },
+    category: {
+      $ref: '#/components/schemas/ToolCategory',
+      default: 'Data loader',
+    },
+    is_auth_required: {
+      type: 'boolean',
+      title: 'Is Auth Required',
+      default: false,
+    },
+    auth_url: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Auth Url',
+      default: '',
+    },
+    token: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Token',
+      default: '',
+    },
+  },
+  type: 'object',
+  title: 'ToolDefinition',
 } as const;
 
 export const $ToolInputType = {

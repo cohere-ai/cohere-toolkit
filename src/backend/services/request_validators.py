@@ -8,7 +8,7 @@ from backend.config.deployments import (
     find_config_by_deployment_id,
     find_config_by_deployment_name,
 )
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import get_available_tools
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import deployment as deployment_crud
@@ -212,7 +212,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
     if not tools:
         return
 
-    managed_tools = [tool["name"] for tool in tools if tool["name"] in AVAILABLE_TOOLS]
+    managed_tools = [tool["name"] for tool in tools if tool["name"] in get_available_tools()]
     if managed_tools and len(tools) != len(managed_tools):
         raise HTTPException(
             status_code=400, detail="Cannot mix both managed and custom tools"
@@ -288,7 +288,7 @@ async def validate_create_agent_request(session: DBSessionDep, request: Request)
     tools = body.get("tools")
     if tools:
         for tool in tools:
-            if tool not in AVAILABLE_TOOLS:
+            if tool not in get_available_tools():
                 raise HTTPException(status_code=404, detail=f"Tool {tool} not found.")
 
     name = body.get("name")
@@ -339,7 +339,7 @@ async def validate_update_agent_request(session: DBSessionDep, request: Request)
     tools = body.get("tools")
     if tools:
         for tool in tools:
-            if tool not in AVAILABLE_TOOLS:
+            if tool not in get_available_tools():
                 logger.error(event="Tool not found.", tool=tool)
                 raise HTTPException(status_code=404, detail=f"Tool {tool} not found.")
 

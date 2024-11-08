@@ -65,13 +65,6 @@ export type Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   files: Array<Blob | File>;
 };
 
-export enum Category {
-  DATA_LOADER = 'Data loader',
-  FILE_LOADER = 'File loader',
-  FUNCTION = 'Function',
-  WEB_SEARCH = 'Web search',
-}
-
 /**
  * A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.
  */
@@ -413,25 +406,6 @@ export type Login = {
 
 export type Logout = unknown;
 
-export type ManagedTool = {
-  name?: string | null;
-  display_name?: string;
-  description?: string | null;
-  parameter_definitions?: {
-    [key: string]: unknown;
-  } | null;
-  kwargs?: {
-    [key: string]: unknown;
-  };
-  is_visible?: boolean;
-  is_available?: boolean;
-  error_message?: string | null;
-  category?: Category;
-  is_auth_required?: boolean;
-  auth_url?: string | null;
-  token?: string | null;
-};
-
 export type Message = {
   text: string;
   id: string;
@@ -695,6 +669,32 @@ export type ToolCallDelta = {
   name: string | null;
   index: number | null;
   parameters: string | null;
+};
+
+export enum ToolCategory {
+  DATA_LOADER = 'Data loader',
+  FILE_LOADER = 'File loader',
+  FUNCTION = 'Function',
+  WEB_SEARCH = 'Web search',
+}
+
+export type ToolDefinition = {
+  name?: string | null;
+  display_name?: string;
+  description?: string | null;
+  parameter_definitions?: {
+    [key: string]: unknown;
+  } | null;
+  kwargs?: {
+    [key: string]: unknown;
+  };
+  is_visible?: boolean;
+  is_available?: boolean;
+  error_message?: string | null;
+  category?: ToolCategory;
+  is_auth_required?: boolean;
+  auth_url?: string | null;
+  token?: string | null;
 };
 
 /**
@@ -988,7 +988,7 @@ export type ListToolsV1ToolsGetData = {
   agentId?: string | null;
 };
 
-export type ListToolsV1ToolsGetResponse = Array<ManagedTool>;
+export type ListToolsV1ToolsGetResponse = Array<ToolDefinition>;
 
 export type CreateDeploymentV1DeploymentsPostData = {
   requestBody: DeploymentCreate;
@@ -1658,7 +1658,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<ManagedTool>;
+        200: Array<ToolDefinition>;
         /**
          * Validation Error
          */

@@ -5,12 +5,13 @@ from googleapiclient.discovery import build
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadataArtifactsType
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
 class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
-    NAME = "google_web_search"
+    ID = "google_web_search"
     API_KEY = Settings().get('tools.google_web_search.api_key')
     CSE_ID = Settings().get('tools.google_web_search.cse_id')
 
@@ -20,6 +21,26 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
     @classmethod
     def is_available(cls) -> bool:
         return bool(cls.API_KEY) and bool(cls.CSE_ID)
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Google Web Search",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "A search query for the Google search engine.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.WebSearch,
+            description="Returns relevant results by performing a Google web search.",
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any

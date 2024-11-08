@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 
-import { AgentPublic, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { Composer } from '@/components/Composer';
 import { Header } from '@/components/Conversation';
 import { MessagingContainer, WelcomeGuideTooltip } from '@/components/MessagingContainer';
@@ -19,7 +19,7 @@ import { ChatMessage } from '@/types/message';
 type Props = {
   startOptionsEnabled?: boolean;
   agent?: AgentPublic;
-  tools?: ManagedTool[];
+  tools?: ToolDefinition[];
   history?: ChatMessage[];
 };
 
