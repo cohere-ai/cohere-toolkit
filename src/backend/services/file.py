@@ -32,6 +32,7 @@ EXCEL_OLD_EXTENSION = "xls"
 JSON_EXTENSION = "json"
 DOCX_EXTENSION = "docx"
 PARQUET_EXTENSION = "parquet"
+CALENDAR_EXTENSION = "ics"
 
 # Monkey patch Pandas to use Calamine for Excel reading because Calamine is faster than Pandas
 pandas_monkeypatch()
@@ -451,6 +452,7 @@ async def get_file_content(file: FastAPIUploadFile) -> str:
         CSV_EXTENSION,
         TSV_EXTENSION,
         JSON_EXTENSION,
+        CALENDAR_EXTENSION
     ]:
         return file_contents.decode("utf-8")
     elif file_extension in [EXCEL_EXTENSION, EXCEL_OLD_EXTENSION]:
