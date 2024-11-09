@@ -7,8 +7,7 @@ import { useState } from 'react';
 
 import { AgentLogo } from '@/components/Agents/AgentLogo';
 import { CommandActionGroup, HotKeyGroupOption, HotKeysDialogInput } from '@/components/HotKeys';
-import { useGetDefaultAgent } from '@/hooks';
-import { useConversations, useListAgents } from '@/hooks';
+import { useConversations, useListAgents, useGetDefaultAgent } from '@/hooks';
 
 type Props = {
   isOpen: boolean;

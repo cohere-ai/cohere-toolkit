@@ -16,7 +16,7 @@ export const useGetDefaultAgent = () => {
   const cohereClient = useCohereClient();
 
   return useQuery({
-    queryKey: ['defaultAgent'],
+    queryKey: ['agent', null],
     queryFn: async () => cohereClient.getDefaultAgent(),
   });
 };
