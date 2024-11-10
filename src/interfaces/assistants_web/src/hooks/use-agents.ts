@@ -67,13 +67,12 @@ export const useDeleteAgent = () => {
 
 export const useAgent = ({ agentId }: { agentId?: string }) => {
   const cohereClient = useCohereClient();
-  const defaultAgent = useGetDefaultAgent();
   return useQuery({
     queryKey: ['agent', agentId],
     queryFn: async () => {
       try {
         if (!agentId) {
-          return defaultAgent;
+          return await cohereClient.getDefaultAgent();
         }
         return await cohereClient.getAgent(agentId);
       } catch (e) {
