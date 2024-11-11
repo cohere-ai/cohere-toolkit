@@ -9,4 +9,5 @@ Looking to serve your application in production? Deploy the Toolkit to your pref
 2. **[Amazon Web Services AWS Copilot](deployment_guides/aws_deployment.md)**  
    Help setup your DB instance, then build, push, and deploy Toolkit containers to ECS Fargate using AWS Copilot.
 
-Note: Azure deployment with Docker Compose is currently being worked on.
+3. **[Azure App Service compose](deployment_guides/azure_deployment.md)**  
+   Help setup your DB instance, then build, push, and deploy Toolkit containers to Azure App Service using Docker compose.
