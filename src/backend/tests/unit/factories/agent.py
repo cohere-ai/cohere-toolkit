@@ -13,6 +13,8 @@ class AgentFactory(BaseFactory):
     user = factory.SubFactory(UserFactory)
     user_id = factory.SelfAttribute("user.id")
     organization_id = None
+    deployment_id = None
+    model_id = None
     name = factory.Faker("sentence")
     description = factory.Faker("sentence")
     preamble = factory.Faker("sentence")
