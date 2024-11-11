@@ -6,16 +6,22 @@ import pytest
 from fastapi import HTTPException
 
 from backend.chat.custom.tool_calls import async_call_tools
-from backend.config.tools import AVAILABLE_TOOLS, ToolName
-from backend.schemas.tool import ManagedTool
+from backend.config.tools import Tool
+from backend.schemas.tool import ToolDefinition
 from backend.services.context import Context
 from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 from backend.tools.base import BaseTool
 
 
-def test_async_call_tools_success() -> None:
+@pytest.fixture
+def mock_get_available_tools():
+    with patch("backend.chat.custom.tool_calls.get_available_tools") as mock:
+        yield mock
+
+
+def test_async_call_tools_success(mock_get_available_tools) -> None:
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -26,29 +32,28 @@ def test_async_call_tools_success() -> None:
     chat_history = [
         {
             "tool_calls": [
-                {"name": "toolkit_calculator", "parameters": {"expression": "6*7"}}
+                {"name": "toolkit_calculator", "parameters": {"code": "6*7"}}
             ]
         }
     ]
-    MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
-        results = asyncio.run(
-            async_call_tools(chat_history, MockCohereDeployment(), ctx)
-        )
-        assert results == [
-            {
-                "call": {
-                    "name": "toolkit_calculator",
-                    "parameters": {"expression": "6*7"},
-                },
-                "outputs": [{"result": 42}],
-            }
-        ]
+    mock_get_available_tools.return_value = {Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator)}
+    results = asyncio.run(
+        async_call_tools(chat_history, MockCohereDeployment(), ctx)
+    )
+    assert results == [
+        {
+            "call": {
+                "name": "toolkit_calculator",
+                "parameters": {"code": "6*7"},
+            },
+            "outputs": [{"result": 42}],
+        }
+    ]
 
 
-def test_async_call_tools_failure() -> None:
+def test_async_call_tools_failure(mock_get_available_tools) -> None:
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -59,32 +64,31 @@ def test_async_call_tools_failure() -> None:
     chat_history = [
         {
             "tool_calls": [
-                {"name": "toolkit_calculator", "parameters": {"expression": "6*7"}}
+                {"name": "toolkit_calculator", "parameters": {"code": "6*7"}}
             ]
         }
     ]
-    MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
-        results = asyncio.run(
-            async_call_tools(chat_history, MockCohereDeployment(), ctx)
-        )
-        assert results == [
-            {
-                "call": {
-                    "name": "toolkit_calculator",
-                    "parameters": {"expression": "6*7"},
-                },
-                "outputs": [
-                    {"error": "Calculator failed", "status_code": 500, "success": False}
-                ],
+    mock_get_available_tools.return_value = {Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator)}
+    results = asyncio.run(
+        async_call_tools(chat_history, MockCohereDeployment(), ctx)
+    )
+    assert results == [
+        {
+            "call": {
+                "name": "toolkit_calculator",
+                "parameters": {"code": "6*7"},
             },
-        ]
+            "outputs": [
+                {"error": "Calculator failed", "status_code": 500, "success": False}
+            ],
+        },
+    ]
 
 
 @patch("backend.chat.custom.tool_calls.TIMEOUT_SECONDS", 1)
-def test_async_call_tools_timeout() -> None:
+def test_async_call_tools_timeout(mock_get_available_tools) -> None:
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -96,23 +100,23 @@ def test_async_call_tools_timeout() -> None:
     chat_history = [
         {
             "tool_calls": [
-                {"name": "toolkit_calculator", "parameters": {"expression": "6*7"}}
+                {"name": "toolkit_calculator", "parameters": {"code": "6*7"}}
             ]
         }
     ]
-    MOCKED_TOOLS = {ToolName.Calculator: ManagedTool(implementation=MockCalculator)}
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
-        with pytest.raises(HTTPException) as excinfo:
-            asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
-        assert str(excinfo.value.status_code) == "500"
-        assert (
-            str(excinfo.value.detail) == "Timeout while calling tools with timeout: 1"
+    mock_get_available_tools.return_value = {Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator)}
+
+    with pytest.raises(HTTPException) as excinfo:
+        asyncio.run(async_call_tools(chat_history, MockCohereDeployment(), ctx))
+    assert str(excinfo.value.status_code) == "500"
+    assert (
+        str(excinfo.value.detail) == "Timeout while calling tools with timeout: 1"
         )
 
 
-def test_async_call_tools_failure_and_success() -> None:
+def test_async_call_tools_failure_and_success(mock_get_available_tools) -> None:
     class MockWebScrape(BaseTool):
-        NAME = "web_scrape"
+        ID = "web_scrape"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -120,7 +124,7 @@ def test_async_call_tools_failure_and_success() -> None:
             raise Exception("Web scrape failed")
 
     class MockCalculator(BaseTool):
-        NAME = "toolkit_calculator"
+        ID = "toolkit_calculator"
 
         async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
@@ -131,26 +135,26 @@ def test_async_call_tools_failure_and_success() -> None:
     chat_history = [
         {
             "tool_calls": [
-                {"name": "web_scrape", "parameters": {"expression": "6*7"}},
-                {"name": "toolkit_calculator", "parameters": {"expression": "6*7"}},
+                {"name": "web_scrape", "parameters": {"code": "6*7"}},
+                {"name": "toolkit_calculator", "parameters": {"code": "6*7"}},
             ]
         }
     ]
-    MOCKED_TOOLS = {
-        ToolName.Calculator: ManagedTool(implementation=MockCalculator),
-        ToolName.Web_Scrape: ManagedTool(implementation=MockWebScrape),
+    mock_get_available_tools.return_value = {
+        Tool.Calculator.value.ID: ToolDefinition(implementation=MockCalculator),
+        Tool.Web_Scrape.value.ID: ToolDefinition(implementation=MockWebScrape),
     }
-    with patch.dict(AVAILABLE_TOOLS, MOCKED_TOOLS):
-        results = asyncio.run(
-            async_call_tools(chat_history, MockCohereDeployment(), ctx)
-        )
-        assert {
-            "call": {"name": "web_scrape", "parameters": {"expression": "6*7"}},
-            "outputs": [
-                {"error": "Web scrape failed", "status_code": 500, "success": False}
-            ],
-        } in results
-        assert {
-            "call": {"name": "toolkit_calculator", "parameters": {"expression": "6*7"}},
-            "outputs": [{"result": 42}],
-        } in results
+
+    results = asyncio.run(
+        async_call_tools(chat_history, MockCohereDeployment(), ctx)
+    )
+    assert {
+        "call": {"name": "web_scrape", "parameters": {"code": "6*7"}},
+        "outputs": [
+            {"error": "Web scrape failed", "status_code": 500, "success": False}
+        ],
+    } in results
+    assert {
+        "call": {"name": "toolkit_calculator", "parameters": {"code": "6*7"}},
+        "outputs": [{"result": 42}],
+    } in results

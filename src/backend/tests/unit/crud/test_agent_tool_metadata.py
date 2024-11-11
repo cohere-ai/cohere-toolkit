@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.schemas.agent import UpdateAgentToolMetadataRequest
@@ -23,13 +23,13 @@ mock_artifact_2 = {
 
 def test_create_agent_tool_metadata(session, user):
     agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user=user
+        id="1", name="test_agent", tools=[Tool.Google_Drive.value.ID], user=user
     )
 
     agent_tool_metadata_data = AgentToolMetadata(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1],
     )
     agent_tool_metadata = agent_tool_metadata_crud.create_agent_tool_metadata(
@@ -37,7 +37,7 @@ def test_create_agent_tool_metadata(session, user):
     )
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
-    assert agent_tool_metadata.tool_name == ToolName.Google_Drive
+    assert agent_tool_metadata.tool_name == Tool.Google_Drive.value.ID
     assert agent_tool_metadata.artifacts == [mock_artifact_1]
     assert agent_tool_metadata.artifacts[0]["type"] == "document"
 
@@ -46,7 +46,7 @@ def test_create_agent_tool_metadata(session, user):
     )
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
-    assert agent_tool_metadata.tool_name == ToolName.Google_Drive
+    assert agent_tool_metadata.tool_name == Tool.Google_Drive.value.ID
     assert agent_tool_metadata.artifacts == [mock_artifact_1]
     assert agent_tool_metadata.artifacts[0]["type"] == "document"
 
@@ -54,7 +54,7 @@ def test_create_agent_tool_metadata(session, user):
 def test_create_agent_missing_agent_id(session, user):
     agent_tool_metadata_data = AgentToolMetadata(
         user_id=user.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1],
     )
     with pytest.raises(IntegrityError):
@@ -65,7 +65,7 @@ def test_create_agent_missing_agent_id(session, user):
 
 def test_create_agent_missing_tool_name(session, user):
     agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user=user
+        id="1", name="test_agent", tools=[Tool.Google_Drive.value.ID], user=user
     )
 
     agent_tool_metadata_data = AgentToolMetadata(
@@ -81,12 +81,12 @@ def test_create_agent_missing_tool_name(session, user):
 
 def test_create_agent_missing_user_id(session, user):
     agent = get_factory("Agent", session).create(
-        id="1", name="test_agent", tools=[ToolName.Google_Drive], user=user
+        id="1", name="test_agent", tools=[Tool.Google_Drive.value.ID], user=user
     )
 
     agent_tool_metadata_data = AgentToolMetadata(
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1],
         user_id="123",
     )
@@ -101,7 +101,7 @@ def test_update_agent_tool_metadata(session, user):
     original_agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1],
     )
 
@@ -123,7 +123,7 @@ def test_get_agent_tool_metadata_by_id(session, user):
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1, mock_artifact_2],
     )
     agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata_by_id(
@@ -131,7 +131,7 @@ def test_get_agent_tool_metadata_by_id(session, user):
     )
     assert agent_tool_metadata.user_id == user.id
     assert agent_tool_metadata.agent_id == agent.id
-    assert agent_tool_metadata.tool_name == ToolName.Google_Drive
+    assert agent_tool_metadata.tool_name == Tool.Google_Drive.value.ID
     assert agent_tool_metadata.artifacts == [mock_artifact_1, mock_artifact_2]
 
 
@@ -143,18 +143,20 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
     _ = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent1.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1, mock_artifact_2],
     )
 
+
     # Constraint was added preventing multiple entries for the same user + agent + tool so fixing to change the tool used
     i = 0
-    for tool in ToolName:
+    for tool in Tool:
         i += 1
+
         _ = get_factory("Agent", session).create(user_id=user.id)
         _ = get_factory("AgentToolMetadata", session).create(
             id=f"{i}",
-            tool_name=tool.value,
+            tool_name=tool.value.ID,
             artifacts=[mock_artifact_1, mock_artifact_2],
             user_id=user.id,
             agent_id=agent2.id,
@@ -165,7 +167,7 @@ def test_get_all_agent_tool_metadata_by_agent_id(session, user):
             session, agent_id=agent2.id
         )
     )
-    assert len(all_agent_tool_metadata) == len(ToolName)
+    assert len(all_agent_tool_metadata) == len(Tool)
 
 
 def test_delete_agent_tool_metadata_by_id(session, user):
@@ -173,7 +175,7 @@ def test_delete_agent_tool_metadata_by_id(session, user):
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[mock_artifact_1, mock_artifact_2],
     )
 

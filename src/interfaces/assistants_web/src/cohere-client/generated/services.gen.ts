@@ -293,7 +293,7 @@ export class DefaultService {
    * If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
    *
    * Args:
-   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the ToolName string enum class.
+   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the Tool enum.
    * request (Request): current Request object.
    * session (DBSessionDep): Database session.
    * ctx (Context): Context object.
@@ -990,10 +990,10 @@ export class DefaultService {
    * agent_id (str): Agent ID.
    * ctx (Context): Context object.
    * Returns:
-   * list[ManagedTool]: List of available tools.
+   * list[ToolDefinition]: List of available tools.
    * @param data The data for the request.
    * @param data.agentId
-   * @returns ManagedTool Successful Response
+   * @returns ToolDefinition Successful Response
    * @throws ApiError
    */
   public listToolsV1ToolsGet(
@@ -1785,7 +1785,7 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    *
    * Returns:
-   * list[ManagedTool]: List of available organizations.
+   * list[Organization]: List of available organizations.
    * @returns Organization Successful Response
    * @throws ApiError
    */
@@ -1866,9 +1866,10 @@ export class DefaultService {
    * Args:
    * organization_id (str): Tool ID.
    * session (DBSessionDep): Database session.
+   * ctx: Context.
    *
    * Returns:
-   * ManagedTool: Organization with the given ID.
+   * Organization: Organization with the given ID.
    * @param data The data for the request.
    * @param data.organizationId
    * @returns Organization Successful Response

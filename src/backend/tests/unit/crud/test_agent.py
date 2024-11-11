@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import false
 
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
 from backend.schemas.agent import AgentVisibility, UpdateAgentDB
@@ -21,7 +21,7 @@ def test_create_agent(session, user):
         temperature=0.5,
         model_id=model.id,
         deployment_id=deployment.id,
-        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
         is_private=True,
     )
 
@@ -32,7 +32,7 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
+    assert agent.tools == [Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID]
     assert agent.is_private
     assert agent.deployment == deployment.name
     assert agent.model == model.name
@@ -44,11 +44,10 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
+    assert agent.tools == [Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID]
     assert agent.is_private
     assert agent.deployment == deployment.name
     assert agent.model == model.name
-
 
 
 def test_create_agent_empty_non_required_fields(session, user):
@@ -97,7 +96,7 @@ def test_create_agent_duplicate_name_version(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
     )
 
     with pytest.raises(IntegrityError):
@@ -219,7 +218,7 @@ def test_update_agent(session, user):
         user=user,
         deployment_id=deployment.id,
         model_id=model.id,
-        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
     )
 
     new_deployment = get_factory("Deployment", session).create()
@@ -230,7 +229,7 @@ def test_update_agent(session, user):
         version=2,
         preamble="new_test",
         temperature=0.6,
-        tools=[ToolName.Python_Interpreter, ToolName.Calculator],
+        tools=[Tool.Python_Interpreter.value.ID, Tool.Calculator.value.ID],
         model_id=new_model.id,
         deployment_id=new_deployment.id,
     )
@@ -241,7 +240,7 @@ def test_update_agent(session, user):
     assert agent.version == new_agent_data.version
     assert agent.preamble == new_agent_data.preamble
     assert agent.temperature == new_agent_data.temperature
-    assert agent.tools == [ToolName.Python_Interpreter, ToolName.Calculator]
+    assert agent.tools == [Tool.Python_Interpreter.value.ID, Tool.Calculator.value.ID]
     assert agent.model_id == new_model.id
     assert agent.deployment_id == new_deployment.id
     assert agent.model == new_model.name
