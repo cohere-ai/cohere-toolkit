@@ -97,6 +97,8 @@ class GmailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             ),
         )
 
+        return ""
+
     def try_refresh_token(
         self, session: DBSessionDep, user_id: str, tool_auth: ToolAuthModel
     ) -> bool:
