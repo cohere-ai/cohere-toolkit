@@ -6,7 +6,7 @@ from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
 from backend.tools.gmail.auth import GmailAuth
-from backend.tools.gmail.constants import SEARCH_LIMIT, GMAIL_TOOL_ID
+from backend.tools.gmail.constants import GMAIL_TOOL_ID, SEARCH_LIMIT
 from backend.tools.gmail.utils import get_gmail_service
 
 logger = LoggerFactory().get_logger()

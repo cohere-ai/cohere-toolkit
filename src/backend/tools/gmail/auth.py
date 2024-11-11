@@ -7,7 +7,6 @@ from fastapi import Request
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
-from backend.database_models import ToolAuth
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth as ToolAuthModel
 from backend.schemas.tool_auth import UpdateToolAuth

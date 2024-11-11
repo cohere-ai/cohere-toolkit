@@ -5,7 +5,7 @@ from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import ToolAuthException
 from backend.tools.gmail import GmailAuth
 from backend.tools.gmail.client import GmailClient
-from backend.tools.gmail.constants import SEARCH_LIMIT, GMAIL_TOOL_ID
+from backend.tools.gmail.constants import GMAIL_TOOL_ID, SEARCH_LIMIT
 
 logger = LoggerFactory().get_logger()
 
