@@ -82,7 +82,7 @@ class GmailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             logger.error(
                 event=f"[Gmail] Error retrieving auth token: {response_body}"
             )
-            return response
+            return ""
 
         tool_auth_crud.create_tool_auth(
             session,
