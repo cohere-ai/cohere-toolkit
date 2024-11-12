@@ -12,7 +12,6 @@ export const DEFAULT_PREAMBLE =
 
 export const DEFAULT_AGENT: AgentPublic = {
   id: '',
-  deployments: [],
   name: 'Command R+',
   description: 'Ask questions and get answers based on your files.',
   created_at: new Date().toISOString(),
@@ -33,6 +32,7 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'text/html',
   'text/markdown',
   'text/tab-separated-values',
+  'text/calendar',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

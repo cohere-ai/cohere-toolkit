@@ -61,8 +61,8 @@ import type {
   GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse,
   GetAgentByIdV1AgentsAgentIdGetData,
   GetAgentByIdV1AgentsAgentIdGetResponse,
-  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData,
-  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse,
+  GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData,
+  GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
   GetDeploymentV1DeploymentsDeploymentIdGetData,
@@ -1393,7 +1393,7 @@ export class DefaultService {
   }
 
   /**
-   * Get Agent Deployments
+   * Get Agent Deployment
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
@@ -1409,9 +1409,9 @@ export class DefaultService {
    * @returns Deployment Successful Response
    * @throws ApiError
    */
-  public getAgentDeploymentsV1AgentsAgentIdDeploymentsGet(
-    data: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData
-  ): CancelablePromise<GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse> {
+  public getAgentDeploymentV1AgentsAgentIdDeploymentsGet(
+    data: GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData
+  ): CancelablePromise<GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}/deployments',

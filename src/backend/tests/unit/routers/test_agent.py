@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import Tool
-from backend.crud import agent as agent_crud
 from backend.crud import deployment as deployment_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
@@ -310,43 +309,6 @@ def list_public_and_private_agents(
     assert len(response_agents) == 5
 
 
-def test_list_agent_deployments(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(user=user)
-    for i in range(3):
-        deployment = get_factory("Deployment", session).create(
-            name=f"test deployment {i}"
-        )
-        model = get_factory("Model", session).create(
-            deployment=deployment, name=f"test r+ ({i})", cohere_name="command-r-plus"
-        )
-        agent_crud.assign_model_deployment_to_agent(
-            session,
-            agent,
-            model.id,
-            deployment.id,
-            deployment_config=deployment.default_deployment_config,
-        )
-        model1 = get_factory("Model", session).create(
-            deployment=deployment, name=f"test r ({i})", cohere_name="command-r"
-        )
-        agent_crud.assign_model_deployment_to_agent(
-            session,
-            agent,
-            model1.id,
-            deployment.id,
-            deployment_config=deployment.default_deployment_config,
-        )
-
-    response = session_client.get(
-        f"/v1/agents/{agent.id}/deployments", headers={"User-Id": user.id}
-    )
-    assert response.status_code == 200
-    response_deployments = response.json()
-    assert len(response_deployments) == 3
-
-
 def test_list_agents_with_pagination(
     session_client: TestClient, session: Session, user
 ) -> None:
@@ -366,6 +328,7 @@ def test_list_agents_with_pagination(
     assert response.status_code == 200
     response_agents = response.json()
     assert len(response_agents) == 1
+
 
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
