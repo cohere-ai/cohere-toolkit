@@ -21,15 +21,17 @@ export const FileViewer: React.FC<Props> = ({ fileId, agentId, conversationId })
     <div className="space-y-2.5">
       <header className="flex items-center gap-2">
         <div className="rounded bg-mushroom-800 p-2.5 dark:bg-volcanic-150">
-          <Icon name="file" />
+          <Icon name={file ? 'file' : 'warning'} />
         </div>
         <Text styleAs="p-lg" className="truncate">
-          {file!.file_name}
+          {file?.file_name ?? 'Failed to load file content'}
         </Text>
       </header>
-      <article className="max-h-96 overflow-y-auto">
-        <Markdown className="font-variable" text={file!.file_content} />
-      </article>
+      {file && (
+        <article className="max-h-96 overflow-y-auto">
+          <Markdown className="font-variable" text={file.file_content} />
+        </article>
+      )}
     </div>
   );
 };
