@@ -258,7 +258,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
       <CollapsibleSection
         title="Set default tools"
         number={4}
-        description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
+        description="Select which tools should be available to enhance the assistant’s capabilities and expand its foundational knowledge."
         isExpanded={currentStep === 'tools'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'tools' : undefined)}
       >
