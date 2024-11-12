@@ -23,8 +23,8 @@ from backend.schemas.conversation import (
     UpdateConversationRequest,
 )
 from backend.schemas.file import (
-    ConversationFileFull,
     DeleteConversationFileResponse,
+    FileMetadata,
     ListConversationFile,
     UploadConversationFileResponse,
 )
@@ -462,10 +462,10 @@ async def list_files(
     return files_with_conversation_id
 
 
-@router.get("/{conversation_id}/files/{file_id}", response_model=ConversationFileFull)
+@router.get("/{conversation_id}/files/{file_id}", response_model=FileMetadata)
 async def get_file(
     conversation_id: str, file_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
-) -> ConversationFileFull:
+) -> FileMetadata:
     """
     Get a conversation file by ID.
 
@@ -476,7 +476,7 @@ async def get_file(
         ctx (Context): Context object.
 
     Returns:
-        ConversationFileFull: File with the given ID.
+        FileMetadata: File with the given ID.
 
     Raises:
         HTTPException: If the conversation or file with the given ID is not found, or if the file does not belong to the conversation.
@@ -493,13 +493,11 @@ async def get_file(
 
     file = validate_file(session, file_id, user_id)
 
-    return ConversationFileFull(
+    return FileMetadata(
         id=file.id,
-        conversation_id=conversation.id,
         file_name=file.file_name,
         file_content=file.file_content,
         file_size=file.file_size,
-        user_id=file.user_id,
         created_at=file.created_at,
         updated_at=file.updated_at,
     )

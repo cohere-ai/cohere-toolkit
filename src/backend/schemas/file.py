@@ -30,10 +30,6 @@ class ConversationFilePublic(BaseModel):
     file_size: int = Field(default=0, ge=0)
 
 
-class ConversationFileFull(ConversationFilePublic):
-    file_content: str
-
-
 class AgentFilePublic(BaseModel):
     id: str
     created_at: datetime.datetime
@@ -43,8 +39,13 @@ class AgentFilePublic(BaseModel):
     file_size: int = Field(default=0, ge=0)
 
 
-class AgentFileFull(AgentFilePublic):
+class FileMetadata(BaseModel):
+    id: str
+    file_name: str
     file_content: str
+    file_size: int = Field(default=0, ge=0)
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
 
 
 class ListConversationFile(ConversationFilePublic):

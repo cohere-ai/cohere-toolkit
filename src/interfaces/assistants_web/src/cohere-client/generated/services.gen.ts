@@ -883,14 +883,14 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * ConversationFileFull: File with the given ID.
+   * FileMetadata: File with the given ID.
    *
    * Raises:
    * HTTPException: If the conversation or file with the given ID is not found, or if the file does not belong to the conversation.
    * @param data The data for the request.
    * @param data.conversationId
    * @param data.fileId
-   * @returns ConversationFileFull Successful Response
+   * @returns FileMetadata Successful Response
    * @throws ApiError
    */
   public getFileV1ConversationsConversationIdFilesFileIdGet(
@@ -1649,14 +1649,14 @@ export class DefaultService {
    * ctx (Context): Context object.
    *
    * Returns:
-   * AgentFileFull: File with the given ID.
+   * FileMetadata: File with the given ID.
    *
    * Raises:
    * HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
    * @param data The data for the request.
    * @param data.agentId
    * @param data.fileId
-   * @returns AgentFileFull Successful Response
+   * @returns FileMetadata Successful Response
    * @throws ApiError
    */
   public getAgentFileV1AgentsAgentIdFilesFileIdGet(

@@ -36,8 +36,8 @@ from backend.schemas.agent import (
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.file import (
-    AgentFileFull,
     DeleteAgentFileResponse,
+    FileMetadata,
     UploadAgentFileResponse,
 )
 from backend.services.agent import (
@@ -588,13 +588,13 @@ async def batch_upload_file(
     return uploaded_files
 
 
-@router.get("/{agent_id}/files/{file_id}", response_model=AgentFileFull)
+@router.get("/{agent_id}/files/{file_id}", response_model=FileMetadata)
 async def get_agent_file(
     agent_id: str,
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
-) -> AgentFileFull:
+) -> FileMetadata:
     """
     Get an agent file by ID.
 
@@ -605,7 +605,7 @@ async def get_agent_file(
         ctx (Context): Context object.
 
     Returns:
-        AgentFileFull: File with the given ID.
+        FileMetadata: File with the given ID.
 
     Raises:
         HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
@@ -626,7 +626,7 @@ async def get_agent_file(
             detail=f"File with ID: {file_id} not found.",
         )
 
-    return AgentFileFull(
+    return FileMetadata(
         id=file.id,
         file_name=file.file_name,
         file_content=file.file_content,

@@ -1,9 +1,7 @@
-import { UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
-  AgentFileFull,
   ApiError,
-  ConversationFileFull,
   DeleteAgentFileResponse,
   ListConversationFile,
   useCohereClient,
@@ -22,7 +20,7 @@ export const useFile = ({
   fileId: string;
   agentId?: string;
   conversationId?: string;
-}): UseQueryResult<AgentFileFull | ConversationFileFull, Error> => {
+}) => {
   const cohereClient = useCohereClient();
   return useQuery({
     queryKey: ['file', fileId],
