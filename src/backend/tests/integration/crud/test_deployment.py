@@ -85,20 +85,8 @@ def test_list_deployments_with_pagination(session):
 def test_get_available_deployments(session, user):
     session.query(Deployment).delete()
     deployment = get_factory("Deployment", session).create()
-    another_deployment = get_factory("Deployment", session).create(
+    _ = get_factory("Deployment", session).create(
         default_deployment_config={}
-    )
-    agent = get_factory("Agent", session).create(user=user)
-    model = get_factory("Model", session).create(deployment=deployment)
-    another_model = get_factory("Model", session).create(deployment=another_deployment)
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent, deployment=deployment, model=model
-    )
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent,
-        deployment=another_deployment,
-        model=another_model,
-        deployment_config={},
     )
 
     deployments = deployment_crud.get_available_deployments(session)
@@ -112,47 +100,6 @@ def test_get_available_deployments_empty(session, user):
     deployments = deployment_crud.get_available_deployments(session)
 
     assert len(deployments) == 0
-
-
-def test_get_available_deployments_by_agent_id(session, user):
-    session.query(Deployment).delete()
-    deployment = get_factory("Deployment", session).create()
-    another_deployment = get_factory("Deployment", session).create(
-        default_deployment_config={}
-    )
-    agent = get_factory("Agent", session).create(user=user)
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-    another_model = get_factory("Model", session).create(
-        deployment_id=another_deployment.id
-    )
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent, deployment=deployment, model=model
-    )
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent, deployment=deployment, model=another_model, deployment_config={}
-    )
-
-    deployments = deployment_crud.get_available_deployments_by_agent_id(
-        session, agent.id
-    )
-
-    assert len(deployments) == 1
-    assert deployments[0].id == deployment.id
-
-
-def test_get_deployments_by_agent_id(session, user):
-    session.query(Deployment).delete()
-    deployment = get_factory("Deployment", session).create()
-    agent = get_factory("Agent", session).create(user=user)
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent, deployment=deployment, model=model
-    )
-
-    deployments = deployment_crud.get_deployments_by_agent_id(session, agent.id)
-
-    assert len(deployments) == 1
-    assert deployments[0].id == deployment.id
 
 
 def test_update_deployment(session, deployment):

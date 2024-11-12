@@ -1,7 +1,4 @@
 from backend.tests.unit.factories.agent import AgentFactory
-from backend.tests.unit.factories.agent_deployment_model import (
-    AgentDeploymentModelFactory,
-)
 from backend.tests.unit.factories.agent_tool_metadata import AgentToolMetadataFactory
 from backend.tests.unit.factories.blacklist import BlacklistFactory
 from backend.tests.unit.factories.citation import CitationFactory
@@ -48,7 +45,6 @@ FACTORY_MAPPING = {
     "AgentToolMetadata": AgentToolMetadataFactory,
     "Model": ModelFactory,
     "Deployment": DeploymentFactory,
-    "AgentDeploymentModel": AgentDeploymentModelFactory,
     "ConversationFileAssociation": ConversationFileAssociationFactory,
     "MessageFileAssociation": MessageFileAssociationFactory,
     "Group": GroupFactory,

@@ -118,13 +118,6 @@ export const $AgentPublic = {
       ],
       title: 'Tools Metadata',
     },
-    deployments: {
-      items: {
-        $ref: '#/components/schemas/DeploymentWithModels',
-      },
-      type: 'array',
-      title: 'Deployments',
-    },
     deployment: {
       anyOf: [
         {
@@ -171,7 +164,6 @@ export const $AgentPublic = {
     'preamble',
     'temperature',
     'tools',
-    'deployments',
     'deployment',
     'model',
     'is_private',
@@ -1126,18 +1118,6 @@ export const $CreateAgentRequest = {
       ],
       title: 'Deployment Config',
     },
-    is_default_deployment: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Default Deployment',
-      default: false,
-    },
     model: {
       type: 'string',
       title: 'Model',
@@ -1535,78 +1515,6 @@ export const $DeploymentUpdate = {
   },
   type: 'object',
   title: 'DeploymentUpdate',
-} as const;
-
-export const $DeploymentWithModels = {
-  properties: {
-    id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Id',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      default: false,
-    },
-    is_community: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Community',
-      default: false,
-    },
-    env_vars: {
-      anyOf: [
-        {
-          items: {
-            type: 'string',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Env Vars',
-    },
-    models: {
-      items: {
-        $ref: '#/components/schemas/ModelSimple',
-      },
-      type: 'array',
-      title: 'Models',
-    },
-  },
-  type: 'object',
-  required: ['name', 'env_vars', 'models'],
-  title: 'DeploymentWithModels',
 } as const;
 
 export const $Document = {
@@ -2206,44 +2114,6 @@ export const $ModelCreate = {
   type: 'object',
   required: ['name', 'cohere_name', 'description', 'deployment_id'],
   title: 'ModelCreate',
-} as const;
-
-export const $ModelSimple = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-    },
-    cohere_name: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Cohere Name',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-    },
-  },
-  type: 'object',
-  required: ['id', 'name', 'cohere_name', 'description'],
-  title: 'ModelSimple',
 } as const;
 
 export const $ModelUpdate = {
@@ -3380,77 +3250,6 @@ export const $UpdateAgentRequest = {
       ],
       title: 'Temperature',
     },
-    model: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Model',
-    },
-    deployment: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Deployment',
-    },
-    deployment_config: {
-      anyOf: [
-        {
-          additionalProperties: {
-            type: 'string',
-          },
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Deployment Config',
-    },
-    is_default_deployment: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Default Deployment',
-      default: false,
-    },
-    is_default_model: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Default Model',
-      default: false,
-    },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
-    },
     tools: {
       anyOf: [
         {
@@ -3465,6 +3264,50 @@ export const $UpdateAgentRequest = {
       ],
       title: 'Tools',
     },
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
+    is_private: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Private',
+    },
+    deployment: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Deployment',
+    },
+    model: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Model',
+    },
     tools_metadata: {
       anyOf: [
         {
@@ -3478,17 +3321,6 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Tools Metadata',
-    },
-    is_private: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Private',
     },
   },
   type: 'object',
