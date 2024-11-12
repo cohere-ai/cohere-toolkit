@@ -35,7 +35,7 @@ def batch_create_files(db: Session, files: list[File]) -> list[File]:
 
 
 @validate_transaction
-def get_file(db: Session, file_id: str, user_id: str) -> File:
+def get_file(db: Session, file_id: str, user_id: str | None = None) -> File:
     """
     Get a file by ID.
 
@@ -47,7 +47,12 @@ def get_file(db: Session, file_id: str, user_id: str) -> File:
     Returns:
         File: File with the given ID.
     """
-    return db.query(File).filter(File.id == file_id, File.user_id == user_id).first()
+    filters = [File.id == file_id]
+
+    if user_id:
+        filters.append(File.user_id == user_id)
+
+    return db.query(File).filter(*filters).first()
 
 
 @validate_transaction

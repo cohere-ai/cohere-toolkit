@@ -1516,6 +1516,42 @@ export const $Email = {
   title: 'Email',
 } as const;
 
+export const $FileMetadata = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_content: {
+      type: 'string',
+      title: 'File Content',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+  },
+  type: 'object',
+  required: ['id', 'file_name', 'file_content', 'created_at', 'updated_at'],
+  title: 'FileMetadata',
+} as const;
+
 export const $GenerateTitleResponse = {
   properties: {
     title: {

@@ -5,7 +5,9 @@ import { uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { Banner, Button, Icon, IconButton, Text, Tooltip } from '@/components/UI';
+import { FileViewer } from '@/components/UI/FileViewer';
 import { TOOL_GOOGLE_DRIVE_ID, TOOL_READ_DOCUMENT_ID, TOOL_SEARCH_FILE_ID } from '@/constants';
+import { useContextStore } from '@/context';
 import {
   useAgent,
   useBrandedColors,
@@ -26,6 +28,7 @@ export const ConversationPanel: React.FC<Props> = () => {
   const { agentId, conversationId } = useChatRoutes();
   const { data: agent } = useAgent({ agentId });
   const { theme } = useBrandedColors(agentId);
+  const { open } = useContextStore();
 
   const {
     params: { fileIds },
@@ -68,6 +71,27 @@ export const ConversationPanel: React.FC<Props> = () => {
     ...agentToolMetadataArtifacts.files,
     ...agentToolMetadataArtifacts.folders,
   ];
+
+  const handleOpenFile = ({
+    fileId,
+    agentId,
+    conversationId,
+    url,
+  }: {
+    fileId: string;
+    agentId?: string;
+    conversationId?: string;
+    url?: string;
+  }) => {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      open({
+        content: <FileViewer fileId={fileId} agentId={agentId} conversationId={conversationId} />,
+        dialogPaddingClassName: 'p-5',
+      });
+    }
+  };
 
   const handleDeleteFile = async (fileId: string) => {
     if (isDeletingFile || !conversationId) return;
@@ -158,13 +182,26 @@ export const ConversationPanel: React.FC<Props> = () => {
                   </Text>
                   <ol className="space-y-2">
                     {agentKnowledgeFiles.map((file) => (
-                      <li key={file.id} className="ml-6 flex items-center gap-x-3">
-                        <Icon
-                          name={file.type === 'folder' ? 'folder' : 'file'}
-                          kind="outline"
-                          className="flex-shrink-0"
+                      <li
+                        key={file.id}
+                        className="group ml-6 flex items-center justify-between gap-x-4"
+                      >
+                        <span className="flex items-center gap-x-2 overflow-hidden">
+                          <Icon
+                            name={file.type === 'folder' ? 'folder' : 'file'}
+                            kind="outline"
+                            className="flex-shrink-0"
+                          />
+                          <Text className="truncate">{file.name}</Text>
+                        </span>
+                        <IconButton
+                          iconName={file.url ? 'arrow-up-right' : 'show'}
+                          tooltip={{ label: file.url ? 'Open url' : 'Show content' }}
+                          className="invisible h-auto w-auto flex-shrink-0 self-center group-hover:visible"
+                          onClick={() =>
+                            handleOpenFile({ fileId: file.id, agentId: agent!.id, url: file.url })
+                          }
                         />
-                        <Text>{file.name}</Text>
                       </li>
                     ))}
                   </ol>
@@ -187,11 +224,8 @@ export const ConversationPanel: React.FC<Props> = () => {
           </div>
           {files && files.length > 0 && (
             <div className="flex flex-col gap-y-4">
-              {files.map(({ file_name: name, id }) => (
-                <div
-                  key={id}
-                  className="group flex w-full flex-col gap-y-2 rounded-lg p-2 dark:hover:bg-volcanic-200"
-                >
+              {files.map(({ id, conversation_id, file_name: name }) => (
+                <div key={id} className="flex w-full flex-col gap-y-2 rounded-lg">
                   <div className="group flex w-full items-center justify-between gap-x-4">
                     <div className="flex items-center gap-x-2 overflow-hidden">
                       <Icon
@@ -201,12 +235,24 @@ export const ConversationPanel: React.FC<Props> = () => {
                       />
                       <Text className="truncate">{name}</Text>
                     </div>
-                    <IconButton
-                      onClick={() => handleDeleteFile(id)}
-                      disabled={isDeletingFile}
-                      iconName="close"
-                      className="invisible group-hover:visible"
-                    />
+                    <div className="invisible flex items-center gap-x-3 group-hover:visible">
+                      <IconButton
+                        iconName="show"
+                        tooltip={{ label: 'Show content' }}
+                        className="h-auto w-auto flex-shrink-0 self-center"
+                        disabled={isDeletingFile}
+                        onClick={() =>
+                          handleOpenFile({ fileId: id, conversationId: conversation_id })
+                        }
+                      />
+                      <IconButton
+                        iconName="close"
+                        tooltip={{ label: 'Delete' }}
+                        className="h-auto w-auto flex-shrink-0 self-center"
+                        disabled={isDeletingFile}
+                        onClick={() => handleDeleteFile(id)}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
