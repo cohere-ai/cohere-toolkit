@@ -7,7 +7,7 @@ import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/UI';
 import { useAvailableTools, useBrandedColors } from '@/hooks';
 import { useParamsStore } from '@/stores';
-import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
+import { cn, getToolIcon } from '@/utils';
 
 export type Props = {
   agent?: AgentPublic;
@@ -25,9 +25,8 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
     agent,
     allTools: tools,
   });
+  const { theme, text, contrastText, border, bg } = useBrandedColors(agent?.id);
 
-  const { text, contrastText, border, bg } = useBrandedColors(agent?.id);
-  const isBaseAgent = checkIsBaseAgent(agent);
   return (
     <Popover className="relative">
       <PopoverButton
@@ -46,7 +45,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
             as="span"
             className={cn('font-medium', text, { [contrastText]: open })}
           >
-            Tools: {isBaseAgent ? paramsTools?.length ?? 0 : availableTools.length ?? 0}
+            Tools: {paramsTools ? paramsTools?.length ?? 0 : availableTools.length ?? 0}
           </Text>
         )}
       </PopoverButton>
@@ -107,14 +106,12 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {isBaseAgent && (
-                  <Switch
-                    theme="evolved-blue"
-                    checked={!!paramsTools?.find((t) => t.name === tool.name)}
-                    onChange={(checked) => handleToggle(tool.name!, checked)}
-                    showCheckedState
-                  />
-                )}
+                <Switch
+                  theme={theme}
+                  checked={!!paramsTools?.find((t) => t.name === tool.name)}
+                  onChange={(checked) => handleToggle(tool.name!, checked)}
+                  showCheckedState
+                />
               </div>
             </div>
           ))}
