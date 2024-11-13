@@ -28,6 +28,8 @@ Before starting, ensure you have:
 ### 1. Log in to Azure and set the subscription
 
 ### 2. Configure the setup script
+Set the deployment script variables in the `azure_compose_deploy/azure_deploy.sh` file:
+
 ```dotenv
 LOCATION=canadaeast # Azure region
 RESOURCE_GROUP=toolkitResourceGroup # Resource group name
