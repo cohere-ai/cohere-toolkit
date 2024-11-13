@@ -18,16 +18,11 @@ class GmailTool(BaseTool):
     """
 
     ID = GMAIL_TOOL_ID
-    CLIENT_ID = ""
-    CLIENT_SECRET = ""
+    CLIENT_ID = Settings().get("tools.gmail.client_id")
+    CLIENT_SECRET = Settings().get("tools.gmail.client_secret")
 
     @classmethod
     def is_available(cls) -> bool:
-        settings = Settings()
-        gmail_settings = settings.tools.gmail if settings.tools and settings.tools.gmail else None
-        cls.CLIENT_ID = getattr(gmail_settings, 'client_id', None)
-        cls.CLIENT_SECRET = getattr(gmail_settings, 'client_secret', None)
-
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
 
     @classmethod

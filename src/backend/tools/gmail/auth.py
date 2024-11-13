@@ -28,12 +28,10 @@ class GmailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     def __init__(self):
         super().__init__()
 
-        settings = Settings()
-        gmail_settings = settings.tools.gmail if settings.tools and settings.tools.gmail else None
-        self.GMAIL_CLIENT_ID = getattr(gmail_settings, 'client_id', None)
-        self.GMAIL_CLIENT_SECRET = getattr(gmail_settings, 'client_secret', None)
+        self.GMAIL_CLIENT_ID = Settings().get("tools.gmail.client_id")
+        self.GMAIL_CLIENT_SECRET = Settings().get("tools.gmail.client_secret")
         self.REDIRECT_URL = f"{self.BACKEND_HOST}/v1/tool/auth"
-        self.USER_SCOPES = getattr(gmail_settings, 'user_scopes', None) or self.DEFAULT_USER_SCOPES
+        self.USER_SCOPES = Settings().get("tools.gmail.user_scopes") or self.DEFAULT_USER_SCOPES
 
         if any([
             self.GMAIL_CLIENT_ID is None,
