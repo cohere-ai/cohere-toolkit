@@ -2,6 +2,8 @@ from typing import Any, Dict, List
 
 import cohere
 import requests
+import json
+import aiohttp
 
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
@@ -71,24 +73,26 @@ class CohereDeployment(BaseDeployment):
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Any:
-        logger = ctx.get_logger()
+        print(chat_request.model_dump())
+        async with aiohttp.ClientSession(raise_for_status=True) as session:
+            async with session.post(
+                "https://cohere.usw-16.palantirfoundry.com/contour-backend-multiplexer/api/module-group-multiplexer/compute-modules/jobs/execute",
+                headers={
+                    "accept": "*/*",
+                    "authorization": "Bearer xxx",
+                    "content-type": "application/json",
+                },
+                json={
+                    "deployedAppRid": "ri.foundry.main.deployed-app.811b08c3-0247-4e06-aa14-b2970671e38d",
+                    "deployedAppBranch": "master",
+                    "queryType": "chatStream",
+                    "query": chat_request.model_dump(exclude_none=True, include={"message", "chat_history", "documents"}),
+                },
+            ) as r:
+                async for line in r.content:
+                    print(json.loads(line))
+                    yield json.loads(line)
 
-        stream = self.client.chat_stream(
-            **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
-        )
-
-        for event in stream:
-            event_dict = to_dict(event)
-
-            event_dict_log = event_dict.copy()
-            event_dict_log.pop("conversation_id", None)
-            logger.debug(
-                event="Chat event",
-                **event_dict_log,
-                conversation_id=ctx.get_conversation_id(),
-            )
-
-            yield event_dict
 
     async def invoke_rerank(
         self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
