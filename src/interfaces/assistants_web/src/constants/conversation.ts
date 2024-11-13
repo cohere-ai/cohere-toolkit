@@ -41,6 +41,7 @@ export const ACCEPTED_FILE_TYPES: FileAccept[] = [
   'text/html',
   'text/markdown',
   'text/tab-separated-values',
+  'text/calendar',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

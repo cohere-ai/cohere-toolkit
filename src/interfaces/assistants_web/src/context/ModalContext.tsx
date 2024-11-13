@@ -7,6 +7,7 @@ import { Modal } from '@/components/UI';
 interface OpenParams {
   title?: string;
   content?: React.ReactNode | React.FC;
+  dialogPaddingClassName?: string;
 }
 
 export type OpenFunction = (params: OpenParams) => void;
@@ -18,6 +19,7 @@ interface Context {
   open: OpenFunction;
   close: CloseFunction;
   content: React.ReactNode | React.FC;
+  dialogPaddingClassName?: string;
 }
 
 /**
@@ -27,18 +29,22 @@ const useModal = (): Context => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState<string | undefined>(undefined);
   const [content, setContent] = useState<React.ReactNode | React.FC>(undefined);
+  const [dialogPaddingClassName, setDialogPaddingClassName] = useState<string | undefined>(
+    undefined
+  );
 
-  const open = ({ title, content }: OpenParams) => {
+  const open = ({ title, content, dialogPaddingClassName }: OpenParams) => {
     setIsOpen(true);
     setTitle(title);
     setContent(content);
+    setDialogPaddingClassName(dialogPaddingClassName);
   };
 
   const close = () => {
     setIsOpen(false);
   };
 
-  return { isOpen, open, close, content, title };
+  return { isOpen, open, close, content, title, dialogPaddingClassName };
 };
 
 /**
@@ -56,15 +62,21 @@ const ModalContext = createContext<Context>({
   open: () => {},
   close: () => {},
   content: undefined,
+  dialogPaddingClassName: undefined,
 });
 
 const ModalProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const { isOpen, title, open, close, content } = useModal();
+  const { isOpen, title, open, close, content, dialogPaddingClassName } = useModal();
 
   return (
-    <ModalContext.Provider value={{ isOpen, title, open, close, content }}>
+    <ModalContext.Provider value={{ isOpen, title, open, close, content, dialogPaddingClassName }}>
       <>{children}</>
-      <Modal title={title} isOpen={isOpen} onClose={close}>
+      <Modal
+        title={title}
+        isOpen={isOpen}
+        onClose={close}
+        dialogPaddingClassName={dialogPaddingClassName}
+      >
         <>{content}</>
       </Modal>
     </ModalContext.Provider>
