@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ToolDefinition } from '@/cohere-client';
 import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { Button, Icon, IconName, Switch, Text } from '@/components/UI';
-import { AGENT_SETTINGS_TOOLS, TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
+import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 
 type Props = {
   tools?: ToolDefinition[];
@@ -18,10 +18,7 @@ export const ToolsStep: React.FC<Props> = ({
   setActiveTools,
   handleAuthButtonClick,
 }) => {
-  const availableTools = tools?.filter(
-    (tool) => tool.name && AGENT_SETTINGS_TOOLS.includes(tool.name)
-  );
-  const toolsAuthRequired = tools?.filter((tool) => tool.is_auth_required && tool.auth_url);
+  const availableTools = tools?.filter((tool) => tool.name && tool.is_available && tool.is_visible);
 
   const handleUpdateActiveTools = (checked: boolean, name: string) => {
     if (checked) {

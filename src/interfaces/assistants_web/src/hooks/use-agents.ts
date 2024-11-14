@@ -123,7 +123,11 @@ export const useRecentAgents = (limit: number = 5) => {
   }, []);
 
   const recentAgents = useMemo(() => {
-    let recent = uniq(conversations.sort(sortByDate).map((conversation) => conversation.agent_id))
+    let recent = uniq(
+      conversations
+        .sort(sortByDate)
+        .map((conversation) => conversation.agent_id ?? DEFAULT_AGENT_ID)
+    )
       .map((agentId) => agents.find((agent) => agent.id === agentId))
       .slice(0, limit);
 

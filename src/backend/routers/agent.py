@@ -164,6 +164,7 @@ async def list_agents(
             visibility=visibility,
             organization_id=organization_id,
         )
+        # Tradeoff: This appends the default Agent regardless of pagination
         agents.append(get_default_agent())
         return agents
     except Exception as e:

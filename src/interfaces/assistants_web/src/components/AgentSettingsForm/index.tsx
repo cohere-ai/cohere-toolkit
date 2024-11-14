@@ -83,7 +83,8 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
       ?.artifacts as DataSourceArtifact[]
   );
-  // read_file and search_file have identical metadata -> using read_file as base
+
+  // read_file and search_file have identical metadata -> use read_file as base
   const [defaultUploadFiles, setDefaultUploadFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_READ_DOCUMENT_ID)
       ?.artifacts as DataSourceArtifact[]
