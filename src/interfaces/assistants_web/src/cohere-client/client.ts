@@ -53,11 +53,31 @@ export class CohereClient {
     });
   }
 
+  public getConversationFile({
+    conversationId,
+    fileId,
+  }: {
+    conversationId: string;
+    fileId: string;
+  }) {
+    return this.cohereService.default.getFileV1ConversationsConversationIdFilesFileIdGet({
+      conversationId,
+      fileId,
+    });
+  }
+
   public batchUploadConversationFile(
     formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post
   ) {
     return this.cohereService.default.batchUploadFileV1ConversationsBatchUploadFilePost({
       formData,
+    });
+  }
+
+  public getAgentFile({ agentId, fileId }: { agentId: string; fileId: string }) {
+    return this.cohereService.default.getAgentFileV1AgentsAgentIdFilesFileIdGet({
+      agentId,
+      fileId,
     });
   }
 

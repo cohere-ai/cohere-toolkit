@@ -297,6 +297,15 @@ export type Email = {
   type: string;
 };
 
+export type FileMetadata = {
+  id: string;
+  file_name: string;
+  file_content: string;
+  file_size?: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type GenerateTitleResponse = {
   title: string;
   error?: string | null;
@@ -909,6 +918,13 @@ export type ListFilesV1ConversationsConversationIdFilesGetData = {
 
 export type ListFilesV1ConversationsConversationIdFilesGetResponse = Array<ListConversationFile>;
 
+export type GetFileV1ConversationsConversationIdFilesFileIdGetData = {
+  conversationId: string;
+  fileId: string;
+};
+
+export type GetFileV1ConversationsConversationIdFilesFileIdGetResponse = FileMetadata;
+
 export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData = {
   conversationId: string;
   fileId: string;
@@ -1057,6 +1073,13 @@ export type BatchUploadFileV1AgentsBatchUploadFilePostData = {
 };
 
 export type BatchUploadFileV1AgentsBatchUploadFilePostResponse = Array<UploadAgentFileResponse>;
+
+export type GetAgentFileV1AgentsAgentIdFilesFileIdGetData = {
+  agentId: string;
+  fileId: string;
+};
+
+export type GetAgentFileV1AgentsAgentIdFilesFileIdGetResponse = FileMetadata;
 
 export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData = {
   agentId: string;
@@ -1535,6 +1558,19 @@ export type $OpenApiTs = {
     };
   };
   '/v1/conversations/{conversation_id}/files/{file_id}': {
+    get: {
+      req: GetFileV1ConversationsConversationIdFilesFileIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: FileMetadata;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
     delete: {
       req: DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData;
       res: {
@@ -1846,6 +1882,19 @@ export type $OpenApiTs = {
     };
   };
   '/v1/agents/{agent_id}/files/{file_id}': {
+    get: {
+      req: GetAgentFileV1AgentsAgentIdFilesFileIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: FileMetadata;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
     delete: {
       req: DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData;
       res: {

@@ -68,12 +68,10 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
 
-        {isDefaultAgent && (
-          <div className="flex items-center gap-x-1">
-            <Icon name="circles-four" kind="outline" />
-            <Text className="font-medium">Toggle Tools On/Off</Text>
-          </div>
-        )}
+        <div className="flex items-center gap-x-1">
+          <Icon name="circles-four" kind="outline" />
+          <Text className="font-medium">Toggle Tools On/Off</Text>
+        </div>
         <AssistantTools agent={agent} tools={toolsFiltered} />
       </div>
     </Transition>

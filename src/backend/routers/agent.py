@@ -9,6 +9,7 @@ from backend.config.default_agent import get_default_agent, DEFAULT_AGENT_ID
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import file as file_crud
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
@@ -35,7 +36,11 @@ from backend.schemas.agent import (
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import Deployment as DeploymentSchema
-from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
+from backend.schemas.file import (
+    DeleteAgentFileResponse,
+    FileMetadata,
+    UploadAgentFileResponse,
+)
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -589,6 +594,54 @@ async def batch_upload_file(
     return uploaded_files
 
 
+@router.get("/{agent_id}/files/{file_id}", response_model=FileMetadata)
+async def get_agent_file(
+    agent_id: str,
+    file_id: str,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> FileMetadata:
+    """
+    Get an agent file by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        file_id (str): File ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        FileMetadata: File with the given ID.
+
+    Raises:
+        HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
+    """
+    user_id = ctx.get_user_id()
+
+    if file_id not in get_file_service().get_file_ids_by_agent_id(session, user_id, agent_id, ctx):
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} does not belong to the agent with ID: {agent_id}."
+        )
+
+    file = file_crud.get_file(session, file_id)
+
+    if not file:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} not found.",
+        )
+
+    return FileMetadata(
+        id=file.id,
+        file_name=file.file_name,
+        file_content=file.file_content,
+        file_size=file.file_size,
+        created_at=file.created_at,
+        updated_at=file.updated_at,
+    )
+
+
 @router.delete("/{agent_id}/files/{file_id}")
 async def delete_agent_file(
         agent_id: str,
@@ -611,7 +664,7 @@ async def delete_agent_file(
         HTTPException: If the agent with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    _ = validate_agent_exists(session, agent_id)
+    _ = validate_agent_exists(session, agent_id, user_id)
     validate_file(session, file_id, user_id)
 
     # Delete the File DB object

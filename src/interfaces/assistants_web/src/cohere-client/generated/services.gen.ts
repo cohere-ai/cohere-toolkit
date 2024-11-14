@@ -63,10 +63,14 @@ import type {
   GetAgentByIdV1AgentsAgentIdGetResponse,
   GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData,
   GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse,
+  GetAgentFileV1AgentsAgentIdFilesFileIdGetData,
+  GetAgentFileV1AgentsAgentIdFilesFileIdGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
   GetConversationV1ConversationsConversationIdGetResponse,
   GetDeploymentV1DeploymentsDeploymentIdGetData,
   GetDeploymentV1DeploymentsDeploymentIdGetResponse,
+  GetFileV1ConversationsConversationIdFilesFileIdGetData,
+  GetFileV1ConversationsConversationIdFilesFileIdGetResponse,
   GetGroupScimV2GroupsGroupIdGetData,
   GetGroupScimV2GroupsGroupIdGetResponse,
   GetGroupsScimV2GroupsGetData,
@@ -869,6 +873,43 @@ export class DefaultService {
   }
 
   /**
+   * Get File
+   * Get a conversation file by ID.
+   *
+   * Args:
+   * conversation_id (str): Conversation ID.
+   * file_id (str): File ID.
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * FileMetadata: File with the given ID.
+   *
+   * Raises:
+   * HTTPException: If the conversation or file with the given ID is not found, or if the file does not belong to the conversation.
+   * @param data The data for the request.
+   * @param data.conversationId
+   * @param data.fileId
+   * @returns FileMetadata Successful Response
+   * @throws ApiError
+   */
+  public getFileV1ConversationsConversationIdFilesFileIdGet(
+    data: GetFileV1ConversationsConversationIdFilesFileIdGetData
+  ): CancelablePromise<GetFileV1ConversationsConversationIdFilesFileIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/conversations/{conversation_id}/files/{file_id}',
+      path: {
+        conversation_id: data.conversationId,
+        file_id: data.fileId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
    * Delete File
    * Delete a file by ID.
    *
@@ -1591,6 +1632,43 @@ export class DefaultService {
       url: '/v1/agents/batch_upload_file',
       formData: data.formData,
       mediaType: 'multipart/form-data',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * Get Agent File
+   * Get an agent file by ID.
+   *
+   * Args:
+   * agent_id (str): Agent ID.
+   * file_id (str): File ID.
+   * session (DBSessionDep): Database session.
+   * ctx (Context): Context object.
+   *
+   * Returns:
+   * FileMetadata: File with the given ID.
+   *
+   * Raises:
+   * HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
+   * @param data The data for the request.
+   * @param data.agentId
+   * @param data.fileId
+   * @returns FileMetadata Successful Response
+   * @throws ApiError
+   */
+  public getAgentFileV1AgentsAgentIdFilesFileIdGet(
+    data: GetAgentFileV1AgentsAgentIdFilesFileIdGetData
+  ): CancelablePromise<GetAgentFileV1AgentsAgentIdFilesFileIdGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/agents/{agent_id}/files/{file_id}',
+      path: {
+        agent_id: data.agentId,
+        file_id: data.fileId,
+      },
       errors: {
         422: 'Validation Error',
       },
