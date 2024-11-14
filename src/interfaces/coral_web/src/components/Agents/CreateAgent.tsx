@@ -8,8 +8,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import {
-  DEFAULT_AGENT_MODEL,
   BACKGROUND_TOOLS,
+  DEFAULT_AGENT_MODEL,
   DEFAULT_PREAMBLE,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_GOOGLE_DRIVE_ID,
