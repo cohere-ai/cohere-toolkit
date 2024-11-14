@@ -3,8 +3,9 @@ import logging
 from alembic.command import upgrade
 from alembic.config import Config
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 from backend.config.auth import (
@@ -27,7 +28,7 @@ from backend.routers.scim import router as scim_router
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
-from backend.services.context import ContextMiddleware
+from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
 
 # Only show errors for Pydantic
@@ -89,6 +90,29 @@ def create_app():
 
 
 app = create_app()
+
+@app.exception_handler(Exception)
+async def validation_exception_handler(request: Request, exc: Exception):
+    ctx = get_context(request)
+    logger = ctx.get_logger()
+
+    logger.exception(
+        event="Unhandled exception",
+        error=str(exc),
+        method=request.method,
+        url=request.url,
+        ctx=ctx,
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "message": (
+                f"Failed method {request.method} at URL {request.url}."
+                f" Exception message is {exc!r}."
+            )
+        },
+    )
 
 @app.on_event("startup")
 async def startup_event():
