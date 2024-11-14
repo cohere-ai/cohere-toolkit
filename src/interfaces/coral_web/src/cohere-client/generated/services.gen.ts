@@ -840,10 +840,10 @@ export class DefaultService {
      * session (DBSessionDep): Database session.
      *
      * Returns:
-     * DeploymentInfo: Created deployment.
+     * DeploymentDefinition: Created deployment.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns DeploymentInfo Successful Response
+     * @returns DeploymentDefinition Successful Response
      * @throws ApiError
      */
     public createDeploymentV1DeploymentsPost(data: CreateDeploymentV1DeploymentsPostData): CancelablePromise<CreateDeploymentV1DeploymentsPostResponse> {
@@ -870,7 +870,7 @@ export class DefaultService {
      * list[Deployment]: List of available deployment options.
      * @param data The data for the request.
      * @param data.all
-     * @returns DeploymentInfo Successful Response
+     * @returns DeploymentDefinition Successful Response
      * @throws ApiError
      */
     public listDeploymentsV1DeploymentsGet(data: ListDeploymentsV1DeploymentsGetData = {}): CancelablePromise<ListDeploymentsV1DeploymentsGetResponse> {
@@ -903,7 +903,7 @@ export class DefaultService {
      * @param data The data for the request.
      * @param data.deploymentId
      * @param data.requestBody
-     * @returns DeploymentInfo Successful Response
+     * @returns DeploymentDefinition Successful Response
      * @throws ApiError
      */
     public updateDeploymentV1DeploymentsDeploymentIdPut(data: UpdateDeploymentV1DeploymentsDeploymentIdPutData): CancelablePromise<UpdateDeploymentV1DeploymentsDeploymentIdPutResponse> {
@@ -929,7 +929,7 @@ export class DefaultService {
      * Deployment: Deployment with the given ID.
      * @param data The data for the request.
      * @param data.deploymentId
-     * @returns DeploymentInfo Successful Response
+     * @returns DeploymentDefinition Successful Response
      * @throws ApiError
      */
     public getDeploymentV1DeploymentsDeploymentIdGet(data: GetDeploymentV1DeploymentsDeploymentIdGetData): CancelablePromise<GetDeploymentV1DeploymentsDeploymentIdGetResponse> {
@@ -1204,7 +1204,7 @@ export class DefaultService {
      * HTTPException: If the agent with the given ID is not found.
      * @param data The data for the request.
      * @param data.agentId
-     * @returns DeploymentInfo Successful Response
+     * @returns DeploymentDefinition Successful Response
      * @throws ApiError
      */
     public getAgentDeploymentsV1AgentsAgentIdDeploymentsGet(data: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData): CancelablePromise<GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse> {

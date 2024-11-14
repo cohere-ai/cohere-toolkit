@@ -1,8 +1,7 @@
-from typing import Any, Dict, List, Optional, Type
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-# from pydantic_settings import BaseSettings
 from backend.schemas.model import ModelSimple
 
 
@@ -32,7 +31,7 @@ class DeploymentWithModels(BaseModel):
         from_attributes = True
 
 
-class DeploymentInfo(BaseModel):
+class DeploymentDefinition(BaseModel):
     id: str
     name: str
     description: Optional[str] = None

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from backend.database_models import AgentDeploymentModel, Deployment
 from backend.database_models.model import Model
-from backend.schemas.deployment import DeploymentInfo
+from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.services.transaction import validate_transaction
 
@@ -157,14 +157,14 @@ def get_models_by_agent_id(
     )
 
 
-def create_model_by_config(db: Session, deployment: Deployment, deployment_config: DeploymentInfo, model: str) -> Model:
+def create_model_by_config(db: Session, deployment: Deployment, deployment_config: DeploymentDefinition, model: str) -> Model:
     """
     Create a new model by config if present
 
     Args:
         db (Session): Database session.
         deployment (Deployment): Deployment data.
-        deployment_config (DeploymentInfo): Deployment config data.
+        deployment_config (DeploymentDefinition): Deployment config data.
         model (str): Model data.
 
     Returns:

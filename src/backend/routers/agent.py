@@ -29,7 +29,7 @@ from backend.schemas.agent import (
     UpdateAgentToolMetadataRequest,
 )
 from backend.schemas.context import Context
-from backend.schemas.deployment import DeploymentInfo
+from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
 from backend.services.agent import (
     raise_db_error,
@@ -204,10 +204,10 @@ async def get_agent_by_id(
     return agent
 
 
-@router.get("/{agent_id}/deployments", response_model=list[DeploymentInfo])
+@router.get("/{agent_id}/deployments", response_model=list[DeploymentDefinition])
 async def get_agent_deployments(
     agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
-) -> list[DeploymentInfo]:
+) -> list[DeploymentDefinition]:
     """
     Args:
         agent_id (str): Agent ID.
@@ -227,7 +227,7 @@ async def get_agent_deployments(
     ctx.with_agent(agent_schema)
 
     return [
-        DeploymentInfo.from_db_deployment(deployment)
+        DeploymentDefinition.from_db_deployment(deployment)
         for deployment in agent.deployments
     ]
 

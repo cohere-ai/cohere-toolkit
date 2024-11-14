@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
 from backend.database_models.database import DBSessionDep
@@ -9,15 +8,13 @@ from backend.schemas.context import Context
 from backend.schemas.deployment import (
     DeleteDeployment,
     DeploymentCreate,
+    DeploymentDefinition,
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
-from backend.schemas.deployment import DeploymentInfo
 from backend.services import deployment as deployment_service
 from backend.services.context import get_context
-from backend.services.env import update_env_file
 from backend.services.request_validators import (
-    # validate_deployment,
     validate_create_deployment_request,
     validate_env_vars,
 )
@@ -30,12 +27,12 @@ router.name = RouterName.DEPLOYMENT
 
 @router.post(
     "",
-    response_model=DeploymentInfo,
+    response_model=DeploymentDefinition,
     dependencies=[Depends(validate_create_deployment_request)],
 )
 def create_deployment(
     deployment: DeploymentCreate, session: DBSessionDep
-) -> DeploymentInfo:
+) -> DeploymentDefinition:
     """
     Create a new deployment.
 
@@ -44,20 +41,20 @@ def create_deployment(
         session (DBSessionDep): Database session.
 
     Returns:
-        DeploymentInfo: Created deployment.
+        DeploymentDefinition: Created deployment.
     """
     try:
-        return DeploymentInfo.from_db_deployment(
+        return DeploymentDefinition.from_db_deployment(
             deployment_crud.create_deployment(session, deployment)
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.put("/{deployment_id}", response_model=DeploymentInfo)
+@router.put("/{deployment_id}", response_model=DeploymentDefinition)
 def update_deployment(
     deployment_id: str, new_deployment: DeploymentUpdate, session: DBSessionDep
-) -> DeploymentInfo:
+) -> DeploymentDefinition:
     """
     Update a deployment.
 
@@ -76,26 +73,26 @@ def update_deployment(
     if not deployment:
         raise DeploymentNotFoundError(deployment_id=deployment_id)
 
-    return DeploymentInfo.from_db_deployment(
+    return DeploymentDefinition.from_db_deployment(
         deployment_crud.update_deployment(session, deployment, new_deployment)
     )
 
 
-@router.get("/{deployment_id}", response_model=DeploymentInfo)
-def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentInfo:
+@router.get("/{deployment_id}", response_model=DeploymentDefinition)
+def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentDefinition:
     """
     Get a deployment by ID.
 
     Returns:
         Deployment: Deployment with the given ID.
     """
-    return deployment_service.get_deployment_info(session, deployment_id)
+    return deployment_service.get_deployment_definition(session, deployment_id)
 
 
-@router.get("", response_model=list[DeploymentInfo])
+@router.get("", response_model=list[DeploymentDefinition])
 def list_deployments(
     session: DBSessionDep, all: bool = False, ctx: Context = Depends(get_context)
-) -> list[DeploymentInfo]:
+) -> list[DeploymentDefinition]:
     """
     List all available deployments and their models.
 
@@ -108,7 +105,7 @@ def list_deployments(
     """
     logger = ctx.get_logger()
 
-    installed_deployments = deployment_service.get_deployments_info(session)
+    installed_deployments = deployment_service.get_deployment_definitions(session)
     available_deployments = [
         deployment for deployment in installed_deployments if deployment.is_available or all
     ]

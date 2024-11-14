@@ -1268,7 +1268,7 @@ export const $DeploymentCreate = {
     title: 'DeploymentCreate'
 } as const;
 
-export const $DeploymentInfo = {
+export const $DeploymentDefinition = {
     properties: {
         id: {
             type: 'string',
@@ -1317,7 +1317,7 @@ export const $DeploymentInfo = {
     },
     type: 'object',
     required: ['id', 'name', 'models'],
-    title: 'DeploymentInfo'
+    title: 'DeploymentDefinition'
 } as const;
 
 export const $DeploymentUpdate = {

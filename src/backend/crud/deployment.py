@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 
 from backend.database_models import AgentDeploymentModel, Deployment
 from backend.model_deployments.utils import class_name_validator
-from backend.schemas.deployment import DeploymentInfo
-from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
+from backend.schemas.deployment import (
+    DeploymentCreate,
+    DeploymentDefinition,
+    DeploymentUpdate,
+)
 from backend.services.transaction import validate_transaction
-# from community.config.deployments import (
-#     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS,
-# )
 
 
 @validate_transaction
@@ -19,7 +19,7 @@ def create_deployment(db: Session, deployment: DeploymentCreate) -> Deployment:
 
     Args:
         db (Session): Database session.
-        deployment (DeploymentInfo): Deployment data to be created.
+        deployment (DeploymentDefinition): Deployment data to be created.
 
     Returns:
         Deployment: Created deployment.
@@ -193,14 +193,14 @@ def delete_deployment(db: Session, deployment_id: str) -> None:
 
 
 @validate_transaction
-def create_deployment_by_config(db: Session, deployment_config: DeploymentInfo) -> Deployment:
+def create_deployment_by_config(db: Session, deployment_config: DeploymentDefinition) -> Deployment:
     """
     Create a new deployment by config.
 
     Args:
         db (Session): Database session.
         deployment (str): Deployment data to be created.
-        deployment_config (DeploymentInfo): Deployment config.
+        deployment_config (DeploymentDefinition): Deployment config.
 
     Returns:
         Deployment: Created deployment.
@@ -213,8 +213,7 @@ def create_deployment_by_config(db: Session, deployment_config: DeploymentInfo) 
                 for env_var in deployment_config.env_vars
         },
         deployment_class_name=deployment_config.deployment_class.__name__,
-        # is_community=deployment_config.name in COMMUNITY_DEPLOYMENTS
-        is_community=False,
+        is_community=deployment_config.is_community,
     )
     db.add(deployment)
     db.commit()

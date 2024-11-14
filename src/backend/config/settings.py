@@ -372,20 +372,6 @@ class Settings(BaseSettings):
                 return None
         return value
 
-    def safe_lookup(self, *args, start=None, default=None):
-        if not args:
-            return default
-        if not start:
-            start = self
-
-        node = getattr(start, args[0], None)
-        if node is None:
-            return default
-        if len(args) == 1:
-            return node
-
-        return self.safe_lookup(*args[1:], start=node, default=default)
-
     @classmethod
     def settings_customise_sources(
         cls,

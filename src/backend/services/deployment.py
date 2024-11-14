@@ -22,7 +22,7 @@ from backend.crud import deployment as deployment_crud
 from backend.database_models.database import DBSessionDep
 from backend.exceptions import DeploymentNotFoundError, NoAvailableDeploymentsError
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.deployment import DeploymentInfo, DeploymentUpdate
+from backend.schemas.deployment import DeploymentDefinition, DeploymentUpdate
 from backend.services.env import update_env_file
 from backend.services.logger.utils import LoggerFactory
 
@@ -35,7 +35,7 @@ def get_default_deployment() -> type[BaseDeployment]:
     except StopIteration:
         raise NoAvailableDeploymentsError()
 
-    default_deployment = Settings().safe_lookup("deployments", "default_deployment")
+    default_deployment = Settings().get("deployments.default_deployment")
     if default_deployment:
         return next(
             (
@@ -49,11 +49,8 @@ def get_default_deployment() -> type[BaseDeployment]:
     return fallback
 
 def get_deployment(session: DBSessionDep, deployment_id: str) -> type[BaseDeployment]:
-    deployment = get_deployment_info(session, deployment_id)
-    try:
-        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.name() == deployment.name)
-    except StopIteration:
-        raise DeploymentNotFoundError(deployment_id=deployment_id)
+    definition = get_deployment_definition(session, deployment_id)
+    return get_deployment_by_name(definition.name)
 
 def get_deployment_by_name(deployment_name: str) -> type[BaseDeployment]:
     try:
@@ -61,10 +58,10 @@ def get_deployment_by_name(deployment_name: str) -> type[BaseDeployment]:
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
-def get_deployment_info(session: DBSessionDep, deployment_id: str) -> DeploymentInfo:
+def get_deployment_definition(session: DBSessionDep, deployment_id: str) -> DeploymentDefinition:
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
     if db_deployment:
-        return DeploymentInfo.from_db_deployment(db_deployment)
+        return DeploymentDefinition.from_db_deployment(db_deployment)
 
     try:
         deployment = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.id() == deployment_id)
@@ -73,16 +70,16 @@ def get_deployment_info(session: DBSessionDep, deployment_id: str) -> Deployment
 
     return deployment.to_deployment_info()
 
-def get_deployment_info_by_name(session: DBSessionDep, deployment_name: str) -> DeploymentInfo:
-    deployments = get_deployments_info(session)
+def get_deployment_definition_by_name(session: DBSessionDep, deployment_name: str) -> DeploymentDefinition:
+    definitions = get_deployment_definitions(session)
     try:
-        return next(deployment for deployment in deployments if deployment.name == deployment_name)
+        return next(definition for definition in definitions if definition.name == deployment_name)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
-def get_deployments_info(session: DBSessionDep) -> list[DeploymentInfo]:
+def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefinition]:
     db_deployments = {
-        db_deployment.name: DeploymentInfo.from_db_deployment(db_deployment)
+        db_deployment.name: DeploymentDefinition.from_db_deployment(db_deployment)
         for db_deployment in deployment_crud.get_deployments(session)
     }
 
@@ -94,14 +91,14 @@ def get_deployments_info(session: DBSessionDep) -> list[DeploymentInfo]:
 
     return [*db_deployments.values(), *installed_deployments]
 
-def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentInfo:
+def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
     if db_deployment:
         update = DeploymentUpdate(default_deployment_config=env_vars)
         updated_db_deployment = deployment_crud.update_deployment(session, db_deployment, update)
-        updated_deployment = DeploymentInfo.from_db_deployment(updated_db_deployment)
+        updated_deployment = DeploymentDefinition.from_db_deployment(updated_db_deployment)
     else:
         update_env_file(env_vars)
-        updated_deployment = get_deployment_info(session, deployment_id)
+        updated_deployment = get_deployment_definition(session, deployment_id)
 
     return updated_deployment

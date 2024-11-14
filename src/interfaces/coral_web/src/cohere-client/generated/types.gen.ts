@@ -256,7 +256,7 @@ export type DeploymentCreate = {
     };
 };
 
-export type DeploymentInfo = {
+export type DeploymentDefinition = {
     id: string;
     name: string;
     description?: string | null;
@@ -949,26 +949,26 @@ export type CreateDeploymentV1DeploymentsPostData = {
     requestBody: DeploymentCreate;
 };
 
-export type CreateDeploymentV1DeploymentsPostResponse = DeploymentInfo;
+export type CreateDeploymentV1DeploymentsPostResponse = DeploymentDefinition;
 
 export type ListDeploymentsV1DeploymentsGetData = {
     all?: boolean;
 };
 
-export type ListDeploymentsV1DeploymentsGetResponse = Array<DeploymentInfo>;
+export type ListDeploymentsV1DeploymentsGetResponse = Array<DeploymentDefinition>;
 
 export type UpdateDeploymentV1DeploymentsDeploymentIdPutData = {
     deploymentId: string;
     requestBody: DeploymentUpdate;
 };
 
-export type UpdateDeploymentV1DeploymentsDeploymentIdPutResponse = DeploymentInfo;
+export type UpdateDeploymentV1DeploymentsDeploymentIdPutResponse = DeploymentDefinition;
 
 export type GetDeploymentV1DeploymentsDeploymentIdGetData = {
     deploymentId: string;
 };
 
-export type GetDeploymentV1DeploymentsDeploymentIdGetResponse = DeploymentInfo;
+export type GetDeploymentV1DeploymentsDeploymentIdGetResponse = DeploymentDefinition;
 
 export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteData = {
     deploymentId: string;
@@ -1025,7 +1025,7 @@ export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData = {
     agentId: string;
 };
 
-export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<DeploymentInfo>;
+export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<DeploymentDefinition>;
 
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
     agentId: string;
@@ -1603,7 +1603,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: DeploymentInfo;
+                200: DeploymentDefinition;
                 /**
                  * Validation Error
                  */
@@ -1616,7 +1616,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: Array<DeploymentInfo>;
+                200: Array<DeploymentDefinition>;
                 /**
                  * Validation Error
                  */
@@ -1631,7 +1631,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: DeploymentInfo;
+                200: DeploymentDefinition;
                 /**
                  * Validation Error
                  */
@@ -1644,7 +1644,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: DeploymentInfo;
+                200: DeploymentDefinition;
                 /**
                  * Validation Error
                  */
@@ -1768,7 +1768,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: Array<DeploymentInfo>;
+                200: Array<DeploymentDefinition>;
                 /**
                  * Validation Error
                  */

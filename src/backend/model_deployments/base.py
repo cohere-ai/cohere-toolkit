@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List
 from backend.config.settings import Settings
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from backend.schemas.deployment import DeploymentInfo
+from backend.schemas.deployment import DeploymentDefinition
 
 
 class BaseDeployment(ABC):
@@ -46,21 +46,20 @@ class BaseDeployment(ABC):
 
     @classmethod
     def config(cls) -> Dict[str, Any]:
-        config = Settings().safe_lookup("deployments", cls.id(), default={})
+        config = Settings().get(f"deployments.{cls.id()}")
         return config.dict() if config else {}
 
     @classmethod
-    def to_deployment_info(cls) -> DeploymentInfo:
-        data = {
-            "id": cls.id(),
-            "name": cls.name(),
-            "description": None,
-            "models": cls.list_models(),
-            "is_community": cls.is_community(),
-            "is_available": cls.is_available(),
-            "config": cls.config(),
-        }
-        return DeploymentInfo(**data)
+    def to_deployment_info(cls) -> DeploymentDefinition:
+        return DeploymentDefinition(
+            id=cls.id(),
+            name=cls.name(),
+            description=None,
+            models=cls.list_models(),
+            is_community=cls.is_community(),
+            is_available=cls.is_available(),
+            config=cls.config(),
+        )
 
     @abstractmethod
     async def invoke_chat(

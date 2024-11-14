@@ -11,19 +11,19 @@ ALL_MODEL_DEPLOYMENTS = { d.name(): d for d in BaseDeployment.__subclasses__() }
 def get_installed_deployments() -> list[type[BaseDeployment]]:
     installed_deployments = list(ALL_MODEL_DEPLOYMENTS.values())
 
-    if Settings().safe_lookup("feature_flags", "use_community_features"):
+    if Settings().get("feature_flags.use_community_features"):
         try:
             from community.config.deployments import (
                 AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
             )
-            installed_deployments = [*installed_deployments, *COMMUNITY_DEPLOYMENTS_SETUP.values()]
+            installed_deployments.extend(COMMUNITY_DEPLOYMENTS_SETUP.values())
         except ImportError as e:
             logger.warning(
                 event="[Deployments] No available community deployments have been configured", ex=e
             )
 
-    enabled_deployment_ids = Settings().safe_lookup("deployments", "enabled_deployments")
-    if enabled_deployment_ids and len(enabled_deployment_ids) > 0:
+    enabled_deployment_ids = Settings().get("deployments.enabled_deployments")
+    if enabled_deployment_ids:
         return [
             deployment
             for deployment in installed_deployments

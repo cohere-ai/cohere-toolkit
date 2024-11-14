@@ -42,24 +42,6 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
             detail=f"Deployment {deployment} not found or is not available in the Database.",
         )
 
-    # Check deployment config settings availability
-    # deployment_config = find_config_by_deployment_id(deployment)
-    # if not deployment_config:
-    #     deployment_config = find_config_by_deployment_name(deployment)
-    # if not deployment_config:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail=f"Deployment {deployment} not found or is not available in the Database.",
-    #     )
-
-    # deployment_db = deployment_crud.get_deployment_by_name(session, deployment)
-    # if not deployment_db:
-    #     deployment_db = deployment_crud.get_deployment(session, deployment)
-    # if not deployment_db:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail=f"Deployment {deployment} not found or is not available in the Database.",
-    #     )
     # Validate model
     deployment_model = next(
         (

@@ -10,4 +10,4 @@ class DeploymentNotFoundError(ToolkitException):
 
 class NoAvailableDeploymentsError(ToolkitException):
     def __init__(self):
-        super(NoAvailableDeploymentsError, self).__init__("No deployments have been configured. Have the appropriate config values been added to configuration.yaml?")
+        super(NoAvailableDeploymentsError, self).__init__("No deployments have been configured. Have the appropriate config values been added to configuration.yaml or secrets.yaml?")

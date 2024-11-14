@@ -12,7 +12,6 @@ from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
 
 COHERE_API_KEY_ENV_VAR = "COHERE_API_KEY"
-COHERE_ENV_VARS = [COHERE_API_KEY_ENV_VAR]
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 
 
@@ -35,7 +34,7 @@ class CohereDeployment(BaseDeployment):
 
     @classmethod
     def env_vars(cls) -> List[str]:
-        return COHERE_ENV_VARS
+        return [COHERE_API_KEY_ENV_VAR]
 
     @classmethod
     def rerank_enabled(cls) -> bool:

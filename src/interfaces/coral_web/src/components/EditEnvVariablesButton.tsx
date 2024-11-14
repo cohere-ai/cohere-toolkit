@@ -84,15 +84,6 @@ export const EditEnvVariablesModal: React.FC<{
     await updateConfigMutation.mutateAsync({ deploymentId: selectedDeployment.id, config: envVariables });
     setIsSubmitting(false);
     onClose();
-
-    // setIsSubmitting(true);
-    // setParams({
-    //   deploymentConfig: Object.entries(envVariables)
-    //     .map(([k, v]) => k + '=' + v)
-    //     .join(';'),
-    // });
-    // setIsSubmitting(false);
-    // onClose();
   };
 
   return (

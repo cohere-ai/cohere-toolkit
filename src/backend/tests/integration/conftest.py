@@ -15,7 +15,7 @@ from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
-from backend.schemas.deployment import DeploymentInfo
+from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -186,7 +186,7 @@ def mock_available_model_deployments(request):
 
     is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
-        ModelDeploymentName.CoherePlatform: DeploymentInfo(
+        ModelDeploymentName.CoherePlatform: DeploymentDefinition(
             id="cohere_platform",
             name=ModelDeploymentName.CoherePlatform,
             models=MockCohereDeployment.list_models(),
@@ -194,19 +194,19 @@ def mock_available_model_deployments(request):
                 ModelDeploymentName.CoherePlatform, True
             ),
         ),
-        ModelDeploymentName.SageMaker: DeploymentInfo(
+        ModelDeploymentName.SageMaker: DeploymentDefinition(
             id="sagemaker",
             name=ModelDeploymentName.SageMaker,
             models=MockSageMakerDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
         ),
-        ModelDeploymentName.Azure: DeploymentInfo(
+        ModelDeploymentName.Azure: DeploymentDefinition(
             id="azure",
             name=ModelDeploymentName.Azure,
             models=MockAzureDeployment.list_models(),
             is_available=is_available_values.get(ModelDeploymentName.Azure, True),
         ),
-        ModelDeploymentName.Bedrock: DeploymentInfo(
+        ModelDeploymentName.Bedrock: DeploymentDefinition(
             id="bedrock",
             name=ModelDeploymentName.Bedrock,
             models=MockBedrockDeployment.list_models(),

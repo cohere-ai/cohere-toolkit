@@ -12,7 +12,6 @@ from backend.schemas.context import Context
 DEFAULT_RERANK_MODEL = "rerank-english-v2.0"
 SC_URL_ENV_VAR = "SINGLE_CONTAINER_URL"
 SC_MODEL_ENV_VAR = "SINGLE_CONTAINER_MODEL"
-SC_ENV_VARS = [SC_URL_ENV_VAR, SC_MODEL_ENV_VAR]
 
 
 class SingleContainerDeployment(BaseDeployment):
@@ -40,7 +39,7 @@ class SingleContainerDeployment(BaseDeployment):
 
     @classmethod
     def env_vars(cls) -> List[str]:
-        return SC_ENV_VARS
+        return [SC_URL_ENV_VAR, SC_MODEL_ENV_VAR]
 
     @classmethod
     def rerank_enabled(cls) -> bool:
