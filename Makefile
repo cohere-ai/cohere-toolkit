@@ -135,3 +135,14 @@ dev-sync:
 .PHONY: dev-sync-down
 dev-sync-down:
 	@docker compose down sync_worker sync_publisher flower
+
+.PHONY: vscode-debug
+vscode-debug:
+	@docker compose -f docker-compose.vscode.debug.yml up
+
+.PHONY: pycharm-debug
+pycharm-debug:
+	@docker compose -f docker-compose.pycharm.debug.yml up
+
+
+

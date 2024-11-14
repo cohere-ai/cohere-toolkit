@@ -148,3 +148,11 @@ async def apply_migrations():
         )
 
     return {"status": "Migration successful"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "backend.pycharm_debug_main:app", host="0.0.0.0", port=8000, loop="asyncio", reload=True
+    )
