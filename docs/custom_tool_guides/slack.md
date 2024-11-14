@@ -45,26 +45,7 @@ SLACK_CLIENT_ID=<your_client_id from step 1>
 SLACK_CLIENT_SECRET=<your_client_secret from step 1>
 ```
 
-## 4. Enable the Slack Tool in the Frontend
-
-To enable the Slack tool in the frontend, you will need to modify the `src/interfaces/assistants_web/src/constants/tools.ts` file. Add the `TOOL_SLACK_ID` to the `AGENT_SETTINGS_TOOLS` list.
-
-```typescript
-export const AGENT_SETTINGS_TOOLS = [
-  TOOL_HYBRID_WEB_SEARCH_ID,
-  TOOL_PYTHON_INTERPRETER_ID,
-  TOOL_WEB_SCRAPE_ID,
-  TOOL_SLACK_ID,
-];
-```
-
-To enable the Slack tool in the frontend for Base Agent, you will need to modify the `src/interfaces/assistants_web/src/constants/tools.ts` file. Remove the `TOOL_SLACK_ID` from the `BASE_AGENT_EXCLUDED_TOOLS` list.
-By default, the Slack Tool is disabled for the Base Agent. Also if you need to exclude some tool from the Base Agent just add it to the `BASE_AGENT_EXCLUDED_TOOLS` list.
-```typescript
-export const BASE_AGENT_EXCLUDED_TOOLS = [];
-```
-
-## 5. Setup HTTPS for Local Development
+## 4. Setup HTTPS for Local Development
 
 To enable HTTPS for local development, the self-signed certificate needs to be generated.
 Run the following command in the project root directory to generate the certificate and key:
@@ -116,7 +97,7 @@ and change the API_HOSTNAME to
 ```
 also change the src/interfaces/assistants_web/.env.development file env variables to use https.
 
-## 6. Run the Backend and Frontend
+## 5. Run the Backend and Frontend
 
 run next command to start the backend and frontend:
 
@@ -124,7 +105,7 @@ run next command to start the backend and frontend:
 make dev
 ```
 
-## 7. Troubleshooting
+## 6. Troubleshooting
 
 If you encounter any issues with OAuth, please check the following [link](https://api.slack.com/authentication/oauth-v2#errors)
 For example, if you see the invalid_team_for_non_distributed_app error,
