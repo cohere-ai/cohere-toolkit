@@ -159,6 +159,7 @@ async def list_agents(
             visibility=visibility,
             organization_id=organization_id,
         )
+        agents.append(get_default_agent())
         return agents
     except Exception as e:
         logger.exception(event=e)
@@ -185,6 +186,7 @@ async def get_agent_by_id(
     agent = None
 
     try:
+        # Intentionally not adding Default Agent to DB so it's more flexible
         if agent_id == DEFAULT_AGENT_ID:
             agent = get_default_agent()
         else:

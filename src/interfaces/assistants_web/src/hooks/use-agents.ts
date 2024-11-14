@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { uniq } from 'lodash';
 import { useCallback, useMemo } from 'react';
+import { DEFAULT_AGENT_ID } from '@/constants';
 
 import {
   AgentPublic,
@@ -9,7 +10,7 @@ import {
   UpdateAgentRequest,
   useCohereClient,
 } from '@/cohere-client';
-import { BASE_AGENT } from '@/constants';
+
 import { useConversations } from '@/hooks';
 
 export const useListAgents = () => {
@@ -17,8 +18,7 @@ export const useListAgents = () => {
   return useQuery({
     queryKey: ['listAgents'],
     queryFn: async () => {
-      const agents = await cohereClient.listAgents({});
-      return agents.concat(BASE_AGENT);
+      return await cohereClient.listAgents({});
     },
   });
 };
@@ -59,9 +59,24 @@ export const useAgent = ({ agentId }: { agentId?: string }) => {
     queryFn: async () => {
       try {
         if (!agentId) {
-          return BASE_AGENT;
+          return await cohereClient.getAgent(DEFAULT_AGENT_ID);
         }
         return await cohereClient.getAgent(agentId);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+  });
+};
+
+export const useDefaultAgent = () => {
+  const cohereClient = useCohereClient();
+  return useQuery({
+    queryKey: ['agent', DEFAULT_AGENT_ID],
+    queryFn: async () => {
+      try {
+        return await cohereClient.getAgent(DEFAULT_AGENT_ID);
       } catch (e) {
         console.error(e);
         throw e;
@@ -111,7 +126,6 @@ export const useRecentAgents = (limit: number = 5) => {
   const recentAgents = useMemo(() => {
     let recent = uniq(conversations.sort(sortByDate).map((conversation) => conversation.agent_id))
       .map((agentId) => agents.find((agent) => agent.id === agentId))
-      .map((agent) => (!agent ? BASE_AGENT : agent))
       .slice(0, limit);
 
     // if there are less than `limit` recent agents, fill with the latest created agents
@@ -124,12 +138,7 @@ export const useRecentAgents = (limit: number = 5) => {
       recent = recent.concat(remainingRecentAgents);
     }
 
-    // if still there are less than `limit` recent agents, fill with base agent
-    if (recent.length < limit && recent.every((agent) => agent?.id !== BASE_AGENT.id)) {
-      recent = recent.concat(BASE_AGENT);
-    }
-
-    return recent;
+    return recent.filter((a) => a !== undefined);
   }, [conversations, agents, sortByDate, limit]);
 
   return recentAgents;

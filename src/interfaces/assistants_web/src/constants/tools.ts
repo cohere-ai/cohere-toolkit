@@ -21,7 +21,7 @@ export const AGENT_SETTINGS_TOOLS = [
 ];
 
 // Tools won't be available for the base agent
-export const BASE_AGENT_EXCLUDED_TOOLS: string[] = [TOOL_SLACK_ID];
+// export const BASE_AGENT_EXCLUDED_TOOLS: string[] = [TOOL_SLACK_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {

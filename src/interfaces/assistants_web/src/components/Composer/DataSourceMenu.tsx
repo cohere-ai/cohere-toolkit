@@ -7,7 +7,7 @@ import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { Icon, Switch, Text } from '@/components/UI';
 import { useAvailableTools, useBrandedColors } from '@/hooks';
 import { useParamsStore } from '@/stores';
-import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
+import { checkIsDefaultAgent, cn, getToolIcon } from '@/utils';
 
 export type Props = {
   agent?: AgentPublic;
@@ -27,7 +27,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
   });
 
   const { text, contrastText, border, bg } = useBrandedColors(agent?.id);
-  const isBaseAgent = checkIsBaseAgent(agent);
+  const isDefaultAgent = checkIsDefaultAgent(agent);
   return (
     <Popover className="relative">
       <PopoverButton
@@ -46,7 +46,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
             as="span"
             className={cn('font-medium', text, { [contrastText]: open })}
           >
-            Tools: {isBaseAgent ? paramsTools?.length ?? 0 : availableTools.length ?? 0}
+            Tools: {isDefaultAgent ? paramsTools?.length ?? 0 : availableTools.length ?? 0}
           </Text>
         )}
       </PopoverButton>
@@ -107,7 +107,7 @@ export const DataSourceMenu: React.FC<Props> = ({ agent, tools }) => {
                     <Text as="span">{tool.display_name}</Text>
                   </div>
                 </div>
-                {isBaseAgent && (
+                {isDefaultAgent && (
                   <Switch
                     theme="evolved-blue"
                     checked={!!paramsTools?.find((t) => t.name === tool.name)}
