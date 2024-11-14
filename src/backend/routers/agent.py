@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
-from backend.config.default_agent import get_default_agent, DEFAULT_AGENT_ID
+from backend.config.default_agent import DEFAULT_AGENT_ID, get_default_agent
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud

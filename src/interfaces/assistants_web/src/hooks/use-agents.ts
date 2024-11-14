@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { uniq } from 'lodash';
 import { useCallback, useMemo } from 'react';
-import { DEFAULT_AGENT_ID } from '@/constants';
 
 import {
   AgentPublic,
@@ -10,7 +9,7 @@ import {
   UpdateAgentRequest,
   useCohereClient,
 } from '@/cohere-client';
-
+import { DEFAULT_AGENT_ID } from '@/constants';
 import { useConversations } from '@/hooks';
 
 export const useListAgents = () => {

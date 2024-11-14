@@ -17,7 +17,8 @@ import {
   UpdateConversationRequest,
   UpdateDeploymentEnv,
 } from '@/cohere-client';
-import { DEFAULT_AGENT_ID } from '@/constants'
+import { DEFAULT_AGENT_ID } from '@/constants';
+
 import { mapToChatRequest } from './mappings';
 
 export class CohereClient {

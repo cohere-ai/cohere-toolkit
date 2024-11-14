@@ -37,7 +37,7 @@ const DEFAULT_CONTRAST_COLOR = 'marble-950';
 
 const shouldUseDefault = (assistantId: string | undefined): boolean => {
   return !assistantId || assistantId == DEFAULT_AGENT_ID;
-}
+};
 
 const getAssistantColor = (assistantId: string | undefined): string => {
   if (shouldUseDefault(assistantId)) return DEFAULT_COLOR;

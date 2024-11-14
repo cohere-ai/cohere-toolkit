@@ -1,8 +1,8 @@
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query';
 import { NextPage } from 'next';
-import { DEFAULT_AGENT_ID } from '@/constants';
 
 import Chat from '@/app/(main)/(chat)/Chat';
+import { DEFAULT_AGENT_ID } from '@/constants';
 import { getCohereServerClient } from '@/server/cohereServerClient';
 
 type Props = {

@@ -97,10 +97,7 @@ export const useAvailableTools = ({
 
   const unauthedTools =
     tools?.filter(
-      (tool) =>
-        tool.is_auth_required &&
-        tool.name &&
-        requiredTools?.includes(tool.name)
+      (tool) => tool.is_auth_required && tool.name && requiredTools?.includes(tool.name)
     ) ?? [];
 
   const availableTools = useMemo(() => {

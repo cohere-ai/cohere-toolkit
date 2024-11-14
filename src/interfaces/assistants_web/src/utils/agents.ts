@@ -1,5 +1,5 @@
 import { AgentPublic } from '@/cohere-client';
-import { DEFAULT_AGENT_ID } from '@/constants'
+import { DEFAULT_AGENT_ID } from '@/constants';
 
 /**
  * @description Checks if the agent is the base agent.

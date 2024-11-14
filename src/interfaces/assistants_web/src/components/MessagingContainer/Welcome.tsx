@@ -5,8 +5,8 @@ import React from 'react';
 
 import { AssistantTools } from '@/components/MessagingContainer';
 import { CoralLogo, Icon, Text } from '@/components/UI';
-import { checkIsDefaultAgent } from '@/utils';
 import { useAgent, useBrandedColors, useListTools } from '@/hooks';
+import { checkIsDefaultAgent } from '@/utils';
 import { cn } from '@/utils';
 
 type Props = {

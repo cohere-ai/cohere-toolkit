@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-import { AgentPublic } from '@/cohere-client';
 
+import { AgentPublic } from '@/cohere-client';
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import {
   AgentIcon,
@@ -62,7 +62,7 @@ const RecentAgents: React.FC = () => {
           <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
             {(flippedProps) => (
               <div {...flippedProps}>
-                <AgentIcon name={agent.name} id={agent.id}/>
+                <AgentIcon name={agent.name} id={agent.id} />
               </div>
             )}
           </Flipped>

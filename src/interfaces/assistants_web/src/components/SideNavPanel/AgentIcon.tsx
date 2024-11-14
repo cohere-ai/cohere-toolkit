@@ -2,9 +2,8 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 
-import { DEFAULT_AGENT_ID } from '@/constants';
-
 import { CoralLogo, Text, Tooltip } from '@/components/UI';
+import { DEFAULT_AGENT_ID } from '@/constants';
 import { useBrandedColors, useChatRoutes, useConversationFileActions, useIsDesktop } from '@/hooks';
 import {
   useCitationsStore,

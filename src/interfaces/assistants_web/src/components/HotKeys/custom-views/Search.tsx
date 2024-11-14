@@ -5,10 +5,9 @@ import { useDebouncedEffect } from '@react-hookz/web';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { DEFAULT_AGENT_ID } from '@/constants';
-
 import { AgentLogo } from '@/components/Agents/AgentLogo';
 import { CommandActionGroup, HotKeyGroupOption, HotKeysDialogInput } from '@/components/HotKeys';
+import { DEFAULT_AGENT_ID } from '@/constants';
 import { useConversations, useListAgents } from '@/hooks';
 
 type Props = {
