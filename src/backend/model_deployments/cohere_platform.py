@@ -86,7 +86,7 @@ class CohereDeployment(BaseDeployment):
                     "deployedAppRid": "ri.foundry.main.deployed-app.811b08c3-0247-4e06-aa14-b2970671e38d",
                     "deployedAppBranch": "master",
                     "queryType": "chatStream",
-                    "query": chat_request.model_dump(exclude_none=True, include={"message", "chat_history", "documents"}),
+                    "query": chat_request.model_dump(exclude_none=True, include={"message", "chat_history", "documents", "tools", "tool_results"}),
                 },
             ) as r:
                 async for line in r.content:
