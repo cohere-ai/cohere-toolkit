@@ -14,7 +14,7 @@ from backend.config.auth import (
     is_authentication_enabled,
     verify_migrate_token,
 )
-from backend.config.routers import ROUTER_DEPENDENCIES
+from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
 from backend.config.settings import Settings
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -78,7 +78,7 @@ def create_app():
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
-            router_name = router.name
+            router_name = RouterName(router.name)
             dependencies = ROUTER_DEPENDENCIES[router_name][dependencies_type]
             app.include_router(router, dependencies=dependencies)
         else:
@@ -94,7 +94,7 @@ def create_app():
     )
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
-    app.add_exception_handler(SCIMException, scim_exception_handler)
+    app.add_exception_handler(SCIMException, scim_exception_handler)  # pyright: ignore
 
     return app
 
