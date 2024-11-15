@@ -78,7 +78,7 @@ def create_app():
         dependencies_type = "auth"
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
-            router_name = RouterName(router.name)
+            router_name = RouterName(getattr(router, "name"))
             dependencies = ROUTER_DEPENDENCIES[router_name][dependencies_type]
             app.include_router(router, dependencies=dependencies)
         else:
