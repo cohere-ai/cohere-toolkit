@@ -77,8 +77,8 @@ async def _call_tool_async(
     tool_call: dict,
     deployment_model: BaseDeployment,
 ) -> List[Dict[str, Any]]:
-    tool = get_available_tools().get(tool_call["name"])
-    if not tool:
+    tool_definition = get_available_tools().get(tool_call["name"])
+    if not tool_definition:
         logger.info(
             event=f"[Custom Chat] Tool not included in tools parameter: {tool_call['name']}",
         )
@@ -90,8 +90,10 @@ async def _call_tool_async(
         ]
         return outputs
 
+    tool = tool_definition.implemention()
+
     try:
-        outputs = await tool.implementation().call(
+        outputs = await tool.call(
             parameters=tool_call.get("parameters"),
             ctx=ctx,
             session=db,
