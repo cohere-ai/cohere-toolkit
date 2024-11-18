@@ -16,8 +16,14 @@ database:
 redis:
   url:
 tools:
+  hybrid_web_search:
+    # List of web search tool names, eg: google_web_search, tavily_web_search
+    enabled_web_searches:
+      - tavily_web_search
+      - google_web_search
+      - brave_web_search
   python_interpreter:
-    url:
+    url: http://terrarium:8080
 feature_flags:
   # Experimental features
   use_agents_view: false

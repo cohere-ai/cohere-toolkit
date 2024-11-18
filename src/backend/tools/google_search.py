@@ -60,14 +60,18 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
         response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
         search_results = response.get("items", [])
 
+        if not search_results:
+            return self.get_no_results_error()
+
         tool_results = []
         for result in search_results:
-            tool_result = {
-                "title": result["title"],
-                "url": result["link"],
-            }
-            if "snippet" in result:
-                tool_result["text"] = result["snippet"]
-            tool_results.append(tool_result)
+            if "snippet" not in result:
+                continue
+
+            tool_results.append({
+                "text": result.get("snippet"),
+                "title": result.get("title"),
+                "url": result.get("url")
+            })
 
         return tool_results
