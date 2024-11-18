@@ -119,7 +119,7 @@ async def _call_tool_async(
         return [
             {
                 "call": tool_call,
-                "outputs": tool.get_tool_error_res(ToolError(text=str(e))),
+                "outputs": tool.get_tool_error(ToolError(text=str(e))),
             }
         ]
 
