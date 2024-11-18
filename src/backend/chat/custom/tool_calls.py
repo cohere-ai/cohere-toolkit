@@ -90,7 +90,7 @@ async def _call_tool_async(
         ]
         return outputs
 
-    tool = tool_definition.implemention()
+    tool = tool_definition.implementation()
 
     try:
         outputs = await tool.call(
