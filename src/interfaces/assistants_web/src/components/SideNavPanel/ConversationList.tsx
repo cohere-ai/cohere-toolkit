@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 
+import { AgentPublic } from '@/cohere-client';
 import { ConversationWithoutMessages as Conversation } from '@/cohere-client';
 import {
   AgentIcon,
@@ -48,7 +49,7 @@ export const ConversationList: React.FC = () => {
 
 const RecentAgents: React.FC = () => {
   const { isLeftPanelOpen } = useSettingsStore();
-  const recentAgents = useRecentAgents();
+  const recentAgents = useRecentAgents() as AgentPublic[];
   const flipKey = recentAgents.map((agent) => agent?.id || agent?.name).join(',');
 
   return (
@@ -61,7 +62,7 @@ const RecentAgents: React.FC = () => {
           <Flipped key={agent?.id || agent?.name} flipId={agent?.id || agent?.name}>
             {(flippedProps) => (
               <div {...flippedProps}>
-                <AgentIcon name={agent.name} id={agent.id} isBaseAgent={!agent.id} />
+                <AgentIcon name={agent.name} id={agent.id} />
               </div>
             )}
           </Flipped>

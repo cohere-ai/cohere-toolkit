@@ -17,6 +17,7 @@ import {
   UpdateConversationRequest,
   UpdateDeploymentEnv,
 } from '@/cohere-client';
+import { DEFAULT_AGENT_ID } from '@/constants';
 
 import { mapToChatRequest } from './mappings';
 
@@ -283,6 +284,10 @@ export class CohereClient {
     return payload as { token: string };
     // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
     // this.cohereService.default.oidcAuthorizeV1OidcAuthGet();
+  }
+
+  public getDefaultAgent() {
+    return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId: DEFAULT_AGENT_ID });
   }
 
   public getAgent(agentId: string) {

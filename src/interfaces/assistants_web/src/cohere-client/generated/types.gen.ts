@@ -2,6 +2,7 @@
 
 export type AgentPublic = {
   user_id: string;
+  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;
@@ -621,8 +622,6 @@ export type ToggleConversationPinRequest = {
 
 export type Tool = {
   name?: string | null;
-  display_name?: string;
-  description?: string | null;
   parameter_definitions?: {
     [key: string]: unknown;
   } | null;
@@ -650,17 +649,17 @@ export enum ToolCategory {
 
 export type ToolDefinition = {
   name?: string | null;
-  display_name?: string;
-  description?: string | null;
   parameter_definitions?: {
     [key: string]: unknown;
   } | null;
+  display_name?: string;
+  description?: string;
+  error_message?: string | null;
   kwargs?: {
     [key: string]: unknown;
   };
   is_visible?: boolean;
   is_available?: boolean;
-  error_message?: string | null;
   category?: ToolCategory;
   is_auth_required?: boolean;
   auth_url?: string | null;

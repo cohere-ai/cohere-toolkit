@@ -13,15 +13,8 @@ export const TOOL_CALCULATOR_ID = 'toolkit_calculator';
 export const TOOL_WEB_SCRAPE_ID = 'web_scrape';
 export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 export const TOOL_SLACK_ID = 'slack';
-export const FILE_UPLOAD_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
-export const AGENT_SETTINGS_TOOLS = [
-  TOOL_HYBRID_WEB_SEARCH_ID,
-  TOOL_PYTHON_INTERPRETER_ID,
-  TOOL_WEB_SCRAPE_ID,
-];
 
-// Tools won't be available for the base agent
-export const BASE_AGENT_EXCLUDED_TOOLS: string[] = [TOOL_SLACK_ID];
+export const BACKGROUND_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID, TOOL_WEB_SCRAPE_ID];
 
 export const TOOL_FALLBACK_ICON = 'circles-four';
 export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {

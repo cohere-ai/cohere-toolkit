@@ -4,12 +4,11 @@ import useDrivePicker from 'react-google-drive-picker';
 import type { PickerCallback } from 'react-google-drive-picker/dist/typeDefs';
 
 import { AgentPublic, ApiError, ToolDefinition, useCohereClient } from '@/cohere-client';
-import { BASE_AGENT_EXCLUDED_TOOLS, DEFAULT_AGENT_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
+import { BACKGROUND_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
 import { env } from '@/env.mjs';
 import { useNotify } from '@/hooks';
 import { useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
-import { checkIsBaseAgent } from '@/utils';
 
 export const useListTools = (enabled: boolean = true) => {
   const client = useCohereClient();
@@ -17,7 +16,7 @@ export const useListTools = (enabled: boolean = true) => {
     queryKey: ['tools'],
     queryFn: async () => {
       const tools = await client.listTools({});
-      return tools.filter((tool) => !DEFAULT_AGENT_TOOLS.includes(tool.name ?? ''));
+      return tools.filter((tool) => !BACKGROUND_TOOLS.includes(tool.name ?? ''));
     },
     refetchOnWindowFocus: false,
     enabled,
@@ -95,14 +94,10 @@ export const useAvailableTools = ({
   const { params, setParams } = useParamsStore();
   const { tools: paramTools } = params;
   const enabledTools = paramTools ?? [];
-  const isBaseAgent = checkIsBaseAgent(agent);
+
   const unauthedTools =
     tools?.filter(
-      (tool) =>
-        tool.is_auth_required &&
-        tool.name &&
-        requiredTools?.includes(tool.name) &&
-        !(isBaseAgent && BASE_AGENT_EXCLUDED_TOOLS.includes(tool.name))
+      (tool) => tool.is_auth_required && tool.name && requiredTools?.includes(tool.name)
     ) ?? [];
 
   const availableTools = useMemo(() => {
@@ -110,8 +105,7 @@ export const useAvailableTools = ({
       (t) =>
         t.is_visible &&
         t.is_available &&
-        (!requiredTools || requiredTools.some((rt) => rt === t.name)) &&
-        !(isBaseAgent && BASE_AGENT_EXCLUDED_TOOLS.some((rt) => rt === t.name))
+        (!requiredTools || requiredTools.some((rt) => rt === t.name))
     );
   }, [allTools, requiredTools]);
 

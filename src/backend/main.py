@@ -91,7 +91,6 @@ def create_app():
 
 app = create_app()
 
-
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     ctx = get_context(request)
@@ -114,7 +113,6 @@ async def validation_exception_handler(request: Request, exc: Exception):
             )
         },
     )
-
 
 @app.on_event("startup")
 async def startup_event():
