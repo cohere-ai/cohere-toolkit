@@ -475,5 +475,10 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
         <Slack />
       </AccessibleIcon>
     ),
+    ['hot-keys']: (
+      <AccessibleIcon label="">
+        <Menu />
+      </AccessibleIcon>
+    ),
   }[name];
 };

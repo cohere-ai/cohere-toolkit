@@ -55,6 +55,8 @@ export const useSettingsStore = () => {
       setRightPanelOpen: state.setRightPanelOpen,
       setUseAssistantKnowledge: state.setUseAssistantKnowledge,
       setShowSteps: state.setShowSteps,
+      isHotKeysDialogOpen: state.isHotKeysDialogOpen,
+      setIsHotKeysDialogOpen: state.setIsHotKeysDialogOpen,
     }),
     shallow
   );
