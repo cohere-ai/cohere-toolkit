@@ -71,13 +71,11 @@ class BaseTool(metaclass=ParametersCheckingMeta):
 
     @classmethod
     @abstractmethod
-    def is_available(cls) -> bool:
-        ...
+    def is_available(cls) -> bool: ...
 
     @classmethod
     @abstractmethod
-    def get_tool_definition(cls) -> ToolDefinition:
-        ...
+    def get_tool_definition(cls) -> ToolDefinition: ...
 
     @classmethod
     def generate_error_message(cls) -> str | None:
