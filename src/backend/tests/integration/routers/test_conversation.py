@@ -86,6 +86,7 @@ def test_search_conversations_no_conversations(
 # MISC
 
 
+@pytest.mark.skip(reason="Restore this test when we get access to run models on Huggingface")
 def test_generate_title(
     session_client: TestClient,
     session: Session,
@@ -137,6 +138,7 @@ def test_fail_generate_title_nonexistent_conversation(
     assert response.json() == {"detail": "Conversation with ID: 123 not found."}
 
 
+@pytest.mark.skip(reason="Restore this test when we get access to run models on Huggingface")
 def test_generate_title_error_invalid_model(
     session_client: TestClient,
     session: Session,
