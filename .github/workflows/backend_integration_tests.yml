@@ -3,6 +3,7 @@ name: Backend - Integration tests
 on:
   push:
     branches: [main]
+  pull_request: {}
 
 jobs:
   pytest:
