@@ -2,6 +2,7 @@
 
 export type AgentPublic = {
   user_id: string;
+  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;
@@ -12,7 +13,6 @@ export type AgentPublic = {
   temperature: number;
   tools: Array<string> | null;
   tools_metadata?: Array<AgentToolMetadataPublic> | null;
-  deployments: Array<DeploymentWithModels>;
   deployment: string | null;
   model: string | null;
   is_private: boolean | null;
@@ -55,13 +55,6 @@ export type Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   conversation_id?: string;
   files: Array<Blob | File>;
 };
-
-export enum Category {
-  DATA_LOADER = 'Data loader',
-  FILE_LOADER = 'File loader',
-  FUNCTION = 'Function',
-  WEB_SEARCH = 'Web search',
-}
 
 /**
  * A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.
@@ -198,7 +191,6 @@ export type CreateAgentRequest = {
   deployment_config?: {
     [key: string]: string;
   } | null;
-  is_default_deployment?: boolean | null;
   model: string;
   deployment: string;
   organization_id?: string | null;
@@ -288,16 +280,6 @@ export type DeploymentUpdate = {
   } | null;
 };
 
-export type DeploymentWithModels = {
-  id?: string | null;
-  name: string;
-  description?: string | null;
-  is_available?: boolean;
-  is_community?: boolean | null;
-  env_vars: Array<string> | null;
-  models: Array<ModelSimple>;
-};
-
 export type Document = {
   text: string;
   document_id: string;
@@ -313,6 +295,15 @@ export type Email = {
   primary: boolean;
   value?: string | null;
   type: string;
+};
+
+export type FileMetadata = {
+  id: string;
+  file_name: string;
+  file_content: string;
+  file_size?: number;
+  created_at: string;
+  updated_at: string;
 };
 
 export type GenerateTitleResponse = {
@@ -393,25 +384,6 @@ export type Login = {
 
 export type Logout = unknown;
 
-export type ManagedTool = {
-  name?: string | null;
-  display_name?: string;
-  description?: string | null;
-  parameter_definitions?: {
-    [key: string]: unknown;
-  } | null;
-  kwargs?: {
-    [key: string]: unknown;
-  };
-  is_visible?: boolean;
-  is_available?: boolean;
-  error_message?: string | null;
-  category?: Category;
-  is_auth_required?: boolean;
-  auth_url?: string | null;
-  token?: string | null;
-};
-
 export type Message = {
   text: string;
   id: string;
@@ -452,13 +424,6 @@ export type ModelCreate = {
   cohere_name: string | null;
   description: string | null;
   deployment_id: string;
-};
-
-export type ModelSimple = {
-  id: string;
-  name: string;
-  cohere_name: string | null;
-  description: string | null;
 };
 
 export type ModelUpdate = {
@@ -657,8 +622,6 @@ export type ToggleConversationPinRequest = {
 
 export type Tool = {
   name?: string | null;
-  display_name?: string;
-  description?: string | null;
   parameter_definitions?: {
     [key: string]: unknown;
   } | null;
@@ -677,6 +640,32 @@ export type ToolCallDelta = {
   parameters: string | null;
 };
 
+export enum ToolCategory {
+  DATA_LOADER = 'Data loader',
+  FILE_LOADER = 'File loader',
+  FUNCTION = 'Function',
+  WEB_SEARCH = 'Web search',
+}
+
+export type ToolDefinition = {
+  name?: string | null;
+  parameter_definitions?: {
+    [key: string]: unknown;
+  } | null;
+  display_name?: string;
+  description?: string;
+  error_message?: string | null;
+  kwargs?: {
+    [key: string]: unknown;
+  };
+  is_visible?: boolean;
+  is_available?: boolean;
+  category?: ToolCategory;
+  is_auth_required?: boolean;
+  auth_url?: string | null;
+  token?: string | null;
+};
+
 /**
  * Type of input passed to the tool
  */
@@ -691,17 +680,12 @@ export type UpdateAgentRequest = {
   description?: string | null;
   preamble?: string | null;
   temperature?: number | null;
-  model?: string | null;
-  deployment?: string | null;
-  deployment_config?: {
-    [key: string]: string;
-  } | null;
-  is_default_deployment?: boolean | null;
-  is_default_model?: boolean | null;
-  organization_id?: string | null;
   tools?: Array<string> | null;
-  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
+  organization_id?: string | null;
   is_private?: boolean | null;
+  deployment?: string | null;
+  model?: string | null;
+  tools_metadata?: Array<CreateAgentToolMetadataRequest> | null;
 };
 
 export type UpdateAgentToolMetadataRequest = {
@@ -934,6 +918,13 @@ export type ListFilesV1ConversationsConversationIdFilesGetData = {
 
 export type ListFilesV1ConversationsConversationIdFilesGetResponse = Array<ListConversationFile>;
 
+export type GetFileV1ConversationsConversationIdFilesFileIdGetData = {
+  conversationId: string;
+  fileId: string;
+};
+
+export type GetFileV1ConversationsConversationIdFilesFileIdGetResponse = FileMetadata;
+
 export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData = {
   conversationId: string;
   fileId: string;
@@ -961,7 +952,7 @@ export type ListToolsV1ToolsGetData = {
   agentId?: string | null;
 };
 
-export type ListToolsV1ToolsGetResponse = Array<ManagedTool>;
+export type ListToolsV1ToolsGetResponse = Array<ToolDefinition>;
 
 export type CreateDeploymentV1DeploymentsPostData = {
   requestBody: DeploymentCreate;
@@ -1039,11 +1030,11 @@ export type DeleteAgentV1AgentsAgentIdDeleteData = {
 
 export type DeleteAgentV1AgentsAgentIdDeleteResponse = DeleteAgent;
 
-export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData = {
+export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData = {
   agentId: string;
 };
 
-export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
+export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse = Array<Deployment>;
 
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   agentId: string;
@@ -1082,6 +1073,13 @@ export type BatchUploadFileV1AgentsBatchUploadFilePostData = {
 };
 
 export type BatchUploadFileV1AgentsBatchUploadFilePostResponse = Array<UploadAgentFileResponse>;
+
+export type GetAgentFileV1AgentsAgentIdFilesFileIdGetData = {
+  agentId: string;
+  fileId: string;
+};
+
+export type GetAgentFileV1AgentsAgentIdFilesFileIdGetResponse = FileMetadata;
 
 export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData = {
   agentId: string;
@@ -1560,6 +1558,19 @@ export type $OpenApiTs = {
     };
   };
   '/v1/conversations/{conversation_id}/files/{file_id}': {
+    get: {
+      req: GetFileV1ConversationsConversationIdFilesFileIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: FileMetadata;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
     delete: {
       req: DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData;
       res: {
@@ -1611,7 +1622,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<ManagedTool>;
+        200: Array<ToolDefinition>;
         /**
          * Validation Error
          */
@@ -1786,7 +1797,7 @@ export type $OpenApiTs = {
   };
   '/v1/agents/{agent_id}/deployments': {
     get: {
-      req: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData;
+      req: GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData;
       res: {
         /**
          * Successful Response
@@ -1871,6 +1882,19 @@ export type $OpenApiTs = {
     };
   };
   '/v1/agents/{agent_id}/files/{file_id}': {
+    get: {
+      req: GetAgentFileV1AgentsAgentIdFilesFileIdGetData;
+      res: {
+        /**
+         * Successful Response
+         */
+        200: FileMetadata;
+        /**
+         * Validation Error
+         */
+        422: HTTPValidationError;
+      };
+    };
     delete: {
       req: DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData;
       res: {

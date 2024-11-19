@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 
 import { CoralLogo, Text, Tooltip } from '@/components/UI';
+import { DEFAULT_AGENT_ID } from '@/constants';
 import { useBrandedColors, useChatRoutes, useConversationFileActions, useIsDesktop } from '@/hooks';
 import {
   useCitationsStore,
@@ -14,7 +15,6 @@ import { cn } from '@/utils';
 
 type Props = {
   name: string;
-  isBaseAgent?: boolean;
   id?: string;
 };
 
@@ -23,15 +23,16 @@ type Props = {
  * It shows a tooltip of the agent's name and a colored icon with the first letter of the agent's name.
  * If the agent is a base agent, it shows the Coral logo instead.
  */
-export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
+export const AgentIcon: React.FC<Props> = ({ name, id }) => {
   const { conversationId } = useChatRoutes();
   const router = useRouter();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
   const pathname = usePathname();
   const { setLeftPanelOpen } = useSettingsStore();
+  const isDefaultAgent = id === DEFAULT_AGENT_ID;
 
-  const isActive = isBaseAgent
+  const isActive = isDefaultAgent
     ? conversationId
       ? pathname === `/c/${conversationId}`
       : pathname === '/'
@@ -56,7 +57,7 @@ export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
   const handleClick = () => {
     if (isActive) return;
 
-    const url = isBaseAgent ? '/' : `/a/${id}`;
+    const url = isDefaultAgent ? '/' : `/a/${id}`;
 
     router.push(url);
 
@@ -81,7 +82,7 @@ export const AgentIcon: React.FC<Props> = ({ name, id, isBaseAgent }) => {
             bg
           )}
         >
-          {isBaseAgent ? (
+          {isDefaultAgent ? (
             <CoralLogo className={contrastFill} />
           ) : (
             <Text className={cn('uppercase', contrastText)} styleAs="p-lg">

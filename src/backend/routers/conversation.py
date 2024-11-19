@@ -24,6 +24,7 @@ from backend.schemas.conversation import (
 )
 from backend.schemas.file import (
     DeleteConversationFileResponse,
+    FileMetadata,
     ListConversationFile,
     UploadConversationFileResponse,
 )
@@ -461,6 +462,47 @@ async def list_files(
     return files_with_conversation_id
 
 
+@router.get("/{conversation_id}/files/{file_id}", response_model=FileMetadata)
+async def get_file(
+    conversation_id: str, file_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+) -> FileMetadata:
+    """
+    Get a conversation file by ID.
+
+    Args:
+        conversation_id (str): Conversation ID.
+        file_id (str): File ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        FileMetadata: File with the given ID.
+
+    Raises:
+        HTTPException: If the conversation or file with the given ID is not found, or if the file does not belong to the conversation.
+    """
+    user_id = ctx.get_user_id()
+
+    conversation = validate_conversation(session, conversation_id, user_id)
+
+    if file_id not in conversation.file_ids:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} does not belong to the conversation with ID: {conversation.id}."
+        )
+
+    file = validate_file(session, file_id, user_id)
+
+    return FileMetadata(
+        id=file.id,
+        file_name=file.file_name,
+        file_content=file.file_content,
+        file_size=file.file_size,
+        created_at=file.created_at,
+        updated_at=file.updated_at,
+    )
+
+
 @router.delete("/{conversation_id}/files/{file_id}")
 async def delete_file(
     conversation_id: str,
@@ -484,8 +526,7 @@ async def delete_file(
     """
     user_id = ctx.get_user_id()
     _ = validate_conversation(session, conversation_id, user_id)
-    validate_file(session, file_id, user_id )
-
+    validate_file(session, file_id, user_id)
     # Delete the File DB object
     get_file_service().delete_conversation_file_by_id(
         session, conversation_id, file_id, user_id, ctx

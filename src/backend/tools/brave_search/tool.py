@@ -4,13 +4,14 @@ from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.agent import AgentToolMetadataArtifactsType
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 from backend.tools.brave_search.client import BraveClient
 from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
 class BraveWebSearch(BaseTool, WebSearchFilteringMixin):
-    NAME = "brave_web_search"
+    ID = "brave_web_search"
     BRAVE_API_KEY = Settings().get('tools.brave_web_search.api_key')
 
     def __init__(self):
@@ -20,6 +21,29 @@ class BraveWebSearch(BaseTool, WebSearchFilteringMixin):
     @classmethod
     def is_available(cls) -> bool:
         return cls.BRAVE_API_KEY is not None
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Brave Web Search",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.WebSearch,
+            description=(
+                "Returns a list of relevant document snippets for a textual query retrieved "
+                "from the internet using Brave Search."
+            ),
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any

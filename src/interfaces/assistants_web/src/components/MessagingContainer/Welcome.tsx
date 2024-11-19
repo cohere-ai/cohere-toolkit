@@ -5,10 +5,9 @@ import React from 'react';
 
 import { AssistantTools } from '@/components/MessagingContainer';
 import { CoralLogo, Icon, Text } from '@/components/UI';
-import { BASE_AGENT_EXCLUDED_TOOLS } from '@/constants';
 import { useAgent, useBrandedColors, useListTools } from '@/hooks';
+import { checkIsDefaultAgent } from '@/utils';
 import { cn } from '@/utils';
-import { checkIsBaseAgent } from '@/utils';
 
 type Props = {
   show: boolean;
@@ -23,12 +22,10 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
   const { data: tools = [], isLoading: isToolsLoading } = useListTools();
   const { contrastText, bg, contrastFill } = useBrandedColors(agentId);
 
-  const isBaseAgent = checkIsBaseAgent(agent);
-  // Filter out tools that are excluded for the base agent
+  const isDefaultAgent = checkIsDefaultAgent(agent);
+
+  // // Filter out tools that are excluded for the base agent
   let toolsFiltered = [...tools];
-  if (isBaseAgent) {
-    toolsFiltered = tools.filter((tool) => !BASE_AGENT_EXCLUDED_TOOLS.includes(tool.name ?? ''));
-  }
 
   return (
     <Transition
@@ -50,7 +47,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
               bg
             )}
           >
-            {isBaseAgent ? (
+            {isDefaultAgent ? (
               <CoralLogo className={contrastFill} />
             ) : (
               <Text className={cn('uppercase', contrastText)} styleAs="p-lg">
@@ -59,9 +56,9 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
             )}
           </div>
           <Text styleAs="h4" className="truncate">
-            {isBaseAgent ? 'Your Public Assistant' : agent?.name}
+            {isDefaultAgent ? 'Your Public Assistant' : agent?.name}
           </Text>
-          {isBaseAgent && (
+          {isDefaultAgent && (
             <Text className="ml-auto" styleAs="caption">
               By Cohere
             </Text>
@@ -71,7 +68,7 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           {agent?.description || 'Ask questions and get answers based on your files.'}
         </Text>
 
-        {isBaseAgent && (
+        {tools.length > 0 && (
           <div className="flex items-center gap-x-1">
             <Icon name="circles-four" kind="outline" />
             <Text className="font-medium">Toggle Tools On/Off</Text>

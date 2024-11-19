@@ -2,18 +2,18 @@
 
 import React from 'react';
 
-import { AgentPublic, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { WelcomeGuideTooltip } from '@/components/MessagingContainer';
 import { Button, Icon, Text, ToggleCard } from '@/components/UI';
 import { useAvailableTools } from '@/hooks';
 import { useParamsStore } from '@/stores';
-import { checkIsBaseAgent, cn, getToolIcon } from '@/utils';
+import { cn, getToolIcon } from '@/utils';
 
 /**
  * @description Tools for the assistant to use in the conversation.
  */
 export const AssistantTools: React.FC<{
-  tools: ManagedTool[];
+  tools: ToolDefinition[];
   agent?: AgentPublic;
   className?: string;
 }> = ({ tools, agent, className = '' }) => {
@@ -23,7 +23,7 @@ export const AssistantTools: React.FC<{
   const enabledTools = paramTools ?? [];
   const { availableTools, unauthedTools, handleToggle } = useAvailableTools({
     agent,
-    managedTools: tools,
+    allTools: tools,
   });
 
   if (availableTools.length === 0) return null;
@@ -41,18 +41,16 @@ export const AssistantTools: React.FC<{
             {availableTools.map(({ name, display_name, description, error_message }) => {
               const enabledTool = enabledTools.find((enabledTool) => enabledTool.name === name);
               const checked = !!enabledTool;
-              const disabled = !checkIsBaseAgent(agent);
 
               return (
                 <ToggleCard
                   key={name}
-                  disabled={disabled}
                   errorMessage={error_message}
                   checked={checked}
                   label={display_name ?? name ?? ''}
                   icon={getToolIcon(name)}
                   description={description ?? ''}
-                  onToggle={(checked) => handleToggle(name ?? '', checked)}
+                  onToggle={(checked) => handleToggle(name!, checked)}
                   agentId={agent?.id}
                 />
               );

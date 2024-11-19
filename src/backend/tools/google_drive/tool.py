@@ -4,8 +4,10 @@ from google.auth.exceptions import RefreshError
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
+from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
 from backend.tools.google_drive.utils import (
     extract_export_link,
@@ -23,15 +25,34 @@ class GoogleDrive(BaseTool):
     """
     Tool that searches Google Drive
     """
-
-    NAME = GOOGLE_DRIVE_TOOL_ID
-
+    ID = GOOGLE_DRIVE_TOOL_ID
     CLIENT_ID = Settings().get('tools.google_drive.client_id')
     CLIENT_SECRET = Settings().get('tools.google_drive.client_secret')
 
     @classmethod
     def is_available(cls) -> bool:
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Google Drive",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query to search Google Drive documents with.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=True,
+            is_available=GoogleDrive.is_available(),
+            auth_implementation=GoogleDriveAuth,
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Returns a list of relevant document snippets from the user's Google drive.",
+        )
 
     def _handle_tool_specific_errors(self, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))

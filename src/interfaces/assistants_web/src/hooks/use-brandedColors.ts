@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { COHERE_BRANDED_COLORS } from '@/constants';
+import { COHERE_BRANDED_COLORS, DEFAULT_AGENT_ID } from '@/constants';
 import { cn } from '@/utils';
 
 const COHERE_THEMES_MAP: { default: COHERE_BRANDED_COLORS; branded: COHERE_BRANDED_COLORS[] } = {
@@ -35,34 +35,38 @@ const DEFAULT_COLOR = 'evolved-blue-500';
 const DEFAULT_LIGHT_COLOR = 'blue-800';
 const DEFAULT_CONTRAST_COLOR = 'marble-950';
 
-const getAssistantColor = (assistantId: string | undefined): string => {
-  if (!assistantId) return DEFAULT_COLOR;
+const shouldUseDefault = (assistantId: string | undefined): boolean => {
+  return !assistantId || assistantId == DEFAULT_AGENT_ID;
+};
 
-  const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+const getAssistantColor = (assistantId: string | undefined): string => {
+  if (shouldUseDefault(assistantId)) return DEFAULT_COLOR;
+
+  const idNumber = assistantId!.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % ASSISTANT_COLORS.length;
 
   return ASSISTANT_COLORS[index];
 };
 
 const getAssistantLightColor = (assistantId: string | undefined): string => {
-  if (!assistantId) return DEFAULT_LIGHT_COLOR;
+  if (shouldUseDefault(assistantId)) return DEFAULT_LIGHT_COLOR;
 
-  const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const idNumber = assistantId!.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % ASSISTANT_LIGHT_COLORS.length;
   return ASSISTANT_LIGHT_COLORS[index];
 };
 
 const getAssistantContrastColor = (assistantId: string | undefined): string => {
-  if (!assistantId) return DEFAULT_CONTRAST_COLOR;
+  if (shouldUseDefault(assistantId)) return DEFAULT_CONTRAST_COLOR;
 
-  const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const idNumber = assistantId!.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % ASSISTANT_CONTRAST_COLORS.length;
   return ASSISTANT_CONTRAST_COLORS[index];
 };
 
 export const getCohereTheme = (assistantId?: string): COHERE_BRANDED_COLORS => {
-  if (!assistantId) return COHERE_THEMES_MAP.default;
-  const idNumber = assistantId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  if (shouldUseDefault(assistantId)) return COHERE_THEMES_MAP.default;
+  const idNumber = assistantId!.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const index = idNumber % COHERE_THEMES_MAP.branded.length;
   return COHERE_THEMES_MAP.branded[index];
 };

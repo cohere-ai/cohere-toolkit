@@ -2,14 +2,16 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.expression import false
 
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.crud import agent as agent_crud
 from backend.database_models.agent import Agent
-from backend.schemas.agent import AgentVisibility, UpdateAgentRequest
+from backend.schemas.agent import AgentVisibility, UpdateAgentDB
 from backend.tests.unit.factories import get_factory
 
 
 def test_create_agent(session, user):
+    deployment = get_factory("Deployment", session).create()
+    model = get_factory("Model", session).create(deployment_id=deployment.id)
     agent_data = Agent(
         user_id=user.id,
         version=1,
@@ -17,7 +19,9 @@ def test_create_agent(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        model_id=model.id,
+        deployment_id=deployment.id,
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
         is_private=True,
     )
 
@@ -28,8 +32,10 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
+    assert agent.tools == [Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID]
     assert agent.is_private
+    assert agent.deployment == deployment.name
+    assert agent.model == model.name
 
     agent = agent_crud.get_agent_by_id(session, agent.id, user.id)
     assert agent.user_id == user.id
@@ -38,7 +44,10 @@ def test_create_agent(session, user):
     assert agent.description == "test"
     assert agent.preamble == "test"
     assert agent.temperature == 0.5
-    assert agent.tools == [ToolName.Wiki_Retriever_LangChain, ToolName.Search_File]
+    assert agent.tools == [Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID]
+    assert agent.is_private
+    assert agent.deployment == deployment.name
+    assert agent.model == model.name
 
 
 def test_create_agent_empty_non_required_fields(session, user):
@@ -87,7 +96,7 @@ def test_create_agent_duplicate_name_version(session, user):
         description="test",
         preamble="test",
         temperature=0.5,
-        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
     )
 
     with pytest.raises(IntegrityError):
@@ -198,6 +207,8 @@ def test_list_agents_with_pagination(session, user):
 
 
 def test_update_agent(session, user):
+    deployment = get_factory("Deployment", session).create()
+    model = get_factory("Model", session).create(deployment_id=deployment.id)
     agent = get_factory("Agent", session).create(
         name="test_agent",
         description="This is a test agent",
@@ -205,16 +216,22 @@ def test_update_agent(session, user):
         preamble="test",
         temperature=0.5,
         user=user,
-        tools=[ToolName.Wiki_Retriever_LangChain, ToolName.Search_File],
+        deployment_id=deployment.id,
+        model_id=model.id,
+        tools=[Tool.Wiki_Retriever_LangChain.value.ID, Tool.Search_File.value.ID],
     )
 
-    new_agent_data = UpdateAgentRequest(
+    new_deployment = get_factory("Deployment", session).create()
+    new_model = get_factory("Model", session).create(deployment_id=new_deployment.id)
+    new_agent_data = UpdateAgentDB(
         name="new_test_agent",
         description="This is a new test agent",
         version=2,
         preamble="new_test",
         temperature=0.6,
-        tools=[ToolName.Python_Interpreter, ToolName.Calculator],
+        tools=[Tool.Python_Interpreter.value.ID, Tool.Calculator.value.ID],
+        model_id=new_model.id,
+        deployment_id=new_deployment.id,
     )
 
     agent = agent_crud.update_agent(session, agent, new_agent_data, user.id)
@@ -223,7 +240,11 @@ def test_update_agent(session, user):
     assert agent.version == new_agent_data.version
     assert agent.preamble == new_agent_data.preamble
     assert agent.temperature == new_agent_data.temperature
-    assert agent.tools == [ToolName.Python_Interpreter, ToolName.Calculator]
+    assert agent.tools == [Tool.Python_Interpreter.value.ID, Tool.Calculator.value.ID]
+    assert agent.model_id == new_model.id
+    assert agent.deployment_id == new_deployment.id
+    assert agent.model == new_model.name
+    assert agent.deployment == new_deployment.name
 
 
 def test_delete_agent(session, user):
@@ -248,53 +269,11 @@ def test_delete_agent_by_another_user(session, user):
     assert status is False
 
 
-def test_get_association_by_deployment_name(session, user):
-    agent = get_factory("Agent", session).create(user=user)
-    deployment = get_factory("Deployment", session).create()
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModel", session).create(
-        agent=agent, deployment=deployment, model=model
-    )
-    association = agent_crud.get_association_by_deployment_name(
-        session, agent, deployment.name
-    )
-    assert association.agent_id == agent.id
-    assert association.deployment_id == deployment.id
-    assert association.model_id == model.id
-    assert new_association.deployment.name == deployment.name
-
-
-def test_get_association_by_deployment_id(session, user):
-    agent = get_factory("Agent", session).create(user=user)
-    deployment = get_factory("Deployment", session).create()
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModel", session).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
-    association = agent_crud.get_association_by_deployment_id(
-        session, agent, deployment.id
-    )
-    assert association.agent_id == agent.id
-    assert association.deployment_id == deployment.id
-    assert association.model_id == model.id
-    assert new_association.deployment.id == deployment.id
-
-
 def test_get_agents_by_user_id(session, user):
-    agent = get_factory("Agent", session).create(user=user)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
+    agent = get_factory("Agent", session).create(user=user, deployment_id=deployment.id, model_id=model.id)
+
     agents = agent_crud.get_agents(session, user_id=user.id)
     assert len(agents) == 1
     assert agents[0].user_id == user.id
@@ -305,91 +284,12 @@ def test_get_agents_by_organization_id(session):
     organization = get_factory("Organization", session).create()
     user = get_factory("User", session).create()
     user.organizations.append(organization)
-    agent = get_factory("Agent", session).create(user=user, organization=organization)
     deployment = get_factory("Deployment", session).create()
     model = get_factory("Model", session).create(deployment_id=deployment.id)
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
+    agent = get_factory("Agent", session).create(user=user, organization=organization, deployment_id=deployment.id,
+                                                 model_id=model.id)
+
     agents = agent_crud.get_agents(session, user.id, organization_id=organization.id)
     assert len(agents) == 1
     assert agents[0].user_id == user.id
     assert agents[0].id == agent.id
-
-
-def test_get_agent_model_deployment_association(session):
-    organization = get_factory("Organization", session).create()
-    user = get_factory("User", session).create()
-    user.organizations.append(organization)
-    agent = get_factory("Agent", session).create(user=user, organization=organization)
-    deployment = get_factory("Deployment", session).create()
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-    new_association = get_factory("AgentDeploymentModel", session).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
-    association = agent_crud.get_agent_model_deployment_association(
-        session, agent, model.id, deployment.id
-    )
-
-    assert association.id == new_association.id
-
-
-def test_delete_agent_model_deployment_association(session):
-    organization = get_factory("Organization", session).create()
-    user = get_factory("User", session).create()
-    user.organizations.append(organization)
-    agent = get_factory("Agent", session).create(user=user, organization=organization)
-    deployment = get_factory("Deployment", session).create()
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-    _ = get_factory("AgentDeploymentModel", session).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
-    agent_crud.delete_agent_model_deployment_association(
-        session, agent, model.id, deployment.id
-    )
-
-    association = agent_crud.get_agent_model_deployment_association(
-        session, agent, model.id, deployment.id
-    )
-
-    assert association is None
-
-
-def test_delete_non_existing_agent_model_deployment_association(session):
-    organization = get_factory("Organization", session).create()
-    user = get_factory("User", session).create()
-    user.organizations.append(organization)
-    agent = get_factory("Agent", session).create(user=user, organization=organization)
-
-    agent_crud.delete_agent_model_deployment_association(session, agent, "123", "123")
-
-
-def test_assign_model_deployment_to_agent(session):
-    organization = get_factory("Organization", session).create()
-    user = get_factory("User", session).create()
-    user.organizations.append(organization)
-    agent = get_factory("Agent", session).create(user=user, organization=organization)
-    deployment = get_factory("Deployment", session).create()
-    model = get_factory("Model", session).create(deployment_id=deployment.id)
-
-    agent_crud.assign_model_deployment_to_agent(session, agent, model.id, deployment.id)
-
-    association = agent_crud.get_agent_model_deployment_association(
-        session, agent, model.id, deployment.id
-    )
-
-    assert association.agent_id == agent.id
-    assert association.deployment_id == deployment.id
-    assert association.model_id == model.id

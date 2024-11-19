@@ -1,6 +1,6 @@
 import factory
 
-from backend.config.tools import ToolName
+from backend.config.tools import Tool
 from backend.database_models.agent import Agent
 from backend.tests.unit.factories.base import BaseFactory
 from backend.tests.unit.factories.user import UserFactory
@@ -13,6 +13,8 @@ class AgentFactory(BaseFactory):
     user = factory.SubFactory(UserFactory)
     user_id = factory.SelfAttribute("user.id")
     organization_id = None
+    deployment_id = None
+    model_id = None
     name = factory.Faker("sentence")
     description = factory.Faker("sentence")
     preamble = factory.Faker("sentence")
@@ -25,12 +27,12 @@ class AgentFactory(BaseFactory):
             factory.Faker(
                 "random_element",
                 elements=[
-                    ToolName.Wiki_Retriever_LangChain,
-                    ToolName.Search_File,
-                    ToolName.Read_File,
-                    ToolName.Python_Interpreter,
-                    ToolName.Calculator,
-                    ToolName.Tavily_Web_Search,
+                    Tool.Wiki_Retriever_LangChain.value.ID,
+                    Tool.Search_File.value.ID,
+                    Tool.Read_File.value.ID,
+                    Tool.Python_Interpreter.value.ID,
+                    Tool.Calculator.value.ID,
+                    Tool.Tavily_Web_Search.value.ID,
                 ],
             )
         ]

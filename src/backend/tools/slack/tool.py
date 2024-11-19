@@ -2,8 +2,10 @@ from typing import Any, Dict, List
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
+from backend.tools.slack.auth import SlackAuth
 from backend.tools.slack.constants import SEARCH_LIMIT, SLACK_TOOL_ID
 from backend.tools.slack.utils import get_slack_service
 
@@ -15,13 +17,34 @@ class SlackTool(BaseTool):
     Tool that searches Slack for messages and files based on a query.
     """
 
-    NAME = SLACK_TOOL_ID
+    ID = SLACK_TOOL_ID
     CLIENT_ID = Settings().get('tools.slack.client_id')
     CLIENT_SECRET = Settings().get('tools.slack.client_secret')
 
     @classmethod
     def is_available(cls) -> bool:
         return cls.CLIENT_ID is not None and cls.CLIENT_SECRET is not None
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Slack",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query to search slack.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=True,
+            is_available=cls.is_available(),
+            auth_implementation=SlackAuth,
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Returns a list of relevant document snippets from slack.",
+        )
 
     @classmethod
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
