@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.config.tools import Tool
-from backend.schemas.tool import ToolDefinition, ToolCategory
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.context import Context
 from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 from backend.tools.base import BaseTool
