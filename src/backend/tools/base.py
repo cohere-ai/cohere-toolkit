@@ -18,7 +18,7 @@ def check_tool_parameters(tool_definition: ToolDefinition) -> None:
     def decorator(func):
         def wrapper(self, *args, **kwargs):
             parameter_definitions = tool_definition(self).parameter_definitions
-            passed_method_params = kwargs.get("parameters", {})
+            passed_method_params = kwargs.get("parameters", {}) or args[0]
             # Validate parameters
             for param, rules in parameter_definitions.items():
                 is_required = rules.get("required", False)
