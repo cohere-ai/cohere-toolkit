@@ -27,10 +27,13 @@ import { cn } from '@/utils';
  */
 export const SideNavPanel: React.FC<{ className?: string }> = ({ className = '' }) => {
   const asideRef = React.useRef<HTMLDivElement>(null);
-  const { isLeftPanelOpen } = useSettingsStore();
+  const { isLeftPanelOpen, isHotKeysDialogOpen, setIsHotKeysDialogOpen } = useSettingsStore();
   const isDesktop = useIsDesktop();
   const isMobile = !isDesktop;
   const navigateToNewChat = useNavigateToNewChat();
+  const openHotKeysDialog = () => {
+    setIsHotKeysDialogOpen(!isHotKeysDialogOpen);
+  };
 
   return (
     <Transition
@@ -113,6 +116,20 @@ export const SideNavPanel: React.FC<{ className?: string }> = ({ className = '' 
         <ConversationList />
 
         <footer className={cn('flex flex-col gap-4', { 'items-center': !isLeftPanelOpen })}>
+          <AgentsSidePanelButton
+            label={
+              <div className="group flex w-full items-center justify-between">
+                <Text>Hot keys</Text>
+                <Shortcut sequence={['⌘', 'K']} className="hidden group-hover:flex" />
+              </div>
+            }
+            tooltip="Hot keys"
+            iconName="menu"
+            theme="mushroom"
+            onClick={() => openHotKeysDialog()}
+            stretch
+          />
+
           <AgentsSidePanelButton
             label="Settings"
             tooltip="Settings"
