@@ -4,13 +4,14 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.crud import agent as agent_crud
 from backend.crud import deployment as deployment_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
+from backend.exceptions import DeploymentNotFoundError
+from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.tests.unit.factories import get_factory
 
 is_cohere_env_set = (
@@ -26,7 +27,7 @@ def test_create_agent_missing_name(
         "preamble": "test preamble",
         "temperature": 0.5,
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
@@ -43,7 +44,7 @@ def test_create_agent_missing_model(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
@@ -75,7 +76,7 @@ def test_create_agent_missing_user_id_header(
     request_json = {
         "name": "test agent",
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
     response = session_client.post("/v1/agents", json=request_json)
     assert response.status_code == 401
@@ -94,13 +95,10 @@ def test_create_agent_invalid_deployment(
         "deployment": "not a real deployment",
     }
 
-    response = session_client.post(
-        "/v1/agents", json=request_json, headers={"User-Id": user.id}
-    )
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": "Deployment not a real deployment not found or is not available in the Database."
-    }
+    with pytest.raises(DeploymentNotFoundError):
+        session_client.post(
+            "/v1/agents", json=request_json, headers={"User-Id": user.id}
+        )
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -113,14 +111,14 @@ def test_create_agent_deployment_not_in_db(
         "preamble": "test preamble",
         "temperature": 0.5,
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
-    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, CohereDeployment.name())
     deployment_crud.delete_deployment(session, cohere_deployment.id)
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
-    cohere_deployment = deployment_crud.get_deployment_by_name(session, ModelDeploymentName.CoherePlatform)
+    cohere_deployment = deployment_crud.get_deployment_by_name(session, CohereDeployment.name())
     deployment_models = cohere_deployment.models
     deployment_models_list = [model.name for model in deployment_models]
     assert response.status_code == 200
@@ -134,7 +132,7 @@ def test_create_agent_invalid_tool(
     request_json = {
         "name": "test agent",
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
         "tools": [ToolName.Calculator, "not a real tool"],
     }
 
@@ -470,7 +468,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         "preamble": "updated preamble",
         "temperature": 0.7,
         "model": "command-r",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
 
     response = session_client.put(
@@ -487,7 +485,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     assert updated_agent["preamble"] == "updated preamble"
     assert updated_agent["temperature"] == 0.7
     assert updated_agent["model"] == "command-r"
-    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
+    assert updated_agent["deployment"] == CohereDeployment.name()
 
 
 def test_partial_update_agent(session_client: TestClient, session: Session) -> None:
@@ -756,7 +754,7 @@ def test_update_agent_invalid_model(
 
     request_json = {
         "model": "not a real model",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
 
     response = session_client.put(
@@ -785,13 +783,10 @@ def test_update_agent_invalid_deployment(
         "deployment": "not a real deployment",
     }
 
-    response = session_client.put(
-        f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
-    )
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": "Deployment not a real deployment not found or is not available in the Database."
-    }
+    with pytest.raises(DeploymentNotFoundError):
+        session_client.put(
+            f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
+        )
 
 
 def test_update_agent_invalid_tool(

@@ -9,11 +9,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS
 from backend.database_models import get_session
 from backend.database_models.base import CustomFilterQuery
 from backend.main import app, create_app
-from backend.schemas.deployment import Deployment
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -165,43 +164,15 @@ def mock_available_model_deployments(request):
         MockSageMakerDeployment,
     )
 
-    is_available_values = getattr(request, "param", {})
+    # is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
-        ModelDeploymentName.CoherePlatform: Deployment(
-            id="cohere_platform",
-            name=ModelDeploymentName.CoherePlatform,
-            models=MockCohereDeployment.list_models(),
-            is_available=is_available_values.get(
-                ModelDeploymentName.CoherePlatform, True
-            ),
-            deployment_class=MockCohereDeployment,
-            env_vars=["COHERE_VAR_1", "COHERE_VAR_2"],
-        ),
-        ModelDeploymentName.SageMaker: Deployment(
-            id="sagemaker",
-            name=ModelDeploymentName.SageMaker,
-            models=MockSageMakerDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
-            deployment_class=MockSageMakerDeployment,
-            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
-        ),
-        ModelDeploymentName.Azure: Deployment(
-            id="azure",
-            name=ModelDeploymentName.Azure,
-            models=MockAzureDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.Azure, True),
-            deployment_class=MockAzureDeployment,
-            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
-        ),
-        ModelDeploymentName.Bedrock: Deployment(
-            id="bedrock",
-            name=ModelDeploymentName.Bedrock,
-            models=MockBedrockDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.Bedrock, True),
-            deployment_class=MockBedrockDeployment,
-            env_vars=["BEDROCK_VAR_1", "BEDROCK_VAR_2"],
-        ),
+        MockCohereDeployment.name(): MockCohereDeployment,
+        MockAzureDeployment.name(): MockAzureDeployment,
+        MockSageMakerDeployment.name(): MockSageMakerDeployment,
+        MockBedrockDeployment.name(): MockBedrockDeployment,
     }
 
-    with patch.dict(AVAILABLE_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
+    # with patch.dict(AVAILABLE_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
+    with patch("backend.config.deployments.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
+    # with patch.dict(ALL_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
         yield mock

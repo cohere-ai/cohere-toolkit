@@ -2,10 +2,10 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import ToolName
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
+from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.tests.unit.factories import get_factory
 
 
@@ -17,7 +17,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
         "preamble": "test preamble",
         "temperature": 0.5,
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
         "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
     }
 
@@ -58,7 +58,7 @@ def test_create_agent_with_tool_metadata(
         "preamble": "test preamble",
         "temperature": 0.5,
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
         "tools": [ToolName.Google_Drive, ToolName.Search_File],
         "tools_metadata": [
             {
@@ -112,7 +112,7 @@ def test_create_agent_missing_non_required_fields(
     request_json = {
         "name": "test agent",
         "model": "command-r-plus",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
 
     response = session_client.post(
@@ -155,7 +155,7 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
         "preamble": "updated preamble",
         "temperature": 0.7,
         "model": "command-r",
-        "deployment": ModelDeploymentName.CoherePlatform,
+        "deployment": CohereDeployment.name(),
     }
 
     response = session_client.put(
@@ -172,4 +172,4 @@ def test_update_agent(session_client: TestClient, session: Session, user) -> Non
     assert updated_agent["preamble"] == "updated preamble"
     assert updated_agent["temperature"] == 0.7
     assert updated_agent["model"] == "command-r"
-    assert updated_agent["deployment"] == ModelDeploymentName.CoherePlatform
+    assert updated_agent["deployment"] == CohereDeployment.name()

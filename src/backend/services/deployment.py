@@ -68,7 +68,7 @@ def get_deployment_definition(session: DBSessionDep, deployment_id: str) -> Depl
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_id)
 
-    return deployment.to_deployment_info()
+    return deployment.to_deployment_definition()
 
 def get_deployment_definition_by_name(session: DBSessionDep, deployment_name: str) -> DeploymentDefinition:
     definitions = get_deployment_definitions(session)
@@ -84,7 +84,7 @@ def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefiniti
     }
 
     installed_deployments = [
-        deployment.to_deployment_info()
+        deployment.to_deployment_definition()
         for deployment in AVAILABLE_MODEL_DEPLOYMENTS
         if deployment.name() not in db_deployments
     ]

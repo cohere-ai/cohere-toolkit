@@ -50,7 +50,7 @@ class BaseDeployment(ABC):
         return config.dict() if config else {}
 
     @classmethod
-    def to_deployment_info(cls) -> DeploymentDefinition:
+    def to_deployment_definition(cls) -> DeploymentDefinition:
         return DeploymentDefinition(
             id=cls.id(),
             name=cls.name(),

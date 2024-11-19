@@ -9,13 +9,13 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS
 from backend.database_models import get_session
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
-from backend.schemas.deployment import DeploymentDefinition
+# from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -184,35 +184,13 @@ def mock_available_model_deployments(request):
         MockSageMakerDeployment,
     )
 
-    is_available_values = getattr(request, "param", {})
+    # is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
-        ModelDeploymentName.CoherePlatform: DeploymentDefinition(
-            id="cohere_platform",
-            name=ModelDeploymentName.CoherePlatform,
-            models=MockCohereDeployment.list_models(),
-            is_available=is_available_values.get(
-                ModelDeploymentName.CoherePlatform, True
-            ),
-        ),
-        ModelDeploymentName.SageMaker: DeploymentDefinition(
-            id="sagemaker",
-            name=ModelDeploymentName.SageMaker,
-            models=MockSageMakerDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
-        ),
-        ModelDeploymentName.Azure: DeploymentDefinition(
-            id="azure",
-            name=ModelDeploymentName.Azure,
-            models=MockAzureDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.Azure, True),
-        ),
-        ModelDeploymentName.Bedrock: DeploymentDefinition(
-            id="bedrock",
-            name=ModelDeploymentName.Bedrock,
-            models=MockBedrockDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.Bedrock, True),
-        ),
+        MockCohereDeployment.name(): MockCohereDeployment,
+        MockAzureDeployment.name(): MockAzureDeployment,
+        MockSageMakerDeployment.name(): MockSageMakerDeployment,
+        MockBedrockDeployment.name(): MockBedrockDeployment,
     }
 
-    with patch.dict(AVAILABLE_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
+    with patch.dict(ALL_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
         yield mock

@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from backend.config.deployments import ModelDeploymentName
 from backend.database_models.user import User
+from backend.model_deployments.single_container import SingleContainerDeployment
 from backend.tests.unit.model_deployments.mock_deployments import (
     MockSingleContainerDeployment,
 )
@@ -18,7 +18,7 @@ def test_streamed_chat(
         "/v1/chat-stream",
         headers={
             "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.SingleContainer,
+            "Deployment-Name": SingleContainerDeployment.name(),
         },
         json={"message": "Hello", "max_tokens": 10},
     )
@@ -35,7 +35,7 @@ def test_non_streamed_chat(
         "/v1/chat",
         headers={
             "User-Id": user.id,
-            "Deployment-Name": ModelDeploymentName.CoherePlatform,
+            "Deployment-Name": SingleContainerDeployment.name(),
         },
         json={"message": "Hello", "max_tokens": 10},
     )

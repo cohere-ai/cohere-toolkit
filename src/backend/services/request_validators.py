@@ -33,9 +33,9 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
         HTTPException: If the deployment and model are not compatible
 
     """
-    found = deployment_service.get_deployment_info_by_name(session, deployment)
+    found = deployment_service.get_deployment_definition_by_name(session, deployment)
     if not found:
-        found = deployment_service.get_deployment_info(session, deployment)
+        found = deployment_service.get_deployment_definition(session, deployment)
     if not found:
         raise HTTPException(
             status_code=400,
@@ -43,11 +43,19 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
         )
 
     # Validate model
+    # deployment_model = next(
+    #     (
+    #         model_db
+    #         for model_db in found.models
+    #         if model_db.name == model or model_db.id == model
+    #     ),
+    #     None,
+    # )
     deployment_model = next(
         (
             model_db
             for model_db in found.models
-            if model_db.name == model or model_db.id == model
+            if model_db == model
         ),
         None,
     )

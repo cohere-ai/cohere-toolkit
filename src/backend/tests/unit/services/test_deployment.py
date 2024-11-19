@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from backend.config.deployments import (
+from backend.services.deployment import (
     get_default_deployment,
 )
 from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform import (
