@@ -91,8 +91,7 @@ class BaseTool(metaclass=ParametersCheckingMeta):
     @abstractmethod
     async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
-        ...
+    ) -> List[Dict[str, Any]]: ...
 
 
 class BaseToolAuthentication(ABC):
