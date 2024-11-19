@@ -14,7 +14,46 @@ from backend.services.logger.utils import LoggerFactory
 logger = LoggerFactory().get_logger()
 
 
-class BaseTool():
+def check_tool_parameters(tool_definition: ToolDefinition) -> None:
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            parameter_definitions = tool_definition(self).parameter_definitions
+            passed_method_params = kwargs.get("parameters", {})
+            # Validate parameters
+            for param, rules in parameter_definitions.items():
+                is_required = rules.get("required", False)
+                if param not in passed_method_params:
+                    if is_required:
+                        raise ValueError(f"Model didn't pass required parameter: {param}")
+                else:
+                    value = passed_method_params[param]
+                    expected_type = eval(rules["type"])
+                    if not value and is_required:
+                        raise ValueError(f"Model passed empty value for required parameter: {param}")
+                    if not isinstance(value, expected_type):
+                        raise TypeError(
+                            f"Model passed invalid parameter. Parameter '{param}' must be of type {rules['type']}, but got {type(value).__name__}"
+                        )
+
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+class ParametersCheckingMeta(type):
+    def __new__(cls, name, bases, dct):
+        for attr_name, attr_value in dct.items():
+            if callable(attr_value) and attr_name == "call":
+                # Decorate methods with the parameter checker
+                dct[attr_name] = check_tool_parameters(
+                    lambda self: self.__class__.get_tool_definition()
+                )(attr_value)
+        return super().__new__(cls, name, bases, dct)
+
+
+class BaseTool(metaclass=ParametersCheckingMeta):
     """
     Abstract base class for all Tools.
 
@@ -32,11 +71,13 @@ class BaseTool():
 
     @classmethod
     @abstractmethod
-    def is_available(cls) -> bool: ...
+    def is_available(cls) -> bool:
+        ...
 
     @classmethod
     @abstractmethod
-    def get_tool_definition(cls) -> ToolDefinition: ...
+    def get_tool_definition(cls) -> ToolDefinition:
+        ...
 
     @classmethod
     def generate_error_message(cls) -> str | None:
@@ -51,8 +92,9 @@ class BaseTool():
 
     @abstractmethod
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]: ...
+            self, parameters: dict, ctx: Any, **kwargs: Any
+    ) -> List[Dict[str, Any]]:
+        ...
 
 
 class BaseToolAuthentication(ABC):
@@ -69,11 +111,11 @@ class BaseToolAuthentication(ABC):
 
     def _post_init_check(self):
         if any(
-            [
-                self.BACKEND_HOST is None,
-                self.FRONTEND_HOST is None,
-                self.AUTH_SECRET_KEY is None,
-            ]
+                [
+                    self.BACKEND_HOST is None,
+                    self.FRONTEND_HOST is None,
+                    self.AUTH_SECRET_KEY is None,
+                ]
         ):
             raise ValueError(
                 "Tool Authentication requires auth.backend_hostname, auth.frontend_hostname in configuration.yaml, "
@@ -81,7 +123,8 @@ class BaseToolAuthentication(ABC):
             )
 
     @abstractmethod
-    def get_auth_url(self, user_id: str) -> str: ...
+    def get_auth_url(self, user_id: str) -> str:
+        ...
 
     def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool:
         auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
@@ -114,13 +157,15 @@ class BaseToolAuthentication(ABC):
 
     @abstractmethod
     def try_refresh_token(
-        self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
-    ) -> bool: ...
+            self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth
+    ) -> bool:
+        ...
 
     @abstractmethod
     def retrieve_auth_token(
-        self, request: Request, session: DBSessionDep, user_id: str
-    ) -> str: ...
+            self, request: Request, session: DBSessionDep, user_id: str
+    ) -> str:
+        ...
 
     def get_token(self, session: DBSessionDep, user_id: str) -> str:
         tool_auth = tool_auth_crud.get_tool_auth(session, self.TOOL_ID, user_id)
