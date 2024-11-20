@@ -1,0 +1,44 @@
+deployments:
+  default_deployment: cohere_platform
+  enabled_deployments:
+    - cohere_platform
+    - sagemaker
+    - azure
+    - bedrock
+  sagemaker:
+    region_name:
+    endpoint_name:
+  azure:
+    endpoint_url:
+  bedrock:
+    region_name:
+  single_container:
+    model:
+    url:
+database:
+  url: postgresql+psycopg2://postgres:postgres@toolkitpostgre.postgres.database.azure.com:5432
+redis:
+  url:
+tools:
+  hybrid_web_search:
+    # List of web search tool names, eg: google_web_search, tavily_web_search
+    enabled_web_searches:
+      - tavily_web_search
+  python_interpreter:
+    url: http://terrarium:8080
+  slack:
+    user_scopes:
+      - search:read
+feature_flags:
+  # Experimental features
+  use_agents_view: true
+  # Community features
+  use_community_features: true
+auth:
+  enabled_auth:
+  backend_hostname: https://toolkit-app.azurewebsites.net/api
+  frontend_hostname: https://toolkit-app.azurewebsites.net
+logger:
+  strategy: structlog
+  renderer: console
+  level: info
