@@ -1,0 +1,48 @@
+services:
+  backend:
+    image: "toolkitregistry.azurecr.io/toolkit-app-api"
+    stdin_open: true
+    tty: true
+    expose:
+      - "8000"
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://postgres:postgres@toolkitpostgre.postgres.database.azure.com:5432"
+    networks:
+      - proxynet
+
+  frontend:
+    image: "toolkitregistry.azurecr.io/toolkit-app-fe"
+    environment:
+      API_HOSTNAME: http://backend:8000
+      NEXT_PUBLIC_API_HOSTNAME: '/api'
+      NEXT_PUBLIC_FRONTEND_HOSTNAME: 'https://toolkit-app.azurewebsites.net'
+      NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}
+      NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: ${NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY}
+    restart: always
+    expose:
+      - "4000"
+    networks:
+      - proxynet
+
+
+  terrarium:
+    image: "toolkitregistry.azurecr.io/toolkit-app-terrarium"
+    expose:
+      - "8080"
+    networks:
+      - proxynet
+
+  nginx:
+      restart: always
+      image: "toolkitregistry.azurecr.io/toolkit-app-nginx"
+      ports:
+        - "80:80"
+      depends_on:
+        - backend
+        - frontend
+      networks:
+        - proxynet
+
+networks:
+  proxynet:
+    name: toolkit-net
