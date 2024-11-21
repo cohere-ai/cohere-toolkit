@@ -1,5 +1,7 @@
 import argparse
 
+from dotenv import dotenv_values
+
 from backend.cli.constants import COMMUNITY_TOOLS, TOOLS
 from backend.cli.prompts import (
     PROMPTS,
@@ -33,7 +35,7 @@ def start():
 
     show_welcome_message()
 
-    secrets = {}
+    secrets = dotenv_values()
 
     # SET UP ENVIRONMENT
     for _, prompt in PROMPTS.items():
