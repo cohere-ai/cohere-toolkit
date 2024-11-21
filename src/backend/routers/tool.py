@@ -55,7 +55,11 @@ def list_tools(
                     session, user_id
                 )
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
-                tool.token = tool_auth_service.get_token(session, user_id)
+
+                # Return access token to client when needed - defaults to False
+                # e.g: Google Drive picker
+                if tool.should_return_token:
+                    tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:
                 logger.error(event=f"Error while fetching Tool Auth: {str(e)}")
                 tool.is_auth_required = True

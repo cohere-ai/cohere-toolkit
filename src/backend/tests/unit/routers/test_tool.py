@@ -1,10 +1,16 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+import pytest 
+from unittest.mock import patch
 
 from backend.config.tools import Tool, get_available_tools
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
+@pytest.fixture()
+def mock_get_available_tools():
+    with patch("backend.chat.custom.custom.get_deployment") as mock:
+        yield mock
 
 def test_list_tools(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/tools")
