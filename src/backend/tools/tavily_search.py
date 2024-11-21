@@ -69,7 +69,7 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
 
         results = result.get("results", [])
 
-        if "results" not in result or not results:
+        if not results:
             return self.get_no_results_error()
 
         tool_results = []
