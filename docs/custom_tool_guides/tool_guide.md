@@ -3,11 +3,14 @@ Follow these instructions to create your own custom tools.
 
 For information on how to add authentication to your tool, please refer to the [Tool Auth guide.](/docs/custom_tool_guides/tool_auth_guide.md)
 
-Custom tools will need to be built in the `community` folder. Make sure you've enabled the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` file by setting it to `true`.
+If you'd like to contribute a custom tool to the main repository, please make sure to add it to the `community` folder . Make sure you've enabled the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` file by setting it to `true`.
+
+If you've forked the repo and want to customize Toolkit to your liking, then feel free to add it anywhere.
 
 ## Step 1: Choose a Tool to Implement
+A tool is anything that can retrieve data to augment the chat experience with RAG.
 
-You can take a tool code implementation easily from: 
+You can easily add a tool from Langchain or LlamaIndex by importing the required libraries, or write your own custom implementation.
 
 - LangChain
     - Tools: [Tools | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/tools/)
@@ -19,37 +22,34 @@ You can take a tool code implementation easily from:
     - https://github.com/cohere-ai/quick-start-connectors
 - Custom implementation
 
-## Step 2: Select Your Tool Type
+## Step 2: Add your Tool code implementation
 
-There are three types of tools:
+Add your tool implementation in the `community` folder [here.](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tools)
 
-- Data Loader: This tool type retrieves data from a source. Examples include the LangChain Wikipedia retriever and Arxiv.
-- File Loader: This tool type loads and parses files. Examples include the LangChain Vector DB Retriever and LlamaIndex Upload PDF Retriever.
-- Function: This is a unique tool type that performs a specific action. Examples include the Python Interpreter and Calculator.
-
-## Step 3: Implement the Tool
-
-Add your tool implementation [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tools) (please note that this link is subject to change).
+In a fork, feel free to add it directly to the `backend` folder.
 
 If you need to install a new library to run your tool, execute the following command and run `make dev` again.
 
 ```bash
 poetry add <MODULE> --group community
 ```
-### Implementing a Langchain Tool
+### Langchain Tool example
+Below is an example of adding a Langchain tool using their SDK.
 
-Add the implementation inside a tool class that inherits from `BaseTool`. This class will need to implement the `call()` method, which should return a list of dictionary results.
+To implement a tool, you will need to inherit from the `BaseTool` abstract class. You'll need to implement the following methods:
+    - `is_available`: Should return True/False depending on if the tool is available during runtime. Often this will involve checking for example an API key is set, if it is required.
+    - `get_tool_definition`: Should return the config for your tool. See existing implementations for details.
+    - `call`: The main method that is called during chat. This should return a list of dictionary results. For best model performance, each dictionary entry should be serialized to contain at minimum a `text` field. Optionally, a `url` and `title` fields can be added to include more metadata for citations.
 
-Note: To enable citations, each result in the list should contain a "text" field.
-
-For example, let's look at the community-implemented `ArxivRetriever`:
+Let's take a look at the community-implemented `ArxivRetriever`:
 
 ```python
 from typing import Any, Dict, List
 
 from langchain_community.utilities import ArxivAPIWrapper
 
-from community.tools import BaseTool
+from backend.schemas.tool import ToolCategory, ToolDefinition
+from backend.tools.base import BaseTool
 
 
 class ArxivRetriever(BaseTool):
@@ -59,16 +59,13 @@ class ArxivRetriever(BaseTool):
         self.client = ArxivAPIWrapper()
 
     @classmethod
-    # If your tool requires any environment variables such as API keys,
-    # you will need to assert that they're not None here
     def is_available(cls) -> bool:
         return True
 
     @classmethod
-    # You will need to add a tool definition here
     def get_tool_definition(cls) -> ToolDefinition:
         return ToolDefinition(
-            name=cls.ID,    
+            name=cls.ID,
             display_name="Arxiv",
             implementation=cls,
             parameter_definitions={
@@ -85,39 +82,52 @@ class ArxivRetriever(BaseTool):
             description="Retrieves documents from Arxiv.",
         )
 
-    # Your tool needs to implement this call() method
-    def call(self, parameters: str, **kwargs: Any) -> List[Dict[str, Any]]:
-        result = self.client.run(parameters)
-
-        return [{"text": result}] # <- Return list of results, in this case there is only one
+    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+        query = parameters.get("query", "")
+        result = self.client.run(query)
+        return [{"text": result}]
 ```
 
-### Implementing a Custom Tool
+Important: the call() method is where the tool call itself happens, i.e: this is where you want to perform your business logic (API call, data ETL, hardcoded response, etc). 
 
-In the tools folder, add a new file for your custom tool implementation. As a starting point, we recommend copy pasting the existing Calculator tool. Modify the class name and `NAME` attribute to suit your tool.
-
-IMPORTANT: the call() method is where the tool call itself happens, i.e: this is where you want to perform your business logic (API call, data ETL, hardcoded response, etc). You can set custom parameters that you can use with the `parameter_definitions` key when specifying your tool config (see below). The return value of this tool MUST BE a list of dictionaries that have the text (required), url (optional), title (optional) fields as keys.
+The return value of this tool MUST BE a list of dictionaries that have the text (required), url (optional), title (optional) fields as keys.
 
 For example:
 ```python
 return [{"text": "The fox is blue", "url": "wikipedia.org/foxes", "title": "Color of foxes"}, {..}, {..}]
 ```
 
+### Custom Parameters
+You can set custom parameters that you can use with the `parameter_definitions` key when specifying your tool config.
+
+These parameters are automatically generated by Command during the chat process. For example, if you define 
+
+```python
+parameter_definitions={
+    "query": {
+        "description": "Query for retrieval.",
+        "type": "str",
+        "required": True,
+    }
+},
+```
+for some search API, Command will generate an appropriate query to the tool based on your prompt.
+
+## Step 3: Importing your Tool
+
 Next, add your tool class to the init file by locating it in `src/community/tools/__init__.py`. Import your tool here, then add it to the `__all__` list.
 
 Finally, you will need to add your tool definition to the config file. Locate it in `src/community/config/tools.py`, and import your tool at the top with `from backend.tools import ..`. 
 
-Finally, to enable your tool, add your tool as an enum value. For example, `My_Tool = MyToolClass`.
+Finally, to enable your tool, add your tool class as an enum value in the `Tool` enum. For example, `My_Tool = MyToolClass`.
 
-## Step 5: Test Your Tool!
+## Step 4: Test Your Tool!
 
 Now, when you run the toolkit, all the visible tools, including the one you just added, should be available!
 
 - Run `make dev`
 - Open [http://localhost:4000/](http://localhost:4000/)
-- Open the side panel
-- Your tool should be there!
-- Select it and send a message that triggers it
+- Toggle your tool and send a message that triggers it
 - Appreciate a grounded response with something ✨you created from scratch✨!
 
 Remember, you can also access your tools via the API.
@@ -144,6 +154,6 @@ curl --location 'http://localhost:8000/v1/chat-stream' \
 '
 ```
 
-## Step 6 (extra): Add Unit tests
+## Step 5 (extra): Add Unit tests
 
 If you would like to go above and beyond, it would be helpful to add some unit tests to ensure that your tool is working as expected. Create a file [here](https://github.com/cohere-ai/cohere-toolkit/tree/main/src/community/tests/tools) and add a few test cases.

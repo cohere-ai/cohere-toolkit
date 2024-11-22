@@ -1,28 +1,29 @@
 'use client';
 
-import { useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 import { CustomHotKey, type HotKeyGroupOption, HotKeysDialog } from '@/components/HotKeys';
+import { useSettingsStore } from '@/stores';
 
 type HotKeysProviderProps = {
   hotKeys: HotKeyGroupOption[];
 };
 
 export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ hotKeys = [] }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { isHotKeysDialogOpen, setIsHotKeysDialogOpen } = useSettingsStore();
+
   const open = () => {
-    setIsDialogOpen(true);
+    setIsHotKeysDialogOpen(true);
   };
 
   const close = () => {
-    setIsDialogOpen(false);
+    setIsHotKeysDialogOpen(false);
   };
 
   useHotkeys(
     ['ctrl+k', 'meta+k'],
     () => {
-      if (isDialogOpen) {
+      if (isHotKeysDialogOpen) {
         close();
         return;
       }
@@ -31,12 +32,12 @@ export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ hotKeys = [] }
     {
       enableOnFormTags: true,
     },
-    [isDialogOpen, close, open]
+    [isHotKeysDialogOpen, close, open]
   );
 
   return (
     <>
-      <HotKeysDialog isOpen={isDialogOpen} close={close} options={hotKeys} />
+      <HotKeysDialog isOpen={isHotKeysDialogOpen} close={close} options={hotKeys} />
       {hotKeys
         .map((hk) => hk.quickActions)
         .flat()
@@ -45,7 +46,7 @@ export const HotKeysProvider: React.FC<HotKeysProviderProps> = ({ hotKeys = [] }
           <HotKeyRegisterAction
             key={hk.name}
             hotKey={hk}
-            isDialogOpen={isDialogOpen}
+            isDialogOpen={isHotKeysDialogOpen}
             close={close}
           />
         ))}

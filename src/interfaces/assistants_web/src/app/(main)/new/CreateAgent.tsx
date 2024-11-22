@@ -9,8 +9,8 @@ import { AgentSettingsFields, AgentSettingsForm } from '@/components/AgentSettin
 import { MobileHeader } from '@/components/Global';
 import { Button, Icon, Text } from '@/components/UI';
 import {
+  BACKGROUND_TOOLS,
   DEFAULT_AGENT_MODEL,
-  DEFAULT_AGENT_TOOLS,
   DEFAULT_PREAMBLE,
   DEPLOYMENT_COHERE_PLATFORM,
 } from '@/constants';
@@ -23,7 +23,7 @@ const DEFAULT_FIELD_VALUES = {
   preamble: DEFAULT_PREAMBLE,
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
-  tools: DEFAULT_AGENT_TOOLS,
+  tools: BACKGROUND_TOOLS,
   is_private: false,
 };
 /**

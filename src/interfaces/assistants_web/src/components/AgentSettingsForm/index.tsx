@@ -83,7 +83,8 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_GOOGLE_DRIVE_ID)
       ?.artifacts as DataSourceArtifact[]
   );
-  // read_file and search_file have identical metadata -> using read_file as base
+
+  // read_file and search_file have identical metadata -> use read_file as base
   const [defaultUploadFiles, setDefaultUploadFiles] = useState<DataSourceArtifact[]>(
     fields.tools_metadata?.find((metadata) => metadata.tool_name === TOOL_READ_DOCUMENT_ID)
       ?.artifacts as DataSourceArtifact[]
@@ -258,7 +259,7 @@ export const AgentSettingsForm: React.FC<Props> = (props) => {
       <CollapsibleSection
         title="Set default tools"
         number={4}
-        description="Select which external tools will be on by default in order to enhance the assistant’s capabilities and expand its foundational knowledge."
+        description="Select which tools should be available to enhance the assistant’s capabilities and expand its foundational knowledge."
         isExpanded={currentStep === 'tools'}
         setIsExpanded={(expanded) => setCurrentStep(expanded ? 'tools' : undefined)}
       >

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.config.default_agent import DEFAULT_AGENT_ID, get_default_agent
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
@@ -71,9 +72,9 @@ router.name = RouterName.AGENT
     ],
 )
 async def create_agent(
-        session: DBSessionDep,
-        agent: CreateAgentRequest,
-        ctx: Context = Depends(get_context),
+    session: DBSessionDep,
+    agent: CreateAgentRequest,
+    ctx: Context = Depends(get_context),
 ) -> AgentPublic:
     """
     Create an agent.
@@ -127,13 +128,13 @@ async def create_agent(
 
 @router.get("", response_model=list[AgentPublic])
 async def list_agents(
-        *,
-        offset: int = 0,
-        limit: int = 100,
-        session: DBSessionDep,
-        visibility: AgentVisibility = AgentVisibility.ALL,
-        organization_id: Optional[str] = None,
-        ctx: Context = Depends(get_context),
+    *,
+    offset: int = 0,
+    limit: int = 100,
+    session: DBSessionDep,
+    visibility: AgentVisibility = AgentVisibility.ALL,
+    organization_id: Optional[str] = None,
+    ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
     """
     List all agents.
@@ -163,6 +164,8 @@ async def list_agents(
             visibility=visibility,
             organization_id=organization_id,
         )
+        # Tradeoff: This appends the default Agent regardless of pagination
+        agents.append(get_default_agent())
         return agents
     except Exception as e:
         logger.exception(event=e)
@@ -171,8 +174,8 @@ async def list_agents(
 
 @router.get("/{agent_id}", response_model=AgentPublic)
 async def get_agent_by_id(
-        agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
-) -> Agent:
+    agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+) -> AgentPublic:
     """
     Args:
         agent_id (str): Agent ID.
@@ -189,7 +192,11 @@ async def get_agent_by_id(
     agent = None
 
     try:
-        agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
+        # Intentionally not adding Default Agent to DB so it's more flexible
+        if agent_id == DEFAULT_AGENT_ID:
+            agent = get_default_agent()
+        else:
+            agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

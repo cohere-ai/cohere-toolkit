@@ -85,4 +85,4 @@ export const TOOL_ID_TO_ICON: { [id: string]: StaticImport } = {
 };
 
 export const MAX_TIMEOUT_PREFETCH = 5000;
-export const DEFAULT_AGENT_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
+export const BACKGROUND_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];

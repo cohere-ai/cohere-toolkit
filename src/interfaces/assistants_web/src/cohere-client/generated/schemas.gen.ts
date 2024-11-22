@@ -6,6 +6,17 @@ export const $AgentPublic = {
       type: 'string',
       title: 'User Id',
     },
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
     id: {
       type: 'string',
       title: 'Id',
@@ -2928,23 +2939,6 @@ export const $Tool = {
       title: 'Name',
       default: '',
     },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
     parameter_definitions: {
       anyOf: [
         {
@@ -3040,23 +3034,6 @@ export const $ToolDefinition = {
       title: 'Name',
       default: '',
     },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
     parameter_definitions: {
       anyOf: [
         {
@@ -3068,6 +3045,28 @@ export const $ToolDefinition = {
       ],
       title: 'Parameter Definitions',
       default: {},
+    },
+    display_name: {
+      type: 'string',
+      title: 'Display Name',
+      default: '',
+    },
+    description: {
+      type: 'string',
+      title: 'Description',
+      default: '',
+    },
+    error_message: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error Message',
+      default: '',
     },
     kwargs: {
       type: 'object',
@@ -3083,18 +3082,6 @@ export const $ToolDefinition = {
       type: 'boolean',
       title: 'Is Available',
       default: false,
-    },
-    error_message: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Error Message',
-      default: '',
     },
     category: {
       $ref: '#/components/schemas/ToolCategory',

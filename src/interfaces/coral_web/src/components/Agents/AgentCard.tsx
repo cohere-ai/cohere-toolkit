@@ -26,7 +26,7 @@ import { getCohereColor } from '@/utils/getCohereColor';
 type Props = {
   isExpanded: boolean;
   name: string;
-  isBaseAgent?: boolean;
+  isDefaultAgent?: boolean;
   id?: string;
 };
 
@@ -35,14 +35,14 @@ type Props = {
  * It shows the agent's name and a colored icon with the first letter of the agent's name.
  * If the agent is a base agent, it shows the Coral logo instead.
  */
-export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }) => {
+export const AgentCard: React.FC<Props> = ({ name, id, isDefaultAgent, isExpanded }) => {
   const isTouchDevice = getIsTouchDevice();
   const { conversationId } = useChatRoutes();
   const router = useRouter();
   const pathname = usePathname();
   const { data: conversations } = useConversations({ agentId: id });
 
-  const isActive = isBaseAgent
+  const isActive = isDefaultAgent
     ? conversationId
       ? pathname === `/c/${conversationId}`
       : pathname === '/'
@@ -74,7 +74,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
       conversations?.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0]?.id ??
       '';
     const conversationPath = newestConversationId ? `c/${newestConversationId}` : '';
-    const url = isBaseAgent
+    const url = isDefaultAgent
       ? `/c/${newestConversationId}`
       : id
       ? `/a/${id}/${conversationPath}`
@@ -84,7 +84,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   };
 
   const handleNewChat = () => {
-    const url = isBaseAgent ? `/c` : id ? `/a/${id}` : '/';
+    const url = isDefaultAgent ? `/c` : id ? `/a/${id}` : '/';
     router.push(url, undefined);
     setEditAgentPanelOpen(false);
     resetConversationSettings();
@@ -127,12 +127,12 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
             'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded duration-300',
             id && getCohereColor(id),
             {
-              'bg-mushroom-700': isBaseAgent,
+              'bg-mushroom-700': isDefaultAgent,
             }
           )}
         >
-          {isBaseAgent && <CoralLogo style="secondary" />}
-          {!isBaseAgent && (
+          {isDefaultAgent && <CoralLogo style="secondary" />}
+          {!isDefaultAgent && (
             <Text className="uppercase text-white" styleAs="p-lg">
               {name[0]}
             </Text>
@@ -150,7 +150,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
         </Transition>
         <Transition
           as="div"
-          show={isExpanded && !isBaseAgent}
+          show={isExpanded && !isDefaultAgent}
           enter="transition-opacity duration-100 ease-in-out delay-300 duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
