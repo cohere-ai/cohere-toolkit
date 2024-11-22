@@ -1,8 +1,10 @@
 import datetime
 from abc import ABC, abstractmethod
+from enum import StrEnum
 from typing import Any, Dict, List
 
 from fastapi import Request
+from pydantic import BaseModel
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
@@ -13,6 +15,21 @@ from backend.services.logger.utils import LoggerFactory
 
 logger = LoggerFactory().get_logger()
 
+class ToolErrorCode(StrEnum):
+    HTTP_ERROR = "http_error"
+    AUTH = "auth"
+    OTHER = "other"
+
+class ToolAuthException(Exception):
+    def __init__(self, message, tool_id: str):
+        self.message = message
+        self.tool_id = tool_id
+
+class ToolError(BaseModel, extra="allow"):
+    type: ToolErrorCode = ToolErrorCode.OTHER
+    success: bool = False
+    text: str
+    details: str = ""
 
 class BaseTool():
     """
@@ -47,6 +64,16 @@ class BaseTool():
 
     @classmethod
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None: ...
+
+    @classmethod
+    def get_tool_error(cls, err: ToolError):
+        tool_error = err.model_dump()
+        logger.error(event=f"Error calling tool {cls.ID}", error=tool_error)
+        return [tool_error]
+
+    @classmethod
+    def get_no_results_error(cls):
+        return cls.get_tool_error(ToolError(text="No results found."))
 
     @abstractmethod
     async def call(
@@ -135,8 +162,3 @@ class BaseToolAuthentication(ABC):
             )
             raise
 
-
-class ToolAuthException(Exception):
-    def __init__(self, message, tool_id: str):
-        self.message = message
-        self.tool_id = tool_id
