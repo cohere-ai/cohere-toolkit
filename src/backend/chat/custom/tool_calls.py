@@ -9,6 +9,7 @@ from backend.config.tools import get_available_tools
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
+from backend.tools.base import ToolAuthException, ToolError, ToolErrorCode
 
 TIMEOUT_SECONDS = 60
 
@@ -76,8 +77,8 @@ async def _call_tool_async(
     tool_call: dict,
     deployment_model: BaseDeployment,
 ) -> List[Dict[str, Any]]:
-    tool = get_available_tools().get(tool_call["name"])
-    if not tool:
+    tool_definition = get_available_tools().get(tool_call["name"])
+    if not tool_definition:
         logger.info(
             event=f"[Custom Chat] Tool not included in tools parameter: {tool_call['name']}",
         )
@@ -89,8 +90,10 @@ async def _call_tool_async(
         ]
         return outputs
 
+    tool = tool_definition.implementation()
+
     try:
-        outputs = await tool.implementation().call(
+        outputs = await tool.call(
             parameters=tool_call.get("parameters"),
             ctx=ctx,
             session=db,
@@ -101,23 +104,28 @@ async def _call_tool_async(
             conversation_id=ctx.get_conversation_id(),
             agent_tool_metadata=ctx.get_agent_tool_metadata(),
         )
-    except Exception as e:
-        logger.exception(
-            event=f"[Custom Chat] Error while calling tool {tool_call['name']}: {str(e)}",
-            error=str(e),
-        )
-        outputs = [
+    except ToolAuthException as e:
+        return [
             {
                 "call": tool_call,
-                "outputs": [{"error": str(e), "status_code": 500, "success": False}],
+                "outputs": tool.get_tool_error(
+                    ToolError(
+                        text="Tool authentication failed",
+                        details=str(e),
+                        type=ToolErrorCode.AUTH,
+                    )
+                ),
             }
         ]
-        return outputs
+    except Exception as e:
+        return [
+            {
+                "call": tool_call,
+                "outputs": tool.get_tool_error(ToolError(text=str(e))),
+            }
+        ]
 
     # If the tool returns a list of outputs, append each output to the tool_results list
     # Otherwise, append the single output to the tool_results list
     outputs = outputs if isinstance(outputs, list) else [outputs]
-    tool_results = []
-    for output in outputs:
-        tool_results.append({"call": tool_call, "outputs": [output]})
-    return tool_results
+    return [{"call": tool_call, "outputs": outputs}]
