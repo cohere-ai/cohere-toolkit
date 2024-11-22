@@ -20,7 +20,6 @@ def mock_get_available_tools():
 
 
 def test_async_call_tools_success(mock_get_available_tools) -> None:
-
     class MockCalculator(BaseTool):
         ID = "toolkit_calculator"
         @classmethod
@@ -117,9 +116,7 @@ def test_async_call_tools_failure(mock_get_available_tools) -> None:
                 "name": "toolkit_calculator",
                 "parameters": {"code": "6*7"},
             },
-            "outputs": [
-                {"error": "Calculator failed", "status_code": 500, "success": False}
-            ],
+            "outputs": [{'type': 'other', 'success': False, 'text': 'Calculator failed', 'details': ''}],
         },
     ]
 
@@ -250,6 +247,7 @@ def test_async_call_tools_failure_and_success(mock_get_available_tools) -> None:
     results = asyncio.run(
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
+
     assert {
         "call": {"name": "web_scrape", "parameters": {"code": "6*7"}},
         "outputs": [
