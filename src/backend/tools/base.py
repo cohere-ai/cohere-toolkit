@@ -126,8 +126,7 @@ class BaseTool(metaclass=ParametersCheckingMeta):
         return f"{cls.__name__} is not available. Please make sure all required config variables are set."
 
     @classmethod
-    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
-        pass
+    def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None: ...
 
     @abstractmethod
     async def call(
