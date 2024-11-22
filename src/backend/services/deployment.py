@@ -41,7 +41,7 @@ def get_default_deployment() -> type[BaseDeployment]:
             (
                 d
                 for d in AVAILABLE_MODEL_DEPLOYMENTS
-                if d.id == default_deployment
+                if d.id() == default_deployment
             ),
             fallback,
         )

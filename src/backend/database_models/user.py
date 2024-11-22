@@ -28,7 +28,7 @@ class UserGroupAssociation(Base):
     )
     display: Mapped[str] = mapped_column()
 
-    group = relationship("Group", back_populates="user_associations")
+    group = relationship("Group", back_populates="user_associations", overlaps="groups,user_associations,users")
 
 
 class User(Base):

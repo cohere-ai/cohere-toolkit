@@ -18,15 +18,7 @@ class Model(Base):
     )
 
     deployment = relationship("Deployment", back_populates="models")
-    agent_deployment_associations = relationship(
-        "AgentDeploymentModel", back_populates="model"
-    )
-    agents = relationship(
-        "Agent",
-        secondary="agent_deployment_model",
-        back_populates="models",
-        overlaps="deployments,models,agents,agent,agent_deployment_associations,model",
-    )
+
 
     def __str__(self):
         return self.name

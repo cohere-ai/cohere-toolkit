@@ -42,7 +42,7 @@ class WebSearchFilteringMixin:
         agent_tool_metadata = agent_tool_metadata_crud.get_agent_tool_metadata(
             db=session,
             agent_id=agent_id,
-            tool_name=self.NAME,
+            tool_name=self.ID,
             user_id=user_id,
         )
 

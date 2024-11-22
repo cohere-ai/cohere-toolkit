@@ -6,7 +6,6 @@ on:
     paths:
       - src/interfaces/assistants_web/**
   pull_request: {}
-  merge_group: {}
 
 jobs:
   interface_tests:

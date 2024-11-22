@@ -2,7 +2,7 @@ import os
 
 from sqlalchemy.orm import Session
 
-from backend.database_models import AgentDeploymentModel, Deployment
+from backend.database_models import Deployment
 from backend.model_deployments.utils import class_name_validator
 from backend.schemas.deployment import (
     DeploymentCreate,
@@ -92,69 +92,8 @@ def get_available_deployments(
     """
     all_deployments = db.query(Deployment).all()
     return [deployment for deployment in all_deployments if deployment.is_available][
-        offset : offset + limit
+        offset: offset + limit
     ]
-
-
-def get_deployments_by_agent_id(
-    db: Session, agent_id: str, offset: int = 0, limit: int = 100
-) -> list[Deployment]:
-    """
-    List all deployments by user id
-
-    Args:
-        db (Session): Database session.
-        agent_id (str): User ID
-        offset (int): Offset to start the list.
-        limit (int): Limit of deployments to be listed.
-
-    Returns:
-        list[Deployment]: List of deployments.
-    """
-    return (
-        db.query(Deployment)
-        .join(
-            AgentDeploymentModel,
-            Deployment.id == AgentDeploymentModel.deployment_id,
-        )
-        .filter(AgentDeploymentModel.agent_id == agent_id)
-        .limit(limit)
-        .offset(offset)
-        .all()
-    )
-
-
-def get_available_deployments_by_agent_id(
-    db: Session, agent_id: str, offset: int = 0, limit: int = 100
-) -> list[Deployment]:
-    """
-    List all deployments by user id
-
-    Args:
-        db (Session): Database session.
-        agent_id (str): User ID
-        offset (int): Offset to start the list.
-        limit (int): Limit of deployments to be listed.
-
-    Returns:
-        list[Deployment]: List of deployments.
-    """
-    agent_deployments = (
-        db.query(Deployment)
-        .join(
-            AgentDeploymentModel,
-            Deployment.id == AgentDeploymentModel.deployment_id,
-        )
-        .filter(AgentDeploymentModel.agent_id == agent_id)
-        .limit(limit)
-        .offset(offset)
-        .all()
-    )
-
-    return [deployment for deployment in agent_deployments if deployment.is_available][
-        offset : offset + limit
-    ]
-
 
 @validate_transaction
 def update_deployment(

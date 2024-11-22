@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 import { AgentLogo } from '@/components/Agents/AgentLogo';
 import { CommandActionGroup, HotKeyGroupOption, HotKeysDialogInput } from '@/components/HotKeys';
-import { BASE_AGENT } from '@/constants';
+import { DEFAULT_AGENT_ID } from '@/constants';
 import { useConversations, useListAgents } from '@/hooks';
 
 type Props = {
@@ -29,10 +29,11 @@ export const Search: React.FC<Props> = ({ isOpen, close, onBack }) => {
       quickActions: [],
     },
   ]);
-  const router = useRouter();
 
+  const router = useRouter();
   const { data: assistants } = useListAgents();
   const { data: conversations } = useConversations({});
+  let defaultAgent = assistants?.find((a) => a.id == DEFAULT_AGENT_ID);
 
   useDebouncedEffect(
     () => {
@@ -79,7 +80,7 @@ export const Search: React.FC<Props> = ({ isOpen, close, onBack }) => {
                   <AgentLogo
                     agent={
                       assistants?.find((assistant) => assistant.id === conversation.agent_id) ??
-                      BASE_AGENT
+                      defaultAgent!
                     }
                   />
                   <span>{conversation.title}</span>

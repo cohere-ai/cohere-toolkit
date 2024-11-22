@@ -22,9 +22,11 @@ class BuildTarget(StrEnum):
     PROD = "prod"
 
 
-class ToolName(StrEnum):
+class Tool(StrEnum):
     PythonInterpreter = "Python Interpreter"
     TavilyInternetSearch = "Tavily Internet Search"
+    Wolfram_Alpha = "Wolfram Alpha"
+
 
 
 WELCOME_MESSAGE = r"""
@@ -50,17 +52,27 @@ DOT_ENV_FILE_PATH = ".env"
 
 
 TOOLS = {
-    ToolName.PythonInterpreter: {
+    Tool.PythonInterpreter: {
         "secrets": {
             "PYTHON_INTERPRETER_URL": PYTHON_INTERPRETER_URL_DEFAULT,
         },
     },
-    ToolName.TavilyInternetSearch: {
+    Tool.TavilyInternetSearch: {
         "secrets": {
             "TAVILY_API_KEY": None,
         },
     },
 }
+
+# For main.py cli setup script
+COMMUNITY_TOOLS = {
+    Tool.Wolfram_Alpha: {
+        "secrets": {
+            "WOLFRAM_APP_ID": None,  # default value
+        },
+    },
+}
+
 
 ENV_YAML_CONFIG_MAPPING = {
     "USE_COMMUNITY_FEATURES": {

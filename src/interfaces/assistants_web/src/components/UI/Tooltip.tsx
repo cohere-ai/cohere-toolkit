@@ -84,7 +84,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <>
       {children ? (
-        <div ref={refs.setReference} {...restReferenceProps}>
+        <div className="flex items-center" ref={refs.setReference} {...restReferenceProps}>
           {children}
         </div>
       ) : (

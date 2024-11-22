@@ -8,12 +8,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.chat.enums import StreamEvent
-from backend.database_models import Agent
 from backend.database_models.conversation import Conversation
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
 from backend.model_deployments.cohere_platform import CohereDeployment
-from backend.schemas.tool import Category
+from backend.schemas.tool import ToolCategory
 from backend.tests.unit.factories import get_factory
 
 is_cohere_env_set = (
@@ -25,43 +24,6 @@ is_cohere_env_set = (
 @pytest.fixture()
 def user(session_chat: Session) -> User:
     return get_factory("User", session_chat).create()
-
-
-@pytest.fixture()
-def default_agent_copy(session_chat: Session, user: User) -> Agent:
-    agent = session_chat.query(Agent).get("default")
-    # to avoid agent related entities sessions conflicts(conversations created, ...)
-    # during ROLLBACK we need to create a copy of the default db agent
-    # and test the streaming chat with the new agent stored in the DB
-    agent_defaults = (
-        agent.default_model_association if agent.default_model_association else None
-    )
-    new_deployment = get_factory("Deployment", session_chat).create(
-        default_deployment_config=(
-            agent_defaults.deployment.default_deployment_config
-            if agent_defaults
-            else None
-        )
-    )
-    new_model = get_factory("Model", session_chat).create(
-        deployment=new_deployment,
-        cohere_name=agent_defaults.model.cohere_name if agent_defaults else None,
-    )
-    new_agent = get_factory("Agent", session_chat).create(user=user, tools=[])
-    get_factory("AgentDeploymentModel", session_chat).create(
-        agent=new_agent,
-        deployment=new_deployment,
-        model=new_model,
-        is_default_deployment=True,
-        is_default_model=True,
-        deployment_config=(
-            agent_defaults.deployment.default_deployment_config
-            if agent_defaults
-            else None
-        ),
-    )
-
-    return new_agent
 
 
 # STREAMING CHAT TESTS
@@ -88,16 +50,11 @@ def test_streaming_new_chat(
 def test_streaming_new_chat_with_agent(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user, tools=[])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    get_factory("AgentDeploymentModel", session_chat).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
+    agent = get_factory("Agent", session_chat).create(user=user, tools=[], deployment_id=deployment.id,
+                                                      model_id=model.id)
+
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -117,16 +74,11 @@ def test_streaming_new_chat_with_agent(
 def test_streaming_new_chat_with_agent_existing_conversation(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user, tools=[])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    get_factory("AgentDeploymentModel", session_chat).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
+    agent = get_factory("Agent", session_chat).create(user=user, tools=[], deployment_id=deployment.id,
+                                                      model_id=model.id)
+
     agent.preamble = "you are a smart assistant"
     session_chat.refresh(agent)
 
@@ -218,16 +170,11 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
 def test_streaming_chat_with_tools_not_in_agent_tools(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    get_factory("AgentDeploymentModel", session_chat).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"], deployment_id=deployment.id,
+                                                      model_id=model.id)
+
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -249,16 +196,11 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
 def test_streaming_chat_with_agent_tools_and_empty_request_tools(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    agent = get_factory("Agent", session_chat).create(user=user, tools=["tavily_web_search"])
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
-    get_factory("AgentDeploymentModel", session_chat).create(
-        agent=agent,
-        deployment=deployment,
-        model=model,
-        is_default_deployment=True,
-        is_default_model=True,
-    )
+    agent = get_factory("Agent", session_chat).create(user=user, tools=["tavily_web_search"],
+                                                      deployment_id=deployment.id, model_id=model.id)
+
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -377,35 +319,10 @@ def test_streaming_fail_chat_missing_message(
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        json={
-            "message": "Give me a number",
-            "tools": [
-                {
-                    "name": "random_number_generator",
-                    "description": "generate a random number",
-                }
-            ],
-        },
-        headers={
-            "User-Id": user.id,
-            "Deployment-Name": CohereDeployment.name(),
-        },
-    )
-
-    assert response.status_code == 200
-    validate_chat_streaming_response(
-        response, user, session_chat, session_client_chat, 0, is_custom_tools=True
-    )
-
-
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
+    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -447,7 +364,7 @@ def test_streaming_chat_with_managed_and_custom_tools(
 ):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
+    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -807,7 +724,7 @@ def test_non_streaming_chat(
 def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
+    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -832,7 +749,7 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
 ):
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
-    tool = [t for t in tools if t["is_visible"] and t["category"] != Category.Function][
+    tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
         0
     ].get("name")
 
@@ -856,29 +773,6 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Cannot mix both managed and custom tools"}
-
-
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_non_streaming_chat_with_custom_tools(session_client_chat, session_chat, user):
-    response = session_client_chat.post(
-        "/v1/chat",
-        json={
-            "message": "Give me a number",
-            "tools": [
-                {
-                    "name": "random_number_generator",
-                    "description": "generate a random number",
-                }
-            ],
-        },
-        headers={
-            "User-Id": user.id,
-            "Deployment-Name": CohereDeployment.name(),
-        },
-    )
-
-    assert response.status_code == 200
-    assert len(response.json()["tool_calls"]) == 1
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")

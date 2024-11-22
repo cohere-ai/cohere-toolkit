@@ -20,16 +20,6 @@ class Deployment(Base):
 
     models = relationship("Model", back_populates="deployment")
 
-    agents = relationship(
-        "Agent",
-        secondary="agent_deployment_model",
-        back_populates="deployments",
-        overlaps="deployments,models,agents,agent,agent_deployment_associations,deployment",
-    )
-    agent_deployment_associations = relationship(
-        "AgentDeploymentModel", back_populates="deployment"
-    )
-
     __table_args__ = (UniqueConstraint("name", name="deployment_name_uc"),)
 
     def __str__(self):
@@ -37,13 +27,7 @@ class Deployment(Base):
 
     @property
     def is_available(self) -> bool:
-        # Check if an agent has a deployment config set
-        for agent_assoc in self.agent_deployment_associations:
-            if not agent_assoc.deployment_config:
-                continue
-            if all(value != "" for value in agent_assoc.deployment_config.values()):
-                return True
-        # if no agent has a deployment config set, check if the deployment has a default config
+        # check if the deployment has a default config
         if not self.default_deployment_config:
             return False
         return all(value != "" for value in self.default_deployment_config.values())

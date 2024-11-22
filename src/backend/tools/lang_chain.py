@@ -7,6 +7,7 @@ from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
 from backend.config.settings import Settings
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
 """
@@ -22,8 +23,7 @@ class LangChainWikiRetriever(BaseTool):
     This class retrieves documents from Wikipedia using the langchain package.
     This requires wikipedia package to be installed.
     """
-
-    NAME = "wikipedia"
+    ID = "wikipedia"
 
     def __init__(self, chunk_size: int = 300, chunk_overlap: int = 0):
         self.chunk_size = chunk_size
@@ -32,6 +32,27 @@ class LangChainWikiRetriever(BaseTool):
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Wikipedia",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            kwargs={"chunk_size": 300, "chunk_overlap": 0},
+            is_visible=True,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Retrieves documents from Wikipedia.",
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any
@@ -58,8 +79,7 @@ class LangChainVectorDBRetriever(BaseTool):
     """
     This class retrieves documents from a vector database using the langchain package.
     """
-
-    NAME = "vector_retriever"
+    ID = "vector_retriever"
     COHERE_API_KEY = Settings().get('deployments.cohere_platform.api_key')
 
     def __init__(self, filepath: str):

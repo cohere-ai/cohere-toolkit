@@ -7,7 +7,7 @@ import { DeleteAgent } from '@/components/Modals/DeleteAgent';
 import { CoralLogo, KebabMenu, Text } from '@/components/UI';
 import { useContextStore } from '@/context';
 import { useBrandedColors, useSession } from '@/hooks';
-import { checkIsBaseAgent, cn } from '@/utils';
+import { checkIsDefaultAgent, cn } from '@/utils';
 
 type Props = {
   agent?: AgentPublic;
@@ -17,11 +17,11 @@ type Props = {
  * @description renders a card for an agent with the agent's name, description
  */
 export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
-  const isBaseAgent = checkIsBaseAgent(agent);
+  const isDefaultAgent = checkIsDefaultAgent(agent);
   const { bg, contrastText, contrastFill } = useBrandedColors(agent?.id);
   const session = useSession();
   const isCreator = agent?.user_id === session.userId;
-  const createdBy = isBaseAgent ? 'COHERE' : isCreator ? 'YOU' : 'TEAM';
+  const createdBy = isDefaultAgent ? 'COHERE' : isCreator ? 'YOU' : 'TEAM';
 
   const { open, close } = useContextStore();
 
@@ -36,7 +36,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
   return (
     <Link
       className="flex overflow-x-hidden rounded-lg border border-volcanic-800 bg-volcanic-950 p-4 transition-colors duration-300 hover:bg-marble-950 dark:border-volcanic-300 dark:bg-volcanic-150 dark:hover:bg-volcanic-100"
-      href={isBaseAgent ? '/' : `/a/${agent?.id}`}
+      href={isDefaultAgent ? '/' : `/a/${agent?.id}`}
     >
       <div className="flex h-full flex-grow flex-col items-start gap-y-2 overflow-x-hidden">
         <div className="flex w-full items-center gap-x-2">
@@ -46,7 +46,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ agent }) => {
               bg
             )}
           >
-            {isBaseAgent ? (
+            {isDefaultAgent ? (
               <CoralLogo className={contrastFill} />
             ) : (
               <Text className={cn('uppercase', contrastText)} styleAs="p-lg">

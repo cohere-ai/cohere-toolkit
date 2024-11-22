@@ -4,8 +4,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from backend.schemas.deployment import DeploymentWithModels as DeploymentSchema
-
 
 class AgentToolMetadataArtifactsType(StrEnum):
     DOMAIN = "domain"
@@ -74,7 +72,6 @@ class Agent(AgentBase):
     temperature: float
     tools: Optional[list[str]]
     tools_metadata: list[AgentToolMetadataPublic]
-    deployments: list[DeploymentSchema]
     deployment: Optional[str]
     model: Optional[str]
     is_private: Optional[bool]
@@ -98,7 +95,6 @@ class CreateAgentRequest(BaseModel):
     tools: Optional[list[str]] = None
     tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
     deployment_config: Optional[dict[str, str]] = None
-    is_default_deployment: Optional[bool] = False
     # model_id or model_name
     model: str
     # deployment_id or deployment_name
@@ -115,22 +111,33 @@ class ListAgentsResponse(BaseModel):
     agents: list[Agent]
 
 
-class UpdateAgentRequest(BaseModel):
+class UpdateAgentNoDeploymentModel(BaseModel):
     name: Optional[str] = None
     version: Optional[int] = None
     description: Optional[str] = None
     preamble: Optional[str] = None
     temperature: Optional[float] = None
-    model: Optional[str] = None
-    deployment: Optional[str] = None
-    deployment_config: Optional[dict[str, str]] = None
-    is_default_deployment: Optional[bool] = False
-    is_default_model: Optional[bool] = False
-    organization_id: Optional[str] = None
     tools: Optional[list[str]] = None
-    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
+    organization_id: Optional[str] = None
     is_private: Optional[bool] = None
 
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+class UpdateAgentDB(UpdateAgentNoDeploymentModel):
+    model_id: Optional[str] = None
+    deployment_id: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+        use_enum_values = True
+
+
+class UpdateAgentRequest(UpdateAgentNoDeploymentModel):
+    deployment: Optional[str] = None
+    model: Optional[str] = None
+    tools_metadata: Optional[list[CreateAgentToolMetadataRequest]] = None
     class Config:
         from_attributes = True
         use_enum_values = True

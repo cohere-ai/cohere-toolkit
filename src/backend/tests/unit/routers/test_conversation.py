@@ -583,6 +583,57 @@ def test_list_files_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
+def test_get_file(
+    session_client: TestClient, session: Session, user: User
+) -> None:
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    response = session_client.post(
+        "/v1/conversations/batch_upload_file",
+        headers={"User-Id": conversation.user_id},
+        files=[
+            ("files", ("Mariana_Trench.pdf", open("src/backend/tests/unit/test_data/Mariana_Trench.pdf", "rb")))
+        ],
+        data={"conversation_id": conversation.id},
+    )
+    assert response.status_code == 200
+    uploaded_file = response.json()[0]
+
+    response = session_client.get(
+        f"/v1/conversations/{conversation.id}/files/{uploaded_file['id']}",
+        headers={"User-Id": conversation.user_id},
+    )
+
+    assert response.status_code == 200
+    response_file = response.json()
+    assert response_file["id"] == uploaded_file["id"]
+    assert response_file["file_name"] == uploaded_file["file_name"]
+
+
+def test_fail_get_file_nonexistent_conversation(
+    session_client: TestClient, session: Session, user: User
+) -> None:
+    response = session_client.get(
+        "/v1/conversations/123/files/456",
+        headers={"User-Id": user.id},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Conversation with ID: 123 not found."}
+
+
+def test_fail_get_file_nonbelong_file(
+    session_client: TestClient, session: Session, user: User
+) -> None:
+    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    response = session_client.get(
+        f"/v1/conversations/{conversation.id}/files/123",
+        headers={"User-Id": conversation.user_id},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": f"File with ID: 123 does not belong to the conversation with ID: {conversation.id}."}
+
+
 def test_batch_upload_file_existing_conversation(
     session_client: TestClient, session: Session, user
 ) -> None:

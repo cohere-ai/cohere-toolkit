@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.database_models import Deployment
 from backend.model_deployments.cohere_platform import CohereDeployment
+from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 
 
 def test_create_deployment(session_client: TestClient) -> None:
@@ -75,8 +76,8 @@ def test_list_deployments_no_available_models_404(
     session_client: TestClient, session: Session
 ) -> None:
     session.query(Deployment).delete()
-    AVAILABLE_MODEL_DEPLOYMENTS.clear()
-    response = session_client.get("/v1/deployments")
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", []):
+        response = session_client.get("/v1/deployments")
     assert response.status_code == 404
     assert response.json() == {
         "detail": [

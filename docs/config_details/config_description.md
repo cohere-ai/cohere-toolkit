@@ -23,8 +23,6 @@
   - redis - Redis configurations
      - url - URL of the redis, for example, redis://:redis@redis:6379
   - tools - Tool configurations
-     - enabled_tools - these are the tools that are enabled for the toolkit. The full list of tools can be found in the src/backend/config/tools.py file.
-       The community tools are listed in the src/community/config/tools.py file. Please note that the tools availability is checked too.
      - python_interpreter - Python interpreter configurations
        - url - URL of the python interpreter tool
   - feature_flags - Feature flags configurations

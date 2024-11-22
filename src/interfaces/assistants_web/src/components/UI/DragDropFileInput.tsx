@@ -15,6 +15,7 @@ export type FileAccept =
   | 'text/html'
   | 'text/markdown'
   | 'text/tab-separated-values'
+  | 'text/calendar'
   | 'application/msword'
   | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

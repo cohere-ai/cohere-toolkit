@@ -6,6 +6,17 @@ export const $AgentPublic = {
       type: 'string',
       title: 'User Id',
     },
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
     id: {
       type: 'string',
       title: 'Id',
@@ -82,13 +93,6 @@ export const $AgentPublic = {
       ],
       title: 'Tools Metadata',
     },
-    deployments: {
-      items: {
-        $ref: '#/components/schemas/DeploymentWithModels',
-      },
-      type: 'array',
-      title: 'Deployments',
-    },
     deployment: {
       anyOf: [
         {
@@ -135,7 +139,6 @@ export const $AgentPublic = {
     'preamble',
     'temperature',
     'tools',
-    'deployments',
     'deployment',
     'model',
     'is_private',
@@ -268,12 +271,6 @@ export const $Body_batch_upload_file_v1_conversations_batch_upload_file_post = {
   type: 'object',
   required: ['files'],
   title: 'Body_batch_upload_file_v1_conversations_batch_upload_file_post',
-} as const;
-
-export const $Category = {
-  type: 'string',
-  enum: ['Data loader', 'File loader', 'Function', 'Web search'],
-  title: 'Category',
 } as const;
 
 export const $ChatMessage = {
@@ -1044,18 +1041,6 @@ export const $CreateAgentRequest = {
       ],
       title: 'Deployment Config',
     },
-    is_default_deployment: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Default Deployment',
-      default: false,
-    },
     model: {
       type: 'string',
       title: 'Model',
@@ -1455,78 +1440,6 @@ export const $DeploymentUpdate = {
   title: 'DeploymentUpdate',
 } as const;
 
-export const $DeploymentWithModels = {
-  properties: {
-    id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Id',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      default: false,
-    },
-    is_community: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Community',
-      default: false,
-    },
-    env_vars: {
-      anyOf: [
-        {
-          items: {
-            type: 'string',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Env Vars',
-    },
-    models: {
-      items: {
-        $ref: '#/components/schemas/ModelSimple',
-      },
-      type: 'array',
-      title: 'Models',
-    },
-  },
-  type: 'object',
-  required: ['name', 'env_vars', 'models'],
-  title: 'DeploymentWithModels',
-} as const;
-
 export const $Document = {
   properties: {
     text: {
@@ -1612,6 +1525,42 @@ export const $Email = {
   type: 'object',
   required: ['primary', 'type'],
   title: 'Email',
+} as const;
+
+export const $FileMetadata = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    file_name: {
+      type: 'string',
+      title: 'File Name',
+    },
+    file_content: {
+      type: 'string',
+      title: 'File Content',
+    },
+    file_size: {
+      type: 'integer',
+      minimum: 0,
+      title: 'File Size',
+      default: 0,
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
+  },
+  type: 'object',
+  required: ['id', 'file_name', 'file_content', 'created_at', 'updated_at'],
+  title: 'FileMetadata',
 } as const;
 
 export const $GenerateTitleResponse = {
@@ -1919,114 +1868,6 @@ export const $Logout = {
   title: 'Logout',
 } as const;
 
-export const $ManagedTool = {
-  properties: {
-    name: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Name',
-      default: '',
-    },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
-    parameter_definitions: {
-      anyOf: [
-        {
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Parameter Definitions',
-      default: {},
-    },
-    kwargs: {
-      type: 'object',
-      title: 'Kwargs',
-      default: {},
-    },
-    is_visible: {
-      type: 'boolean',
-      title: 'Is Visible',
-      default: false,
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      default: false,
-    },
-    error_message: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Error Message',
-      default: '',
-    },
-    category: {
-      $ref: '#/components/schemas/Category',
-      default: 'Data loader',
-    },
-    is_auth_required: {
-      type: 'boolean',
-      title: 'Is Auth Required',
-      default: false,
-    },
-    auth_url: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Auth Url',
-      default: '',
-    },
-    token: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Token',
-      default: '',
-    },
-  },
-  type: 'object',
-  title: 'ManagedTool',
-} as const;
-
 export const $Message = {
   properties: {
     text: {
@@ -2232,44 +2073,6 @@ export const $ModelCreate = {
   type: 'object',
   required: ['name', 'cohere_name', 'description', 'deployment_id'],
   title: 'ModelCreate',
-} as const;
-
-export const $ModelSimple = {
-  properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-    },
-    cohere_name: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Cohere Name',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-    },
-  },
-  type: 'object',
-  required: ['id', 'name', 'cohere_name', 'description'],
-  title: 'ModelSimple',
 } as const;
 
 export const $ModelUpdate = {
@@ -3136,23 +2939,6 @@ export const $Tool = {
       title: 'Name',
       default: '',
     },
-    display_name: {
-      type: 'string',
-      title: 'Display Name',
-      default: '',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      default: '',
-    },
     parameter_definitions: {
       anyOf: [
         {
@@ -3228,6 +3014,113 @@ export const $ToolCallDelta = {
   title: 'ToolCallDelta',
 } as const;
 
+export const $ToolCategory = {
+  type: 'string',
+  enum: ['Data loader', 'File loader', 'Function', 'Web search'],
+  title: 'ToolCategory',
+} as const;
+
+export const $ToolDefinition = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Name',
+      default: '',
+    },
+    parameter_definitions: {
+      anyOf: [
+        {
+          type: 'object',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Parameter Definitions',
+      default: {},
+    },
+    display_name: {
+      type: 'string',
+      title: 'Display Name',
+      default: '',
+    },
+    description: {
+      type: 'string',
+      title: 'Description',
+      default: '',
+    },
+    error_message: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Error Message',
+      default: '',
+    },
+    kwargs: {
+      type: 'object',
+      title: 'Kwargs',
+      default: {},
+    },
+    is_visible: {
+      type: 'boolean',
+      title: 'Is Visible',
+      default: false,
+    },
+    is_available: {
+      type: 'boolean',
+      title: 'Is Available',
+      default: false,
+    },
+    category: {
+      $ref: '#/components/schemas/ToolCategory',
+      default: 'Data loader',
+    },
+    is_auth_required: {
+      type: 'boolean',
+      title: 'Is Auth Required',
+      default: false,
+    },
+    auth_url: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Auth Url',
+      default: '',
+    },
+    token: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Token',
+      default: '',
+    },
+  },
+  type: 'object',
+  title: 'ToolDefinition',
+} as const;
+
 export const $ToolInputType = {
   type: 'string',
   enum: ['QUERY', 'CODE'],
@@ -3292,77 +3185,6 @@ export const $UpdateAgentRequest = {
       ],
       title: 'Temperature',
     },
-    model: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Model',
-    },
-    deployment: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Deployment',
-    },
-    deployment_config: {
-      anyOf: [
-        {
-          additionalProperties: {
-            type: 'string',
-          },
-          type: 'object',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Deployment Config',
-    },
-    is_default_deployment: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Default Deployment',
-      default: false,
-    },
-    is_default_model: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Default Model',
-      default: false,
-    },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
-    },
     tools: {
       anyOf: [
         {
@@ -3377,6 +3199,50 @@ export const $UpdateAgentRequest = {
       ],
       title: 'Tools',
     },
+    organization_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Organization Id',
+    },
+    is_private: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Private',
+    },
+    deployment: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Deployment',
+    },
+    model: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Model',
+    },
     tools_metadata: {
       anyOf: [
         {
@@ -3390,17 +3256,6 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Tools Metadata',
-    },
-    is_private: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Private',
     },
   },
   type: 'object',

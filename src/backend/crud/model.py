@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import AgentDeploymentModel, Deployment
+from backend.database_models import Deployment
 from backend.database_models.model import Model
 from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.model import ModelCreate, ModelUpdate

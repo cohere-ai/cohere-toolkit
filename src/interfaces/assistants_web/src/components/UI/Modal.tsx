@@ -11,6 +11,7 @@ type ModalProps = {
   title?: string;
   children?: React.ReactNode;
   onClose?: VoidFunction;
+  dialogPaddingClassName?: string;
 };
 
 /**
@@ -21,6 +22,7 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   children,
   onClose = () => {},
+  dialogPaddingClassName,
 }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -60,7 +62,8 @@ export const Modal: React.FC<ModalProps> = ({
               {children && (
                 <DialogPanel
                   className={cn(
-                    'h-fit max-h-modal overflow-y-auto rounded-lg border px-5 py-7 md:px-10 md:py-14',
+                    dialogPaddingClassName ?? 'px-5 py-7 md:px-10 md:py-14',
+                    'h-fit max-h-modal overflow-y-auto rounded-lg border',
                     'flex flex-col gap-y-8',
                     'border-marble-900 dark:border-volcanic-500',
                     'bg-mushroom-950 dark:bg-volcanic-200'

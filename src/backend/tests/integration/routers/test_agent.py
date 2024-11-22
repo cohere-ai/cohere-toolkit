@@ -2,7 +2,12 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+<<<<<<< HEAD
 from backend.config.tools import ToolName
+=======
+from backend.config.deployments import ModelDeploymentName
+from backend.config.tools import Tool
+>>>>>>> main
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.model_deployments.cohere_platform import CohereDeployment
@@ -17,8 +22,13 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
         "preamble": "test preamble",
         "temperature": 0.5,
         "model": "command-r-plus",
+<<<<<<< HEAD
         "deployment": CohereDeployment.name(),
         "tools": [ToolName.Calculator, ToolName.Search_File, ToolName.Read_File],
+=======
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [Tool.Calculator.value.ID, Tool.Search_File.value.ID, Tool.Read_File.value.ID],
+>>>>>>> main
     }
 
     response = session_client.post(
@@ -58,11 +68,16 @@ def test_create_agent_with_tool_metadata(
         "preamble": "test preamble",
         "temperature": 0.5,
         "model": "command-r-plus",
+<<<<<<< HEAD
         "deployment": CohereDeployment.name(),
         "tools": [ToolName.Google_Drive, ToolName.Search_File],
+=======
+        "deployment": ModelDeploymentName.CoherePlatform,
+        "tools": [Tool.Google_Drive.value.ID, Tool.Search_File.value.ID],
+>>>>>>> main
         "tools_metadata": [
             {
-                "tool_name": ToolName.Google_Drive,
+                "tool_name": Tool.Google_Drive.value.ID,
                 "artifacts": [
                     {
                         "name": "/folder",
@@ -72,7 +87,7 @@ def test_create_agent_with_tool_metadata(
                 ],
             },
             {
-                "tool_name": ToolName.Search_File,
+                "tool_name": Tool.Search_File.value.ID,
                 "artifacts": [
                     {
                         "name": "file.txt",
@@ -96,11 +111,11 @@ def test_create_agent_with_tool_metadata(
         .all()
     )
     assert len(tool_metadata) == 2
-    assert tool_metadata[0].tool_name == ToolName.Google_Drive
+    assert tool_metadata[0].tool_name == Tool.Google_Drive.value.ID
     assert tool_metadata[0].artifacts == [
         {"name": "/folder", "ids": "folder1", "type": "folder_ids"},
     ]
-    assert tool_metadata[1].tool_name == ToolName.Search_File
+    assert tool_metadata[1].tool_name == Tool.Search_File.value.ID
     assert tool_metadata[1].artifacts == [
         {"name": "file.txt", "ids": "file1", "type": "file_ids"}
     ]

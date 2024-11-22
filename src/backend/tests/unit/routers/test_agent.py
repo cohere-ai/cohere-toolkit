@@ -4,8 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.config.tools import ToolName
-from backend.crud import agent as agent_crud
+from backend.config.default_agent import DEFAULT_AGENT_ID
+from backend.config.tools import Tool
 from backend.crud import deployment as deployment_crud
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
@@ -18,6 +18,9 @@ is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None
     and os.environ.get("COHERE_API_KEY") != ""
 )
+
+def filter_default_agent(agents: list) -> list:
+    return [agent for agent in agents if agent.get("id") != DEFAULT_AGENT_ID]
 
 def test_create_agent_missing_name(
     session_client: TestClient, session: Session, user
@@ -133,14 +136,14 @@ def test_create_agent_invalid_tool(
         "name": "test agent",
         "model": "command-r-plus",
         "deployment": CohereDeployment.name(),
-        "tools": [ToolName.Calculator, "not a real tool"],
+        "tools": [Tool.Calculator.value.ID, "fake_tool"],
     }
 
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
     )
     assert response.status_code == 404
-    assert response.json() == {"detail": "Tool not a real tool not found."}
+    assert response.json() == {"detail": "Tool fake_tool not found."}
 
 
 def test_create_existing_agent(
@@ -158,24 +161,23 @@ def test_create_existing_agent(
     assert response.json() == {"detail": "Agent test agent already exists."}
 
 
-def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
-    # Delete default agent
-    session.query(Agent).delete()
+def test_list_agents_empty_returns_default_agent(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents", headers={"User-Id": "123"})
     assert response.status_code == 200
     response_agents = response.json()
-    assert len(response_agents) == 0
+    # Returns default agent
+    assert len(response_agents) == 1
 
 
 def test_list_agents(session_client: TestClient, session: Session, user) -> None:
-    session.query(Agent).delete()
-    for _ in range(3):
+    num_agents = 3
+    for _ in range(num_agents):
         _ = get_factory("Agent", session).create(user=user)
 
     response = session_client.get("/v1/agents", headers={"User-Id": user.id})
     assert response.status_code == 200
-    response_agents = response.json()
-    assert len(response_agents) == 3
+    response_agents = filter_default_agent(response.json())
+    assert len(response_agents) == num_agents
 
 
 def test_list_organization_agents(
@@ -183,10 +185,10 @@ def test_list_organization_agents(
     session: Session,
     user,
 ) -> None:
-    session.query(Agent).delete()
+    num_agents = 3
     organization = get_factory("Organization", session).create()
     organization1 = get_factory("Organization", session).create()
-    for i in range(3):
+    for i in range(num_agents):
         _ = get_factory("Agent", session).create(
             user=user,
             organization_id=organization.id,
@@ -200,9 +202,9 @@ def test_list_organization_agents(
         "/v1/agents", headers={"User-Id": user.id, "Organization-Id": organization.id}
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     agents = sorted(response_agents, key=lambda x: x["name"])
-    for i in range(3):
+    for i in range(num_agents):
         assert agents[i]["name"] == f"agent-{i}-{organization.id}"
 
 
@@ -211,10 +213,10 @@ def test_list_organization_agents_query_param(
     session: Session,
     user,
 ) -> None:
-    session.query(Agent).delete()
+    num_agents = 3
     organization = get_factory("Organization", session).create()
     organization1 = get_factory("Organization", session).create()
-    for i in range(3):
+    for i in range(num_agents):
         _ = get_factory("Agent", session).create(
             user=user, organization_id=organization.id
         )
@@ -229,9 +231,9 @@ def test_list_organization_agents_query_param(
         headers={"User-Id": user.id, "Organization-Id": organization.id},
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     agents = sorted(response_agents, key=lambda x: x["name"])
-    for i in range(3):
+    for i in range(num_agents):
         assert agents[i]["name"] == f"agent-{i}-{organization1.id}"
 
 
@@ -262,7 +264,7 @@ def test_list_private_agents(
     )
 
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
 
     # Only the agents created by user should be returned
     assert len(response_agents) == 3
@@ -281,7 +283,7 @@ def test_list_public_agents(session_client: TestClient, session: Session, user) 
     )
 
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
 
     # Only the agents created by user should be returned
     assert len(response_agents) == 2
@@ -308,43 +310,6 @@ def list_public_and_private_agents(
     assert len(response_agents) == 5
 
 
-def test_list_agent_deployments(
-    session_client: TestClient, session: Session, user
-) -> None:
-    agent = get_factory("Agent", session).create(user=user)
-    for i in range(3):
-        deployment = get_factory("Deployment", session).create(
-            name=f"test deployment {i}"
-        )
-        model = get_factory("Model", session).create(
-            deployment=deployment, name=f"test r+ ({i})", cohere_name="command-r-plus"
-        )
-        agent_crud.assign_model_deployment_to_agent(
-            session,
-            agent,
-            model.id,
-            deployment.id,
-            deployment_config=deployment.default_deployment_config,
-        )
-        model1 = get_factory("Model", session).create(
-            deployment=deployment, name=f"test r ({i})", cohere_name="command-r"
-        )
-        agent_crud.assign_model_deployment_to_agent(
-            session,
-            agent,
-            model1.id,
-            deployment.id,
-            deployment_config=deployment.default_deployment_config,
-        )
-
-    response = session_client.get(
-        f"/v1/agents/{agent.id}/deployments", headers={"User-Id": user.id}
-    )
-    assert response.status_code == 200
-    response_deployments = response.json()
-    assert len(response_deployments) == 3
-
-
 def test_list_agents_with_pagination(
     session_client: TestClient, session: Session, user
 ) -> None:
@@ -355,22 +320,23 @@ def test_list_agents_with_pagination(
         "/v1/agents?limit=3&offset=2", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     assert len(response_agents) == 3
 
     response = session_client.get(
         "/v1/agents?limit=2&offset=4", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     assert len(response_agents) == 1
+
 
 def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {
                 "name": "/folder1",
@@ -391,7 +357,7 @@ def test_get_agent(session_client: TestClient, session: Session, user) -> None:
     assert response.status_code == 200
     response_agent = response.json()
     assert response_agent["name"] == agent.name
-    assert response_agent["tools_metadata"][0]["tool_name"] == ToolName.Google_Drive
+    assert response_agent["tools_metadata"][0]["tool_name"] == Tool.Google_Drive.value.ID
     assert (
         response_agent["tools_metadata"][0]["artifacts"]
         == agent_tool_metadata.artifacts
@@ -496,13 +462,13 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
         description="test description",
         preamble="test preamble",
         temperature=0.5,
-        tools=[ToolName.Calculator],
+        tools=[Tool.Calculator.value.ID],
         user=user,
     )
 
     request_json = {
         "name": "updated name",
-        "tools": [ToolName.Search_File, ToolName.Read_File],
+        "tools": [Tool.Search_File.value.ID, Tool.Read_File.value.ID],
     }
 
     response = session_client.put(
@@ -517,7 +483,7 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
     assert updated_agent["description"] == "test description"
     assert updated_agent["preamble"] == "test preamble"
     assert updated_agent["temperature"] == 0.5
-    assert updated_agent["tools"] == [ToolName.Search_File, ToolName.Read_File]
+    assert updated_agent["tools"] == [Tool.Search_File.value.ID, Tool.Read_File.value.ID]
 
 
 def test_update_agent_with_tool_metadata(
@@ -535,7 +501,7 @@ def test_update_agent_with_tool_metadata(
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {
                 "url": "test",
@@ -599,7 +565,7 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {
                 "url": "test",
@@ -679,7 +645,7 @@ def test_update_agent_remove_existing_tool_metadata(
     get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {
                 "url": "test",
@@ -804,7 +770,7 @@ def test_update_agent_invalid_tool(
     request_json = {
         "model": "not a real model",
         "deployment": "not a real deployment",
-        "tools": [ToolName.Calculator, "not a real tool"],
+        "tools": [Tool.Calculator.value.ID, "not a real tool"],
     }
 
     response = session_client.put(
@@ -1031,7 +997,7 @@ def test_create_agent_tool_metadata(
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
     request_json = {
-        "tool_name": ToolName.Google_Drive,
+        "tool_name": Tool.Google_Drive.value.ID,
         "artifacts": [
             {
                 "name": "/folder1",
@@ -1060,7 +1026,7 @@ def test_create_agent_tool_metadata(
     agent_tool_metadata = session.get(
         AgentToolMetadata, response_agent_tool_metadata["id"]
     )
-    assert agent_tool_metadata.tool_name == ToolName.Google_Drive
+    assert agent_tool_metadata.tool_name == Tool.Google_Drive.value.ID
     assert agent_tool_metadata.artifacts == [
         {
             "name": "/folder1",
@@ -1082,7 +1048,7 @@ def test_update_agent_tool_metadata(
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {
                 "name": "/folder1",
@@ -1143,7 +1109,7 @@ def test_get_agent_tool_metadata(
     agent_tool_metadata_1 = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {"name": "/folder", "ids": ["folder1", "folder2"], "type": "folder_ids"}
         ],
@@ -1151,7 +1117,7 @@ def test_get_agent_tool_metadata(
     agent_tool_metadata_2 = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Search_File,
+        tool_name=Tool.Search_File.value.ID,
         artifacts=[{"name": "file.txt", "ids": ["file1", "file2"], "type": "file_ids"}],
     )
 
@@ -1177,7 +1143,7 @@ def test_delete_agent_tool_metadata(
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
         agent_id=agent.id,
-        tool_name=ToolName.Google_Drive,
+        tool_name=Tool.Google_Drive.value.ID,
         artifacts=[
             {
                 "name": "/folder1",

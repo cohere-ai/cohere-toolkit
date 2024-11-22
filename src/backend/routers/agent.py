@@ -5,16 +5,21 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.config.default_agent import DEFAULT_AGENT_ID, get_default_agent
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
+from backend.crud import file as file_crud
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models.agent import Agent as AgentModel
 from backend.database_models.agent_tool_metadata import (
     AgentToolMetadata as AgentToolMetadataModel,
 )
 from backend.database_models.database import DBSessionDep
-from backend.routers.utils import get_deployment_model_from_agent
+from backend.routers.utils import (
+    get_default_deployment_model,
+    get_deployment_model_from_agent,
+)
 from backend.schemas.agent import (
     Agent,
     AgentPublic,
@@ -25,12 +30,17 @@ from backend.schemas.agent import (
     CreateAgentToolMetadataRequest,
     DeleteAgent,
     DeleteAgentToolMetadata,
+    UpdateAgentDB,
     UpdateAgentRequest,
     UpdateAgentToolMetadataRequest,
 )
 from backend.schemas.context import Context
 from backend.schemas.deployment import DeploymentDefinition
-from backend.schemas.file import DeleteAgentFileResponse, UploadAgentFileResponse
+from backend.schemas.file import (
+    DeleteAgentFileResponse,
+    FileMetadata,
+    UploadAgentFileResponse,
+)
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -51,6 +61,7 @@ router = APIRouter(
     prefix="/v1/agents",
 )
 router.name = RouterName.AGENT
+
 
 @router.post(
     "",
@@ -81,45 +92,35 @@ async def create_agent(
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
 
-    agent_data = AgentModel(
-        name=agent.name,
-        description=agent.description,
-        preamble=agent.preamble,
-        temperature=agent.temperature,
-        user_id=user_id,
-        organization_id=agent.organization_id,
-        tools=agent.tools,
-        is_private=agent.is_private,
-    )
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
+    default_deployment_db, default_model_db = get_default_deployment_model(session)
     try:
-        created_agent = agent_crud.create_agent(session, agent_data)
-
-        if agent.tools_metadata:
-            for tool_metadata in agent.tools_metadata:
-                await update_or_create_tool_metadata(
-                    created_agent, tool_metadata, session, ctx
-                )
-
         if deployment_db and model_db:
-            deployment_config = (
-                agent.deployment_config
-                if agent.deployment_config
-                else deployment_db.default_deployment_config
-            )
-            agent_crud.assign_model_deployment_to_agent(
-                session,
-                agent=created_agent,
-                deployment_id=deployment_db.id,
-                model_id=model_db.id,
-                deployment_config=deployment_config,
-                set_default=True,
+            agent_data = AgentModel(
+                name=agent.name,
+                description=agent.description,
+                preamble=agent.preamble,
+                temperature=agent.temperature,
+                user_id=user_id,
+                organization_id=agent.organization_id,
+                tools=agent.tools,
+                is_private=agent.is_private,
+                deployment_id=deployment_db.id if deployment_db else default_deployment_db.id if default_deployment_db else None,
+                model_id=model_db.id if model_db else default_model_db.id if default_model_db else None,
             )
 
-        agent_schema = Agent.model_validate(created_agent)
-        ctx.with_agent(agent_schema)
+            created_agent = agent_crud.create_agent(session, agent_data)
 
-        return created_agent
+            if agent.tools_metadata:
+                for tool_metadata in agent.tools_metadata:
+                    await update_or_create_tool_metadata(
+                        created_agent, tool_metadata, session, ctx
+                    )
+
+            agent_schema = Agent.model_validate(created_agent)
+            ctx.with_agent(agent_schema)
+            return created_agent
+
     except Exception as e:
         logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
@@ -163,6 +164,8 @@ async def list_agents(
             visibility=visibility,
             organization_id=organization_id,
         )
+        # Tradeoff: This appends the default Agent regardless of pagination
+        agents.append(get_default_agent())
         return agents
     except Exception as e:
         logger.exception(event=e)
@@ -172,7 +175,7 @@ async def list_agents(
 @router.get("/{agent_id}", response_model=AgentPublic)
 async def get_agent_by_id(
     agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
-) -> Agent:
+) -> AgentPublic:
     """
     Args:
         agent_id (str): Agent ID.
@@ -189,7 +192,11 @@ async def get_agent_by_id(
     agent = None
 
     try:
-        agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
+        # Intentionally not adding Default Agent to DB so it's more flexible
+        if agent_id == DEFAULT_AGENT_ID:
+            agent = get_default_agent()
+        else:
+            agent = agent_crud.get_agent_by_id(session, agent_id, user_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -241,10 +248,10 @@ async def get_agent_deployments(
     ],
 )
 async def update_agent(
-    agent_id: str,
-    new_agent: UpdateAgentRequest,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
+        agent_id: str,
+        new_agent: UpdateAgentRequest,
+        session: DBSessionDep,
+        ctx: Context = Depends(get_context),
 ) -> AgentPublic:
     """
     Update an agent by ID.
@@ -277,54 +284,12 @@ async def update_agent(
 
     try:
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
-        deployment_config = new_agent.deployment_config
-        is_default_deployment = new_agent.is_default_deployment
-        # Remove association fields - handled manually
-        new_agent_cleaned = new_agent.dict(
-            exclude={
-                "model",
-                "deployment",
-                "deployment_config",
-                "is_default_deployment",
-                "is_default_model",
-            }
-        )
+        new_agent_db = UpdateAgentDB(**new_agent.dict())
         if db_deployment and db_model:
-            current_association = agent_crud.get_agent_model_deployment_association(
-                session, agent, db_model.id, db_deployment.id
-            )
-            if current_association:
-                current_config = current_association.deployment_config
-                agent_crud.delete_agent_model_deployment_association(
-                    session, agent, db_model.id, db_deployment.id
-                )
-                if not deployment_config:
-                    deployment_config = (
-                        current_config
-                        if current_config
-                        else current_association.deployment.default_deployment_config
-                    )
-                agent = agent_crud.assign_model_deployment_to_agent(
-                    session,
-                    agent,
-                    db_model.id,
-                    db_deployment.id,
-                    deployment_config,
-                    is_default_deployment,
-                )
-            else:
-                deployment_config = db_deployment.default_deployment_config
-                agent = agent_crud.assign_model_deployment_to_agent(
-                    session,
-                    agent,
-                    db_model.id,
-                    db_deployment.id,
-                    deployment_config,
-                    is_default_deployment,
-                )
-
+            new_agent_db.model_id = db_model.id
+            new_agent_db.deployment_id = db_deployment.id
         agent = agent_crud.update_agent(
-            session, agent, UpdateAgentRequest(**new_agent_cleaned), user_id
+            session, agent, new_agent_db, user_id
         )
         agent_schema = Agent.model_validate(agent)
         ctx.with_agent(agent_schema)
@@ -340,9 +305,9 @@ async def update_agent(
 
 @router.delete("/{agent_id}", response_model=DeleteAgent)
 async def delete_agent(
-    agent_id: str,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
+        agent_id: str,
+        session: DBSessionDep,
+        ctx: Context = Depends(get_context),
 ) -> DeleteAgent:
     """
     Delete an agent by ID.
@@ -374,10 +339,10 @@ async def delete_agent(
 
 
 async def handle_tool_metadata_update(
-    agent: Agent,
-    new_agent: Agent,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
+        agent: Agent,
+        new_agent: Agent,
+        session: DBSessionDep,
+        ctx: Context = Depends(get_context),
 ) -> Agent:
     """Update or create tool metadata for an agent.
 
@@ -415,10 +380,10 @@ async def handle_tool_metadata_update(
 
 
 async def update_or_create_tool_metadata(
-    agent: Agent,
-    new_tool_metadata: AgentToolMetadata,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
+        agent: Agent,
+        new_tool_metadata: AgentToolMetadata,
+        session: DBSessionDep,
+        ctx: Context = Depends(get_context),
 ) -> None:
     """Update or create tool metadata for an agent.
 
@@ -444,7 +409,7 @@ async def update_or_create_tool_metadata(
 
 @router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadataPublic])
 async def list_agent_tool_metadata(
-    agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+        agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
 ) -> list[AgentToolMetadataPublic]:
     """
     List all agent tool metadata by agent ID.
@@ -476,10 +441,10 @@ async def list_agent_tool_metadata(
     response_model=AgentToolMetadataPublic,
 )
 def create_agent_tool_metadata(
-    session: DBSessionDep,
-    agent_id: str,
-    agent_tool_metadata: CreateAgentToolMetadataRequest,
-    ctx: Context = Depends(get_context),
+        session: DBSessionDep,
+        agent_id: str,
+        agent_tool_metadata: CreateAgentToolMetadataRequest,
+        ctx: Context = Depends(get_context),
 ) -> AgentToolMetadataPublic:
     """
     Create an agent tool metadata.
@@ -525,11 +490,11 @@ def create_agent_tool_metadata(
 
 @router.put("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
 async def update_agent_tool_metadata(
-    agent_id: str,
-    agent_tool_metadata_id: str,
-    session: DBSessionDep,
-    new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
-    ctx: Context = Depends(get_context),
+        agent_id: str,
+        agent_tool_metadata_id: str,
+        session: DBSessionDep,
+        new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
+        ctx: Context = Depends(get_context),
 ) -> AgentToolMetadata:
     """
     Update an agent tool metadata by ID.
@@ -569,10 +534,10 @@ async def update_agent_tool_metadata(
 
 @router.delete("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
 async def delete_agent_tool_metadata(
-    agent_id: str,
-    agent_tool_metadata_id: str,
-    session: DBSessionDep,
-    ctx: Context = Depends(get_context),
+        agent_id: str,
+        agent_tool_metadata_id: str,
+        session: DBSessionDep,
+        ctx: Context = Depends(get_context),
 ) -> DeleteAgentToolMetadata:
     """
     Delete an agent tool metadata by ID.
@@ -611,9 +576,9 @@ async def delete_agent_tool_metadata(
 
 @router.post("/batch_upload_file", response_model=list[UploadAgentFileResponse])
 async def batch_upload_file(
-    session: DBSessionDep,
-    files: list[FastAPIUploadFile] = RequestFile(...),
-    ctx: Context = Depends(get_context),
+        session: DBSessionDep,
+        files: list[FastAPIUploadFile] = RequestFile(...),
+        ctx: Context = Depends(get_context),
 ) -> UploadAgentFileResponse:
     user_id = ctx.get_user_id()
 
@@ -633,12 +598,60 @@ async def batch_upload_file(
     return uploaded_files
 
 
-@router.delete("/{agent_id}/files/{file_id}")
-async def delete_agent_file(
+@router.get("/{agent_id}/files/{file_id}", response_model=FileMetadata)
+async def get_agent_file(
     agent_id: str,
     file_id: str,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
+) -> FileMetadata:
+    """
+    Get an agent file by ID.
+
+    Args:
+        agent_id (str): Agent ID.
+        file_id (str): File ID.
+        session (DBSessionDep): Database session.
+        ctx (Context): Context object.
+
+    Returns:
+        FileMetadata: File with the given ID.
+
+    Raises:
+        HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
+    """
+    user_id = ctx.get_user_id()
+
+    if file_id not in get_file_service().get_file_ids_by_agent_id(session, user_id, agent_id, ctx):
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} does not belong to the agent with ID: {agent_id}."
+        )
+
+    file = file_crud.get_file(session, file_id)
+
+    if not file:
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with ID: {file_id} not found.",
+        )
+
+    return FileMetadata(
+        id=file.id,
+        file_name=file.file_name,
+        file_content=file.file_content,
+        file_size=file.file_size,
+        created_at=file.created_at,
+        updated_at=file.updated_at,
+    )
+
+
+@router.delete("/{agent_id}/files/{file_id}")
+async def delete_agent_file(
+        agent_id: str,
+        file_id: str,
+        session: DBSessionDep,
+        ctx: Context = Depends(get_context),
 ) -> DeleteAgentFileResponse:
     """
     Delete an agent file by ID.
@@ -655,7 +668,7 @@ async def delete_agent_file(
         HTTPException: If the agent with the given ID is not found.
     """
     user_id = ctx.get_user_id()
-    _ = validate_agent_exists(session, agent_id)
+    _ = validate_agent_exists(session, agent_id, user_id)
     validate_file(session, file_id, user_id)
 
     # Delete the File DB object

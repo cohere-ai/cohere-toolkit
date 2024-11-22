@@ -3,7 +3,7 @@
 import { useResizeObserver } from '@react-hookz/web';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { AgentPublic, ManagedTool } from '@/cohere-client';
+import { AgentPublic, ToolDefinition } from '@/cohere-client';
 import { ComposerError, ComposerFiles, ComposerToolbar } from '@/components/Composer';
 import { DragDropFileInput, Icon, STYLE_LEVEL_TO_CLASSES } from '@/components/UI';
 import { CHAT_COMPOSER_TEXTAREA_ID } from '@/constants';
@@ -21,7 +21,7 @@ type Props = {
   onChange: (message: string) => void;
   onUploadFile: (files: File[]) => void;
   agent?: AgentPublic;
-  tools?: ManagedTool[];
+  tools?: ToolDefinition[];
   chatWindowRef?: React.RefObject<HTMLDivElement>;
   lastUserMessage?: ChatMessage;
 };
@@ -42,7 +42,7 @@ export const Composer: React.FC<Props> = ({
   const breakpoint = useBreakpoint();
   const isSmallBreakpoint = breakpoint === 'sm';
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { unauthedTools } = useAvailableTools({ agent, managedTools: tools });
+  const { unauthedTools } = useAvailableTools({ agent, allTools: tools });
   const isToolAuthRequired = unauthedTools.length > 0;
 
   const [chatWindowHeight, setChatWindowHeight] = useState(0);

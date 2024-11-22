@@ -23,7 +23,6 @@ database:
 redis:
   url:
 tools:
-  enabled_tools:
   python_interpreter:
     url:
 feature_flags:

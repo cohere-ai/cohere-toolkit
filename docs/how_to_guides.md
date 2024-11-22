@@ -48,7 +48,7 @@ The core chat interface is the Coral frontend. To implement your own interface:
 If you have already created a [connector](https://docs.cohere.com/docs/connectors), you can utilize it within the toolkit by following these steps:
 
 1. Configure your connector using `ConnectorRetriever`.
-2. Add its definition in [community/config/tools.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py), following the `Arxiv` implementation, using the category `Category.DataLoader`.
+2. Add its definition in [community/config/tools.py](https://github.com/cohere-ai/cohere-toolkit/blob/main/src/community/config/tools.py), following the `Arxiv` implementation, using the category `ToolCategory.DataLoader`.
 
 You can now use both the Coral frontend and API with your connector.
 

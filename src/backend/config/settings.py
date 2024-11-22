@@ -195,7 +195,6 @@ class HybridWebSearchSettings(BaseSettings, BaseModel):
 
 class ToolSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
-    enabled_tools: Optional[List[str]] = None
 
     python_interpreter: Optional[PythonToolSettings] = Field(
         default=PythonToolSettings()

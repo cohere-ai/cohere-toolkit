@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Dict, List
 import aiohttp
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 
+from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
 
@@ -11,13 +12,38 @@ logger = LoggerFactory().get_logger()
 
 
 class WebScrapeTool(BaseTool):
-    NAME = "web_scrape"
+    ID = "web_scrape"
     ENDPOINT: ClassVar[str] = "http://co-reader"
     ENABLE_CHUNKING: ClassVar[bool] = True
 
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return  ToolDefinition(
+            name=cls.ID,
+            display_name="Web Scrape",
+            implementation=cls,
+            parameter_definitions={
+                "url": {
+                    "description": "The url to scrape.",
+                    "type": "str",
+                    "required": True,
+                },
+                "query": {
+                    "description": "The query to use to select the most relevant passages to return. Using an empty string will return the passages in the order they appear on the webpage",
+                    "type": "str",
+                    "required": False,
+                },
+            },
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
+        )
 
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any

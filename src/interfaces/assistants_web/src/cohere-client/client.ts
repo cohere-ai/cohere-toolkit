@@ -17,6 +17,7 @@ import {
   UpdateConversationRequest,
   UpdateDeploymentEnv,
 } from '@/cohere-client';
+import { DEFAULT_AGENT_ID } from '@/constants';
 
 import { mapToChatRequest } from './mappings';
 
@@ -53,11 +54,31 @@ export class CohereClient {
     });
   }
 
+  public getConversationFile({
+    conversationId,
+    fileId,
+  }: {
+    conversationId: string;
+    fileId: string;
+  }) {
+    return this.cohereService.default.getFileV1ConversationsConversationIdFilesFileIdGet({
+      conversationId,
+      fileId,
+    });
+  }
+
   public batchUploadConversationFile(
     formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post
   ) {
     return this.cohereService.default.batchUploadFileV1ConversationsBatchUploadFilePost({
       formData,
+    });
+  }
+
+  public getAgentFile({ agentId, fileId }: { agentId: string; fileId: string }) {
+    return this.cohereService.default.getAgentFileV1AgentsAgentIdFilesFileIdGet({
+      agentId,
+      fileId,
     });
   }
 
@@ -263,6 +284,10 @@ export class CohereClient {
     return payload as { token: string };
     // FIXME(@tomtobac): generated code doesn't have code as query parameter (TLK-765)
     // this.cohereService.default.oidcAuthorizeV1OidcAuthGet();
+  }
+
+  public getDefaultAgent() {
+    return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId: DEFAULT_AGENT_ID });
   }
 
   public getAgent(agentId: string) {

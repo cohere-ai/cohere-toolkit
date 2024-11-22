@@ -47,7 +47,7 @@ SLACK_CLIENT_SECRET=<your_client_secret from step 1>
 
 ## 4. Enable the Slack Tool in the Frontend
 
-To enable the Slack tool in the frontend, you will need to modify the `src/community/config/tools.py` file. Add the `TOOL_SLACK_ID` to the `AGENT_SETTINGS_TOOLS` list.
+To enable the Slack tool in the frontend, you will need to modify the `src/interfaces/assistants_web/src/constants/tools.ts` file. Add the `TOOL_SLACK_ID` to the `AGENT_SETTINGS_TOOLS` list.
 
 ```typescript
 export const AGENT_SETTINGS_TOOLS = [
@@ -58,7 +58,7 @@ export const AGENT_SETTINGS_TOOLS = [
 ];
 ```
 
-To enable the Slack tool in the frontend for Base Agent, you will need to modify the `src/community/config/tools.py` file. Remove the `TOOL_SLACK_ID` from the `BASE_AGENT_EXCLUDED_TOOLS` list.
+To enable the Slack tool in the frontend for Base Agent, you will need to modify the `src/interfaces/assistants_web/src/constants/tools.ts` file. Remove the `TOOL_SLACK_ID` from the `BASE_AGENT_EXCLUDED_TOOLS` list.
 By default, the Slack Tool is disabled for the Base Agent. Also if you need to exclude some tool from the Base Agent just add it to the `BASE_AGENT_EXCLUDED_TOOLS` list.
 ```typescript
 export const BASE_AGENT_EXCLUDED_TOOLS = [];

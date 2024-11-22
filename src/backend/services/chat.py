@@ -9,7 +9,7 @@ from fastapi.encoders import jsonable_encoder
 
 from backend.chat.collate import to_dict
 from backend.chat.enums import StreamEvent
-from backend.config.tools import AVAILABLE_TOOLS
+from backend.config.tools import get_available_tools
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import conversation as conversation_crud
 from backend.crud import message as message_crud
@@ -156,7 +156,7 @@ def process_chat(
 
     tools = chat_request.tools
     managed_tools = (
-        len([tool.name for tool in tools if tool.name in AVAILABLE_TOOLS]) > 0
+        len([tool.name for tool in tools if tool.name in get_available_tools()]) > 0
     )
 
     return (
@@ -253,7 +253,7 @@ def process_message_regeneration(
     )
 
     managed_tools = (
-        len([tool.name for tool in chat_request.tools if tool.name in AVAILABLE_TOOLS]) > 0
+        len([tool.name for tool in chat_request.tools if tool.name in get_available_tools()]) > 0
     )
 
     return (
@@ -313,7 +313,7 @@ def is_custom_tool_call(chat_response: BaseChatRequest) -> bool:
 
     # check if any of the tools is not in the available tools
     for tool in chat_response.tools:
-        if tool.name not in AVAILABLE_TOOLS:
+        if tool.name not in get_available_tools():
             return True
 
     return False

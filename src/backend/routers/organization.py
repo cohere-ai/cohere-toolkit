@@ -87,9 +87,10 @@ def get_organization(
     Args:
         organization_id (str): Tool ID.
         session (DBSessionDep): Database session.
+        ctx: Context.
 
     Returns:
-        ManagedTool: Organization with the given ID.
+        Organization: Organization with the given ID.
     """
     organization = organization_crud.get_organization(session, organization_id)
     if not organization:
@@ -135,7 +136,7 @@ def list_organizations(
         session (DBSessionDep): Database session.
 
     Returns:
-        list[ManagedTool]: List of available organizations.
+        list[Organization]: List of available organizations.
     """
     all_organizations = organization_crud.get_organizations(session)
     return all_organizations
