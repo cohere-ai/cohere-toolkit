@@ -1,0 +1,41 @@
+auth:
+  backend_hostname: http://localhost:8000
+  enabled_auth:
+  frontend_hostname: http://localhost:4000
+database:
+  url: postgresql+psycopg2://postgres:postgres@db:5432
+deployments:
+  azure:
+    endpoint_url: https://cohere-ai.azurewebsites.net
+  bedrock:
+    region_name: us-west-2
+  default_deployment: cohere_platform
+  enabled_deployments:
+  - cohere_platform
+  - sagemaker
+  - azure
+  - bedrock
+  sagemaker:
+    endpoint_name: cohere-ai
+    region_name: us-west-2
+  single_container:
+    model:
+    url:
+feature_flags:
+  use_agents_view: true
+  use_community_features: true
+logger:
+  level: info
+  renderer: console
+  strategy: structlog
+redis:
+  url: redis://:redis@redis:6379
+tools:
+  #hybrid_web_search:
+  #  enabled_web_searches:
+  #  - tavily_web_search
+  #python_interpreter:
+  #  url: http://terrarium:8080
+  #slack:
+  #  user_scopes:
+  #  - search:read
