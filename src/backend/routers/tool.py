@@ -56,8 +56,8 @@ def list_tools(
                 )
                 tool.auth_url = tool_auth_service.get_auth_url(user_id)
 
-                # Return access token to client when needed - defaults to False
-                # e.g: Google Drive picker
+                # Return access token to client when required by frontend
+                # e.g: to enable Google Drive picker in client
                 if tool.should_return_token:
                     tool.token = tool_auth_service.get_token(session, user_id)
             except Exception as e:

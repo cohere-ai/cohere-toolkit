@@ -16,7 +16,7 @@ down:
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	poetry run pytest src/backend/tests/unit/routers/test_tool.py --cov=src/backend --cov-report=xml
+	poetry run pytest src/backend/tests/unit --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:
