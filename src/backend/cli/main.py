@@ -1,8 +1,9 @@
 import argparse
+from pathlib import Path
 
 from dotenv import dotenv_values
 
-from backend.cli.constants import COMMUNITY_TOOLS, TOOLS
+from backend.cli.constants import COMMUNITY_TOOLS, CONFIG_FILE_PATH, TOOLS
 from backend.cli.prompts import (
     PROMPTS,
     community_tools_prompt,
@@ -13,7 +14,9 @@ from backend.cli.prompts import (
     update_variable_prompt,
 )
 from backend.cli.setters import (
+    convert_yaml_to_secrets,
     delete_config_folders,
+    read_yaml,
     write_config_files,
     write_env_file,
     write_template_config_files,
@@ -36,6 +39,13 @@ def start():
     show_welcome_message()
 
     secrets = dotenv_values()
+
+    config_file_path = Path(CONFIG_FILE_PATH)
+
+    if config_file_path.is_file():
+        yaml_config = read_yaml(CONFIG_FILE_PATH)
+        yaml_secrets = convert_yaml_to_secrets(yaml_config)
+        secrets.update(yaml_secrets)
 
     # SET UP ENVIRONMENT
     for _, prompt in PROMPTS.items():

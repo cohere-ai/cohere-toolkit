@@ -82,6 +82,27 @@ def write_template_config_files():
         write_yaml(SECRETS_FILE_PATH, secrets_template)
 
 
+def convert_yaml_to_secrets(yaml_dict: dict):
+    def get_nested_value(d, path):
+        keys = path.split(".")
+        value = d
+        for key in keys:
+            if not isinstance(value, dict) or key not in value:
+                return None  # Return None if the path does not exist
+            value = value[key]
+        return value
+
+    secrets = {}
+    for env_var, mapping in ENV_YAML_CONFIG_MAPPING.items():
+        path = mapping.get("path")
+        if path:  # Only process mappings with a defined path
+            value = get_nested_value(yaml_dict, path)
+            if value is not None:  # Add only if the value exists
+                secrets[env_var] = value
+
+    return secrets
+
+
 def convert_secrets_to_yaml(secrets: dict) -> dict:
     config_changes = {}
     secrets_changes = {}
