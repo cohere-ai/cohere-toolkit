@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 import backend.crud.file as file_crud
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 
 
 class FileToolsArtifactTypes(StrEnum):
@@ -58,12 +58,17 @@ class ReadFileTool(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         if not file:
-            return []
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.",
+                          details="Files are not passed in model generated params")
+            )
 
         _, file_id = file
         retrieved_file = file_crud.get_file(session, file_id, user_id)
         if not retrieved_file:
-            return []
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.", details="Might be passed wrong files in model generated params or files are not found")
+            )
 
         return [
             {
@@ -125,13 +130,18 @@ class SearchFileTool(BaseTool):
         user_id = kwargs.get("user_id")
 
         if not query or not files:
-            return []
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.", details="Missing query or files. Might be passed wrong files in model generated params")
+            )
 
         file_ids = [file_id for _, file_id in files]
         retrieved_files = file_crud.get_files_by_ids(session, file_ids, user_id)
 
         if not retrieved_files:
-            return []
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.",
+                          details="Missing files. Might be passed wrong files in model generated params")
+            )
 
         results = []
         for file in retrieved_files:
@@ -142,4 +152,7 @@ class SearchFileTool(BaseTool):
                     "url": file.file_name,
                 }
             )
+        if not results:
+            return self.get_no_results_error()
+
         return results

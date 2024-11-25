@@ -6,7 +6,7 @@ from langchain_text_splitters import MarkdownHeaderTextSplitter
 
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 
 logger = LoggerFactory().get_logger()
 
@@ -72,15 +72,15 @@ class WebScrapeTool(BaseTool):
                         ]
 
                     content = await response.text()
-                    return self.parse_content(content, url, self.ENABLE_CHUNKING)
+                    results = self.parse_content(content, url, self.ENABLE_CHUNKING)
+                    if not results:
+                        return self.get_no_results_error()
 
+                    return results
             except aiohttp.ClientError as e:
-                return [
-                    {
-                        "text": f"Request failed: {str(e)}",
-                        "url": url,
-                    }
-                ]
+                return self.get_tool_error(
+                    ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
+                )
 
     def parse_content(
         self, content: str, url: str, enable_chunking: bool
