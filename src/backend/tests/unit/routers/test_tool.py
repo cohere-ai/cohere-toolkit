@@ -72,6 +72,7 @@ def test_list_authed_tool_should_return_token(session_client: TestClient, mock_g
     assert response.status_code == 200
 
     for tool in response.json():
+        print(tool)
         if tool["should_return_token"]:
             assert tool["token"] == "Mocked Value"
 
