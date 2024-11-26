@@ -10,6 +10,6 @@ class Group(Base):
     display_name: Mapped[str] = mapped_column(String)
 
     users = relationship("User", secondary="user_group", backref="groups")
-    user_associations = relationship("UserGroupAssociation", back_populates="group")
+    user_associations = relationship("UserGroupAssociation", back_populates="group", overlaps="groups,users")
 
     __table_args__ = (UniqueConstraint("display_name", name="unique_display_name"),)

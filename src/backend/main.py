@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 from alembic.command import upgrade
 from alembic.config import Config
@@ -33,6 +34,8 @@ from backend.services.logger.middleware import LoggingMiddleware
 
 # Only show errors for Pydantic
 logging.getLogger('pydantic').setLevel(logging.ERROR)
+# Supress UserWarnings clogging logs
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 load_dotenv()
 

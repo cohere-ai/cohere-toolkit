@@ -1,3 +1,4 @@
+import uuid
 from typing import List, Optional
 
 from fastapi import HTTPException
@@ -7,12 +8,13 @@ from backend.crud import conversation as conversation_crud
 from backend.database_models import Message as MessageModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
+from backend.database_models.message import MessageAgent
 from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.conversation import Conversation
 from backend.schemas.message import Message
-from backend.services.chat import generate_chat_response
+from backend.services.chat import create_message, generate_chat_response
 from backend.services.file import attach_conversation_id_to_files, get_file_service
 
 DEFAULT_TITLE = "New Conversation"
@@ -244,6 +246,17 @@ async def generate_conversation_title(
             message=prompt,
             model=model,
         )
+        response_message = create_message(
+            session,
+            chat_request,
+            conversation.id,
+            user_id,
+            1,
+            "",
+            MessageAgent.CHATBOT,
+            False,
+            id=str(uuid.uuid4()),
+        )
 
         response = await generate_chat_response(
             session,
@@ -253,7 +266,7 @@ async def generate_conversation_title(
                 agent_id=agent_id,
                 ctx=ctx,
             ),
-            response_message=None,
+            response_message=response_message,
             conversation_id=None,
             user_id=user_id,
             should_store=False,
