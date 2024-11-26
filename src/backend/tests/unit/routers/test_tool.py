@@ -5,11 +5,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.config.tools import Tool, get_available_tools
+from backend.database_models.database import DBSessionDep
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 from backend.tools.base import BaseTool
-from backend.tools.google_drive.auth import GoogleDriveAuth
 
 TOOL_DEFINITION_KEYS = [
     "name",
@@ -39,6 +39,15 @@ def test_list_tools(session_client: TestClient) -> None:
             assert tool[key] == getattr(tool_definition, key)
 
 def test_list_authed_tool_should_return_token(session_client: TestClient, mock_get_available_tools) -> None:
+    class MockGoogleDriveAuth():
+        def is_auth_required(self, session: DBSessionDep, user_id: str) -> bool:
+            return False
+
+        def get_auth_url(self, user_id: str) -> str:
+            return ""
+
+        def get_token(self, session: DBSessionDep, user_id: str) -> str:
+            return "mock"
     class MockGoogleDrive(BaseTool):
         ID = "google_drive"
         @classmethod
@@ -56,7 +65,7 @@ def test_list_authed_tool_should_return_token(session_client: TestClient, mock_g
                 },
                 is_visible=True,
                 is_available=True,
-                auth_implementation=GoogleDriveAuth,
+                auth_implementation=MockGoogleDriveAuth,
                 should_return_token=True,
                 error_message=cls.generate_error_message(),
                 category=ToolCategory.DataLoader,
@@ -65,16 +74,14 @@ def test_list_authed_tool_should_return_token(session_client: TestClient, mock_g
 
     # Patch Google Drive tool
     mock_get_available_tools.return_value = {Tool.Google_Drive.value.ID: MockGoogleDrive.get_tool_definition()}
-    # Patch get_token method for Google Drive
-    with patch('backend.tools.google_drive.tool.GoogleDriveAuth.get_token', return_value="Mocked Value"):
-        response = session_client.get("/v1/tools")
 
+    response = session_client.get("/v1/tools")
     assert response.status_code == 200
 
     for tool in response.json():
         print(tool)
         if tool["should_return_token"]:
-            assert tool["token"] == "Mocked Value"
+            assert tool["token"] == "mock"
 
 def test_list_authed_tool_should_not_return_token(session_client: TestClient) -> None:
     response = session_client.get("/v1/tools")
