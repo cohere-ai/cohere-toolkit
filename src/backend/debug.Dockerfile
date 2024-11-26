@@ -24,19 +24,29 @@ ENV PORT=${PORT}
 
 # Build with community packages
 ARG INSTALL_COMMUNITY_DEPS
-
+ARG DEBUGGER_IDE
+ENV DEBUGGER_IDE=${DEBUGGER_IDE}
 # Copy dependency files to avoid cache invalidations
 COPY pyproject.toml poetry.lock ./
+COPY docker_scripts/debugrun-entrypoint.sh ./debugrun-entrypoint.sh
+RUN ["chmod", "+x", "./debugrun-entrypoint.sh"]
 
 # Install poetry
 RUN pip install --no-cache-dir poetry==1.6.1
 # Conditional installation of dependencies
 RUN if [ "$INSTALL_COMMUNITY_DEPS" = "true" ]; then \
-      poetry install --with dev,community; \
+      if [ "$DEBUGGER_IDE" = "vscode" ]; then \
+        poetry install --with dev,community,local-debug; \
+      else \
+        poetry install --with dev,community; \
+      fi; \
     else \
-      poetry install --with dev; \
+      if [ "$DEBUGGER_IDE" = "vscode" ]; then \
+        poetry install --with dev,local-debug; \
+      else \
+        poetry install --with dev; \
+      fi; \
     fi
-RUN poetry add debugpy
 
 COPY src/backend/ src/backend/
 COPY src/community src/community/
@@ -48,4 +58,5 @@ COPY .en[v] .env
 EXPOSE ${PORT}
 EXPOSE 5678
 
-CMD python3 -m debugpy --listen 0.0.0.0:5678 -m uvicorn backend.main:app --reload --host 0.0.0.0 --port ${PORT} --timeout-keep-alive 300
+
+CMD  ["/workspace/debugrun-entrypoint.sh"]
