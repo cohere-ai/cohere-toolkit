@@ -173,12 +173,12 @@ def deployments_models_seed(op):
             default_deployment_config=json.dumps(
                 {
                     env_var: os.environ.get(env_var, "")
-                    for env_var in model_deployments[deployment].env_vars
+                    for env_var in model_deployments[deployment].env_vars()
                 }
             ),
             deployment_class_name=model_deployments[
                 deployment
-            ].deployment_class.__name__,
+            ].__name__,
             is_community=deployment in COMMUNITY_DEPLOYMENTS_SETUP,
         )
         op.execute(sql_command)

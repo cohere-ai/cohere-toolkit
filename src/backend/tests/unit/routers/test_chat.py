@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,6 +15,9 @@ from backend.database_models.user import User
 from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.schemas.tool import ToolCategory
 from backend.tests.unit.factories import get_factory
+from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform import (
+    MockCohereDeployment,
+)
 
 is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None
@@ -31,14 +35,15 @@ def user(session_chat: Session) -> User:
 def test_streaming_new_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        headers={
-            "User-Id": user.id,
-            "Deployment-Name": CohereDeployment.name(),
-        },
-        json={"message": "Hello", "max_tokens": 10},
-    )
+    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": user.id,
+                "Deployment-Name": MockCohereDeployment.name(),
+            },
+            json={"message": "Hello", "max_tokens": 10},
+        )
 
     assert response.status_code == 200
     validate_chat_streaming_response(
@@ -55,15 +60,16 @@ def test_streaming_new_chat_with_agent(
     agent = get_factory("Agent", session_chat).create(user=user, tools=[], deployment_id=deployment.id,
                                                       model_id=model.id)
 
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        headers={
-            "User-Id": agent.user.id,
-            "Deployment-Name": agent.deployment,
-        },
-        params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
-    )
+    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": agent.user.id,
+                "Deployment-Name": agent.deployment,
+            },
+            params={"agent_id": agent.id},
+            json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
+        )
     assert response.status_code == 200
     validate_chat_streaming_response(
         response, agent.user, session_chat, session_client_chat, 2
@@ -105,15 +111,16 @@ def test_streaming_new_chat_with_agent_existing_conversation(
 
     session_chat.refresh(conversation)
 
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        headers={
-            "User-Id": agent.user.id,
-            "Deployment-Name": agent.deployment,
-        },
-        params={"agent_id": agent.id},
-        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
-    )
+    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": agent.user.id,
+                "Deployment-Name": agent.deployment,
+            },
+            params={"agent_id": agent.id},
+            json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
+        )
 
     assert response.status_code == 200
     validate_chat_streaming_response(
@@ -175,18 +182,19 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
     agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"], deployment_id=deployment.id,
                                                       model_id=model.id)
 
-    response = session_client_chat.post(
-        "/v1/chat-stream",
-        headers={
-            "User-Id": agent.user.id,
-            "Deployment-Name": agent.deployment,
-        },
-        json={
-            "message": "Who is a tallest nba player",
-            "tools": [{"name": "tavily_web_search"}],
-            "agent_id": agent.id,
-        },
-    )
+    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
+        response = session_client_chat.post(
+            "/v1/chat-stream",
+            headers={
+                "User-Id": agent.user.id,
+                "Deployment-Name": agent.deployment,
+            },
+            json={
+                "message": "Who is a tallest nba player",
+                "tools": [{"name": "tavily_web_search"}],
+                "agent_id": agent.id,
+            },
+        )
 
     assert response.status_code == 200
     validate_chat_streaming_tool_cals_response(response, ["tavily_web_search"])
