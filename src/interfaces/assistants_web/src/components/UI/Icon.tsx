@@ -482,5 +482,10 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
         <Gmail />
       </AccessibleIcon>
     ),
+    ['hot-keys']: (
+      <AccessibleIcon label="Hot Keys">
+        <Menu />
+      </AccessibleIcon>
+    ),
   }[name];
 };

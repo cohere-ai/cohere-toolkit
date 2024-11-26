@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 from alembic.command import upgrade
 from alembic.config import Config
@@ -33,6 +34,8 @@ from backend.services.logger.middleware import LoggingMiddleware
 
 # Only show errors for Pydantic
 logging.getLogger('pydantic').setLevel(logging.ERROR)
+# Supress UserWarnings clogging logs
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 load_dotenv()
 
@@ -91,7 +94,6 @@ def create_app():
 
 app = create_app()
 
-
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     ctx = get_context(request)
@@ -114,7 +116,6 @@ async def validation_exception_handler(request: Request, exc: Exception):
             )
         },
     )
-
 
 @app.on_event("startup")
 async def startup_event():

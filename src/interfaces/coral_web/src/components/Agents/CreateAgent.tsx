@@ -8,8 +8,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AgentForm, CreateAgentFormFields } from '@/components/Agents/AgentForm';
 import { Button, Text } from '@/components/Shared';
 import {
+  BACKGROUND_TOOLS,
   DEFAULT_AGENT_MODEL,
-  DEFAULT_AGENT_TOOLS,
   DEFAULT_PREAMBLE,
   DEPLOYMENT_COHERE_PLATFORM,
   TOOL_GOOGLE_DRIVE_ID,
@@ -27,7 +27,7 @@ const DEFAULT_FIELD_VALUES = {
   preamble: DEFAULT_PREAMBLE,
   deployment: DEPLOYMENT_COHERE_PLATFORM,
   model: DEFAULT_AGENT_MODEL,
-  tools: DEFAULT_AGENT_TOOLS,
+  tools: BACKGROUND_TOOLS,
 };
 /**
  * @description Form to create a new agent.

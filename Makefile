@@ -16,15 +16,15 @@ down:
 
 .PHONY: run-unit-tests
 run-unit-tests:
-	poetry run pytest src/backend/tests/unit --cov=src/backend --cov-report=xml
+	poetry run pytest src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:
-	poetry run pytest src/community/tests --cov=src/community --cov-report=xml
+	poetry run pytest src/community/tests/$(file) --cov=src/community --cov-report=xml
 
 .PHONY: run-integration-tests
 run-integration-tests:
-	docker compose run --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
+	docker compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
 
 run-tests: run-unit-tests
 

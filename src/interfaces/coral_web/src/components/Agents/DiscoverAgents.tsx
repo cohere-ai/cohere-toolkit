@@ -63,7 +63,7 @@ export const DiscoverAgents = () => {
           )}
           {'command r+'.includes(filterText.toLowerCase()) && (
             <DiscoverAgentCard
-              isBaseAgent
+              isDefaultAgent
               name="Command R+"
               description={STRINGS.baseAssistantDescription}
             />

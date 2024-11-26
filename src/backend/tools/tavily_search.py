@@ -4,7 +4,6 @@ from tavily import TavilyClient
 
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
@@ -14,7 +13,6 @@ from backend.tools.utils.mixins import WebSearchFilteringMixin
 class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
     ID = "tavily_web_search"
     TAVILY_API_KEY = Settings().get('tools.tavily_web_search.api_key')
-    POST_RERANK_MAX_RESULTS = 6
 
     def __init__(self):
         self.client = TavilyClient(api_key=self.TAVILY_API_KEY)
@@ -58,7 +56,6 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
                 AgentToolMetadataArtifactsType.DOMAIN, session, ctx
             )
 
-        # Do search
         try:
             result = self.client.search(
                 query=query,
@@ -70,75 +67,27 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
             logger.error(f"Failed to perform Tavily web search: {str(e)}")
             raise Exception(f"Failed to perform Tavily web search: {str(e)}")
 
-        if "results" not in result:
-            return [{"No web results found"}]
+        results = result.get("results", [])
 
-        expanded = []
-        for result in result["results"]:
-            # Append original search result
-            expanded.append(result)
+        if not results:
+            return self.get_no_results_error()
 
+        tool_results = []
+        for result in results:
             # Retrieve snippets from raw content if exists
-            raw_content = result["raw_content"]
+            raw_content = result.get("raw_content")
             if raw_content:
                 # Get other snippets
-                snippets = result["raw_content"].split("\n")
+                snippets = raw_content.split("\n")
                 for snippet in snippets:
-                    if result["content"] != snippet:
+                    if result.get("content") != snippet:
                         if len(snippet.split()) <= 10:
                             continue  # Skip snippets with less than 10 words
 
-                        new_result = {
-                            "url": result["url"],
-                            "title": result["title"],
-                            "content": snippet.strip(),
-                        }
-                        expanded.append(new_result)
+                        tool_results.append({
+                            "text": snippet.strip(),
+                            "title": result.get("title"),
+                            "url": result.get("url"),
+                        })
 
-        reranked_results = await self.rerank_page_snippets(
-            query, expanded, model=kwargs.get("model_deployment"), ctx=ctx, **kwargs
-        )
-
-        return [
-            {"url": result["url"], "text": result["content"], "title": result["title"]}
-            for result in reranked_results
-        ]
-
-    async def rerank_page_snippets(
-        self,
-        query: str,
-        snippets: List[Dict[str, Any]],
-        model: BaseDeployment,
-        ctx: Any,
-        **kwargs: Any,
-    ) -> List[Dict[str, Any]]:
-        if len(snippets) == 0:
-            return []
-
-        rerank_batch_size = 500
-        relevance_scores = [None for _ in range(len(snippets))]
-        for batch_start in range(0, len(snippets), rerank_batch_size):
-            snippet_batch = snippets[batch_start : batch_start + rerank_batch_size]
-            batch_output = await model.invoke_rerank(
-                query=query,
-                documents=[
-                    f"{snippet['title']} {snippet['content']}"
-                    for snippet in snippet_batch
-                ],
-                ctx=ctx,
-            )
-            for b in batch_output.get("results", []):
-                index = b.get("index", None)
-                relevance_score = b.get("relevance_score", None)
-                if index is not None:
-                    relevance_scores[batch_start + index] = relevance_score
-
-        reranked, seen_urls = [], []
-        for _, result in sorted(
-            zip(relevance_scores, snippets), key=lambda x: x[0], reverse=True
-        ):
-            if result["url"] not in seen_urls:
-                seen_urls.append(result["url"])
-                reranked.append(result)
-
-        return reranked[: self.POST_RERANK_MAX_RESULTS]
+        return tool_results

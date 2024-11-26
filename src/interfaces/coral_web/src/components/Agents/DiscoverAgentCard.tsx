@@ -11,14 +11,14 @@ import { getCohereColor } from '@/utils/getCohereColor';
 type Props = {
   name: string;
   description?: string;
-  isBaseAgent?: boolean;
+  isDefaultAgent?: boolean;
   id?: string;
 };
 
 /**
  * @description renders a card for an agent with the agent's name, description
  */
-export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBaseAgent }) => {
+export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isDefaultAgent }) => {
   const { open, close } = useContextStore();
 
   const handleDeleteAssistant = () => {
@@ -39,11 +39,11 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
               'truncate',
               id && getCohereColor(id),
               {
-                'bg-mushroom-700': isBaseAgent,
+                'bg-mushroom-700': isDefaultAgent,
               }
             )}
           >
-            {isBaseAgent ? (
+            {isDefaultAgent ? (
               <CoralLogo style="secondary" />
             ) : (
               <Text className="uppercase text-white" styleAs="p-lg">
@@ -54,7 +54,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
           <Text as="h5" className="truncate">
             {name}
           </Text>
-          {!isBaseAgent && (
+          {!isDefaultAgent && (
             <div className="ml-auto">
               <KebabMenu
                 anchor="bottom end"
@@ -72,7 +72,7 @@ export const DiscoverAgentCard: React.FC<Props> = ({ id, name, description, isBa
         <Text className="line-clamp-2 flex-grow">{description}</Text>
         <Button
           className="ml-auto"
-          href={isBaseAgent ? '/' : `/a/${id}`}
+          href={isDefaultAgent ? '/' : `/a/${id}`}
           label={<Text className="text-green-250">{STRINGS.tryNow}</Text>}
           kind="secondary"
           endIcon={<Icon name="arrow-up-right" className="text-green-250" />}

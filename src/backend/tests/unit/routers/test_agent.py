@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from backend.config.default_agent import DEFAULT_AGENT_ID
 from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import Tool
 from backend.crud import deployment as deployment_crud
@@ -16,6 +17,9 @@ is_cohere_env_set = (
     os.environ.get("COHERE_API_KEY") is not None
     and os.environ.get("COHERE_API_KEY") != ""
 )
+
+def filter_default_agent(agents: list) -> list:
+    return [agent for agent in agents if agent.get("id") != DEFAULT_AGENT_ID]
 
 def test_create_agent_missing_name(
     session_client: TestClient, session: Session, user
@@ -159,24 +163,23 @@ def test_create_existing_agent(
     assert response.json() == {"detail": "Agent test agent already exists."}
 
 
-def test_list_agents_empty(session_client: TestClient, session: Session) -> None:
-    # Delete default agent
-    session.query(Agent).delete()
+def test_list_agents_empty_returns_default_agent(session_client: TestClient, session: Session) -> None:
     response = session_client.get("/v1/agents", headers={"User-Id": "123"})
     assert response.status_code == 200
     response_agents = response.json()
-    assert len(response_agents) == 0
+    # Returns default agent
+    assert len(response_agents) == 1
 
 
 def test_list_agents(session_client: TestClient, session: Session, user) -> None:
-    session.query(Agent).delete()
-    for _ in range(3):
+    num_agents = 3
+    for _ in range(num_agents):
         _ = get_factory("Agent", session).create(user=user)
 
     response = session_client.get("/v1/agents", headers={"User-Id": user.id})
     assert response.status_code == 200
-    response_agents = response.json()
-    assert len(response_agents) == 3
+    response_agents = filter_default_agent(response.json())
+    assert len(response_agents) == num_agents
 
 
 def test_list_organization_agents(
@@ -184,10 +187,10 @@ def test_list_organization_agents(
     session: Session,
     user,
 ) -> None:
-    session.query(Agent).delete()
+    num_agents = 3
     organization = get_factory("Organization", session).create()
     organization1 = get_factory("Organization", session).create()
-    for i in range(3):
+    for i in range(num_agents):
         _ = get_factory("Agent", session).create(
             user=user,
             organization_id=organization.id,
@@ -201,9 +204,9 @@ def test_list_organization_agents(
         "/v1/agents", headers={"User-Id": user.id, "Organization-Id": organization.id}
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     agents = sorted(response_agents, key=lambda x: x["name"])
-    for i in range(3):
+    for i in range(num_agents):
         assert agents[i]["name"] == f"agent-{i}-{organization.id}"
 
 
@@ -212,10 +215,10 @@ def test_list_organization_agents_query_param(
     session: Session,
     user,
 ) -> None:
-    session.query(Agent).delete()
+    num_agents = 3
     organization = get_factory("Organization", session).create()
     organization1 = get_factory("Organization", session).create()
-    for i in range(3):
+    for i in range(num_agents):
         _ = get_factory("Agent", session).create(
             user=user, organization_id=organization.id
         )
@@ -230,9 +233,9 @@ def test_list_organization_agents_query_param(
         headers={"User-Id": user.id, "Organization-Id": organization.id},
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     agents = sorted(response_agents, key=lambda x: x["name"])
-    for i in range(3):
+    for i in range(num_agents):
         assert agents[i]["name"] == f"agent-{i}-{organization1.id}"
 
 
@@ -263,7 +266,7 @@ def test_list_private_agents(
     )
 
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
 
     # Only the agents created by user should be returned
     assert len(response_agents) == 3
@@ -282,7 +285,7 @@ def test_list_public_agents(session_client: TestClient, session: Session, user) 
     )
 
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
 
     # Only the agents created by user should be returned
     assert len(response_agents) == 2
@@ -319,14 +322,14 @@ def test_list_agents_with_pagination(
         "/v1/agents?limit=3&offset=2", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     assert len(response_agents) == 3
 
     response = session_client.get(
         "/v1/agents?limit=2&offset=4", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
-    response_agents = response.json()
+    response_agents = filter_default_agent(response.json())
     assert len(response_agents) == 1
 
 
