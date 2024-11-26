@@ -89,6 +89,26 @@ class LangChainVectorDBRetriever(BaseTool):
     def is_available(cls) -> bool:
         return cls.COHERE_API_KEY is not None
 
+    @classmethod
+    def get_tool_definition(cls) -> ToolDefinition:
+        return ToolDefinition(
+            name=cls.ID,
+            display_name="Vector DB Retriever",
+            implementation=cls,
+            parameter_definitions={
+                "query": {
+                    "description": "Query for retrieval.",
+                    "type": "str",
+                    "required": True,
+                }
+            },
+            is_visible=False,
+            is_available=cls.is_available(),
+            error_message=cls.generate_error_message(),
+            category=ToolCategory.DataLoader,
+            description="Retrieves documents from Wikipedia.",
+        )
+
     async def call(
         self, parameters: dict, ctx: Any, **kwargs: Any
     ) -> List[Dict[str, Any]]:

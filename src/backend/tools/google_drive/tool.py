@@ -49,6 +49,7 @@ class GoogleDrive(BaseTool):
             is_visible=True,
             is_available=GoogleDrive.is_available(),
             auth_implementation=GoogleDriveAuth,
+            should_return_token=True,
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Returns a list of relevant document snippets from the user's Google drive.",
