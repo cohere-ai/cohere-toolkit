@@ -138,11 +138,11 @@ dev-sync-down:
 
 .PHONY: vscode-debug
 vscode-debug:
-	@docker compose -f docker-compose.vscode.debug.yml up
+	@docker compose -f docker-compose.vscode.debug.yml up --build
 
 .PHONY: pycharm-debug
 pycharm-debug:
-	@docker compose -f docker-compose.pycharm.debug.yml up
+	@docker compose -f docker-compose.pycharm.debug.yml up --build
 
 
 
