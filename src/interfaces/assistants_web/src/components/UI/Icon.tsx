@@ -29,6 +29,7 @@ import {
   File,
   FileSearch,
   Folder,
+  Gmail,
   GoogleDrive,
   Hide,
   Information,
@@ -126,6 +127,7 @@ export const IconList = [
   'warning',
   'web',
   'slack',
+  'gmail',
 ] as const;
 
 export type IconName = (typeof IconList)[number];
@@ -475,8 +477,13 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
         <Slack />
       </AccessibleIcon>
     ),
+    ['gmail']: (
+      <AccessibleIcon label="Gmail">
+        <Gmail />
+      </AccessibleIcon>
+    ),
     ['hot-keys']: (
-      <AccessibleIcon label="">
+      <AccessibleIcon label="Hot Keys">
         <Menu />
       </AccessibleIcon>
     ),
