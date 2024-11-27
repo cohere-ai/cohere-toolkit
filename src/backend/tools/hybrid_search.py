@@ -17,7 +17,7 @@ from backend.tools.web_scrape import WebScrapeTool
 
 class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
     ID = "hybrid_web_search"
-    POST_RERANK_MAX_RESULTS = 6
+    POST_RERANK_MAX_RESULTS = 5
     AVAILABLE_WEB_SEARCH_TOOLS = [TavilyWebSearch, GoogleWebSearch, BraveWebSearch]
     ENABLED_WEB_SEARCH_TOOLS = Settings().get('tools.hybrid_web_search.enabled_web_searches')
     WEB_SCRAPE_TOOL = WebScrapeTool
@@ -159,8 +159,9 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
         for _, result in sorted(
             zip(relevance_scores, results), key=lambda x: x[0], reverse=True
         ):
-            if result["url"] not in seen_urls:
-                seen_urls.append(result["url"])
+            url = result.get("url")
+            if url not in seen_urls:
+                seen_urls.append(url)
                 reranked.append(result)
 
-        return reranked[: self.POST_RERANK_MAX_RESULTS]
+        return reranked[:self.POST_RERANK_MAX_RESULTS]
