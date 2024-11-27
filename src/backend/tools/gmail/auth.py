@@ -50,6 +50,7 @@ class GmailAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
             "client_id": self.GMAIL_CLIENT_ID,
             "scope": " ".join(self.USER_SCOPES or []),
             "redirect_uri": self.REDIRECT_URL,
+            "prompt": "select_account consent",
             "state": json.dumps(state),
             "access_type": "offline",
             "include_granted_scopes": "true",
