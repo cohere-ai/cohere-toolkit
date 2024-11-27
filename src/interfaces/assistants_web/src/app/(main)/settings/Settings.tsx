@@ -5,7 +5,7 @@ import { PropsWithChildren, useState } from 'react';
 import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
-import { TOOL_SLACK_ID } from '@/constants';
+import { TOOL_GMAIL_ID, TOOL_SLACK_ID } from '@/constants';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
 
@@ -79,6 +79,7 @@ const Connections = () => (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <GoogleDriveConnection />
       <SlackConnection />
+      <GmailConnection />
     </div>
   </Wrapper>
 );
@@ -260,6 +261,63 @@ const SlackConnection = () => {
           <Button
             label="Authenticate"
             href={getToolAuthUrl(slackTool.auth_url)}
+            kind="secondary"
+            theme="default"
+            icon="arrow-up-right"
+          />
+        )}
+      </section>
+    </article>
+  );
+};
+
+const GmailConnection = () => {
+  const { data } = useListTools();
+  const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
+  const notify = useNotify();
+  const gmailTool = data?.find((tool) => tool.name === TOOL_GMAIL_ID);
+
+  if (!gmailTool) {
+    return null;
+  }
+
+  const handleDeleteAuthTool = async () => {
+    try {
+      await deleteAuthTool(gmailTool.name!);
+    } catch (e) {
+      notify.error('Failed to delete Gmail connection');
+    }
+  };
+
+  const isGmailConnected = !(gmailTool.is_auth_required ?? false);
+
+  return (
+    <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
+      <header className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon name="gmail" size="xl" />
+          <Text className="text-volcanic-400 dark:text-mushroom-950">Gmail</Text>
+        </div>
+        <StatusConnection connected={isGmailConnected} />
+      </header>
+      <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">Connect to Gmail</Text>
+      <section>
+        {isGmailConnected ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Button
+                label="Delete connection"
+                kind="secondary"
+                icon="trash"
+                theme="danger"
+                onClick={handleDeleteAuthTool}
+              />
+            </div>
+          </div>
+        ) : (
+          <Button
+            label="Authenticate"
+            href={getToolAuthUrl(gmailTool.auth_url)}
             kind="secondary"
             theme="default"
             icon="arrow-up-right"
