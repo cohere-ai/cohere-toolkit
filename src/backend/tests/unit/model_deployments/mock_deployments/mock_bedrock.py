@@ -15,6 +15,9 @@ class MockBedrockDeployment(MockDeployment):
 
     DEFAULT_MODELS = ["cohere.command-r-plus-v1:0"]
 
+    def __init__(self, **kwargs: Any):
+        pass
+
     @classmethod
     def name(cls) -> str:
         return "Bedrock"

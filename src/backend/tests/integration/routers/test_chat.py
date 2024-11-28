@@ -35,15 +35,14 @@ def user(session_chat: Session) -> User:
 def test_streaming_new_chat(
     session_client_chat: TestClient, session_chat: Session, user: User
 ):
-    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
-        response = session_client_chat.post(
-            "/v1/chat-stream",
-            headers={
-                "User-Id": user.id,
-                "Deployment-Name": MockCohereDeployment.name(),
-            },
-            json={"message": "Hello", "max_tokens": 10},
-        )
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": user.id,
+            "Deployment-Name": MockCohereDeployment.name(),
+        },
+        json={"message": "Hello", "max_tokens": 10},
+    )
 
     assert response.status_code == 200
     validate_chat_streaming_response(
@@ -60,16 +59,15 @@ def test_streaming_new_chat_with_agent(
     agent = get_factory("Agent", session_chat).create(user=user, tools=[], deployment_id=deployment.id,
                                                       model_id=model.id)
 
-    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
-        response = session_client_chat.post(
-            "/v1/chat-stream",
-            headers={
-                "User-Id": agent.user.id,
-                "Deployment-Name": agent.deployment,
-            },
-            params={"agent_id": agent.id},
-            json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
-        )
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": agent.user.id,
+            "Deployment-Name": agent.deployment,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10, "agent_id": agent.id},
+    )
     assert response.status_code == 200
     validate_chat_streaming_response(
         response, agent.user, session_chat, session_client_chat, 2
@@ -111,16 +109,15 @@ def test_streaming_new_chat_with_agent_existing_conversation(
 
     session_chat.refresh(conversation)
 
-    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
-        response = session_client_chat.post(
-            "/v1/chat-stream",
-            headers={
-                "User-Id": agent.user.id,
-                "Deployment-Name": agent.deployment,
-            },
-            params={"agent_id": agent.id},
-            json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
-        )
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": agent.user.id,
+            "Deployment-Name": agent.deployment,
+        },
+        params={"agent_id": agent.id},
+        json={"message": "Hello", "max_tokens": 10, "conversation_id": conversation.id, "agent_id": agent.id},
+    )
 
     assert response.status_code == 200
     validate_chat_streaming_response(
@@ -182,19 +179,18 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
     agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"], deployment_id=deployment.id,
                                                       model_id=model.id)
 
-    with patch("backend.services.deployment.get_deployment_by_name", return_value=CohereDeployment):
-        response = session_client_chat.post(
-            "/v1/chat-stream",
-            headers={
-                "User-Id": agent.user.id,
-                "Deployment-Name": agent.deployment,
-            },
-            json={
-                "message": "Who is a tallest nba player",
-                "tools": [{"name": "tavily_web_search"}],
-                "agent_id": agent.id,
-            },
-        )
+    response = session_client_chat.post(
+        "/v1/chat-stream",
+        headers={
+            "User-Id": agent.user.id,
+            "Deployment-Name": agent.deployment,
+        },
+        json={
+            "message": "Who is a tallest nba player",
+            "tools": [{"name": "tavily_web_search"}],
+            "agent_id": agent.id,
+        },
+    )
 
     assert response.status_code == 200
     validate_chat_streaming_tool_cals_response(response, ["tavily_web_search"])

@@ -1,5 +1,6 @@
 from typing import Any
 
+from backend.database_models.database import get_session
 from backend.exceptions import DeploymentNotFoundError
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
@@ -17,8 +18,9 @@ def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
     """
     kwargs["ctx"] = ctx
     try:
-        deployment = deployment_service.get_deployment_by_name(name)
+        session = next(get_session())
+        deployment = deployment_service.get_deployment_by_name(session, name)
     except DeploymentNotFoundError:
-        deployment = deployment_service.get_default_deployment()
+        deployment = deployment_service.get_default_deployment(**kwargs)
 
-    return deployment(**kwargs)
+    return deployment

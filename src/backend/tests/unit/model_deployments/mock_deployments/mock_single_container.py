@@ -15,6 +15,9 @@ class MockSingleContainerDeployment(MockDeployment):
 
     DEFAULT_MODELS = ["command-r"]
 
+    def __init__(self, **kwargs: Any):
+        pass
+
     @classmethod
     def name(cls) -> str:
         return "Single Container"

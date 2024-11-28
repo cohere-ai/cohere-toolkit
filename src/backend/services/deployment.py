@@ -29,7 +29,12 @@ from backend.services.logger.utils import LoggerFactory
 logger = LoggerFactory().get_logger()
 
 
-def get_default_deployment() -> type[BaseDeployment]:
+def create_db_deployment(session: DBSessionDep, deployment: DeploymentDefinition) -> DeploymentDefinition:
+    db_deployment = deployment_crud.create_deployment_by_config(session, deployment)
+    return DeploymentDefinition.from_db_deployment(db_deployment)
+
+
+def get_default_deployment(**kwargs) -> BaseDeployment:
     try:
         fallback = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.is_available)
     except StopIteration:
@@ -44,17 +49,19 @@ def get_default_deployment() -> type[BaseDeployment]:
                 if d.id() == default_deployment
             ),
             fallback,
-        )
+        )(**kwargs)
 
-    return fallback
+    return fallback(**kwargs)
 
-def get_deployment(session: DBSessionDep, deployment_id: str) -> type[BaseDeployment]:
+def get_deployment(session: DBSessionDep, deployment_id: str) -> BaseDeployment:
     definition = get_deployment_definition(session, deployment_id)
-    return get_deployment_by_name(definition.name)
+    return get_deployment_by_name(session, definition.name)
 
-def get_deployment_by_name(deployment_name: str) -> type[BaseDeployment]:
+def get_deployment_by_name(session: DBSessionDep, deployment_name: str) -> BaseDeployment:
+    definition = get_deployment_definition_by_name(session, deployment_name)
+
     try:
-        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.name() == deployment_name)
+        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == definition.class_name)(**definition.config)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 

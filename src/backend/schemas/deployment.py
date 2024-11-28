@@ -39,6 +39,7 @@ class DeploymentDefinition(BaseModel):
     is_available: bool = False
     is_community: bool = False
     models: list[str]
+    class_name: str
 
     class Config:
         from_attributes = True
@@ -53,6 +54,7 @@ class DeploymentDefinition(BaseModel):
             "is_community": obj.is_community,
             "is_available": obj.is_available,
             "config": obj.default_deployment_config,
+            "class_name": obj.deployment_class_name,
         }
         return cls(**data)
 

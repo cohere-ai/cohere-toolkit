@@ -172,7 +172,5 @@ def mock_available_model_deployments(request):
         MockBedrockDeployment.name(): MockBedrockDeployment,
     }
 
-    # with patch.dict(AVAILABLE_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
-    with patch("backend.config.deployments.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
-    # with patch.dict(ALL_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
         yield mock

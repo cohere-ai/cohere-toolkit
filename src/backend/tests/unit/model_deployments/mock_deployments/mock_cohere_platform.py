@@ -15,6 +15,9 @@ class MockCohereDeployment(MockDeployment):
 
     DEFAULT_MODELS = ["command", "command-r"]
 
+    def __init__(self, **kwargs: Any):
+        pass
+
     @classmethod
     def name(cls) -> str:
         return "Cohere Platform"

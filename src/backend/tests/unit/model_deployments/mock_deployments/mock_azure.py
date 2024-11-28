@@ -15,6 +15,9 @@ class MockAzureDeployment(MockDeployment):
 
     DEFAULT_MODELS = ["azure-command"]
 
+    def __init__(self, **kwargs: Any):
+        pass
+
     @classmethod
     def name(cls) -> str:
         return "Azure"

@@ -59,6 +59,7 @@ class BaseDeployment(ABC):
             is_community=cls.is_community(),
             is_available=cls.is_available(),
             config=cls.config(),
+            class_name=cls.__name__,
         )
 
     @abstractmethod

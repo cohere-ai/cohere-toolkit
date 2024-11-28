@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.database_models import Deployment
 from backend.model_deployments.cohere_platform import CohereDeployment
-from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 
 
 def test_create_deployment(session_client: TestClient) -> None:
@@ -92,7 +91,7 @@ def test_list_deployments_no_available_db_models_with_all_option(
     session.query(Deployment).delete()
     response = session_client.get("/v1/deployments?all=1")
     assert response.status_code == 200
-    assert len(response.json()) == len(list(AVAILABLE_MODEL_DEPLOYMENTS))
+    assert len(response.json()) == len(mock_available_model_deployments)
 
 
 def test_update_deployment(session_client: TestClient, session: Session) -> None:
@@ -160,7 +159,7 @@ def test_set_env_vars_with_var_for_other_deployment(
     client: TestClient, mock_available_model_deployments: Mock
 ) -> None:
     response = client.post(
-        "/v1/deployments/cohere_platform/update_config",
+        "/v1/deployments/mock_cohere_deployment/update_config",
         json={
             "env_vars": {
                 "SAGEMAKER_VAR_1": "TestSageMakerValue",
