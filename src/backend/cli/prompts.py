@@ -12,6 +12,13 @@ from backend.cli.setters import write_env_file
 from backend.cli.utils import print_styled
 
 
+def overwrite_config_prompt():
+    overwrite = inquirer.confirm(
+        "Your existing configuration file is invalid. Overwrite?"
+    )
+    return overwrite
+
+
 def core_env_var_prompt(secrets):
     database_url = secrets.get("DATABASE_URL")
     redis_url = secrets.get("REDIS_URL")
