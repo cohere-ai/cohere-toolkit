@@ -573,7 +573,6 @@ export type StreamSearchResults = {
   documents?: Array<Document>;
 };
 
-
 /**
  * Stream start event.
  */

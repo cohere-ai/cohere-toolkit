@@ -5,7 +5,7 @@ import { Fragment, PropsWithChildren } from 'react';
 
 import { StreamSearchResults, StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
 import { Markdown } from '@/components/Markdown';
-import {Icon, IconButton, IconName, Text, Tooltip} from '@/components/UI';
+import { Icon, IconButton, IconName, Text, Tooltip } from '@/components/UI';
 import {
   TOOL_CALCULATOR_ID,
   TOOL_GOOGLE_DRIVE_ID,
@@ -21,16 +21,12 @@ type Props = {
   events: StreamToolCallsGeneration[] | undefined;
 };
 
-const hasToolErrorsDocuments = (search_results: StreamSearchResults | null ) => {
-  return search_results?.documents?.some(
-    document => document.fields?.success === "false"
-  );
+const hasToolErrorsDocuments = (search_results: StreamSearchResults | null) => {
+  return search_results?.documents?.some((document) => document.fields?.success === 'false');
 };
 
-const getErrorDocumentsFromEvent = (search_results: StreamSearchResults | null ) =>
-  search_results?.documents?.filter(
-    (document) => document.fields?.success === "false"
-  ) || [];
+const getErrorDocumentsFromEvent = (search_results: StreamSearchResults | null) =>
+  search_results?.documents?.filter((document) => document.fields?.success === 'false') || [];
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
@@ -78,7 +74,6 @@ type ToolEventProps = {
   stream_search_results?: StreamSearchResults | null;
 };
 
-
 /**
  * @description Renders a step event depending on the tool's input or output.
  */
@@ -101,35 +96,36 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
     const hasErrorsDocuments = hasToolErrorsDocuments(stream_search_results);
     const errorDocuments = getErrorDocumentsFromEvent(stream_search_results);
 
-    return (
-      hasErrorsDocuments ? (
-        <ToolErrorWrapper tooltip={errorDocuments[errorDocuments.length -1].fields?.details as string}>
-          {errorDocuments[errorDocuments.length -1].text}
-        </ToolErrorWrapper>
-      ) : toolName && toolName != TOOL_PYTHON_INTERPRETER_ID ? (
-        <ToolEventWrapper icon="book-open-text">
-          {artifacts.length > 0 ? (
-            <>
-              Referenced the following resources:
-              <article className="grid grid-cols-2 gap-x-2">
-                {artifacts.map((artifact) => (
-                  <b key={artifact.title} className="truncate font-medium">
-                    {artifact.url ? (
-                      <a href={artifact.url} target="_blank" className="underline">
-                        {artifact.title}
-                      </a>
-                    ) : (
-                      <p>{artifact.title}</p>
-                    )}
-                  </b>
-                ))}
-              </article>
-            </>
+    return hasErrorsDocuments ? (
+      <ToolErrorWrapper
+        tooltip={errorDocuments[errorDocuments.length - 1].fields?.details as string}
+      >
+        {errorDocuments[errorDocuments.length - 1].text}
+      </ToolErrorWrapper>
+    ) : toolName && toolName != TOOL_PYTHON_INTERPRETER_ID ? (
+      <ToolEventWrapper icon="book-open-text">
+        {artifacts.length > 0 ? (
+          <>
+            Referenced the following resources:
+            <article className="grid grid-cols-2 gap-x-2">
+              {artifacts.map((artifact) => (
+                <b key={artifact.title} className="truncate font-medium">
+                  {artifact.url ? (
+                    <a href={artifact.url} target="_blank" className="underline">
+                      {artifact.title}
+                    </a>
+                  ) : (
+                    <p>{artifact.title}</p>
+                  )}
+                </b>
+              ))}
+            </article>
+          </>
         ) : (
-            <>No resources found.</>
+          <>No resources found.</>
         )}
       </ToolEventWrapper>
-    ) : null);
+    ) : null;
   }
 
   const icon = getToolIcon(toolName);
@@ -213,17 +209,17 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
   );
 };
 
-const ToolErrorWrapper: React.FC<PropsWithChildren<{tooltip: string}>> = ({
+const ToolErrorWrapper: React.FC<PropsWithChildren<{ tooltip: string }>> = ({
   tooltip = 'Some error occurred',
   children,
 }) => {
   return (
     <div className="flex w-full items-start gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-volcanic-200">
       <Tooltip
-              label={tooltip}
-              size={'sm'}
-              hover
-              iconClassName="mt-0.5 flex h-[21px] flex-shrink-0 items-center fill-danger-350 dark:fill-danger-500"
+        label={tooltip}
+        size={'sm'}
+        hover
+        iconClassName="mt-0.5 flex h-[21px] flex-shrink-0 items-center fill-danger-350 dark:fill-danger-500"
       />
       <Text className="pt-px text-danger-350 dark:text-danger-500" styleAs="p-sm" as="span">
         {children}
