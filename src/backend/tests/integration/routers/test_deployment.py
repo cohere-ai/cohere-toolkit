@@ -86,7 +86,7 @@ def test_list_deployments_no_available_models_404(
 
 
 def test_list_deployments_no_available_db_models_with_all_option(
-    session_client: TestClient, session: Session, mock_available_model_deployments: Mock
+    session_client: TestClient, session: Session
 ) -> None:
     session.query(Deployment).delete()
     response = session_client.get("/v1/deployments?all=1")
@@ -124,7 +124,7 @@ def test_delete_deployment(session_client: TestClient, session: Session) -> None
 
 
 def test_set_env_vars(
-    client: TestClient, mock_available_model_deployments: Mock
+    client: TestClient
 ) -> None:
     with patch("backend.services.env.set_key") as mock_set_key:
         response = client.post(
@@ -149,14 +149,14 @@ def test_set_env_vars(
 
 
 def test_set_env_vars_with_invalid_deployment_name(
-    client: TestClient, mock_available_model_deployments: Mock
+    client: TestClient
 ):
     response = client.post("/v1/deployments/unknown/update_config", json={})
     assert response.status_code == 404
 
 
 def test_set_env_vars_with_var_for_other_deployment(
-    client: TestClient, mock_available_model_deployments: Mock
+    client: TestClient
 ) -> None:
     response = client.post(
         "/v1/deployments/cohere_platform/update_config",
@@ -173,7 +173,7 @@ def test_set_env_vars_with_var_for_other_deployment(
 
 
 def test_set_env_vars_with_invalid_var(
-    client: TestClient, mock_available_model_deployments: Mock
+    client: TestClient
 ) -> None:
     response = client.post(
         "/v1/deployments/cohere_platform/update_config",

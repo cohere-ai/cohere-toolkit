@@ -111,6 +111,9 @@ async def create_agent(
 
             created_agent = agent_crud.create_agent(session, agent_data)
 
+            if not created_agent:
+                raise HTTPException(status_code=500, detail="Failed to create Agent")
+
             if agent.tools_metadata:
                 for tool_metadata in agent.tools_metadata:
                     await update_or_create_tool_metadata(
