@@ -5,15 +5,21 @@ from pathlib import Path
 import yaml
 from dotenv import dotenv_values
 
-from backend.cli.constants import COMMUNITY_TOOLS, CONFIG_FILE_PATH, TOOLS
+from backend.cli.constants import (
+    COMMUNITY_TOOLS,
+    CONFIG_FILE_PATH,
+    SECRETS_FILE_PATH,
+    TOOLS,
+)
 from backend.cli.prompts import (
     PROMPTS,
     community_tools_prompt,
     deployment_prompt,
+    overwrite_config_prompt,
+    overwrite_secrets_prompt,
     review_variables_prompt,
     select_deployments_prompt,
     tool_prompt,
-    overwrite_config_prompt,
     update_variable_prompt,
 )
 from backend.cli.setters import (
@@ -49,8 +55,21 @@ def start():
             else:
                 sys.exit(1)
 
-        yaml_secrets = convert_yaml_to_secrets(yaml_config)
-        secrets.update(yaml_secrets)
+        secrets.update(convert_yaml_to_secrets(yaml_config))
+
+    secrets_file_path = Path(SECRETS_FILE_PATH)
+
+    if secrets_file_path.is_file():
+        try:
+            yaml_secrets = read_yaml(SECRETS_FILE_PATH)
+        except yaml.scanner.ScannerError:
+            if overwrite_secrets_prompt():
+                yaml_secrets = {}
+                secrets_file_path.unlink()
+            else:
+                sys.exit(1)
+
+        secrets.update(convert_yaml_to_secrets(yaml_secrets))
 
     # SET UP ENVIRONMENT
     for _, prompt in PROMPTS.items():
@@ -72,7 +91,6 @@ def start():
     from backend.config.deployments import (
         AVAILABLE_MODEL_DEPLOYMENTS as MANAGED_DEPLOYMENTS_SETUP,
     )
-
     from community.config.deployments import (
         AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
     )

@@ -13,10 +13,15 @@ from backend.cli.utils import print_styled
 
 
 def overwrite_config_prompt():
-    overwrite = inquirer.confirm(
+    return inquirer.confirm(
         "Your existing configuration file is invalid. Overwrite?"
     )
-    return overwrite
+
+
+def overwrite_secrets_prompt():
+    return inquirer.confirm(
+        "Your existing secrets file is invalid. Overwrite?"
+    )
 
 
 def core_env_var_prompt(secrets):
