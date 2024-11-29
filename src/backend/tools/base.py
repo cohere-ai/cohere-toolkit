@@ -31,6 +31,10 @@ class ToolError(BaseModel, extra="allow"):
     text: str
     details: str = ""
 
+class ToolArgument(StrEnum):
+    DOMAIN_FILTER = "domain_filter"
+    SITE_FILTER = "site_filter"
+
 class BaseTool():
     """
     Abstract base class for all Tools.

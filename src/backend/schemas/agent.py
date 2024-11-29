@@ -4,12 +4,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-
-class AgentToolMetadataArtifactsType(StrEnum):
-    DOMAIN = "domain"
-    SITE = "site"
-
-
 class AgentVisibility(StrEnum):
     PRIVATE = "private"
     PUBLIC = "public"

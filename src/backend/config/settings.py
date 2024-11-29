@@ -191,6 +191,8 @@ class BraveWebSearchSettings(BaseSettings, BaseModel):
 class HybridWebSearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     enabled_web_searches: Optional[List[str]] = []
+    domain_filters: Optional[List[str]] = []
+    site_filters: Optional[List[str]] = []
 
 
 class ToolSettings(BaseSettings, BaseModel):
