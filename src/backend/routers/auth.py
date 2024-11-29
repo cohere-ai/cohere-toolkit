@@ -357,7 +357,7 @@ async def delete_tool_auth(
     if user_id is None or user_id == "" or user_id == "default":
         logger.error_and_raise_http_exception(event="User ID not found.")
 
-    if tool_id not in [tool_name.value for tool_name in Tool]:
+    if tool_id not in [tool_name.value.ID for tool_name in Tool]:
         logger.error_and_raise_http_exception(
             event="tool_id must be present in the path of the request and must be a member of the Tool string enum class.",
         )

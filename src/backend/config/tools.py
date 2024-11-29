@@ -6,6 +6,7 @@ from backend.services.logger.utils import LoggerFactory
 from backend.tools import (
     BraveWebSearch,
     Calculator,
+    GmailTool,
     GoogleDrive,
     GoogleWebSearch,
     HybridWebSearch,
@@ -36,6 +37,7 @@ class Tool(Enum):
     Brave_Web_Search = BraveWebSearch
     Hybrid_Web_Search = HybridWebSearch
     Slack = SlackTool
+    Gmail = GmailTool
 
 
 def get_available_tools() -> dict[str, ToolDefinition]:

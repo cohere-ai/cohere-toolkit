@@ -2,8 +2,9 @@
 
 import { Transition } from '@headlessui/react';
 import { usePrevious } from '@react-hookz/web';
+import dynamic from 'next/dynamic';
 import React, { ReactNode, memo, useEffect, useMemo } from 'react';
-import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
+import { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 
 import { MessageRow } from '@/components/MessageRow';
 import { Welcome } from '@/components/MessagingContainer';
@@ -12,6 +13,8 @@ import { useFixCopyBug } from '@/hooks';
 import { useSynthesizer } from '@/hooks/use-synthesizer';
 import { ChatMessage, MessageType, StreamingMessage, isFulfilledMessage } from '@/types/message';
 import { cn } from '@/utils';
+
+const ScrollToBottom = dynamic(() => import('react-scroll-to-bottom'), { ssr: false });
 
 type Props = {
   isStreaming: boolean;

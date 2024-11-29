@@ -2,10 +2,12 @@ import os
 from typing import Any, Generator
 from unittest.mock import patch
 
+import fakeredis
 import pytest
 from alembic.command import upgrade
 from alembic.config import Config
 from fastapi.testclient import TestClient
+from redis import Redis
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -144,6 +146,18 @@ def session_client_chat(session_chat: Session) -> Generator[TestClient, None, No
 
     app.dependency_overrides = {}
 
+
+
+@pytest.fixture(autouse=True)
+def mock_redis_client():
+    """
+    A pytest fixture that globally replaces `Redis.from_url` with `fakeredis`.
+    """
+    fake_redis = fakeredis.FakeStrictRedis(decode_responses=True)
+
+    # Patch Redis.from_url to always return the fake Redis instance
+    with patch.object(Redis, 'from_url', return_value=fake_redis):
+        yield fake_redis
 
 @pytest.fixture
 def user(session: Session) -> User:

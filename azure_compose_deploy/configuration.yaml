@@ -6,19 +6,19 @@ deployments:
     - azure
     - bedrock
   sagemaker:
-    region_name: us-west-2
-    endpoint_name: cohere-ai
+    region_name:
+    endpoint_name:
   azure:
-    endpoint_url: https://cohere-ai.azurewebsites.net
+    endpoint_url:
   bedrock:
-    region_name: us-west-2
+    region_name:
   single_container:
     model:
     url:
 database:
-  url: postgresql+psycopg2://postgres:postgres@db:5432
+  url: postgresql+psycopg2://postgres:postgres@toolkitpostgre.postgres.database.azure.com:5432
 redis:
-  url: redis://:redis@redis:6379
+  url:
 tools:
   hybrid_web_search:
     # List of web search tool names, eg: google_web_search, tavily_web_search
@@ -26,21 +26,18 @@ tools:
       - tavily_web_search
   python_interpreter:
     url: http://terrarium:8080
-  gmail:
-    user_scopes:
-      - https://www.googleapis.com/auth/gmail.readonly
   slack:
     user_scopes:
       - search:read
 feature_flags:
   # Experimental features
-  use_agents_view: false
+  use_agents_view: true
   # Community features
   use_community_features: true
 auth:
   enabled_auth:
-  backend_hostname: http://localhost:8000
-  frontend_hostname: http://localhost:4000
+  backend_hostname: https://toolkit-app.azurewebsites.net/api
+  frontend_hostname: https://toolkit-app.azurewebsites.net
 logger:
   strategy: structlog
   renderer: console
