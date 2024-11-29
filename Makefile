@@ -24,7 +24,7 @@ run-community-tests:
 
 .PHONY: run-integration-tests
 run-integration-tests:
-	docker compose run --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
+	docker compose run --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file) -rx
 
 run-tests: run-unit-tests
 

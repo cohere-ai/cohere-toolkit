@@ -53,15 +53,15 @@ def get_default_deployment(**kwargs) -> BaseDeployment:
 
     return fallback(**kwargs)
 
-def get_deployment(session: DBSessionDep, deployment_id: str) -> BaseDeployment:
+def get_deployment(session: DBSessionDep, deployment_id: str, **kwargs) -> BaseDeployment:
     definition = get_deployment_definition(session, deployment_id)
-    return get_deployment_by_name(session, definition.name)
+    return get_deployment_by_name(session, definition.name, **kwargs)
 
-def get_deployment_by_name(session: DBSessionDep, deployment_name: str) -> BaseDeployment:
+def get_deployment_by_name(session: DBSessionDep, deployment_name: str, **kwargs) -> BaseDeployment:
     definition = get_deployment_definition_by_name(session, deployment_name)
 
     try:
-        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == definition.class_name)(**definition.config)
+        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == definition.class_name)(**definition.config, **kwargs)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 

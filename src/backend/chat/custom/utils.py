@@ -19,7 +19,7 @@ def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
     kwargs["ctx"] = ctx
     try:
         session = next(get_session())
-        deployment = deployment_service.get_deployment_by_name(session, name)
+        deployment = deployment_service.get_deployment_by_name(session, name, **kwargs)
     except DeploymentNotFoundError:
         deployment = deployment_service.get_default_deployment(**kwargs)
 
