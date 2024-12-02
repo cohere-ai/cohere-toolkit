@@ -27,6 +27,7 @@ class ToolDefinition(Tool):
     is_auth_required: bool = False  # Per user
     auth_url: Optional[str] = ""  # Per user
     token: Optional[str] = ""  # Per user
+    should_return_token: bool = False
 
     implementation: Any = Field(exclude=True)
     auth_implementation: Any = Field(default=None, exclude=True)
