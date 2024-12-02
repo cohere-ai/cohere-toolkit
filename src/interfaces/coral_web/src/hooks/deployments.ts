@@ -1,4 +1,4 @@
-import { useQuery, useMutation, UseQueryResult } from '@tanstack/react-query';
+import { UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { DeploymentDefinition, useCohereClient } from '@/cohere-client';
@@ -6,7 +6,9 @@ import { DeploymentDefinition, useCohereClient } from '@/cohere-client';
 /**
  * @description Hook to get all possible deployments.
  */
-export const useListAllDeployments = (options?: { enabled?: boolean }): UseQueryResult<DeploymentDefinition[]> => {
+export const useListAllDeployments = (options?: {
+  enabled?: boolean;
+}): UseQueryResult<DeploymentDefinition[]> => {
   const cohereClient = useCohereClient();
   return useQuery<DeploymentDefinition[], Error>({
     queryKey: ['allDeployments'],
@@ -36,7 +38,12 @@ export const useModels = (deployment: string) => {
 export const useUpdateDeploymentConfig = () => {
   const cohereClient = useCohereClient();
   return useMutation({
-    mutationFn: ({ deploymentId, config }: { deploymentId: string; config: Record<string, string> }) =>
-      cohereClient.updateDeploymentConfig(deploymentId, { "env_vars": config }),
+    mutationFn: ({
+      deploymentId,
+      config,
+    }: {
+      deploymentId: string;
+      config: Record<string, string>;
+    }) => cohereClient.updateDeploymentConfig(deploymentId, { env_vars: config }),
   });
-}
+};

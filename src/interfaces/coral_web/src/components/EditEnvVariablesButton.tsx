@@ -81,7 +81,10 @@ export const EditEnvVariablesModal: React.FC<{
     if (!selectedDeployment) return;
 
     setIsSubmitting(true);
-    await updateConfigMutation.mutateAsync({ deploymentId: selectedDeployment.id, config: envVariables });
+    await updateConfigMutation.mutateAsync({
+      deploymentId: selectedDeployment.id,
+      config: envVariables,
+    });
     setIsSubmitting(false);
     onClose();
   };
