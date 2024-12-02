@@ -38,6 +38,11 @@ class MockCohereDeployment(MockDeployment):
     def is_available(cls) -> bool:
         return True
 
+    @classmethod
+    def config(cls) -> Dict[str, Any]:
+        return {"COHERE_API_KEY": "fake-api-key"}
+
+
     def invoke_chat(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
