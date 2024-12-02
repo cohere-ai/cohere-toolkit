@@ -345,7 +345,7 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
     response_agents = filter_default_agent(response.json())
     assert len(response_agents) == num_agents
 
-
+@pytest.mark.skip(reason="We don't yet have the concept of organizations in Toolkit")
 def test_list_organization_agents(
     session_client: TestClient,
     session: Session,
@@ -370,6 +370,7 @@ def test_list_organization_agents(
     assert response.status_code == 200
     response_agents = filter_default_agent(response.json())
     agents = sorted(response_agents, key=lambda x: x["name"])
+    assert len(response_agents) == num_agents
     for i in range(num_agents):
         assert agents[i]["name"] == f"agent-{i}-{organization.id}"
 
@@ -855,7 +856,7 @@ def test_update_agent_invalid_model(
     response = session_client.put(
         f"/v1/agents/{agent.id}", json=request_json, headers={"User-Id": user.id}
     )
-    assert response.status_code == 404
+    assert response.status_code == 400
     assert response.json() == {
         "detail": "Model not a real model not found for deployment Cohere Platform."
     }

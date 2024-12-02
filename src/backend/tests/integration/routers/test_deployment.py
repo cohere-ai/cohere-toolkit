@@ -124,28 +124,21 @@ def test_delete_deployment(session_client: TestClient, session: Session) -> None
 
 
 def test_set_env_vars(
+    session: Session,
     client: TestClient
 ) -> None:
-    with patch("backend.services.env.set_key") as mock_set_key:
-        response = client.post(
-            "/v1/deployments/cohere_platform/update_config",
-            json={
-                "env_vars": {
-                    "COHERE_API_KEY": "TestCohereValue",
-                },
+    deployment = session.query(Deployment).filter(Deployment.name == "Cohere Platform").first()
+    response = client.post(
+        f"/v1/deployments/{deployment.id}/update_config",
+        json={
+            "env_vars": {
+                "COHERE_API_KEY": "TestCohereValue",
             },
-        )
-    assert response.status_code == 200
-
-    class EnvPathMatcher:
-        def __eq__(self, other):
-            return bool(re.match(r".*/?\.env$", other))
-
-    mock_set_key.assert_called_with(
-        EnvPathMatcher(),
-        "COHERE_API_KEY",
-        "TestCohereValue",
+        },
     )
+    assert response.status_code == 200
+    updated_deployment = response.json()
+    assert updated_deployment["config"] == {"COHERE_API_KEY": "TestCohereValue"}
 
 
 def test_set_env_vars_with_invalid_deployment_name(
@@ -156,10 +149,12 @@ def test_set_env_vars_with_invalid_deployment_name(
 
 
 def test_set_env_vars_with_var_for_other_deployment(
+    session: Session,
     client: TestClient
 ) -> None:
+    deployment = session.query(Deployment).filter(Deployment.name == "Cohere Platform").first()
     response = client.post(
-        "/v1/deployments/cohere_platform/update_config",
+        f"/v1/deployments/{deployment.id}/update_config",
         json={
             "env_vars": {
                 "SAGEMAKER_VAR_1": "TestSageMakerValue",
@@ -173,10 +168,12 @@ def test_set_env_vars_with_var_for_other_deployment(
 
 
 def test_set_env_vars_with_invalid_var(
+    session: Session,
     client: TestClient
 ) -> None:
+    deployment = session.query(Deployment).filter(Deployment.name == "Cohere Platform").first()
     response = client.post(
-        "/v1/deployments/cohere_platform/update_config",
+        f"/v1/deployments/{deployment.id}/update_config",
         json={
             "env_vars": {
                 "API_KEY": "12345",

@@ -33,15 +33,15 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
         HTTPException: If the deployment and model are not compatible
 
     """
-    found = deployment_service.get_deployment_by_name(session, deployment)
+    found = deployment_service.get_deployment_definition_by_name(session, deployment)
     if not found:
-        found = deployment_service.get_deployment(session, deployment)
+        found = deployment_service.get_deployment_definition(session, deployment)
     if not found:
         raise HTTPException(
             status_code=400,
             detail=f"Deployment {deployment} not found or is not available in the Database.",
         )
-    deployment_definiton = found.to_deployment_definition()
+    # deployment_definiton = found.to_deployment_definition()
 
     # Validate model
     # deployment_model = next(
@@ -52,17 +52,18 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
     #     ),
     #     None,
     # )
+    deployment_config = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == found.class_name).to_deployment_definition()
     deployment_model = next(
         (
             model_db
-            for model_db in deployment_definiton.models
+            for model_db in found.models
             if model_db == model
         ),
         None,
     )
     if not deployment_model:
         deployment_model = model_crud.create_model_by_config(
-            session, found, deployment_definiton, model
+            session, deployment_config, found.id, model
         )
     if not deployment_model:
         raise HTTPException(

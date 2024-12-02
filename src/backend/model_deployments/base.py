@@ -16,9 +16,14 @@ class BaseDeployment(ABC):
     list_models: List[str]: List all models.
     is_available: bool: Check if the deployment is available.
     """
+    db_id = None
+
+    def __init__(self, db_id=None, **kwargs: Any):
+        self.db_id = db_id
+
     @classmethod
     def id(cls) -> str:
-        return cls.name().replace(" ", "_").lower()
+        return cls.db_id if cls.db_id else cls.name().replace(" ", "_").lower()
 
     @classmethod
     @abstractmethod

@@ -19,6 +19,7 @@ to the be the correct definition.
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.settings import Settings
 from backend.crud import deployment as deployment_crud
+from backend.crud import model as model_crud
 from backend.database_models.database import DBSessionDep
 from backend.exceptions import DeploymentNotFoundError, NoAvailableDeploymentsError
 from backend.model_deployments.base import BaseDeployment
@@ -30,7 +31,11 @@ logger = LoggerFactory().get_logger()
 
 
 def create_db_deployment(session: DBSessionDep, deployment: DeploymentDefinition) -> DeploymentDefinition:
+    logger.debug(event="create_db_deployment", deployment=deployment.model_dump())
     db_deployment = deployment_crud.create_deployment_by_config(session, deployment)
+    # for model in deployment.models:
+        # logger.debug(event="create_db_deployment/create_model", model=model, deployment=db_deployment.id)
+    model_crud.create_model_by_config(session, deployment, db_deployment.id, None)
     return DeploymentDefinition.from_db_deployment(db_deployment)
 
 
@@ -61,7 +66,7 @@ def get_deployment_by_name(session: DBSessionDep, deployment_name: str, **kwargs
     definition = get_deployment_definition_by_name(session, deployment_name)
 
     try:
-        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == definition.class_name)(**definition.config, **kwargs)
+        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == definition.class_name)(db_id=definition.id, **definition.config, **kwargs)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
@@ -75,14 +80,21 @@ def get_deployment_definition(session: DBSessionDep, deployment_id: str) -> Depl
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_id)
 
+    create_db_deployment(session, deployment.to_deployment_definition())
+
     return deployment.to_deployment_definition()
 
 def get_deployment_definition_by_name(session: DBSessionDep, deployment_name: str) -> DeploymentDefinition:
     definitions = get_deployment_definitions(session)
     try:
-        return next(definition for definition in definitions if definition.name == deployment_name)
+        definiton = next(definition for definition in definitions if definition.name == deployment_name)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
+
+    if definiton.name not in [d.name for d in deployment_crud.get_deployments(session)]:
+        create_db_deployment(session, definiton)
+
+    return definiton
 
 def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefinition]:
     db_deployments = {
@@ -99,6 +111,7 @@ def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefiniti
     return [*db_deployments.values(), *installed_deployments]
 
 def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
+    logger.debug(event="update_config", deployment_id=deployment_id, env_vars=env_vars)
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
     if db_deployment:
         update = DeploymentUpdate(default_deployment_config=env_vars)

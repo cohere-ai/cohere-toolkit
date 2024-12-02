@@ -14,10 +14,13 @@ from backend.schemas.deployment import (
 )
 from backend.services import deployment as deployment_service
 from backend.services.context import get_context
+from backend.services.logger.utils import LoggerFactory
 from backend.services.request_validators import (
     validate_create_deployment_request,
     validate_env_vars,
 )
+
+logger = LoggerFactory().get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",

@@ -147,11 +147,8 @@ def create_deployment_by_config(db: Session, deployment_config: DeploymentDefini
     deployment = Deployment(
         name=deployment_config.name,
         description="",
-        default_deployment_config= {
-                env_var: os.environ.get(env_var, "")
-                for env_var in deployment_config.env_vars
-        },
-        deployment_class_name=deployment_config.deployment_class.__name__,
+        default_deployment_config=deployment_config.config,
+        deployment_class_name=deployment_config.class_name,
         is_community=deployment_config.is_community,
     )
     db.add(deployment)

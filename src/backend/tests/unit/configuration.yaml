@@ -35,6 +35,6 @@ auth:
   backend_hostname:
   frontend_hostname:
 logger:
-  level: DEBUG
+  level: INFO
   strategy: structlog
   renderer: console

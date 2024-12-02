@@ -18,6 +18,7 @@ from backend.database_models.agent_tool_metadata import (
 from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     get_default_deployment_model,
+    get_deployment_for_agent,
     get_deployment_model_from_agent,
 )
 from backend.schemas.agent import (
@@ -91,39 +92,46 @@ async def create_agent(
     ctx.with_user(session)
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
+    logger.debug(event="Creating agent", user_id=user_id, agent=agent.model_dump())
 
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     default_deployment_db, default_model_db = get_default_deployment_model(session)
+    # deployment, model = get_deployment_for_agent(session, agent.deployment, agent.model)
+    logger.debug(event="Deployment and model", deployment=deployment_db, model=model_db)
+
+    if not deployment_db or not model_db:
+        logger.error(event="Unable to find deployment or model", agent=agent)
+        raise HTTPException(status_code=400, detail="Unable to find deployment or model")
+
     try:
-        if deployment_db and model_db:
-            agent_data = AgentModel(
-                name=agent.name,
-                description=agent.description,
-                preamble=agent.preamble,
-                temperature=agent.temperature,
-                user_id=user_id,
-                organization_id=agent.organization_id,
-                tools=agent.tools,
-                is_private=agent.is_private,
-                deployment_id=deployment_db.id if deployment_db else default_deployment_db.id if default_deployment_db else None,
-                model_id=model_db.id if model_db else default_model_db.id if default_model_db else None,
-            )
+        agent_data = AgentModel(
+            name=agent.name,
+            description=agent.description,
+            preamble=agent.preamble,
+            temperature=agent.temperature,
+            user_id=user_id,
+            organization_id=agent.organization_id,
+            tools=agent.tools,
+            is_private=agent.is_private,
+            deployment_id=deployment_db.id,
+            model_id=model_db.id,
+        )
 
-            created_agent = agent_crud.create_agent(session, agent_data)
+        created_agent = agent_crud.create_agent(session, agent_data)
 
-            if not created_agent:
-                raise HTTPException(status_code=500, detail="Failed to create Agent")
+        if not created_agent:
+            raise HTTPException(status_code=500, detail="Failed to create Agent")
 
-            if agent.tools_metadata:
-                for tool_metadata in agent.tools_metadata:
-                    await update_or_create_tool_metadata(
-                        created_agent, tool_metadata, session, ctx
-                    )
+        if agent.tools_metadata:
+            for tool_metadata in agent.tools_metadata:
+                await update_or_create_tool_metadata(
+                    created_agent, tool_metadata, session, ctx
+                )
 
-            agent_schema = Agent.model_validate(created_agent)
-            ctx.with_agent(agent_schema)
-            return created_agent
-
+        agent_schema = Agent.model_validate(created_agent)
+        ctx.with_agent(agent_schema)
+        logger.debug(event="Agent created", agent=created_agent)
+        return created_agent
     except Exception as e:
         logger.exception(event=e)
         raise HTTPException(status_code=500, detail=str(e))
@@ -151,11 +159,13 @@ async def list_agents(
     Returns:
         list[AgentPublic]: List of agents with no user ID or organization ID.
     """
+    logger = ctx.get_logger()
     # TODO: get organization_id from user
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
     # request organization_id is used for filtering agents instead of header Organization-Id if enabled
     if organization_id:
+        logger.debug(event="Request limited to organization", organization_id=organization_id)
         ctx.without_global_filtering()
 
     try:
@@ -169,6 +179,7 @@ async def list_agents(
         )
         # Tradeoff: This appends the default Agent regardless of pagination
         agents.append(get_default_agent())
+        logger.debug(event="Returning agents:", agents=agents)
         return agents
     except Exception as e:
         logger.exception(event=e)

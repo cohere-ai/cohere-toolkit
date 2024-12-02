@@ -23,6 +23,7 @@ class CohereDeployment(BaseDeployment):
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
+        super().__init__(**kwargs)
         api_key = get_model_config_var(
             COHERE_API_KEY_ENV_VAR, CohereDeployment.api_key, **kwargs
         )
