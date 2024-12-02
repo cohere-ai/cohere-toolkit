@@ -31,6 +31,9 @@ tools:
     site_filters:
   python_interpreter:
     url: http://terrarium:8080
+  gmail:
+    user_scopes:
+      - https://www.googleapis.com/auth/gmail.readonly
   slack:
     user_scopes:
       - search:read
