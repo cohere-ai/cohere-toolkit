@@ -1,8 +1,5 @@
 import argparse
-import sys
-from pathlib import Path
 
-import yaml
 from dotenv import dotenv_values
 
 from backend.cli.constants import (
@@ -23,14 +20,17 @@ from backend.cli.prompts import (
     update_variable_prompt,
 )
 from backend.cli.setters import (
-    convert_yaml_to_secrets,
     delete_config_folders,
-    read_yaml,
     write_config_files,
     write_env_file,
     write_template_config_files,
 )
-from backend.cli.utils import show_examples, show_welcome_message, wrap_up
+from backend.cli.utils import (
+    process_existing_yaml_config,
+    show_examples,
+    show_welcome_message,
+    wrap_up,
+)
 
 
 def start():
@@ -42,34 +42,8 @@ def start():
     show_welcome_message()
 
     secrets = dotenv_values()
-
-    config_file_path = Path(CONFIG_FILE_PATH)
-
-    if config_file_path.is_file():
-        try:
-            yaml_config = read_yaml(CONFIG_FILE_PATH)
-        except yaml.scanner.ScannerError:
-            if overwrite_config_prompt():
-                yaml_config = {}
-                config_file_path.unlink()
-            else:
-                sys.exit(1)
-
-        secrets.update(convert_yaml_to_secrets(yaml_config))
-
-    secrets_file_path = Path(SECRETS_FILE_PATH)
-
-    if secrets_file_path.is_file():
-        try:
-            yaml_secrets = read_yaml(SECRETS_FILE_PATH)
-        except yaml.scanner.ScannerError:
-            if overwrite_secrets_prompt():
-                yaml_secrets = {}
-                secrets_file_path.unlink()
-            else:
-                sys.exit(1)
-
-        secrets.update(convert_yaml_to_secrets(yaml_secrets))
+    process_existing_yaml_config(secrets, CONFIG_FILE_PATH, overwrite_config_prompt)
+    process_existing_yaml_config(secrets, SECRETS_FILE_PATH, overwrite_secrets_prompt)
 
     # SET UP ENVIRONMENT
     for _, prompt in PROMPTS.items():
