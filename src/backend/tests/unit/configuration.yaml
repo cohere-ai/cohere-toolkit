@@ -15,6 +15,8 @@ deployments:
     access_key: "bedrock_access_key"
     secret_key: "bedrock_secret"
     session_token: "bedrock_session_token"
+  cohere_platform:
+    api_key: "cohere_api_key"
   single_container:
     model: "single_container_model"
     url: "http://www.example.com/single_container"
