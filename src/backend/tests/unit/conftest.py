@@ -11,7 +11,6 @@ from redis import Redis
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS
 from backend.database_models import get_session
 from backend.database_models.base import CustomFilterQuery
 from backend.main import app, create_app

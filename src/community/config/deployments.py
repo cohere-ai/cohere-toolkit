@@ -1,9 +1,5 @@
 from enum import StrEnum
 
-from community.model_deployments import (
-    HuggingFaceDeployment,
-    # LocalModelDeployment,
-)
 from community.model_deployments.community_deployment import CommunityDeployment
 
 # Add the below for local model deployments

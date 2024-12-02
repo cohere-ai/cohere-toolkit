@@ -9,12 +9,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS
 from backend.database_models import get_session
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
+
 # from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.organization import Organization
 from backend.schemas.user import User

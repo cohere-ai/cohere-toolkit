@@ -1,11 +1,10 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import Deployment
 from backend.database_models.model import Model
 from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.model import ModelCreate, ModelUpdate
-from backend.services.transaction import validate_transaction
 from backend.services.logger.utils import LoggerFactory
+from backend.services.transaction import validate_transaction
 
 logger = LoggerFactory().get_logger()
 
@@ -160,7 +159,7 @@ def get_models_by_agent_id(
     )
 
 
-def create_model_by_config(db: Session, deployment_config: DeploymentDefinition, deployment_id: str, model: str) -> Model:
+def create_model_by_config(db: Session, deployment_config: DeploymentDefinition, deployment_id: str, model: str | None) -> Model:
     """
     Create a new model by config if present
 

@@ -9,11 +9,11 @@ from sqlalchemy.orm import Session
 from backend.config.deployments import ALL_MODEL_DEPLOYMENTS
 from backend.database_models import Deployment, Model, Organization
 from backend.model_deployments import (
-    CohereDeployment,
-    SingleContainerDeployment,
-    SageMakerDeployment,
     AzureDeployment,
     BedrockDeployment,
+    CohereDeployment,
+    SageMakerDeployment,
+    SingleContainerDeployment,
 )
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,

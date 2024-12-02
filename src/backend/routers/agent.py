@@ -18,7 +18,6 @@ from backend.database_models.agent_tool_metadata import (
 from backend.database_models.database import DBSessionDep
 from backend.routers.utils import (
     get_default_deployment_model,
-    get_deployment_for_agent,
     get_deployment_model_from_agent,
 )
 from backend.schemas.agent import (
