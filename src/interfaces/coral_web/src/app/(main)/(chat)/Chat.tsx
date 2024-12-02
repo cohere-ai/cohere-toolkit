@@ -60,9 +60,12 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     resetCitations();
     resetFileParams();
 
-    const agentTools = agent && agent.tools ? (agent.tools
-      .map((name) => (tools ?? [])?.find((t) => t.name === name))
-      .filter((t) => t !== undefined) ?? []) as ManagedTool[] : [];
+    const agentTools =
+      agent && agent.tools
+        ? ((agent.tools
+            .map((name) => (tools ?? [])?.find((t) => t.name === name))
+            .filter((t) => t !== undefined) ?? []) as ManagedTool[])
+        : [];
 
     setParams({
       tools: agentTools,
