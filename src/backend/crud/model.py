@@ -129,36 +129,6 @@ def delete_model(db: Session, model_id: str) -> None:
     db.commit()
 
 
-def get_models_by_agent_id(
-    db: Session, agent_id: str, offset: int = 0, limit: int = 100
-) -> list[Model]:
-    """
-    List all models by user id
-
-    Args:
-        db (Session): Database session.
-        agent_id (str): User ID
-        offset (int): Offset to start the list.
-        limit (int): Limit of models to be listed.
-
-    Returns:
-        list[Model]: List of models.
-    """
-
-    return (
-        db.query(Model)
-        .join(
-            AgentDeploymentModel,
-            agent_id == AgentDeploymentModel.agent_id,
-        )
-        .filter(Model.deployment_id == AgentDeploymentModel.deployment_id)
-        .order_by(Model.name)
-        .limit(limit)
-        .offset(offset)
-        .all()
-    )
-
-
 def create_model_by_config(db: Session, deployment_config: DeploymentDefinition, deployment_id: str, model: str | None) -> Model:
     """
     Create a new model by config if present
