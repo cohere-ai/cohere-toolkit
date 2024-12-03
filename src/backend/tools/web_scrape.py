@@ -1,5 +1,5 @@
 import json
-from typing import Any, ClassVar, Dict, List
+from typing import Any, Dict, List
 
 import aiohttp
 from langchain_text_splitters import MarkdownHeaderTextSplitter
@@ -13,8 +13,8 @@ logger = LoggerFactory().get_logger()
 
 class WebScrapeTool(BaseTool):
     ID = "web_scrape"
-    ENDPOINT: ClassVar[str] = "http://co-reader"
-    ENABLE_CHUNKING: ClassVar[bool] = True
+    ENDPOINT = "http://co-reader"
+    ENABLE_CHUNKING = True
 
     @classmethod
     def is_available(cls) -> bool:
