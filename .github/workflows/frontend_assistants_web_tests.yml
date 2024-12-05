@@ -1,4 +1,4 @@
-name: Assistants Web - Format and build
+name: Assistants Web - Format, Build & Validate
 
 on:
   push:
@@ -18,9 +18,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
+      - name: Start backend (for OpenAPI)
+        run: docker compose up backend -d
       - name: Set up Node.js and install dependencies
         uses: ./.github/actions/assistants-web-install
-      - name: Check assistants_web is formatted
+      - name: Check format
         run: npm run format
-      - name: Check assistants_web can build
+      - name: Check build
         run: npm run build
+      - name: Generate client
+        run: npm run generate:client
+      - name: Check generated client
+        run: git diff --exit-code ./src/cohere-client/generated || (echo "Generated client is outdated. Please regenerate and commit." && exit 1)
