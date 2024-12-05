@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isNil } from 'lodash';
 import { useMemo } from 'react';
 
-import { Agent, ApiError, CreateAgent, UpdateAgent, useCohereClient } from '@/cohere-client';
+import { AgentPublic, ApiError, CreateAgentRequest, UpdateAgentRequest, useCohereClient } from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { STRINGS } from '@/constants/strings';
 
@@ -19,7 +19,7 @@ export const useCreateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: CreateAgent) => cohereClient.createAgent(request),
+    mutationFn: (request: CreateAgentRequest) => cohereClient.createAgent(request),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['listAgents'] });
     },
@@ -73,7 +73,7 @@ export const useIsAgentNameUnique = () => {
 export const useUpdateAgent = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
-  return useMutation<Agent, ApiError, { request: UpdateAgent; agentId: string }>({
+  return useMutation<AgentPublic, ApiError, { request: UpdateAgentRequest; agentId: string }>({
     mutationFn: ({ request, agentId }) => cohereClient.updateAgent(request, agentId),
     onSettled: (agent) => {
       queryClient.invalidateQueries({ queryKey: ['agent', agent?.id] });
@@ -107,7 +107,7 @@ export const useRecentAgents = () => {
     if (!recentAgentsIds) return [];
     return recentAgentsIds
       .map((id) => agents?.find((agent) => agent.id === id))
-      .filter((agent) => !isNil(agent)) as Agent[];
+      .filter((agent) => !isNil(agent)) as AgentPublic[];
   }, [agents, recentAgentsIds]);
 
   return { recentAgents, addRecentAgentId, removeRecentAgentId };

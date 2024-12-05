@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
 import { clearAuthToken, setAuthToken } from '@/app/server.actions';
-import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
+import { ApiError, CreateUserV1UsersPostData, JWTResponse, useCohereClient } from '@/cohere-client';
 import { COOKIE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
+import { Create } from 'hast-util-to-jsx-runtime/lib';
 
 interface LoginParams {
   email: string;
@@ -70,9 +71,11 @@ export const useSession = () => {
   const registerMutation = useMutation({
     mutationFn: async (params: RegisterParams) => {
       return cohereClient.createUser({
-        fullname: params.name,
-        email: params.email,
-        password: params.password,
+        requestBody: {
+          fullname: params.name,
+          email: params.email,
+          password: params.password,
+        },
       });
     },
   });

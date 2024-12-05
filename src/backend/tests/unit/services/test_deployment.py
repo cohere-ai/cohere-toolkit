@@ -5,7 +5,7 @@ import pytest
 import backend.services.deployment as deployment_service
 from backend.config.tools import Tool
 from backend.database_models import Deployment
-from backend.exceptions import NoAvailableDeploymentsError
+from backend.exceptions import DeploymentNotFoundError, NoAvailableDeploymentsError
 from backend.schemas.deployment import DeploymentDefinition
 from backend.tests.unit.model_deployments.mock_deployments import (
     MockAzureDeployment,
@@ -60,9 +60,17 @@ def test_get_deployment_by_name(session, mock_available_model_deployments, clear
     deployment = deployment_service.get_deployment_by_name(session, MockCohereDeployment.name())
     assert isinstance(deployment, MockCohereDeployment)
 
+def test_get_deployment_by_name_wrong_name(session, mock_available_model_deployments, clear_db_deployments) -> None:
+    with pytest.raises(DeploymentNotFoundError):
+        deployment_service.get_deployment_by_name(session, "wrong-name")
+
 def test_get_deployment_definition(session, mock_available_model_deployments, db_deployment) -> None:
     definition = deployment_service.get_deployment_definition(session, "db-mock-cohere-platform-id")
     assert definition == DeploymentDefinition.from_db_deployment(db_deployment)
+
+def test_get_deployment_definition_wrong_id(session, mock_available_model_deployments) -> None:
+    with pytest.raises(DeploymentNotFoundError):
+        deployment_service.get_deployment_definition(session, "wrong-id")
 
 def test_get_deployment_definition_no_db_deployments(session, mock_available_model_deployments, clear_db_deployments) -> None:
     definition = deployment_service.get_deployment_definition(session, MockCohereDeployment.id())
@@ -75,6 +83,10 @@ def test_get_deployment_definition_by_name(session, mock_available_model_deploym
 def test_get_deployment_definition_by_name_no_db_deployments(session, mock_available_model_deployments, clear_db_deployments) -> None:
     definition = deployment_service.get_deployment_definition_by_name(session, MockCohereDeployment.name())
     assert definition == MockCohereDeployment.to_deployment_definition()
+
+def test_get_deployment_definition_by_name_wrong_name(session, mock_available_model_deployments) -> None:
+    with pytest.raises(DeploymentNotFoundError):
+        deployment_service.get_deployment_definition_by_name(session, "wrong-name")
 
 def test_get_deployment_definitions_no_db_deployments(session, mock_available_model_deployments, clear_db_deployments) -> None:
     definitions = deployment_service.get_deployment_definitions(session)

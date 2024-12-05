@@ -1,4 +1,4 @@
-import { Citation, File, StreamToolCallsGeneration, StreamToolInput } from '@/cohere-client';
+import { Citation, ListConversationFile, StreamToolCallsGeneration, StreamToolInput } from '@/cohere-client';
 
 export enum BotState {
   LOADING = 'loading',
@@ -84,7 +84,7 @@ export type ErrorMessage = BaseMessage & {
  */
 export type UserMessage = BaseMessage & {
   type: MessageType.USER;
-  files?: File[];
+  files?: ListConversationFile[];
 };
 
 export type ChatMessage = UserMessage | BotMessage;
