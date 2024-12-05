@@ -94,6 +94,11 @@ lint:
 lint-fix:
 	poetry run ruff check --fix
 
+.PHONY: validate-config
+validate-config:
+	poetry install --with setup,dev --verbose
+	poetry run python3 src/backend/cli/main.py
+
 .PHONY: first-run
 first-run:
 	make setup
