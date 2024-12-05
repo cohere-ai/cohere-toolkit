@@ -141,14 +141,13 @@ format-coral:
 	cd src/interfaces/coral_web && npm run format:write
 
 .PHONY: generate-client-coral
-generate-client-web:
+generate-client-coral:
 	cd src/interfaces/coral_web && npm run generate:client && npm run format:write
 
 .PHONY: install-coral
-install-web:
+install-coral:
 	cd src/interfaces/coral_web && npm install
 
 .PHONY: build-coral
-build-web:
+build-coral:
 	cd src/interfaces/coral_web && npm run build
-	
