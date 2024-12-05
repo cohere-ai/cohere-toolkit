@@ -77,7 +77,11 @@ export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteConversationFileResponse, ApiError, { conversationId: string; fileId: string }>({
+  return useMutation<
+    DeleteConversationFileResponse,
+    ApiError,
+    { conversationId: string; fileId: string }
+  >({
     mutationFn: async ({ conversationId, fileId }) =>
       cohereClient.deletefile({ conversationId, fileId }),
     onSettled: () => {

@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isNil } from 'lodash';
 import { useMemo } from 'react';
 
-import { AgentPublic, ApiError, CreateAgentRequest, UpdateAgentRequest, useCohereClient } from '@/cohere-client';
+import {
+  AgentPublic,
+  ApiError,
+  CreateAgentRequest,
+  UpdateAgentRequest,
+  useCohereClient,
+} from '@/cohere-client';
 import { LOCAL_STORAGE_KEYS } from '@/constants';
 import { STRINGS } from '@/constants/strings';
 

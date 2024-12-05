@@ -2,7 +2,7 @@ import { FetchEventSourceInit, fetchEventSource } from '@microsoft/fetch-event-s
 
 import {
   Body_batch_upload_file_v1_agents_batch_upload_file_post,
-  Body_upload_file_v1_conversations_batch_upload_file_post,
+  Body_batch_upload_file_v1_conversations_batch_upload_file_post,
   CancelablePromise,
   CohereChatRequest,
   CohereClientGenerated,

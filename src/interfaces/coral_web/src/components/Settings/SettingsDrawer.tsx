@@ -44,10 +44,18 @@ export const SettingsDrawer: React.FC = () => {
     if (isAgentsModeOn) {
       return files.length > 0 && conversationId
         ? [
-            { name: STRINGS.tools, component: <AgentsToolsTab requiredTools={agent?.tools ?? []} /> },
+            {
+              name: STRINGS.tools,
+              component: <AgentsToolsTab requiredTools={agent?.tools ?? []} />,
+            },
             { name: STRINGS.files, component: <FilesTab /> },
           ]
-        : [{ name: STRINGS.tools, component: <AgentsToolsTab requiredTools={agent?.tools ?? []} /> }];
+        : [
+            {
+              name: STRINGS.tools,
+              component: <AgentsToolsTab requiredTools={agent?.tools ?? []} />,
+            },
+          ];
     }
     return files.length > 0 && conversationId
       ? [

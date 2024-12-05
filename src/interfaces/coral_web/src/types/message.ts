@@ -1,4 +1,9 @@
-import { Citation, ListConversationFile, StreamToolCallsGeneration, StreamToolInput } from '@/cohere-client';
+import {
+  Citation,
+  ListConversationFile,
+  StreamToolCallsGeneration,
+  StreamToolInput,
+} from '@/cohere-client';
 
 export enum BotState {
   LOADING = 'loading',

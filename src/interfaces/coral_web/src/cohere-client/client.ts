@@ -174,9 +174,7 @@ export class CohereClient {
   }
 
   public createUser(requestBody: CreateUserV1UsersPostData) {
-    return this.cohereService.default.createUserV1UsersPost(
-      requestBody,
-    );
+    return this.cohereService.default.createUserV1UsersPost(requestBody);
   }
 
   public async googleSSOAuth({ code }: { code: string }) {

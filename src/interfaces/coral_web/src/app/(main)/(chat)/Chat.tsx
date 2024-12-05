@@ -62,9 +62,9 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
 
     const agentTools =
       agent && agent.tools
-        ? ((agent.tools
+        ? agent.tools
             .map((name) => (tools ?? [])?.find((t) => t.name === name))
-            .filter((t) => t !== undefined) ?? []))
+            .filter((t) => t !== undefined) ?? []
         : [];
 
     setParams({
