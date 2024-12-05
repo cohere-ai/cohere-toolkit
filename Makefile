@@ -8,7 +8,7 @@ watch:
 
 .PHONY: up
 up:
-	@docker compose up --build -d
+	@docker compose up --build
 
 .PHONY: down
 down:
