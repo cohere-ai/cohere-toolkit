@@ -64,7 +64,6 @@ export const EditEnvVariablesModal: React.FC<{
   );
 
   const handleDeploymentChange = (newDeployment: string) => {
-    console.log('newDeployment', newDeployment);
     setDeployment(newDeployment);
     const selectedDeployment = deployments?.find(({ name }) => name === newDeployment);
     setEnvVariables(selectedDeployment?.config ?? {});
@@ -75,7 +74,6 @@ export const EditEnvVariablesModal: React.FC<{
   };
 
   const handleSubmit = async () => {
-    console.log('deployment', deployment);
     if (!deployment) return;
     const selectedDeployment = deployments?.find(({ name }) => name === deployment);
     if (!selectedDeployment) return;

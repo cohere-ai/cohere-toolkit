@@ -8,7 +8,7 @@ logger = LoggerFactory().get_logger()
 ALL_MODEL_DEPLOYMENTS = { d.name(): d for d in BaseDeployment.__subclasses__() }
 
 
-def get_installed_deployments() -> list[type[BaseDeployment]]:
+def get_available_deployments() -> list[type[BaseDeployment]]:
     installed_deployments = list(ALL_MODEL_DEPLOYMENTS.values())
 
     if Settings().get("feature_flags.use_community_features"):
@@ -32,4 +32,4 @@ def get_installed_deployments() -> list[type[BaseDeployment]]:
 
     return installed_deployments
 
-AVAILABLE_MODEL_DEPLOYMENTS = get_installed_deployments()
+AVAILABLE_MODEL_DEPLOYMENTS = get_available_deployments()

@@ -60,7 +60,7 @@ def test_get_deployment_by_name(session, mock_available_model_deployments, clear
     deployment = deployment_service.get_deployment_by_name(session, MockCohereDeployment.name())
     assert isinstance(deployment, MockCohereDeployment)
 
-def test_get_deployment_by_name_wrong_name(session, mock_available_model_deployments, clear_db_deployments) -> None:
+def test_get_deployment_by_name_wrong_name(session, mock_available_model_deployments) -> None:
     with pytest.raises(DeploymentNotFoundError):
         deployment_service.get_deployment_by_name(session, "wrong-name")
 
