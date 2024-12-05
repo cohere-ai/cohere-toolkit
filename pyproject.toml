@@ -18,7 +18,7 @@ pytest-dotenv = "^0.5.2"
 alembic = "^1.13.1"
 psycopg2 = "^2.9.9"
 psycopg2-binary = "^2.9.9"
-python-multipart = "^0.0.9"
+python-multipart = "^0.0.18"
 sse-starlette = "^2.0.0"
 boto3 = "^1.0.0"
 httpx = {extras = ["http2"], version = "^0.27.0"}

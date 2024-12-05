@@ -1,20 +1,19 @@
-import json
-from typing import Any, ClassVar, Dict, List
+from typing import Any, Dict, List
 
 import aiohttp
-from langchain_text_splitters import MarkdownHeaderTextSplitter
+from bs4 import BeautifulSoup
 
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
+from backend.services.utils import read_pdf
 from backend.tools.base import BaseTool
+from backend.tools.constants import ASYNC_TIMEOUT
 
 logger = LoggerFactory().get_logger()
 
 
 class WebScrapeTool(BaseTool):
     ID = "web_scrape"
-    ENDPOINT: ClassVar[str] = "http://co-reader"
-    ENABLE_CHUNKING: ClassVar[bool] = True
 
     @classmethod
     def is_available(cls) -> bool:
@@ -50,18 +49,9 @@ class WebScrapeTool(BaseTool):
     ) -> List[Dict[str, Any]]:
         url = parameters.get("url")
 
-        headers = {
-            "X-Respond-With": "markdown",
-            "x-no-cache": "true",
-            "Content-Type": "application/json",
-        }
-        data = {"url": url}
-
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=ASYNC_TIMEOUT) as session:
             try:
-                async with session.post(
-                    self.ENDPOINT, data=json.dumps(data), headers=headers
-                ) as response:
+                async with session.get(url) as response:
                     if response.status != 200:
                         error_message = f"HTTP {response.status} {response.reason}"
                         return [
@@ -71,39 +61,43 @@ class WebScrapeTool(BaseTool):
                             }
                         ]
 
-                    content = await response.text()
-                    return self.parse_content(content, url, self.ENABLE_CHUNKING)
+                    return await self.handle_response(response, url)
 
             except aiohttp.ClientError as e:
-                return [
-                    {
-                        "text": f"Request failed: {str(e)}",
-                        "url": url,
-                    }
-                ]
+                return  {
+                    "text": f"Client error using web scrape: {str(e)}",
+                    "url": url,
+                }
+            except Exception as e:
+                return {
+                    "text": f"Request failed using web scrape: {str(e)}",
+                    "url": url,
+                }
 
-    def parse_content(
-        self, content: str, url: str, enable_chunking: bool
-    ) -> list[dict]:
-        if enable_chunking:
-            splitter = MarkdownHeaderTextSplitter(
-                headers_to_split_on=[
-                    ("#", "Header 1"),
-                    ("##", "Header 2"),
-                    ("###", "Header 3"),
-                    ("####", "Header 4"),
-                    ("#####", "Header 5"),
-                ],
-                strip_headers=False,
-            )
-            docs = splitter.split_text(content)
-            return [
-                {"text": doc.page_content, "url": url, **doc.metadata} for doc in docs
-            ]
+    async def handle_response(self, response: aiohttp.ClientResponse, url: str):
+        content_type = response.headers.get("content-type")
 
-        return [
-            {
-                "text": content,
+        # If URL is a PDF, read contents using helper function
+        if "application/pdf" in content_type:
+            return {
+                "text": read_pdf(response.content),
                 "url": url,
             }
-        ]
+        elif "text/html" in content_type:
+            content = await response.text()
+            soup = BeautifulSoup(content, "html.parser")
+
+            text = soup.get_text().replace("\n", "")
+            title = next((tag.text for tag in soup.find_all('h1')), None)
+
+            data = {
+                "text": text,
+                "url": url,
+            }
+
+            if title:
+                data["title"] = title
+
+            return data
+        else:
+            raise ValueError(f"Unsupported Content Type using web scrape: {content_type}")
