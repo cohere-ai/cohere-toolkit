@@ -6,17 +6,6 @@ export const $AgentPublic = {
       type: 'string',
       title: 'User Id',
     },
-    organization_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Organization Id',
-    },
     id: {
       type: 'string',
       title: 'Id',
@@ -3115,6 +3104,11 @@ export const $ToolDefinition = {
       ],
       title: 'Token',
       default: '',
+    },
+    should_return_token: {
+      type: 'boolean',
+      title: 'Should Return Token',
+      default: false,
     },
   },
   type: 'object',

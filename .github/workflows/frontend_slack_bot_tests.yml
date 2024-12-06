@@ -1,4 +1,4 @@
-name: Slack Bot - Format and build
+name: Slack Bot - Format, Build & Validate
 
 on:
   push:
@@ -28,11 +28,11 @@ jobs:
         shell: bash
         working-directory: src/interfaces/slack_bot
         run: npm ci
-      - name: Check slack_bot is formatted
+      - name: Check format
         run: npm run format
-      - name: Check slack_bot types
+      - name: Check types
         run: npm run tsc:check
-      - name: Run slack_bot tests
+      - name: Run tests
         run: npm run test
-      - name: Check slack_bot can build
+      - name: Check build
         run: npm run build

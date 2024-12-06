@@ -318,7 +318,7 @@ def test_streaming_fail_chat_missing_message(
                 "loc": ["body", "message"],
                 "msg": "Field required",
                 "input": {},
-                "url": "https://errors.pydantic.dev/2.9/v/missing",
+                "url": "https://errors.pydantic.dev/2.10/v/missing",
             }
         ]
     }

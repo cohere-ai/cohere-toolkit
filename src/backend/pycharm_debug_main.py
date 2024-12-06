@@ -1,5 +1,4 @@
 import logging
-import warnings
 from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
@@ -17,7 +16,6 @@ from backend.config.auth import (
 )
 from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
 from backend.config.settings import Settings
-from backend.exceptions import DeploymentNotFoundError
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
@@ -36,8 +34,6 @@ from backend.services.logger.middleware import LoggingMiddleware
 
 # Only show errors for Pydantic
 logging.getLogger('pydantic').setLevel(logging.ERROR)
-# Supress UserWarnings clogging logs
-warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 load_dotenv()
 
@@ -105,6 +101,7 @@ def create_app():
 
 app = create_app()
 
+
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     ctx = get_context(request)
@@ -126,20 +123,6 @@ async def validation_exception_handler(request: Request, exc: Exception):
                 f" Exception message is {exc!r}."
             )
         },
-    )
-
-
-@app.exception_handler(DeploymentNotFoundError)
-async def deployment_not_found_handler(request: Request, exc: DeploymentNotFoundError):
-    ctx = get_context(request)
-    logger = ctx.get_logger()
-    logger.error(
-        event="Deployment not found",
-        deployment_id=exc.deployment_id,
-    )
-    return JSONResponse(
-        status_code=404,
-        content={"detail": str(exc)},
     )
 
 
@@ -165,3 +148,11 @@ async def apply_migrations():
         )
 
     return {"status": "Migration successful"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "backend.pycharm_debug_main:app", host="0.0.0.0", port=8000, loop="asyncio", reload=True
+    )
