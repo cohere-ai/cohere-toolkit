@@ -35,7 +35,9 @@ class ToolError(BaseModel, extra="allow"):
     text: str
     details: str = ""
 
-
+class ToolArgument(StrEnum):
+    DOMAIN_FILTER = "domain_filter"
+    SITE_FILTER = "site_filter"
 class ParametersValidationMeta(type):
     """
     Metaclass to decorate all tools `call` methods with the parameter checker.
