@@ -4,15 +4,15 @@ dev:
 
 .PHONY: watch
 watch:
-	@docker compose watch --no-up
+	@podman compose watch --no-up
 
 .PHONY: up
 up:
-	@docker compose up --build
+	@podman compose up --build -d
 
 .PHONY: down
 down:
-	@docker compose down
+	@podman compose down
 
 .PHONY: run-unit-tests
 run-unit-tests:
@@ -24,44 +24,44 @@ run-community-tests:
 
 .PHONY: run-integration-tests
 run-integration-tests:
-	docker compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
+	podman compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
 
 run-tests: run-unit-tests
 
 .PHONY: attach
 attach: 
-	@docker attach cohere-toolkit-backend-1
+	@podman attach cohere-toolkit-backend-1
 logs: 
-	@@docker compose logs --follow --tail 100 $(service)
+	@@podman compose logs --follow --tail 100 $(service)
 
 .PHONY: exec-backend
 exec-backend:
-	docker exec -ti cohere-toolkit-backend-1 bash 
+	podman exec -ti cohere-toolkit-backend-1 bash 
 
 .PHONY: exec-db
 exec-db:
-	docker exec -ti cohere-toolkit-db-1 bash
+	podman exec -ti cohere-toolkit-db-1 bash
 
 .PHONY: exec-terrarium
 exec-terrarium:
-	docker exec -ti -u root cohere-toolkit-terrarium-1 /bin/sh
+	podman exec -ti -u root cohere-toolkit-terrarium-1 /bin/sh
 
 .PHONY: migration
 migration:
-	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
+	podman compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
 
 .PHONY: migrate
 migrate:
-	docker compose run --build backend alembic -c src/backend/alembic.ini upgrade head
+	podman compose run --build backend alembic -c src/backend/alembic.ini upgrade head
 
 .PHONY: downgrade
 downgrade:
-	docker compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
+	podman compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
 
 .PHONY: reset-db
 reset-db:
-	docker compose down
-	docker volume rm cohere_toolkit_db
+	podman compose down
+	podman volume rm cohere_toolkit_db
 
 .PHONY: install
 install:
@@ -124,25 +124,14 @@ build-web:
 
 .PHONY: test-db
 test-db:
-	docker compose stop test_db
-	docker compose rm -f test_db
-	docker compose up test_db -d
+	podman compose stop test_db
+	podman compose rm -f test_db
+	podman compose up test_db -d
 
 .PHONY: dev-sync
 dev-sync:
-	@docker compose up --build sync_worker sync_publisher flower -d
+	@podman compose up --build sync_worker sync_publisher flower -d
 
 .PHONY: dev-sync-down
 dev-sync-down:
-	@docker compose down sync_worker sync_publisher flower
-
-.PHONY: vscode-debug
-vscode-debug:
-	@DEBUGGER_IDE=vscode docker compose -f docker-compose.debug.yml up --build
-
-.PHONY: pycharm-debug
-pycharm-debug:
-	@DEBUGGER_IDE=pycharm docker compose -f docker-compose.debug.yml up --build
-
-
-
+	@podman compose down sync_worker sync_publisher flower
