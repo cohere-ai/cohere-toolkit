@@ -148,7 +148,9 @@ export class CohereClient {
               throw new CohereNetworkError(data.detail, response.status);
             });
         }
-        onOpen(response);
+        if (onOpen) {
+          onOpen(response);
+        }
       },
       onmessage: onMessage,
       onclose: onClose,
