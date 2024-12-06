@@ -70,9 +70,6 @@ def start():
     )
 
     all_deployments = MANAGED_DEPLOYMENTS_SETUP.copy()
-    if use_community_features:
-        all_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
-
     selected_deployments = select_deployments_prompt(all_deployments, secrets)
 
     for deployment in selected_deployments:

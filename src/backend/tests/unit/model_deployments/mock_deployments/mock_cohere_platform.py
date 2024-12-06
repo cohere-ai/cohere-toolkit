@@ -3,15 +3,28 @@ from typing import Any, Dict, Generator, List
 from cohere.types import StreamedChatResponse
 
 from backend.chat.enums import StreamEvent
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
+from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
+    MockDeployment,
+)
 
 
-class MockCohereDeployment(BaseDeployment):
+class MockCohereDeployment(MockDeployment):
     """Mocked Cohere Platform Deployment."""
 
     DEFAULT_MODELS = ["command", "command-r"]
+
+    def __init__(self, **kwargs: Any):
+        pass
+
+    @classmethod
+    def name(cls) -> str:
+        return "Cohere Platform"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return ["COHERE_API_KEY"]
 
     @property
     def rerank_enabled(self) -> bool:
@@ -24,6 +37,11 @@ class MockCohereDeployment(BaseDeployment):
     @classmethod
     def is_available(cls) -> bool:
         return True
+
+    @classmethod
+    def config(cls) -> Dict[str, Any]:
+        return {"COHERE_API_KEY": "fake-api-key"}
+
 
     def invoke_chat(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any

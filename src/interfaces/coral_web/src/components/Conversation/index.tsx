@@ -164,7 +164,7 @@ const Conversation: React.FC<Props> = ({
                   isFirstTurn={messages.length === 0}
                   streamingMessage={streamingMessage}
                   chatWindowRef={chatWindowRef}
-                  requiredTools={agent?.tools}
+                  requiredTools={agent?.tools == null ? [] : agent.tools}
                   onChange={(message) => setUserMessage(message)}
                   onSend={handleSend}
                   onStop={handleStop}
