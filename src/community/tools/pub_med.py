@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from langchain_community.tools.pubmed.tool import PubmedQueryRun
 
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 
 
 class PubMedRetriever(BaseTool):
@@ -38,5 +38,13 @@ class PubMedRetriever(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
-        result = self.client.invoke(query)
+        try:
+            result = self.client.invoke(query)
+        except Exception as e:
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
+            )
+        if not result:
+            return self.get_no_results_error()
+
         return [{"text": result}]

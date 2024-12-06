@@ -4,7 +4,7 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 from backend.tools.slack.auth import SlackAuth
 from backend.tools.slack.constants import SEARCH_LIMIT, SLACK_TOOL_ID
 from backend.tools.slack.utils import get_slack_service
@@ -68,6 +68,16 @@ class SlackTool(BaseTool):
 
         # Search Slack
         slack_service = get_slack_service(user_id=user_id, search_limit=SEARCH_LIMIT)
-        all_results = slack_service.search_all(query=query)
-        return slack_service.serialize_results(all_results)
+        try:
+            all_results = slack_service.search_all(query=query)
+            results = slack_service.serialize_results(all_results)
+        except Exception as e:
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}", details=str(e))
+            )
+
+        if not results:
+            return self.get_no_results_error()
+
+        return results
 

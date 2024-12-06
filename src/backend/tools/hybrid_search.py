@@ -122,6 +122,9 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
             **kwargs,
         )
 
+        if not reranked_results:
+            return self.get_no_results_error()
+
         return reranked_results
 
     async def rerank_results(

@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 import requests
 
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 
 
 class ClinicalTrials(BaseTool):
@@ -75,9 +75,15 @@ class ClinicalTrials(BaseTool):
             response = requests.get(self._url, params=query_params)
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            return [{"text": f"Could not retrieve studies: {str(e)}"}]
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
+            )
 
-        return self._parse_response(response, location, intervention)
+        results = self._parse_response(response, location, intervention)
+        if not results:
+            return self.get_no_results_error()
+
+        return results
 
     def _parse_response(
         self, response: requests.Response, location: str, intervention: str
