@@ -2,7 +2,6 @@
 
 export type AgentPublic = {
   user_id: string;
-  organization_id?: string | null;
   id: string;
   created_at: string;
   updated_at: string;
@@ -664,6 +663,7 @@ export type ToolDefinition = {
   is_auth_required?: boolean;
   auth_url?: string | null;
   token?: string | null;
+  should_return_token?: boolean;
 };
 
 /**
