@@ -453,7 +453,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       onFinish: () => {
         setIsStreaming(false);
       },
-      onError: (e: Error) => {
+      onError: (e) => {
         citations = [];
         if (isCohereNetworkError(e)) {
           const networkError = e;
