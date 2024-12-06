@@ -216,306 +216,288 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     // Temporarily store the streaming `parameters` partial JSON string for a tool call
     let toolCallParamaterStr = '';
 
-    try {
-      clearComposerFiles();
-      clearUploadingErrors();
+    clearComposerFiles();
+    clearUploadingErrors();
 
-      await streamConverse({
-        request,
-        headers,
-        onRead: (eventData) => {
-          switch (eventData.event) {
-            case StreamEvent.STREAM_START: {
-              const data = eventData.data;
-              setIsStreaming(true);
-              conversationId = data?.conversation_id ?? '';
-              generationId = data?.generation_id ?? '';
-              break;
-            }
-
-            case StreamEvent.TEXT_GENERATION: {
-              setIsStreamingToolEvents(false);
-              const data = eventData.data;
-              botResponse += data?.text ?? '';
-              setStreamingMessage({
-                type: MessageType.BOT,
-                state: BotState.TYPING,
-                text: botResponse,
-                generationId,
-                isRAGOn,
-                originalText: botResponse,
-                toolEvents,
-              });
-              break;
-            }
-
-            // This event only occurs when we use tools.
-            case StreamEvent.SEARCH_RESULTS: {
-              const data = eventData.data;
-              const documents = data?.documents ?? [];
-
-              const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
-                mapDocuments(documents);
-              documentsMap = { ...documentsMap, ...newDocumentsMap };
-              outputFiles = { ...outputFiles, ...newOutputFilesMap };
-              saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
-
-              // we are only interested in web_search results
-              // ignore search results of pyhton interpreter tool
-              if (
-                toolEvents[currentToolEventIndex - 1]?.tool_calls?.[0]?.name !==
-                TOOL_PYTHON_INTERPRETER_ID
-              ) {
-                toolEvents.push({
-                  text: '',
-                  stream_search_results: data,
-                  tool_calls: [],
-                } as StreamToolCallsGeneration);
-                currentToolEventIndex += 1;
-              }
-              break;
-            }
-
-            case StreamEvent.TOOL_CALLS_CHUNK: {
-              setIsStreamingToolEvents(true);
-              const data = eventData.data;
-
-              // Initiate an empty tool event if one doesn't already exist at the current index
-              const toolEvent: StreamToolCallsGeneration = toolEvents[currentToolEventIndex] ?? {
-                text: '',
-                tool_calls: [],
-              };
-              toolEvent.text += data?.text ?? '';
-
-              // A tool call needs to be added/updated if a tool call delta is present in the event
-              if (data?.tool_call_delta) {
-                const currentToolCallsIndex = data.tool_call_delta.index ?? 0;
-                let toolCall = toolEvent.tool_calls?.[currentToolCallsIndex];
-                if (!toolCall) {
-                  toolCall = {
-                    name: '',
-                    parameters: {},
-                  };
-                  toolCallParamaterStr = '';
-                }
-
-                if (data?.tool_call_delta?.name) {
-                  toolCall.name = data.tool_call_delta.name;
-                }
-                if (data?.tool_call_delta?.parameters) {
-                  toolCallParamaterStr += data?.tool_call_delta?.parameters;
-
-                  // Attempt to parse the partial parameter string as valid JSON to show that the parameters
-                  // are streaming in. To make the partial JSON string valid JSON after the object key comes in,
-                  // we naively try to add `"}` to the end.
-                  try {
-                    const partialParams = JSON.parse(toolCallParamaterStr + `"}`);
-                    toolCall.parameters = partialParams;
-                  } catch (e) {
-                    // Ignore parsing error
-                  }
-                }
-
-                // Update the tool call list with the new/updated tool call
-                if (toolEvent.tool_calls?.[currentToolCallsIndex]) {
-                  toolEvent.tool_calls[currentToolCallsIndex] = toolCall;
-                } else {
-                  toolEvent.tool_calls?.push(toolCall);
-                }
-              }
-
-              // Update the tool event list with the new/updated tool event
-              if (toolEvents[currentToolEventIndex]) {
-                toolEvents[currentToolEventIndex] = toolEvent;
-              } else {
-                toolEvents.push(toolEvent);
-              }
-
-              setStreamingMessage({
-                type: MessageType.BOT,
-                state: BotState.TYPING,
-                text: botResponse,
-                isRAGOn,
-                generationId,
-                originalText: botResponse,
-                toolEvents,
-              });
-              break;
-            }
-
-            case StreamEvent.TOOL_CALLS_GENERATION: {
-              const data = eventData.data;
-
-              if (toolEvents[currentToolEventIndex]) {
-                toolEvents[currentToolEventIndex] = data;
-                currentToolEventIndex += 1;
-              } else {
-                toolEvents.push(data);
-                currentToolEventIndex = toolEvents.length; // double check this is right
-              }
-              break;
-            }
-
-            case StreamEvent.CITATION_GENERATION: {
-              const data = eventData.data;
-              const newCitations = [...(data?.citations ?? [])];
-              const fixedCitations = fixInlineCitationsForMarkdown(newCitations, botResponse);
-              citations.push(...fixedCitations);
-              citations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
-              saveCitations(generationId, fixedCitations, documentsMap);
-
-              setStreamingMessage({
-                type: MessageType.BOT,
-                state: BotState.TYPING,
-                text: replaceTextWithCitations(botResponse, citations, generationId),
-                citations,
-                isRAGOn,
-                generationId,
-                originalText: botResponse,
-                toolEvents,
-              });
-              break;
-            }
-
-            case StreamEvent.STREAM_END: {
-              const data = eventData.data;
-
-              conversationId = data?.conversation_id ?? '';
-
-              if (currentConversationId !== conversationId) {
-                setConversation({ id: conversationId });
-              }
-              // Make sure our URL is up to date with the conversationId
-              if (!window.location.pathname.includes(`c/${conversationId}`) && conversationId) {
-                const newUrl =
-                  window.location.pathname === '/'
-                    ? `c/${conversationId}`
-                    : window.location.pathname + `/c/${conversationId}`;
-                window?.history?.replaceState(null, '', newUrl);
-                queryClient.invalidateQueries({ queryKey: ['conversations'] });
-              }
-
-              const responseText = data.text ?? '';
-
-              addSearchResults(data?.search_results ?? []);
-
-              // When we use documents for RAG, we don't get the documents split up by snippet
-              // and their new ids until the final response. In the future, we will potentially
-              // get the snippets in the citation-generation event and we can inject them there.
-              const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
-                mapDocuments(data.documents ?? []);
-              documentsMap = { ...documentsMap, ...newDocumentsMap };
-              outputFiles = { ...outputFiles, ...newOutputFilesMap };
-
-              saveCitations(generationId, citations, documentsMap);
-              saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
-
-              const outputText =
-                data?.finish_reason === FinishReason.MAX_TOKENS ? botResponse : responseText;
-
-              // Replace HTML code blocks with iframes
-              const transformedText = replaceCodeBlockWithIframe(outputText);
-
-              const finalText = isRAGOn
-                ? replaceTextWithCitations(
-                    // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
-                    // because the final response doesn't give us the full text yet. Note - this means that
-                    // citations will only appear for the first 'block' of text generated.
-                    transformedText,
-                    citations,
-                    generationId
-                  )
-                : botResponse;
-
-              const finalMessage: FulfilledMessage = {
-                id: data.message_id,
-                type: MessageType.BOT,
-                state: BotState.FULFILLED,
-                generationId,
-                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
-                citations,
-                isRAGOn,
-                originalText: isRAGOn ? responseText : botResponse,
-                toolEvents,
-              };
-
-              setConversation({ messages: [...newMessages, finalMessage] });
-              setStreamingMessage(null);
-
-              if (shouldUpdateConversationTitle(newMessages)) {
-                handleUpdateConversationTitle(conversationId);
-              }
-
-              break;
-            }
+    await streamConverse({
+      request,
+      headers,
+      onRead: (eventData) => {
+        switch (eventData.event) {
+          case StreamEvent.STREAM_START: {
+            const data = eventData.data;
+            setIsStreaming(true);
+            conversationId = data?.conversation_id ?? '';
+            generationId = data?.generation_id ?? '';
+            break;
           }
-        },
-        onHeaders: () => {},
-        onFinish: () => {
-          setIsStreaming(false);
-        },
-        onError: (e) => {
-          citations = [];
-          if (isCohereNetworkError(e)) {
-            const networkError = e;
-            let errorMessage = USER_ERROR_MESSAGE;
 
-            setConversation({
-              messages: newMessages.map((m, i) =>
-                i < newMessages.length - 1
-                  ? m
-                  : { ...m, error: `[${networkError.status}] ${errorMessage}` }
-              ),
-            });
-          } else if (isStreamError(e)) {
-            const streamError = e;
-
-            const lastMessage: ErrorMessage = createErrorMessage({
+          case StreamEvent.TEXT_GENERATION: {
+            setIsStreamingToolEvents(false);
+            const data = eventData.data;
+            botResponse += data?.text ?? '';
+            setStreamingMessage({
+              type: MessageType.BOT,
+              state: BotState.TYPING,
               text: botResponse,
-              error: `[${streamError.code}] ${USER_ERROR_MESSAGE}`,
+              generationId,
+              isRAGOn,
+              originalText: botResponse,
+              toolEvents,
             });
-
-            setConversation({ messages: [...newMessages, lastMessage] });
-          } else {
-            let error =
-              (e as CohereNetworkError)?.message ||
-              'Unable to generate a response since an error was encountered.';
-
-            if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
-              error += ' (Ensure a COHERE_API_KEY is configured correctly)';
-            }
-            setConversation({
-              messages: [
-                ...newMessages,
-                createErrorMessage({
-                  text: botResponse,
-                  error,
-                }),
-              ],
-            });
+            break;
           }
-          setIsStreaming(false);
-          setStreamingMessage(null);
-          setPendingMessage(null);
-        },
-      });
-    } catch (e) {
-      if (isCohereNetworkError(e) && e?.status) {
-        let errorMessage = USER_ERROR_MESSAGE;
 
-        setConversation({
-          messages: newMessages.map((m, i) =>
-            i < newMessages.length - 1
-              ? m
-              : { ...m, error: `[${(e as CohereNetworkError)?.status}] ${errorMessage}` }
-          ),
-        });
-      }
+          // This event only occurs when we use tools.
+          case StreamEvent.SEARCH_RESULTS: {
+            const data = eventData.data;
+            const documents = data?.documents ?? [];
 
-      setIsStreaming(false);
-      setStreamingMessage(null);
-      setPendingMessage(null);
-    }
+            const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
+              mapDocuments(documents);
+            documentsMap = { ...documentsMap, ...newDocumentsMap };
+            outputFiles = { ...outputFiles, ...newOutputFilesMap };
+            saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
+
+            // we are only interested in web_search results
+            // ignore search results of pyhton interpreter tool
+            if (
+              toolEvents[currentToolEventIndex - 1]?.tool_calls?.[0]?.name !==
+              TOOL_PYTHON_INTERPRETER_ID
+            ) {
+              toolEvents.push({
+                text: '',
+                stream_search_results: data,
+                tool_calls: [],
+              } as StreamToolCallsGeneration);
+              currentToolEventIndex += 1;
+            }
+            break;
+          }
+
+          case StreamEvent.TOOL_CALLS_CHUNK: {
+            setIsStreamingToolEvents(true);
+            const data = eventData.data;
+
+            // Initiate an empty tool event if one doesn't already exist at the current index
+            const toolEvent: StreamToolCallsGeneration = toolEvents[currentToolEventIndex] ?? {
+              text: '',
+              tool_calls: [],
+            };
+            toolEvent.text += data?.text ?? '';
+
+            // A tool call needs to be added/updated if a tool call delta is present in the event
+            if (data?.tool_call_delta) {
+              const currentToolCallsIndex = data.tool_call_delta.index ?? 0;
+              let toolCall = toolEvent.tool_calls?.[currentToolCallsIndex];
+              if (!toolCall) {
+                toolCall = {
+                  name: '',
+                  parameters: {},
+                };
+                toolCallParamaterStr = '';
+              }
+
+              if (data?.tool_call_delta?.name) {
+                toolCall.name = data.tool_call_delta.name;
+              }
+              if (data?.tool_call_delta?.parameters) {
+                toolCallParamaterStr += data?.tool_call_delta?.parameters;
+
+                // Attempt to parse the partial parameter string as valid JSON to show that the parameters
+                // are streaming in. To make the partial JSON string valid JSON after the object key comes in,
+                // we naively try to add `"}` to the end.
+                try {
+                  const partialParams = JSON.parse(toolCallParamaterStr + `"}`);
+                  toolCall.parameters = partialParams;
+                } catch (e) {
+                  // Ignore parsing error
+                }
+              }
+
+              // Update the tool call list with the new/updated tool call
+              if (toolEvent.tool_calls?.[currentToolCallsIndex]) {
+                toolEvent.tool_calls[currentToolCallsIndex] = toolCall;
+              } else {
+                toolEvent.tool_calls?.push(toolCall);
+              }
+            }
+
+            // Update the tool event list with the new/updated tool event
+            if (toolEvents[currentToolEventIndex]) {
+              toolEvents[currentToolEventIndex] = toolEvent;
+            } else {
+              toolEvents.push(toolEvent);
+            }
+
+            setStreamingMessage({
+              type: MessageType.BOT,
+              state: BotState.TYPING,
+              text: botResponse,
+              isRAGOn,
+              generationId,
+              originalText: botResponse,
+              toolEvents,
+            });
+            break;
+          }
+
+          case StreamEvent.TOOL_CALLS_GENERATION: {
+            const data = eventData.data;
+
+            if (toolEvents[currentToolEventIndex]) {
+              toolEvents[currentToolEventIndex] = data;
+              currentToolEventIndex += 1;
+            } else {
+              toolEvents.push(data);
+              currentToolEventIndex = toolEvents.length; // double check this is right
+            }
+            break;
+          }
+
+          case StreamEvent.CITATION_GENERATION: {
+            const data = eventData.data;
+            const newCitations = [...(data?.citations ?? [])];
+            const fixedCitations = fixInlineCitationsForMarkdown(newCitations, botResponse);
+            citations.push(...fixedCitations);
+            citations.sort((a, b) => (a.start ?? 0) - (b.start ?? 0));
+            saveCitations(generationId, fixedCitations, documentsMap);
+
+            setStreamingMessage({
+              type: MessageType.BOT,
+              state: BotState.TYPING,
+              text: replaceTextWithCitations(botResponse, citations, generationId),
+              citations,
+              isRAGOn,
+              generationId,
+              originalText: botResponse,
+              toolEvents,
+            });
+            break;
+          }
+
+          case StreamEvent.STREAM_END: {
+            const data = eventData.data;
+
+            conversationId = data?.conversation_id ?? '';
+
+            if (currentConversationId !== conversationId) {
+              setConversation({ id: conversationId });
+            }
+            // Make sure our URL is up to date with the conversationId
+            if (!window.location.pathname.includes(`c/${conversationId}`) && conversationId) {
+              const newUrl =
+                window.location.pathname === '/'
+                  ? `c/${conversationId}`
+                  : window.location.pathname + `/c/${conversationId}`;
+              window?.history?.replaceState(null, '', newUrl);
+              queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            }
+
+            const responseText = data.text ?? '';
+
+            addSearchResults(data?.search_results ?? []);
+
+            // When we use documents for RAG, we don't get the documents split up by snippet
+            // and their new ids until the final response. In the future, we will potentially
+            // get the snippets in the citation-generation event and we can inject them there.
+            const { documentsMap: newDocumentsMap, outputFilesMap: newOutputFilesMap } =
+              mapDocuments(data.documents ?? []);
+            documentsMap = { ...documentsMap, ...newDocumentsMap };
+            outputFiles = { ...outputFiles, ...newOutputFilesMap };
+
+            saveCitations(generationId, citations, documentsMap);
+            saveOutputFiles({ ...savedOutputFiles, ...outputFiles });
+
+            const outputText =
+              data?.finish_reason === FinishReason.MAX_TOKENS ? botResponse : responseText;
+
+            // Replace HTML code blocks with iframes
+            const transformedText = replaceCodeBlockWithIframe(outputText);
+
+            const finalText = isRAGOn
+              ? replaceTextWithCitations(
+                  // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
+                  // because the final response doesn't give us the full text yet. Note - this means that
+                  // citations will only appear for the first 'block' of text generated.
+                  transformedText,
+                  citations,
+                  generationId
+                )
+              : botResponse;
+
+            const finalMessage: FulfilledMessage = {
+              id: data.message_id,
+              type: MessageType.BOT,
+              state: BotState.FULFILLED,
+              generationId,
+              text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
+              citations,
+              isRAGOn,
+              originalText: isRAGOn ? responseText : botResponse,
+              toolEvents,
+            };
+
+            setConversation({ messages: [...newMessages, finalMessage] });
+            setStreamingMessage(null);
+
+            if (shouldUpdateConversationTitle(newMessages)) {
+              handleUpdateConversationTitle(conversationId);
+            }
+
+            break;
+          }
+        }
+      },
+      onHeaders: () => {},
+      onFinish: () => {
+        setIsStreaming(false);
+      },
+      onError: (e: Error) => {
+        citations = [];
+        if (isCohereNetworkError(e)) {
+          const networkError = e;
+          let errorMessage = networkError.message ?? USER_ERROR_MESSAGE;
+
+          setConversation({
+            messages: newMessages.map((m, i) =>
+              i < newMessages.length - 1
+                ? m
+                : { ...m, error: `[${networkError.status}] ${errorMessage}` }
+            ),
+          });
+        } else if (isStreamError(e)) {
+          const streamError = e;
+
+          const lastMessage: ErrorMessage = createErrorMessage({
+            text: botResponse,
+            error: `[${streamError.code}] ${USER_ERROR_MESSAGE}`,
+          });
+
+          setConversation({ messages: [...newMessages, lastMessage] });
+        } else {
+          let error =
+            (e as CohereNetworkError)?.message ||
+            'Unable to generate a response since an error was encountered.';
+
+          if (error === 'network error' && deployment === DEPLOYMENT_COHERE_PLATFORM) {
+            error += ' (Ensure a COHERE_API_KEY is configured correctly)';
+          }
+          setConversation({
+            messages: [
+              ...newMessages,
+              createErrorMessage({
+                text: botResponse,
+                error,
+              }),
+            ],
+          });
+        }
+        setIsStreaming(false);
+        setStreamingMessage(null);
+        setPendingMessage(null);
+      },
+    });
   };
 
   const getChatRequest = (message: string, overrides?: ChatRequestOverrides): CohereChatRequest => {
