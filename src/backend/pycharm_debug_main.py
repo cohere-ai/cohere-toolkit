@@ -1,5 +1,4 @@
 import logging
-import warnings
 from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
@@ -35,8 +34,6 @@ from backend.services.logger.middleware import LoggingMiddleware
 
 # Only show errors for Pydantic
 logging.getLogger('pydantic').setLevel(logging.ERROR)
-# Supress UserWarnings clogging logs
-warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 load_dotenv()
 
@@ -104,6 +101,7 @@ def create_app():
 
 app = create_app()
 
+
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
     ctx = get_context(request)
@@ -150,3 +148,11 @@ async def apply_migrations():
         )
 
     return {"status": "Migration successful"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "backend.pycharm_debug_main:app", host="0.0.0.0", port=8000, loop="asyncio", reload=True
+    )

@@ -8,7 +8,7 @@ watch:
 
 .PHONY: up
 up:
-	@docker compose up --build -d
+	@docker compose up --build
 
 .PHONY: down
 down:
@@ -135,3 +135,14 @@ dev-sync:
 .PHONY: dev-sync-down
 dev-sync-down:
 	@docker compose down sync_worker sync_publisher flower
+
+.PHONY: vscode-debug
+vscode-debug:
+	@DEBUGGER_IDE=vscode docker compose -f docker-compose.debug.yml up --build
+
+.PHONY: pycharm-debug
+pycharm-debug:
+	@DEBUGGER_IDE=pycharm docker compose -f docker-compose.debug.yml up --build
+
+
+
