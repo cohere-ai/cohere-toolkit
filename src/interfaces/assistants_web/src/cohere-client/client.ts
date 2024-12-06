@@ -135,12 +135,18 @@ export class CohereClient {
       signal,
       openWhenHidden: true, // When false, the requests will be paused when the tab is hidden and resume/retry when the tab is visible again
       onopen: async (response: Response) => {
-        if (response.status !== 200 && response.headers.get('content-type')?.includes('application/json')) {
-          await response.json().catch((e) => {
-            throw new CohereNetworkError('Failed to decode error message JSON', response.status);
-          }).then((data) => {
-            throw new CohereNetworkError(data.detail, response.status);
-          });
+        if (
+          response.status !== 200 &&
+          response.headers.get('content-type')?.includes('application/json')
+        ) {
+          await response
+            .json()
+            .catch((e) => {
+              throw new CohereNetworkError('Failed to decode error message JSON', response.status);
+            })
+            .then((data) => {
+              throw new CohereNetworkError(data.detail, response.status);
+            });
         }
         onOpen(response);
       },
