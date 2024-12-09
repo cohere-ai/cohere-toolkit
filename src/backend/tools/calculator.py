@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from py_expression_eval import Parser
 
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 
 
 class Calculator(BaseTool):
@@ -52,11 +52,13 @@ class Calculator(BaseTool):
 
         to_evaluate = expression.replace("pi", "PI").replace("e", "E")
 
-        result = []
         try:
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
             logger.error(event=f"[Calculator] Error parsing expression: {e}")
-            result = {"text": "Parsing error - syntax not allowed."}
+            return self.get_tool_error(
+                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
+            )
 
-        return result
+
+        return result # type: ignore

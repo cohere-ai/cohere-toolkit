@@ -78,7 +78,8 @@ async def test_wiki_retriever_no_docs() -> None:
     ):
         result = await retriever.call({"query": query}, ctx)
 
-    assert result == []
+    assert result == [{'details': '','success': False,'text': 'No results found.','type': 'other'}]
+
 
 
 @pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
@@ -163,4 +164,4 @@ async def test_vector_db_retriever_no_docs() -> None:
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
         result = await retriever.call({"query": query}, ctx)
 
-    assert result == []
+    assert result == [{'details': '', 'success': False, 'text': 'No results found.', 'type': 'other'}]

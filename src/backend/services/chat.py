@@ -491,7 +491,7 @@ def create_chat_history(
     text_messages = [
         message
         for message in conversation.messages
-        if message.position < user_message_position
+        if message.position < user_message_position # TODO Ask TJ should we check that all history records has a message - add this check "and message.text"
     ]
     return [
         ChatMessage(

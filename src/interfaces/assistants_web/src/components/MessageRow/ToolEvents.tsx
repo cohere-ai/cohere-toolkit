@@ -5,7 +5,7 @@ import { Fragment, PropsWithChildren } from 'react';
 
 import { StreamSearchResults, StreamToolCallsGeneration, ToolCall } from '@/cohere-client';
 import { Markdown } from '@/components/Markdown';
-import { Icon, IconName, Text } from '@/components/UI';
+import { Icon, IconButton, IconName, Text, Tooltip } from '@/components/UI';
 import {
   TOOL_CALCULATOR_ID,
   TOOL_GOOGLE_DRIVE_ID,
@@ -20,6 +20,13 @@ type Props = {
   isLast: boolean;
   events: StreamToolCallsGeneration[] | undefined;
 };
+
+const hasToolErrorsDocuments = (search_results: StreamSearchResults | null) => {
+  return search_results?.documents?.some((document) => document.fields?.success === 'false');
+};
+
+const getErrorDocumentsFromEvent = (search_results: StreamSearchResults | null) =>
+  search_results?.documents?.filter((document) => document.fields?.success === 'false') || [];
 
 /**
  * @description Renders a list of events depending on the model's plan and tool inputs.
@@ -74,6 +81,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
   if (plan) {
     return <ToolEventWrapper>{plan}</ToolEventWrapper>;
   }
+  const toolName = event?.name || '';
 
   if (stream_search_results) {
     const artifacts =
@@ -85,7 +93,16 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
         .filter((value, index, self) => index === self.findIndex((t) => t.title === value.title)) ||
       [];
 
-    return (
+    const hasErrorsDocuments = hasToolErrorsDocuments(stream_search_results);
+    const errorDocuments = getErrorDocumentsFromEvent(stream_search_results);
+
+    return hasErrorsDocuments ? (
+      <ToolErrorWrapper
+        tooltip={errorDocuments[errorDocuments.length - 1].fields?.details as string}
+      >
+        {errorDocuments[errorDocuments.length - 1].text}
+      </ToolErrorWrapper>
+    ) : toolName && toolName != TOOL_PYTHON_INTERPRETER_ID ? (
       <ToolEventWrapper icon="book-open-text">
         {artifacts.length > 0 ? (
           <>
@@ -108,10 +125,9 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
           <>No resources found.</>
         )}
       </ToolEventWrapper>
-    );
+    ) : null;
   }
 
-  const toolName = event?.name || '';
   const icon = getToolIcon(toolName);
 
   switch (toolName) {
@@ -187,6 +203,25 @@ const ToolEventWrapper: React.FC<PropsWithChildren<{ icon?: IconName }>> = ({
         className="mt-0.5 flex h-[21px] flex-shrink-0 items-center fill-mushroom-500 dark:fill-marble-950"
       />
       <Text className="pt-px text-mushroom-300 dark:text-marble-850" styleAs="p-sm" as="span">
+        {children}
+      </Text>
+    </div>
+  );
+};
+
+const ToolErrorWrapper: React.FC<PropsWithChildren<{ tooltip: string }>> = ({
+  tooltip = 'Some error occurred',
+  children,
+}) => {
+  return (
+    <div className="flex w-full items-start gap-x-2 overflow-hidden rounded bg-mushroom-950 px-3 py-2 transition-colors ease-in-out group-hover:bg-mushroom-900 dark:bg-volcanic-200 dark:group-hover:bg-volcanic-200">
+      <Tooltip
+        label={tooltip}
+        size={'sm'}
+        hover
+        iconClassName="mt-0.5 flex h-[21px] flex-shrink-0 items-center fill-danger-350 dark:fill-danger-500"
+      />
+      <Text className="pt-px text-danger-350 dark:text-danger-500" styleAs="p-sm" as="span">
         {children}
       </Text>
     </div>

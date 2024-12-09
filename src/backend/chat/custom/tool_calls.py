@@ -9,7 +9,12 @@ from backend.config.tools import get_available_tools
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import ToolAuthException, ToolError, ToolErrorCode
+from backend.tools.base import (
+    ToolAuthException,
+    ToolError,
+    ToolErrorCode,
+    ToolErrorException,
+)
 
 TIMEOUT_SECONDS = 60
 
@@ -117,11 +122,20 @@ async def _call_tool_async(
                 ),
             }
         ]
+    except ToolErrorException as e:
+        return [
+            {
+                "call": tool_call,
+                "outputs": tool.get_tool_error(
+                    e.tool_error
+                ),
+            }
+        ]
     except Exception as e:
         return [
             {
                 "call": tool_call,
-                "outputs": tool.get_tool_error(ToolError(text=str(e))),
+                "outputs": tool.get_tool_error(ToolError(details=str(e), text="Tool call failed")),
             }
         ]
 
