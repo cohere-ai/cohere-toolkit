@@ -1,0 +1,129 @@
+services:
+  db:
+    image: postgres:14.11-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - proxynet
+
+  test_db:
+    image: postgres:14.1-alpine
+    restart: unless-stopped
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - proxynet
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "6379:6379"
+    networks:
+      - proxynet
+    command: redis-server --save 60 1 --loglevel warning --requirepass redis
+    volumes:
+      - ./data:/data
+
+  backend:
+    build:
+      context: .
+      args:
+        INSTALL_COMMUNITY_DEPS: false
+        DEBUGGER_IDE: ${DEBUGGER_IDE}
+      dockerfile: ./src/backend/debug.Dockerfile
+    develop:
+      watch:
+        - action: sync
+          path: ./src/backend
+          target: /workspace/src/backend
+          ignore:
+            - __pycache__/
+            - alembic/
+            - data/
+        - action: sync
+          path: ./src/community
+          target: /workspace/src/community
+          ignore:
+            - __pycache__/
+            - alembic/
+            - data/
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:8000"
+      - "5678:5678"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      # Mount alembic folder to sync migrations
+      - ./src/backend/alembic:/workspace/src/backend/alembic
+      # Mount configurations
+      - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
+      - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
+    # network_mode: host
+    networks:
+      - proxynet
+
+  frontend:
+    build:
+      target: ${BUILD_TARGET:-prod}
+      context: ./src/interfaces/assistants_web
+      dockerfile: Dockerfile
+    # Set environment variables directly in the docker-compose file
+    environment:
+      API_HOSTNAME: http://backend:8000
+      NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
+      NEXT_PUBLIC_FRONTEND_HOSTNAME: ${NEXT_PUBLIC_FRONTEND_HOSTNAME}
+      NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID}
+      NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: ${NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY}
+    restart: always
+    networks:
+      - proxynet
+    ports:
+      - 4000:4000
+    develop:
+      watch:
+        - action: sync
+          path: ./src/interfaces/assistants_web
+          target: /app
+          ignore:
+            - node_modules/
+
+  terrarium:
+    image: ghcr.io/cohere-ai/terrarium:latest
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    networks:
+      - proxynet
+
+volumes:
+  db:
+    name: cohere_toolkit_db
+    driver: local
+
+networks:
+  proxynet:
+    name: custom_network

@@ -1,5 +1,5 @@
 # ruff: noqa
-from backend.cli.main import *  # NOQA
+from backend.scripts.cli.main import *  # NOQA
 
 """
 These tests are boilerplate and do not test the actual functionality of the code.

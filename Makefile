@@ -1,3 +1,5 @@
+# ------------------ BACKEND ------------------
+# Build & Run
 .PHONY: dev
 dev:
 	make -j 2 watch up
@@ -8,31 +10,19 @@ watch:
 
 .PHONY: up
 up:
-	@docker compose up --build -d
+	@docker compose up --build
 
 .PHONY: down
 down:
 	@docker compose down
 
-.PHONY: run-unit-tests
-run-unit-tests:
-	poetry run pytest src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
-
-.PHONY: run-community-tests
-run-community-tests:
-	poetry run pytest src/community/tests/$(file) --cov=src/community --cov-report=xml
-
-.PHONY: run-integration-tests
-run-integration-tests:
-	docker compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
-
-run-tests: run-unit-tests
-
 .PHONY: attach
 attach: 
 	@docker attach cohere-toolkit-backend-1
+
+.PHONY: logs
 logs: 
-	@@docker-compose logs --follow --tail 100 $(service)
+	@@docker compose logs --follow --tail 100 $(service)
 
 .PHONY: exec-backend
 exec-backend:
@@ -46,6 +36,38 @@ exec-db:
 exec-terrarium:
 	docker exec -ti -u root cohere-toolkit-terrarium-1 /bin/sh
 
+# Testing & Linting
+.PHONY: run-unit-tests
+run-unit-tests:
+	poetry run pytest src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
+
+.PHONY: run-community-tests
+run-community-tests:
+	poetry run pytest src/community/tests/$(file) --cov=src/community --cov-report=xml
+
+.PHONY: run-integration-tests
+run-integration-tests:
+	docker compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
+
+.PHONY: test-db
+test-db:
+	docker compose stop test_db
+	docker compose rm -f test_db
+	docker compose up test_db -d
+
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
+
+.PHONY: lint
+lint:
+	poetry run ruff check
+
+.PHONY: lint-fix
+lint-fix:
+	poetry run ruff check --fix
+
+# Database management
 .PHONY: migration
 migration:
 	docker compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
@@ -63,6 +85,7 @@ reset-db:
 	docker compose down
 	docker volume rm cohere_toolkit_db
 
+# Setup 
 .PHONY: install
 install:
 	poetry install --verbose --with dev
@@ -70,34 +93,22 @@ install:
 .PHONY: setup
 setup:
 	poetry install --with setup,dev --verbose
-	poetry run python3 src/backend/cli/main.py
+	poetry run python3 src/backend/scripts/cli/main.py
 
 .PHONY: setup-use-community
 setup-use-community:
 	poetry install --with setup,community --verbose
-	poetry run python3 src/backend/cli/main.py --use-community
+	poetry run python3 src/backend/scripts/cli/main.py --use-community
 
 .PHONY: win-setup
 win-setup:
 	poetry install --with setup --verbose
-	poetry run python src/backend/cli/main.py
+	poetry run python src/backend/scripts/cli/main.py
 
-.PHONY: typecheck
-typecheck:
-	poetry run pyright
-
-.PHONY: lint
-lint:
-	poetry run ruff check
-
-.PHONY: lint-fix
-lint-fix:
-	poetry run ruff check --fix
-
-.PHONY: validate-config
-validate-config:
-	poetry install --with setup,dev --verbose
-	poetry run python3 src/backend/cli/main.py
+.PHONY: check-config
+check-config:
+	poetry install --with setup --verbose
+	poetry run python src/backend/scripts/config/check_config.py
 
 .PHONY: first-run
 first-run:
@@ -111,6 +122,8 @@ win-first-run:
 	make migrate
 	make dev
 
+# ------------------ FRONTEND ------------------
+# Assistants Web
 .PHONY: format-web
 format-web:
 	cd src/interfaces/assistants_web && npm run format:write
@@ -127,16 +140,28 @@ install-web:
 build-web:
 	cd src/interfaces/assistants_web && npm run build
 
-.PHONY: test-db
-test-db:
-	docker compose stop test_db
-	docker compose rm -f test_db
-	docker compose up test_db -d
+# Coral Web
+.PHONY: format-coral
+format-coral:
+	cd src/interfaces/coral_web && npm run format:write
 
-.PHONY: dev-sync
-dev-sync:
-	@docker compose up --build sync_worker sync_publisher flower -d
+.PHONY: generate-client-coral
+generate-client-coral:
+	cd src/interfaces/coral_web && npm run generate:client && npm run format:write
 
-.PHONY: dev-sync-down
-dev-sync-down:
-	@docker compose down sync_worker sync_publisher flower
+.PHONY: install-coral
+install-coral:
+	cd src/interfaces/coral_web && npm install
+
+.PHONY: build-coral
+build-coral:
+	cd src/interfaces/coral_web && npm run build
+
+# Debugging
+.PHONY: vscode-debug
+vscode-debug:
+	@DEBUGGER_IDE=vscode docker compose -f docker-compose.debug.yml up --build
+
+.PHONY: pycharm-debug
+pycharm-debug:
+	@DEBUGGER_IDE=pycharm docker compose -f docker-compose.debug.yml up --build
