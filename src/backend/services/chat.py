@@ -471,7 +471,8 @@ def create_chat_history(
     chat_request: BaseChatRequest,
 ) -> list[ChatMessage]:
     """
-    Create chat history from conversation messages or request.
+    Create chat history from conversation messages or request, this chat history
+    is sent to the chat SDK call for added context.
 
     Args:
         conversation (Conversation): Conversation object.
@@ -487,11 +488,13 @@ def create_chat_history(
     if conversation.messages is None:
         return []
 
-    # Don't include the user message that was just sent
+    # Filter out user message that was just sent
+    # And any empty messages
     text_messages = [
         message
         for message in conversation.messages
         if message.position < user_message_position
+        and message.text
     ]
     return [
         ChatMessage(
