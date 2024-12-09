@@ -129,9 +129,11 @@ class UpdateAgentDB(UpdateAgentNoDeploymentModel):
     model_id: Optional[str] = None
     deployment_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-        use_enum_values = True
+    model_config = {
+        "from_attributes": True,
+        "use_enum_values": True,
+        "protected_namespaces": (),
+    }
 
 
 class UpdateAgentRequest(UpdateAgentNoDeploymentModel):

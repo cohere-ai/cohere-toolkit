@@ -56,7 +56,7 @@ export const Switch: React.FC<Props> = ({
     'transform transition-all duration-300 ease-in-out'
   );
   return (
-    <div className="group flex w-10 items-center">
+    <div className="group flex w-[30px] items-center">
       <Field>
         <div
           className={cn(

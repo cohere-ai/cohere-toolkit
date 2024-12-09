@@ -104,7 +104,7 @@ def test_fail_create_user_missing_fullname(
                 "loc": ["body", "fullname"],
                 "msg": "Field required",
                 "input": {},
-                "url": "https://errors.pydantic.dev/2.9/v/missing",
+                "url": "https://errors.pydantic.dev/2.10/v/missing",
             }
         ]
     }

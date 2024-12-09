@@ -10,7 +10,7 @@ watch:
 
 .PHONY: up
 up:
-	@docker compose up --build -d
+	@docker compose up --build
 
 .PHONY: down
 down:
@@ -151,3 +151,12 @@ install-coral:
 .PHONY: build-coral
 build-coral:
 	cd src/interfaces/coral_web && npm run build
+
+# Debugging
+.PHONY: vscode-debug
+vscode-debug:
+	@DEBUGGER_IDE=vscode docker compose -f docker-compose.debug.yml up --build
+
+.PHONY: pycharm-debug
+pycharm-debug:
+	@DEBUGGER_IDE=pycharm docker compose -f docker-compose.debug.yml up --build
