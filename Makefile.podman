@@ -1,0 +1,137 @@
+.PHONY: dev
+dev:
+	make -j 2 watch up
+
+.PHONY: watch
+watch:
+	@podman compose watch --no-up
+
+.PHONY: up
+up:
+	@podman compose up --build -d
+
+.PHONY: down
+down:
+	@podman compose down
+
+.PHONY: run-unit-tests
+run-unit-tests:
+	poetry run pytest src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
+
+.PHONY: run-community-tests
+run-community-tests:
+	poetry run pytest src/community/tests/$(file) --cov=src/community --cov-report=xml
+
+.PHONY: run-integration-tests
+run-integration-tests:
+	podman compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
+
+run-tests: run-unit-tests
+
+.PHONY: attach
+attach: 
+	@podman attach cohere-toolkit-backend-1
+logs: 
+	@@podman compose logs --follow --tail 100 $(service)
+
+.PHONY: exec-backend
+exec-backend:
+	podman exec -ti cohere-toolkit-backend-1 bash 
+
+.PHONY: exec-db
+exec-db:
+	podman exec -ti cohere-toolkit-db-1 bash
+
+.PHONY: exec-terrarium
+exec-terrarium:
+	podman exec -ti -u root cohere-toolkit-terrarium-1 /bin/sh
+
+.PHONY: migration
+migration:
+	podman compose run --build backend alembic -c src/backend/alembic.ini revision --autogenerate -m "$(message)"
+
+.PHONY: migrate
+migrate:
+	podman compose run --build backend alembic -c src/backend/alembic.ini upgrade head
+
+.PHONY: downgrade
+downgrade:
+	podman compose run --build backend alembic -c src/backend/alembic.ini downgrade -1
+
+.PHONY: reset-db
+reset-db:
+	podman compose down
+	podman volume rm cohere_toolkit_db
+
+.PHONY: install
+install:
+	poetry install --verbose --with dev
+
+.PHONY: setup
+setup:
+	poetry install --with setup,dev --verbose
+	poetry run python3 src/backend/cli/main.py
+
+.PHONY: setup-use-community
+setup-use-community:
+	poetry install --with setup,community --verbose
+	poetry run python3 src/backend/cli/main.py --use-community
+
+.PHONY: win-setup
+win-setup:
+	poetry install --with setup --verbose
+	poetry run python src/backend/cli/main.py
+
+.PHONY: typecheck
+typecheck:
+	poetry run pyright
+
+.PHONY: lint
+lint:
+	poetry run ruff check
+
+.PHONY: lint-fix
+lint-fix:
+	poetry run ruff check --fix
+
+.PHONY: first-run
+first-run:
+	make setup
+	make migrate
+	make dev
+
+.PHONY: win-first-run
+win-first-run:
+	make win-setup
+	make migrate
+	make dev
+
+.PHONY: format-web
+format-web:
+	cd src/interfaces/assistants_web && npm run format:write
+
+.PHONY: generate-client-web
+generate-client-web:
+	cd src/interfaces/assistants_web && npm run generate:client && npm run format:write
+
+.PHONY: install-web
+install-web:
+	cd src/interfaces/assistants_web && npm install
+
+.PHONY: build-web
+build-web:
+	cd src/interfaces/assistants_web && npm run build
+
+.PHONY: test-db
+test-db:
+	podman compose stop test_db
+	podman compose rm -f test_db
+	podman compose up test_db -d
+
+.PHONY: dev-sync
+dev-sync:
+	@podman compose up --build sync_worker sync_publisher flower -d
+
+.PHONY: dev-sync-down
+dev-sync-down:
+	@podman compose down sync_worker sync_publisher flower
