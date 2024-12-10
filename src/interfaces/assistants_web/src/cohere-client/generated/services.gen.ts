@@ -61,8 +61,8 @@ import type {
   GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse,
   GetAgentByIdV1AgentsAgentIdGetData,
   GetAgentByIdV1AgentsAgentIdGetResponse,
-  GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData,
-  GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse,
+  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData,
+  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse,
   GetAgentFileV1AgentsAgentIdFilesFileIdGetData,
   GetAgentFileV1AgentsAgentIdFilesFileIdGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
@@ -121,8 +121,6 @@ import type {
   RegenerateChatStreamV1ChatStreamRegeneratePostResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
-  SetEnvVarsV1DeploymentsNameSetEnvVarsPostData,
-  SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
@@ -132,6 +130,8 @@ import type {
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
   UpdateAgentV1AgentsAgentIdPutData,
   UpdateAgentV1AgentsAgentIdPutResponse,
+  UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData,
+  UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse,
   UpdateConversationV1ConversationsConversationIdPutData,
   UpdateConversationV1ConversationsConversationIdPutResponse,
   UpdateDeploymentV1DeploymentsDeploymentIdPutData,
@@ -1061,10 +1061,10 @@ export class DefaultService {
    * session (DBSessionDep): Database session.
    *
    * Returns:
-   * DeploymentSchema: Created deployment.
+   * DeploymentDefinition: Created deployment.
    * @param data The data for the request.
    * @param data.requestBody
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public createDeploymentV1DeploymentsPost(
@@ -1093,7 +1093,7 @@ export class DefaultService {
    * list[Deployment]: List of available deployment options.
    * @param data The data for the request.
    * @param data.all
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public listDeploymentsV1DeploymentsGet(
@@ -1128,7 +1128,7 @@ export class DefaultService {
    * @param data The data for the request.
    * @param data.deploymentId
    * @param data.requestBody
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public updateDeploymentV1DeploymentsDeploymentIdPut(
@@ -1156,7 +1156,7 @@ export class DefaultService {
    * Deployment: Deployment with the given ID.
    * @param data The data for the request.
    * @param data.deploymentId
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public getDeploymentV1DeploymentsDeploymentIdGet(
@@ -1209,7 +1209,7 @@ export class DefaultService {
   }
 
   /**
-   * Set Env Vars
+   * Update Config
    * Set environment variables for the deployment.
    *
    * Args:
@@ -1220,19 +1220,19 @@ export class DefaultService {
    * Returns:
    * str: Empty string.
    * @param data The data for the request.
-   * @param data.name
+   * @param data.deploymentId
    * @param data.requestBody
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public setEnvVarsV1DeploymentsNameSetEnvVarsPost(
-    data: SetEnvVarsV1DeploymentsNameSetEnvVarsPostData
-  ): CancelablePromise<SetEnvVarsV1DeploymentsNameSetEnvVarsPostResponse> {
+  public updateConfigV1DeploymentsDeploymentIdUpdateConfigPost(
+    data: UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData
+  ): CancelablePromise<UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/v1/deployments/{name}/set_env_vars',
+      url: '/v1/deployments/{deployment_id}/update_config',
       path: {
-        name: data.name,
+        deployment_id: data.deploymentId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1434,7 +1434,7 @@ export class DefaultService {
   }
 
   /**
-   * Get Agent Deployment
+   * Get Agent Deployments
    * Args:
    * agent_id (str): Agent ID.
    * session (DBSessionDep): Database session.
@@ -1447,12 +1447,12 @@ export class DefaultService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
-  public getAgentDeploymentV1AgentsAgentIdDeploymentsGet(
-    data: GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData
-  ): CancelablePromise<GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse> {
+  public getAgentDeploymentsV1AgentsAgentIdDeploymentsGet(
+    data: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData
+  ): CancelablePromise<GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}/deployments',
