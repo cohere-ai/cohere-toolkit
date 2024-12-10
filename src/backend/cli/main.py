@@ -65,9 +65,6 @@ def start():
     from backend.config.deployments import (
         AVAILABLE_MODEL_DEPLOYMENTS as MANAGED_DEPLOYMENTS_SETUP,
     )
-    from community.config.deployments import (
-        AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
-    )
 
     all_deployments = MANAGED_DEPLOYMENTS_SETUP.copy()
     selected_deployments = select_deployments_prompt(all_deployments, secrets)
