@@ -28,7 +28,7 @@ ARG INSTALL_COMMUNITY_DEPS
 COPY pyproject.toml poetry.lock ./
 
 # Install poetry
-RUN pip install --no-cache-dir poetry==1.6.1
+RUN pip install --no-cache-dir poetry==1.8.4
 
 # Conditional installation of dependencies
 RUN if [ "$INSTALL_COMMUNITY_DEPS" = "true" ]; then \
