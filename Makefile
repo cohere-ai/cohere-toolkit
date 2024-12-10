@@ -107,7 +107,7 @@ win-setup:
 
 .PHONY: check-config
 check-config:
-	#poetry install --with setup --verbose
+	poetry install --with setup --verbose
 	poetry run python src/backend/scripts/config/check_config.py
 
 .PHONY: first-run
