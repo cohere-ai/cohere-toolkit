@@ -6,7 +6,7 @@ from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
@@ -61,9 +61,7 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
             response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
             search_results = response.get("items", [])
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
 
         if not search_results:
             return self.get_no_results_error()

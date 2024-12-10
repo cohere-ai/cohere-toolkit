@@ -8,7 +8,7 @@ from langchain_community.vectorstores import Chroma
 
 from backend.config.settings import Settings
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 
 """
 Plug in your lang chain retrieval implementation here.
@@ -66,9 +66,7 @@ class LangChainWikiRetriever(BaseTool):
             )
             documents = text_splitter.split_documents(docs)
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
 
         if not documents:
             return self.get_no_results_error()
@@ -133,9 +131,7 @@ class LangChainVectorDBRetriever(BaseTool):
             query = parameters.get("query", "")
             input_docs = db.as_retriever().get_relevant_documents(query)
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
         if not input_docs:
             return self.get_no_results_error()
 

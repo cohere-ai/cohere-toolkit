@@ -6,7 +6,7 @@ from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
@@ -65,9 +65,7 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
             )
         except Exception as e:
             logger.error(f"Failed to perform Tavily web search: {str(e)}")
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
 
         results = result.get("results", [])
 

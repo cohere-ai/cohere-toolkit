@@ -6,7 +6,7 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 from backend.tools.google_drive.auth import GoogleDriveAuth
 from backend.tools.google_drive.constants import GOOGLE_DRIVE_TOOL_ID, SEARCH_LIMIT
 from backend.tools.google_drive.utils import (
@@ -82,9 +82,8 @@ class GoogleDrive(BaseTool):
                 user_id=user_id, query=query, agent_tool_metadata=agent_tool_metadata
             )
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
+
         if not documents:
             logger.info(event="[Google Drive] No documents found.")
             return self.get_no_results_error()

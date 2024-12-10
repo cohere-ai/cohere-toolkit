@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from backend.config.settings import Settings
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 
 load_dotenv()
 
@@ -61,9 +61,7 @@ class PythonInterpreter(BaseTool):
             res = requests.post(self.INTERPRETER_URL, json={"code": code})
             clean_res = self._clean_response(res.json())
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
 
         if not clean_res:
             return self.get_no_results_error()
@@ -91,9 +89,7 @@ class PythonInterpreter(BaseTool):
             elif r.get("success") is False:
                 error_message = r.get("error", {}).get("message", "")
                 # r.setdefault("text", error_message)
-                return self.get_tool_error(
-                    ToolError(text=f"Error calling tool {self.ID}.", details=error_message)
-                )
+                return self.get_tool_error(details=error_message)
             elif r.get("output_file") and r.get("output_file").get("filename"):
                 if r["output_file"]["filename"] != "":
                     r.setdefault(

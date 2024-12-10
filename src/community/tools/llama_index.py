@@ -8,7 +8,7 @@ from llama_index.embeddings.cohere import CohereEmbedding
 import backend.crud.file as file_crud
 from backend.config import Settings
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 
 """
 Plug in your llama index retrieval implementation here.
@@ -110,9 +110,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
             results = retriever.retrieve(query)
             llama_results = [{"text": doc.text} for doc in results]
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
 
         if not llama_results and not docs:
             return self.get_no_results_error()

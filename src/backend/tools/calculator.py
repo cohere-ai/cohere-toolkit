@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from py_expression_eval import Parser
 
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 
 
 class Calculator(BaseTool):
@@ -56,9 +56,7 @@ class Calculator(BaseTool):
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
             logger.error(event=f"[Calculator] Error parsing expression: {e}")
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
 
 
         return result # type: ignore

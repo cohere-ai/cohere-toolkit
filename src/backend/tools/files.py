@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 import backend.crud.file as file_crud
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 
 
 class FileToolsArtifactTypes(StrEnum):
@@ -58,17 +58,12 @@ class ReadFileTool(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         if not file:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.",
-                          details="Files are not passed in model generated params")
-            )
+            return self.get_tool_error(details="Files are not passed in model generated params")
 
         _, file_id = file
         retrieved_file = file_crud.get_file(session, file_id, user_id)
         if not retrieved_file:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details="Might be passed wrong files in model generated params or files are not found")
-            )
+            return self.get_tool_error(details="The wrong files were passed in the tool parameters, or files were not found")
 
         return [
             {
@@ -131,17 +126,14 @@ class SearchFileTool(BaseTool):
 
         if not query or not files:
             return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details="Missing query or files. Might be passed wrong files in model generated params")
-            )
+                details="Missing query or files. The wrong files might have been passed in the tool parameters")
 
         file_ids = [file_id for _, file_id in files]
         retrieved_files = file_crud.get_files_by_ids(session, file_ids, user_id)
 
         if not retrieved_files:
             return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.",
-                          details="Missing files. Might be passed wrong files in model generated params")
-            )
+                details="Missing files. The wrong files might have been passed in the tool parameters")
 
         results = []
         for file in retrieved_files:

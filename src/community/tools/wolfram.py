@@ -4,7 +4,7 @@ from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
 from backend.config.settings import Settings
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 
 
 class WolframAlpha(BaseTool):
@@ -44,9 +44,8 @@ class WolframAlpha(BaseTool):
         try:
             result = self.tool.run(to_evaluate)
         except Exception as e:
-            return self.get_tool_error(
-                ToolError(text=f"Error calling tool {self.ID}.", details=str(e))
-            )
+            return self.get_tool_error(details=str(e))
+
         if not result:
             return self.get_no_results_error()
 

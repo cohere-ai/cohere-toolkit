@@ -34,10 +34,6 @@ class ToolError(BaseModel, extra="allow"):
     text: str
     details: str = ""
 
-class ToolErrorException(Exception):
-    def __init__(self, tool_error: ToolError):
-        self.tool_error = tool_error
-
 class ParametersValidationMeta(type):
     """
     Metaclass to decorate all tools `call` methods with the parameter checker.
@@ -90,8 +86,8 @@ class BaseTool(metaclass=ParametersValidationMeta):
         ...
 
     @classmethod
-    def get_tool_error(cls, err: ToolError):
-        tool_error = err.model_dump()
+    def get_tool_error(cls, details: str, text: str = "Error calling tool", error_type: ToolErrorCode = ToolErrorCode.OTHER):
+        tool_error = ToolError(text=f"{text} {cls.ID}.", details=details, type=error_type).model_dump()
         logger.error(event=f"Error calling tool {cls.ID}", error=tool_error)
         return [tool_error]
 
