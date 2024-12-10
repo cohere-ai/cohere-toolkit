@@ -7,10 +7,10 @@ from backend.chat.enums import StreamEvent
 from backend.schemas.chat import ChatMessage
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
-from community.model_deployments import BaseDeployment
+from community.model_deployments.community_deployment import CommunityDeployment
 
 
-class HuggingFaceDeployment(BaseDeployment):
+class HuggingFaceDeployment(CommunityDeployment):
     """
     The first time you run this code, it will download all the shards of the model from the Hugging Face model hub.
     This usually takes a while, so you might want to run this code separately and not as part of the toolkit.
@@ -26,7 +26,15 @@ class HuggingFaceDeployment(BaseDeployment):
     def __init__(self, **kwargs: Any):
         self.ctx = kwargs.get("ctx", None)
 
-    @property
+    @classmethod
+    def name(cls) -> str:
+        return "Hugging Face"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return []
+
+    @classmethod
     def rerank_enabled(self) -> bool:
         return False
 

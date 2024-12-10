@@ -3,18 +3,31 @@ from typing import Any, Dict, Generator, List
 from cohere.types import StreamedChatResponse
 
 from backend.chat.enums import StreamEvent
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
+from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
+    MockDeployment,
+)
 
 
-class MockAzureDeployment(BaseDeployment):
+class MockAzureDeployment(MockDeployment):
     """Mocked Azure Deployment."""
 
     DEFAULT_MODELS = ["azure-command"]
 
-    @property
-    def rerank_enabled(self) -> bool:
+    def __init__(self, **kwargs: Any):
+        pass
+
+    @classmethod
+    def name(cls) -> str:
+        return "Azure"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return ["AZURE_API_KEY", "AZURE_CHAT_ENDPOINT_URL"]
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod

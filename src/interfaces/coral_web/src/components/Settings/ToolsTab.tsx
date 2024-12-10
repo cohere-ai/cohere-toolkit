@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 
-import { ManagedTool } from '@/cohere-client';
+import { ToolDefinition } from '@/cohere-client';
 import { ToolsInfoBox } from '@/components/Settings/ToolsInfoBox';
 import { Text } from '@/components/Shared';
 import { ToggleCard } from '@/components/ToggleCard';
@@ -28,7 +28,7 @@ export const ToolsTab: React.FC<{ className?: string }> = ({ className = '' }) =
   const { availableTools, unavailableTools } = useMemo(() => {
     return (data ?? [])
       .filter((t) => t.is_visible)
-      .reduce<{ availableTools: ManagedTool[]; unavailableTools: ManagedTool[] }>(
+      .reduce<{ availableTools: ToolDefinition[]; unavailableTools: ToolDefinition[] }>(
         (acc, tool) => {
           if (tool.is_available) {
             acc.availableTools.push(tool);

@@ -203,9 +203,9 @@ export class CohereClient {
     return this.cohereService.default.listDeploymentsV1DeploymentsGet({ all });
   }
 
-  public updateDeploymentEnvVariables(requestBody: UpdateDeploymentEnv, name: string) {
-    return this.cohereService.default.setEnvVarsV1DeploymentsNameSetEnvVarsPost({
-      name: name,
+  public updateDeploymentEnvVariables(requestBody: UpdateDeploymentEnv, deploymentId: string) {
+    return this.cohereService.default.updateConfigV1DeploymentsDeploymentIdUpdateConfigPost({
+      deploymentId: deploymentId,
       requestBody,
     });
   }

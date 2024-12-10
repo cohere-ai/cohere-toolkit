@@ -2,15 +2,24 @@ deployments:
   default_deployment:
   enabled_deployments:
   sagemaker:
-    region_name:
-    endpoint_name:
+    access_key: "sagemaker_access_key"
+    secret_key: "sagemaker_secret"
+    session_token: "sagemaker_session_token"
+    region_name: "sagemaker-region"
+    endpoint_name: "http://www.example.com/sagemaker"
   azure:
-    endpoint_url:
+    api_key: "azure_api_key"
+    endpoint_url: "http://www.example.com/azure"
   bedrock:
-    region_name:
+    region_name: "bedrock-region"
+    access_key: "bedrock_access_key"
+    secret_key: "bedrock_secret"
+    session_token: "bedrock_session_token"
+  cohere_platform:
+    api_key: "cohere_api_key"
   single_container:
-    model:
-    url:
+    model: "single_container_model"
+    url: "http://www.example.com/single_container"
 database:
   url:
 redis:
@@ -30,4 +39,4 @@ auth:
 logger:
   level: INFO
   strategy: structlog
-  renderer: json
+  renderer: console
