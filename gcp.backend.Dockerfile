@@ -34,7 +34,7 @@ ENV PORT=${port}
 COPY pyproject.toml poetry.lock README.md ./
 
 # Install poetry and run poetry install
-RUN pip install --no-cache-dir poetry==1.6.1 \
+RUN pip install --no-cache-dir poetry==1.8.4 \
 RUN if [ "${INSTALL_COMMUNITY_DEPS,,}" == "true" ]; then \
         poetry install --with community \
     else \
