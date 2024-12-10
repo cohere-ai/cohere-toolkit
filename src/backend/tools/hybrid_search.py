@@ -83,7 +83,7 @@ class HybridWebSearch(BaseTool):
             tasks.append(search_tool.call(parameters, ctx, session, **kwargs))
 
         # Add web scrape tool calls
-        filtered_sites = kwargs.get("include_sites", [])
+        filtered_sites = kwargs.get(ToolArgument.SITE_FILTER, [])
         for site in filtered_sites:
             tasks.append(self.web_scrape_tool.call({"url": site}, ctx, **kwargs))
 
