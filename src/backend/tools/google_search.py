@@ -57,8 +57,11 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
             )
 
         site_filters = [f"site:{domain}" for domain in filtered_domains]
-        response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
-        search_results = response.get("items", [])
+        try:
+            response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
+            search_results = response.get("items", [])
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
 
         if not search_results:
             return self.get_no_results_error()

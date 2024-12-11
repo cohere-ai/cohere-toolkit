@@ -59,11 +59,17 @@ class LangChainWikiRetriever(BaseTool):
     ) -> List[Dict[str, Any]]:
         wiki_retriever = WikipediaRetriever()
         query = parameters.get("query", "")
-        docs = wiki_retriever.get_relevant_documents(query)
-        text_splitter = CharacterTextSplitter(
-            chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-        )
-        documents = text_splitter.split_documents(docs)
+        try:
+            docs = wiki_retriever.get_relevant_documents(query)
+            text_splitter = CharacterTextSplitter(
+                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
+            )
+            documents = text_splitter.split_documents(docs)
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
+        if not documents:
+            return self.get_no_results_error()
 
         return [
             {
@@ -115,13 +121,18 @@ class LangChainVectorDBRetriever(BaseTool):
         cohere_embeddings = CohereEmbeddings(cohere_api_key=self.COHERE_API_KEY)
 
         # Load text files and split into chunks
-        loader = PyPDFLoader(self.filepath)
-        text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=0)
-        pages = loader.load_and_split(text_splitter)
+        try:
+            loader = PyPDFLoader(self.filepath)
+            text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=0)
+            pages = loader.load_and_split(text_splitter)
 
-        # Create a vector store from the documents
-        db = Chroma.from_documents(documents=pages, embedding=cohere_embeddings)
-        query = parameters.get("query", "")
-        input_docs = db.as_retriever().get_relevant_documents(query)
+            # Create a vector store from the documents
+            db = Chroma.from_documents(documents=pages, embedding=cohere_embeddings)
+            query = parameters.get("query", "")
+            input_docs = db.as_retriever().get_relevant_documents(query)
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+        if not input_docs:
+            return self.get_no_results_error()
 
         return [{"text": doc.page_content} for doc in input_docs]

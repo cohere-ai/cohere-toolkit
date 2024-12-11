@@ -38,5 +38,12 @@ class ArxivRetriever(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
-        result = self.client.run(query)
+        try:
+            result = self.client.run(query)
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
+        if not result:
+            return self.get_no_results_error()
+
         return [{"text": result}]

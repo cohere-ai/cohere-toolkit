@@ -68,6 +68,14 @@ class SlackTool(BaseTool):
 
         # Search Slack
         slack_service = get_slack_service(user_id=user_id, search_limit=SEARCH_LIMIT)
-        all_results = slack_service.search_all(query=query)
-        return slack_service.serialize_results(all_results)
+        try:
+            all_results = slack_service.search_all(query=query)
+            results = slack_service.serialize_results(all_results)
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
+        if not results:
+            return self.get_no_results_error()
+
+        return results
 

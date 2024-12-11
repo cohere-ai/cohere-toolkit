@@ -87,35 +87,34 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
         file_ids = [file_id for _, file_id in files]
         retrieved_files = file_crud.get_files_by_ids(session, file_ids, user_id)
         if not retrieved_files:
-            return []
+            return self.get_no_results_error()
 
-        all_results = []
         file_str_list = []
         for file in retrieved_files:
             file_str_list.append(file.file_content)
-            all_results.append(
-                {
-                    "text": file.file_content,
-                    "title": file.file_name,
-                    "url": file.file_name,
-                }
-            )
         # LLamaIndex get documents from parsed PDFs, split it into sentences, embed, index and retrieve
-        docs = StringIterableReader().load_data(file_str_list)
-        node_parser = SentenceSplitter(chunk_size=LlamaIndexUploadPDFRetriever.CHUNK_SIZE)
-        nodes = node_parser.get_nodes_from_documents(docs)
-        embed_model = self._get_embedding("search_document")
-        vector_index = VectorStoreIndex(
-            nodes,
-            embed_model=embed_model,
-        )
-        embed_model_query = self._get_embedding("search_query")
-        retriever = vector_index.as_retriever(
-            similarity_top_k=10,
-            embed_model=embed_model_query,
-        )
-        results = retriever.retrieve(query)
-        llama_results = [{"text": doc.text} for doc in results]
+        try:
+            docs = StringIterableReader().load_data(file_str_list)
+            node_parser = SentenceSplitter(chunk_size=LlamaIndexUploadPDFRetriever.CHUNK_SIZE)
+            nodes = node_parser.get_nodes_from_documents(docs)
+            embed_model = self._get_embedding("search_document")
+            vector_index = VectorStoreIndex(
+                nodes,
+                embed_model=embed_model,
+            )
+            embed_model_query = self._get_embedding("search_query")
+            retriever = vector_index.as_retriever(
+                similarity_top_k=10,
+                embed_model=embed_model_query,
+            )
+            results = retriever.retrieve(query)
+            llama_results = [{"text": doc.text} for doc in results]
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
+        if not llama_results and not docs:
+            return self.get_no_results_error()
+
         # If llama results are found, return them
         if llama_results:
             return llama_results

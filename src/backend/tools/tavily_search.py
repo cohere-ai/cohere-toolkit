@@ -65,7 +65,7 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
             )
         except Exception as e:
             logger.error(f"Failed to perform Tavily web search: {str(e)}")
-            raise Exception(f"Failed to perform Tavily web search: {str(e)}")
+            return self.get_tool_error(details=str(e))
 
         results = result.get("results", [])
 

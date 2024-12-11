@@ -52,11 +52,11 @@ class Calculator(BaseTool):
 
         to_evaluate = expression.replace("pi", "PI").replace("e", "E")
 
-        result = []
         try:
             result = {"text": math_parser.parse(to_evaluate).evaluate({})}
         except Exception as e:
             logger.error(event=f"[Calculator] Error parsing expression: {e}")
-            result = {"text": "Parsing error - syntax not allowed."}
+            return self.get_tool_error(details=str(e))
 
-        return result
+
+        return result # type: ignore
