@@ -26,7 +26,7 @@ tools:
       - tavily_web_search
     # List of domains to filter (exclusively) for web search
     domain_filters:
-      - wikipedia.org
+      # - wikipedia.org
     # List of sites to filter (exclusively) for web scraping
     site_filters:
   python_interpreter:
