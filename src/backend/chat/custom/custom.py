@@ -90,6 +90,7 @@ class CustomChat(BaseChat):
                 "status_code": 500,
             }
 
+
     def is_final_event(
         self, event: Dict[str, Any], chat_request: CohereChatRequest
     ) -> bool:
