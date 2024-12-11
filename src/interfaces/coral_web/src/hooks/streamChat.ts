@@ -6,7 +6,7 @@ import {
   ChatResponseEvent as ChatResponse,
   CohereChatRequest,
   CohereNetworkError,
-  Conversation,
+  ConversationPublic,
   FinishReason,
   StreamEnd,
   StreamEvent,
@@ -29,7 +29,7 @@ export interface StreamingChatParams extends StreamingParams {
 
 const getUpdatedConversations =
   (conversationId: string | undefined, description: string = '') =>
-  (conversations: Conversation[] | undefined) => {
+  (conversations: ConversationPublic[] | undefined) => {
     return conversations?.map((c) => {
       if (c.id !== conversationId) return c;
 
@@ -64,7 +64,7 @@ export const useStreamChat = () => {
   const updateConversationHistory = (data?: StreamEnd) => {
     if (!data) return;
 
-    queryClient.setQueryData<Conversation[]>(
+    queryClient.setQueryData<ConversationPublic[]>(
       ['conversations'],
       getUpdatedConversations(data?.conversation_id ?? '', data?.text)
     );
@@ -73,7 +73,7 @@ export const useStreamChat = () => {
   const chatMutation = useMutation<StreamEnd | undefined, CohereNetworkError, StreamingChatParams>({
     mutationFn: async (params: StreamingChatParams) => {
       try {
-        queryClient.setQueryData<Conversation[]>(
+        queryClient.setQueryData<ConversationPublic[]>(
           ['conversations'],
           getUpdatedConversations(params.request.conversation_id ?? '', params.request.message)
         );
@@ -99,7 +99,7 @@ export const useStreamChat = () => {
                 }
 
                 if (params.request.conversation_id) {
-                  queryClient.setQueryData<Conversation[]>(
+                  queryClient.setQueryData<ConversationPublic[]>(
                     ['conversations'],
                     getUpdatedConversations(params.request.conversation_id, streamEndData.text)
                   );

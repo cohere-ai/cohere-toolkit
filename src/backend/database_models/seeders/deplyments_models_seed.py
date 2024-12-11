@@ -6,8 +6,15 @@ from dotenv import load_dotenv
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import ALL_MODEL_DEPLOYMENTS, ModelDeploymentName
+from backend.config.deployments import ALL_MODEL_DEPLOYMENTS
 from backend.database_models import Deployment, Model, Organization
+from backend.model_deployments import (
+    AzureDeployment,
+    BedrockDeployment,
+    CohereDeployment,
+    SageMakerDeployment,
+    SingleContainerDeployment,
+)
 from community.config.deployments import (
     AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS_SETUP,
 )
@@ -18,7 +25,7 @@ model_deployments = ALL_MODEL_DEPLOYMENTS.copy()
 model_deployments.update(COMMUNITY_DEPLOYMENTS_SETUP)
 
 MODELS_NAME_MAPPING = {
-    ModelDeploymentName.CoherePlatform: {
+    CohereDeployment.name(): {
         "command": {
             "cohere_name": "command",
             "is_default": False,
@@ -60,7 +67,7 @@ MODELS_NAME_MAPPING = {
             "is_default": False,
         },
     },
-    ModelDeploymentName.SingleContainer: {
+    SingleContainerDeployment.name(): {
         "command": {
             "cohere_name": "command",
             "is_default": False,
@@ -102,19 +109,19 @@ MODELS_NAME_MAPPING = {
             "is_default": False,
         },
     },
-    ModelDeploymentName.SageMaker: {
+    SageMakerDeployment.name(): {
         "sagemaker-command": {
             "cohere_name": "command",
             "is_default": True,
         },
     },
-    ModelDeploymentName.Azure: {
+    AzureDeployment.name(): {
         "azure-command": {
             "cohere_name": "command-r",
             "is_default": True,
         },
     },
-    ModelDeploymentName.Bedrock: {
+    BedrockDeployment.name(): {
         "cohere.command-r-plus-v1:0": {
             "cohere_name": "command-r-plus",
             "is_default": True,
@@ -166,12 +173,12 @@ def deployments_models_seed(op):
             default_deployment_config=json.dumps(
                 {
                     env_var: os.environ.get(env_var, "")
-                    for env_var in model_deployments[deployment].env_vars
+                    for env_var in model_deployments[deployment].env_vars()
                 }
             ),
             deployment_class_name=model_deployments[
                 deployment
-            ].deployment_class.__name__,
+            ].__name__,
             is_community=deployment in COMMUNITY_DEPLOYMENTS_SETUP,
         )
         op.execute(sql_command)

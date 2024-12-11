@@ -13,7 +13,6 @@ AZURE_API_KEY_ENV_VAR = "AZURE_API_KEY"
 # Example URL: "https://<endpoint>.<region>.inference.ai.azure.com/v1"
 # Note: It must have /v1 and it should not have /chat
 AZURE_CHAT_URL_ENV_VAR = "AZURE_CHAT_ENDPOINT_URL"
-AZURE_ENV_VARS = [AZURE_API_KEY_ENV_VAR, AZURE_CHAT_URL_ENV_VAR]
 
 
 class AzureDeployment(BaseDeployment):
@@ -44,8 +43,16 @@ class AzureDeployment(BaseDeployment):
             base_url=self.chat_endpoint_url, api_key=self.api_key
         )
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Azure"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return [AZURE_API_KEY_ENV_VAR, AZURE_CHAT_URL_ENV_VAR]
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod

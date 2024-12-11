@@ -3,11 +3,7 @@ from urllib.parse import unquote_plus
 from fastapi import HTTPException, Request
 
 import backend.crud.user as user_crud
-from backend.config.deployments import (
-    AVAILABLE_MODEL_DEPLOYMENTS,
-    find_config_by_deployment_id,
-    find_config_by_deployment_name,
-)
+from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.tools import get_available_tools
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
@@ -16,6 +12,7 @@ from backend.crud import model as model_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.utils import class_name_validator
+from backend.services import deployment as deployment_service
 from backend.services.agent import validate_agent_exists
 from backend.services.auth.utils import get_header_user_id
 from backend.services.logger.utils import LoggerFactory
@@ -36,47 +33,35 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
         HTTPException: If the deployment and model are not compatible
 
     """
-    deployment_db = deployment_crud.get_deployment_by_name(session, deployment)
-    if not deployment_db:
-        deployment_db = deployment_crud.get_deployment(session, deployment)
-
-    # Check deployment config settings availability
-    deployment_config = find_config_by_deployment_id(deployment)
-    if not deployment_config:
-        deployment_config = find_config_by_deployment_name(deployment)
-    if not deployment_config:
+    found = deployment_service.get_deployment_definition_by_name(session, deployment)
+    if not found:
+        found = deployment_service.get_deployment_definition(session, deployment)
+    if not found:
         raise HTTPException(
             status_code=400,
             detail=f"Deployment {deployment} not found or is not available in the Database.",
         )
 
-    if not deployment_db:
-        deployment_db = deployment_crud.create_deployment_by_config(session, deployment_config)
-    if not deployment_db:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Deployment {deployment} not found or is not available in the Database.",
-        )
-    # Validate model
+    deployment_config = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == found.class_name).to_deployment_definition()
     deployment_model = next(
         (
             model_db
-            for model_db in deployment_db.models
-            if model_db.name == model or model_db.id == model
+            for model_db in found.models
+            if model_db == model
         ),
         None,
     )
     if not deployment_model:
         deployment_model = model_crud.create_model_by_config(
-            session, deployment_db, deployment_config, model
+            session, deployment_config, found.id, model
         )
     if not deployment_model:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail=f"Model {model} not found for deployment {deployment}.",
         )
 
-    return deployment_db, deployment_model
+    return found, deployment_model
 
 
 def validate_deployment_config(deployment_config, deployment_db):
@@ -163,19 +148,7 @@ def validate_deployment_header(request: Request, session: DBSessionDep):
     # TODO Eugene: Discuss with Scott
     deployment_name = request.headers.get("Deployment-Name")
     if deployment_name:
-        available_db_deployments = deployment_crud.get_deployments(session)
-        is_deployment_in_db = any(
-            deployment.name == deployment_name
-            for deployment in available_db_deployments
-        )
-        if (
-            not is_deployment_in_db
-            and deployment_name not in AVAILABLE_MODEL_DEPLOYMENTS.keys()
-        ):
-            raise HTTPException(
-                status_code=404,
-                detail=f"Deployment {deployment_name} was not found, or is not available.",
-            )
+        _ = deployment_service.get_deployment_definition_by_name(session, deployment_name)
 
 
 async def validate_chat_request(session: DBSessionDep, request: Request):
@@ -226,7 +199,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
                 )
 
 
-async def validate_env_vars(request: Request):
+async def validate_env_vars(session: DBSessionDep, request: Request):
     """
     Validate that the request has valid env vars.
 
@@ -241,16 +214,11 @@ async def validate_env_vars(request: Request):
     env_vars = body.get("env_vars")
     invalid_keys = []
 
-    name = unquote_plus(request.path_params.get("name"))
-
-    if not (deployment := AVAILABLE_MODEL_DEPLOYMENTS.get(name)):
-        raise HTTPException(
-            status_code=404,
-            detail="Deployment not found",
-        )
+    deployment_id = unquote_plus(request.path_params.get("deployment_id"))
+    deployment = deployment_service.get_deployment(session, deployment_id)
 
     for key in env_vars:
-        if key not in deployment.env_vars:
+        if key not in deployment.env_vars():
             invalid_keys.append(key)
 
     if invalid_keys:
@@ -261,6 +229,8 @@ async def validate_env_vars(request: Request):
                 + ",".join(invalid_keys)
             ),
         )
+
+    return env_vars
 
 
 async def validate_create_agent_request(session: DBSessionDep, request: Request):
