@@ -25,6 +25,7 @@
   - tools - Tool configurations
      - python_interpreter - Python interpreter configurations
        - url - URL of the python interpreter tool
+     - use_tools_preamble - Use tools preamble - if set to true, the tools preamble will be used in the chat requests
   - feature_flags - Feature flags configurations
        - use_agents_view - Use agents view - if set to true, the frontend agents view will be available. 
          Please note that this setting is available only for the Coral web frontend. To change which frontend is used, set the context in the docker-compose file. 

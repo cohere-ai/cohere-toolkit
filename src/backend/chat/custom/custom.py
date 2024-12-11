@@ -6,6 +6,7 @@ from backend.chat.base import BaseChat
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.chat.custom.utils import get_deployment
 from backend.chat.enums import StreamEvent
+from backend.config import Settings
 from backend.config.tools import get_available_tools
 from backend.database_models.file import File
 from backend.model_deployments.base import BaseDeployment
@@ -13,7 +14,7 @@ from backend.schemas.chat import ChatMessage, ChatRole, EventState
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.schemas.tool import Tool, ToolCategory
-from backend.services.chat import check_death_loop
+from backend.services.chat import check_death_loop, generate_tools_preamble
 from backend.services.file import get_file_service
 from backend.tools.utils.tools_checkers import tool_has_category
 
@@ -195,6 +196,9 @@ class CustomChat(BaseChat):
                 for tool in chat_request.tools
                 if tool.name not in file_reader_tools_names
             ]
+
+        if chat_request.tools and Settings().get("tools.use_tools_preamble"):
+            chat_request.preamble = generate_tools_preamble(chat_request)
 
         # Loop until there are no new tool calls
         for step in range(MAX_STEPS):
