@@ -4,13 +4,11 @@ from googleapiclient.discovery import build
 
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
-from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
-from backend.tools.utils.mixins import WebSearchFilteringMixin
+from backend.tools.base import BaseTool, ToolArgument
 
 
-class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
+class GoogleWebSearch(BaseTool):
     ID = "google_web_search"
     API_KEY = Settings().get('tools.google_web_search.api_key')
     CSE_ID = Settings().get('tools.google_web_search.cse_id')
@@ -48,17 +46,11 @@ class GoogleWebSearch(BaseTool, WebSearchFilteringMixin):
         query = parameters.get("query", "")
         cse = self.client.cse()
 
-        # Get domain filtering from kwargs or set on Agent tool metadata
-        if "include_domains" in kwargs:
-            filtered_domains = kwargs.get("include_domains")
-        else:
-            filtered_domains = self.get_filters(
-                AgentToolMetadataArtifactsType.DOMAIN, session, ctx
-            )
-
-        site_filters = [f"site:{domain}" for domain in filtered_domains]
+        # Get domain filtering from kwargs
+        filtered_domains = kwargs.get(ToolArgument.DOMAIN_FILTER, [])
+        domain_filters = [f"site:{domain}" for domain in filtered_domains]
         try:
-            response = cse.list(q=query, cx=self.CSE_ID, orTerms=site_filters).execute()
+            response = cse.list(q=query, cx=self.CSE_ID, orTerms=domain_filters).execute()
             search_results = response.get("items", [])
         except Exception as e:
             return self.get_tool_error(details=str(e))

@@ -2,14 +2,12 @@ from typing import Any, Dict, List
 
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
-from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolArgument
 from backend.tools.brave_search.client import BraveClient
-from backend.tools.utils.mixins import WebSearchFilteringMixin
 
 
-class BraveWebSearch(BaseTool, WebSearchFilteringMixin):
+class BraveWebSearch(BaseTool):
     ID = "brave_web_search"
     BRAVE_API_KEY = Settings().get('tools.brave_web_search.api_key')
 
@@ -49,13 +47,8 @@ class BraveWebSearch(BaseTool, WebSearchFilteringMixin):
     ) -> List[Dict[str, Any]]:
         query = parameters.get("query", "")
 
-        # Get domain filtering from kwargs or set on Agent tool metadata
-        if "include_domains" in kwargs:
-            filtered_domains = kwargs.get("include_domains")
-        else:
-            filtered_domains = self.get_filters(
-                AgentToolMetadataArtifactsType.DOMAIN, session, ctx
-            )
+        # Get domain filtering from kwargs
+        filtered_domains = kwargs.get(ToolArgument.DOMAIN_FILTER, [])
 
         try:
             response = await self.client.search_async(
