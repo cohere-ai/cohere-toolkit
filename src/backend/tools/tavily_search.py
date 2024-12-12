@@ -4,13 +4,11 @@ from tavily import TavilyClient
 
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
-from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
-from backend.tools.utils.mixins import WebSearchFilteringMixin
+from backend.tools.base import BaseTool, ToolArgument
 
 
-class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
+class TavilyWebSearch(BaseTool):
     ID = "tavily_web_search"
     TAVILY_API_KEY = Settings().get('tools.tavily_web_search.api_key')
 
@@ -48,13 +46,8 @@ class TavilyWebSearch(BaseTool, WebSearchFilteringMixin):
         # Gather search parameters
         query = parameters.get("query", "")
 
-        # Get domain filtering from kwargs or set on Agent tool metadata
-        if "include_domains" in kwargs:
-            filtered_domains = kwargs.get("include_domains")
-        else:
-            filtered_domains = self.get_filters(
-                AgentToolMetadataArtifactsType.DOMAIN, session, ctx
-            )
+        # Get domain filtering from kwargs
+        filtered_domains = kwargs.get(ToolArgument.DOMAIN_FILTER, [])
 
         try:
             result = self.client.search(
