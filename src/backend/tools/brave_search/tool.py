@@ -50,15 +50,19 @@ class BraveWebSearch(BaseTool):
         # Get domain filtering from kwargs
         filtered_domains = kwargs.get(ToolArgument.DOMAIN_FILTER, [])
 
-        response = await self.client.search_async(
-            q=query, count=self.num_results, include_domains=filtered_domains
-        )
+        try:
+            response = await self.client.search_async(
+                q=query, count=self.num_results, include_domains=filtered_domains
+            )
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
         response = dict(response)
 
         results = response.get("web", {}).get("results", [])
 
         if not results:
-            self.get_no_results_error()
+            return self.get_no_results_error()
 
         tool_results = []
         for result in results:

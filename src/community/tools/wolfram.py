@@ -41,5 +41,12 @@ class WolframAlpha(BaseTool):
 
     async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")
-        result = self.tool.run(to_evaluate)
+        try:
+            result = self.tool.run(to_evaluate)
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
+        if not result:
+            return self.get_no_results_error()
+
         return {"result": result, "text": result}

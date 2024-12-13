@@ -28,7 +28,6 @@ class ToolAuthException(Exception):
         self.message = message
         self.tool_id = tool_id
 
-
 class ToolError(BaseModel, extra="allow"):
     type: ToolErrorCode = ToolErrorCode.OTHER
     success: bool = False
@@ -38,6 +37,7 @@ class ToolError(BaseModel, extra="allow"):
 class ToolArgument(StrEnum):
     DOMAIN_FILTER = "domain_filter"
     SITE_FILTER = "site_filter"
+
 class ParametersValidationMeta(type):
     """
     Metaclass to decorate all tools `call` methods with the parameter checker.
@@ -90,14 +90,14 @@ class BaseTool(metaclass=ParametersValidationMeta):
         ...
 
     @classmethod
-    def get_tool_error(cls, err: ToolError):
-        tool_error = err.model_dump()
+    def get_tool_error(cls, details: str, text: str = "Error calling tool", error_type: ToolErrorCode = ToolErrorCode.OTHER):
+        tool_error = ToolError(text=f"{text} {cls.ID}.", details=details, type=error_type).model_dump()
         logger.error(event=f"Error calling tool {cls.ID}", error=tool_error)
         return [tool_error]
 
     @classmethod
     def get_no_results_error(cls):
-        return cls.get_tool_error(ToolError(text="No results found."))
+        return ToolError(text="No results found.", details="No results found for the given params.")
 
     @abstractmethod
     async def call(
