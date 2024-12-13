@@ -76,13 +76,14 @@ class WebScrapeTool(BaseTool):
 
     async def handle_response(self, response: aiohttp.ClientResponse, url: str):
         content_type = response.headers.get("content-type")
+        results = []
 
         # If URL is a PDF, read contents using helper function
         if "application/pdf" in content_type:
-            return {
+            results.append({
                 "text": read_pdf(response.content),
                 "url": url,
-            }
+            })
         elif "text/html" in content_type:
             content = await response.text()
             soup = BeautifulSoup(content, "html.parser")
@@ -98,6 +99,8 @@ class WebScrapeTool(BaseTool):
             if title:
                 data["title"] = title
 
-            return data
+            results.append(data)
         else:
             raise ValueError(f"Unsupported Content Type using web scrape: {content_type}")
+
+        return results
