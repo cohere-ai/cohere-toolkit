@@ -47,7 +47,13 @@ class ConnectorRetriever(BaseTool):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
         }
+        try:
+            response = requests.get(self.url, json=body, headers=headers)
+            results = response.json()["results"]
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
 
-        response = requests.get(self.url, json=body, headers=headers)
+        if not results:
+            return self.get_no_results_error()
 
-        return response.json()["results"]
+        return results

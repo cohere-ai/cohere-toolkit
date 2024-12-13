@@ -5,22 +5,22 @@ from typing import Any, Callable, Dict, List
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
-from backend.schemas.agent import AgentToolMetadataArtifactsType
 from backend.schemas.tool import ToolCategory, ToolDefinition
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolArgument
 from backend.tools.brave_search.tool import BraveWebSearch
 from backend.tools.google_search import GoogleWebSearch
 from backend.tools.tavily_search import TavilyWebSearch
-from backend.tools.utils.mixins import WebSearchFilteringMixin
 from backend.tools.web_scrape import WebScrapeTool
 
 
-class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
+class HybridWebSearch(BaseTool):
     ID = "hybrid_web_search"
     POST_RERANK_MAX_RESULTS = 5
     AVAILABLE_WEB_SEARCH_TOOLS = [TavilyWebSearch, GoogleWebSearch, BraveWebSearch]
-    ENABLED_WEB_SEARCH_TOOLS = Settings().get('tools.hybrid_web_search.enabled_web_searches')
     WEB_SCRAPE_TOOL = WebScrapeTool
+    ENABLED_WEB_SEARCH_TOOLS = Settings().get('tools.hybrid_web_search.enabled_web_searches')
+    DOMAIN_FILTER = Settings().get('tools.hybrid_web_search.domain_filters') or []
+    SITE_FILTER = Settings().get('tools.hybrid_web_search.site_filters') or []
 
     def __init__(self):
         available_search_tools = self.get_available_search_tools()
@@ -83,7 +83,7 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
             tasks.append(search_tool.call(parameters, ctx, session, **kwargs))
 
         # Add web scrape tool calls
-        filtered_sites = kwargs.get("include_sites", [])
+        filtered_sites = kwargs.get(ToolArgument.SITE_FILTER, [])
         for site in filtered_sites:
             tasks.append(self.web_scrape_tool.call({"url": site}, ctx, **kwargs))
 
@@ -96,16 +96,9 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
         query = parameters.get("query", "")
 
         # Handle domain filtering -> filter in search APIs
-        filtered_domains = self.get_filters(
-            AgentToolMetadataArtifactsType.DOMAIN, session, ctx
-        )
-        kwargs["include_domains"] = filtered_domains
-
+        kwargs[ToolArgument.DOMAIN_FILTER] = self.DOMAIN_FILTER
         # Handle site filtering -> perform web scraping on sites
-        filtered_sites = self.get_filters(
-            AgentToolMetadataArtifactsType.SITE, session, ctx
-        )
-        kwargs["include_sites"] = filtered_sites
+        kwargs[ToolArgument.SITE_FILTER] = self.SITE_FILTER
 
         tasks = self._gather_search_tasks(parameters, ctx, session, **kwargs)
 
@@ -121,6 +114,9 @@ class HybridWebSearch(BaseTool, WebSearchFilteringMixin):
             ctx=ctx,
             **kwargs,
         )
+
+        if not reranked_results:
+            return self.get_no_results_error()
 
         return reranked_results
 
