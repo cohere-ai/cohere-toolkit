@@ -64,15 +64,15 @@ class WebScrapeTool(BaseTool):
                     return await self.handle_response(response, url)
 
             except aiohttp.ClientError as e:
-                return  {
+                return  [{
                     "text": f"Client error using web scrape: {str(e)}",
                     "url": url,
-                }
+                }]
             except Exception as e:
-                return {
+                return [{
                     "text": f"Request failed using web scrape: {str(e)}",
                     "url": url,
-                }
+                }]
 
     async def handle_response(self, response: aiohttp.ClientResponse, url: str):
         content_type = response.headers.get("content-type")
