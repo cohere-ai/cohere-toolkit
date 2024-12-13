@@ -141,7 +141,8 @@ class HybridWebSearch(BaseTool):
                 documents=[
                     f"{result.get('title', '')} {result.get('text')}"
                     for result in results_batch
-                    if "text" in result
+                    if isinstance(result, dict)
+                    and "text" in result
                 ],
                 ctx=ctx,
             )
