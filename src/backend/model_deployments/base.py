@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Dict, List
 
+from pydantic_settings import BaseSettings
+
 from backend.config.settings import Settings
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
@@ -52,7 +54,11 @@ class BaseDeployment(ABC):
     @classmethod
     def config(cls) -> Dict[str, Any]:
         config = Settings().get(f"deployments.{cls.id()}")
-        return config.dict() if config else {}
+        config_dict = {} if not config else dict(config)
+        for key, value in config_dict.items():
+            if value is None:
+                config_dict[key] = ""
+        return config_dict
 
     @classmethod
     def to_deployment_definition(cls) -> DeploymentDefinition:
