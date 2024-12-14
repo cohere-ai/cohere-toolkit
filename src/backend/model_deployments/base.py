@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Dict, List
 
-from pydantic_settings import BaseSettings
-
 from backend.config.settings import Settings
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
