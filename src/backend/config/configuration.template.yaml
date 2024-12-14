@@ -24,6 +24,11 @@ tools:
     # List of web search tool names, eg: google_web_search, tavily_web_search
     enabled_web_searches:
       - tavily_web_search
+    # List of domains to filter (exclusively) for web search
+    domain_filters:
+      # - wikipedia.org
+    # List of sites to filter (exclusively) for web scraping
+    site_filters:
   python_interpreter:
     url: http://terrarium:8080
   gmail:

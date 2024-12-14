@@ -77,9 +77,17 @@ class GoogleDrive(BaseTool):
         # Search Google Drive
         logger.info(event="[Google Drive] Defaulting to raw Google Drive search.")
         agent_tool_metadata = kwargs["agent_tool_metadata"]
-        documents = await _default_gdrive_list_files(
-            user_id=user_id, query=query, agent_tool_metadata=agent_tool_metadata
-        )
+        try:
+            documents = await _default_gdrive_list_files(
+                user_id=user_id, query=query, agent_tool_metadata=agent_tool_metadata
+            )
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
+
+        if not documents:
+            logger.info(event="[Google Drive] No documents found.")
+            return self.get_no_results_error()
+
         return documents
 
 
@@ -141,20 +149,17 @@ async def _default_gdrive_list_files(
         fields = f"nextPageToken, files({DOC_FIELDS})"
 
         search_results = []
-        try:
-            search_results = (
-                service.files()
-                .list(
-                    pageSize=SEARCH_LIMIT,
-                    q=q,
-                    includeItemsFromAllDrives=True,
-                    supportsAllDrives=True,
-                    fields=fields,
-                )
-                .execute()
+        search_results = (
+            service.files()
+            .list(
+                pageSize=SEARCH_LIMIT,
+                q=q,
+                includeItemsFromAllDrives=True,
+                supportsAllDrives=True,
+                fields=fields,
             )
-        except Exception as error:
-            logger.error(event="[Google Drive] Error searching files", error=error)
+            .execute()
+        )
 
         files = search_results.get("files", [])
         if not files:

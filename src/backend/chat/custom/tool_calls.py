@@ -9,7 +9,10 @@ from backend.config.tools import get_available_tools
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import ToolAuthException, ToolError, ToolErrorCode
+from backend.tools.base import (
+    ToolAuthException,
+    ToolErrorCode,
+)
 
 TIMEOUT_SECONDS = 60
 
@@ -71,6 +74,7 @@ async def _call_all_tools_async(
         )
 
 
+
 async def _call_tool_async(
     ctx: Context,
     db: Session,
@@ -109,11 +113,9 @@ async def _call_tool_async(
             {
                 "call": tool_call,
                 "outputs": tool.get_tool_error(
-                    ToolError(
-                        text="Tool authentication failed",
-                        details=str(e),
-                        type=ToolErrorCode.AUTH,
-                    )
+                    details=str(e),
+                    text="Tool authentication failed",
+                    error_type=ToolErrorCode.AUTH,
                 ),
             }
         ]
@@ -121,7 +123,7 @@ async def _call_tool_async(
         return [
             {
                 "call": tool_call,
-                "outputs": tool.get_tool_error(ToolError(text=str(e))),
+                "outputs": tool.get_tool_error(details=str(e)),
             }
         ]
 
