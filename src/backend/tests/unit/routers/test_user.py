@@ -97,17 +97,17 @@ def test_fail_create_user_missing_fullname(
     response_user = response.json()
 
     assert response.status_code == 422
-    assert response_user == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["body", "fullname"],
-                "msg": "Field required",
-                "input": {},
-                "url": "https://errors.pydantic.dev/2.10/v/missing",
-            }
-        ]
-    }
+    assert "detail" in response_user
+    assert len(response_user["detail"]) == 1
+
+    error_detail = response_user["detail"][0]
+    assert error_detail["type"] == "missing"
+    assert error_detail["loc"] == ["body", "fullname"]
+    assert error_detail["msg"] == "Field required"
+    assert error_detail["input"] == {}
+    assert "url" in error_detail
+    assert isinstance(error_detail["url"], str)
+    assert error_detail["url"]
 
 
 def test_update_user(session_client: TestClient, session: Session) -> None:

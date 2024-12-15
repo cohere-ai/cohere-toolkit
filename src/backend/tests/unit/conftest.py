@@ -175,6 +175,7 @@ def mock_available_model_deployments(request):
         MockBedrockDeployment,
         MockCohereDeployment,
         MockSageMakerDeployment,
+        MockSingleContainerDeployment,
     )
 
     # is_available_values = getattr(request, "param", {})
@@ -183,6 +184,7 @@ def mock_available_model_deployments(request):
         MockAzureDeployment.name(): MockAzureDeployment,
         MockSageMakerDeployment.name(): MockSageMakerDeployment,
         MockBedrockDeployment.name(): MockBedrockDeployment,
+        MockSingleContainerDeployment.name(): MockSingleContainerDeployment,
     }
 
     with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:

@@ -12,6 +12,7 @@ from backend.tests.unit.model_deployments.mock_deployments import (
     MockBedrockDeployment,
     MockCohereDeployment,
     MockSageMakerDeployment,
+    MockSingleContainerDeployment,
 )
 
 
@@ -91,9 +92,9 @@ def test_get_deployment_definition_by_name_wrong_name(session, mock_available_mo
 def test_get_deployment_definitions_no_db_deployments(session, mock_available_model_deployments, clear_db_deployments) -> None:
     definitions = deployment_service.get_deployment_definitions(session)
 
-    assert len(definitions) == 4
+    assert len(definitions) == 5
     assert all(isinstance(d, DeploymentDefinition) for d in definitions)
-    assert all(d.name in [MockAzureDeployment.name(), MockCohereDeployment.name(), MockSageMakerDeployment.name(), MockBedrockDeployment.name()] for d in definitions)
+    assert all(d.name in [MockAzureDeployment.name(), MockCohereDeployment.name(), MockSageMakerDeployment.name(), MockBedrockDeployment.name(), MockSingleContainerDeployment.name()] for d in definitions)
 
 def test_get_deployment_definitions_with_db_deployments(session, mock_available_model_deployments, db_deployment) -> None:
     mock_cohere_deployment = Deployment(
