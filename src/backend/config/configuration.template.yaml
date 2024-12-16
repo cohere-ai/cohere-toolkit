@@ -37,6 +37,8 @@ tools:
   slack:
     user_scopes:
       - search:read
+  # To disable the use of the tools preamble, set it to false
+  use_tools_preamble: true
 feature_flags:
   # Experimental features
   use_agents_view: false
