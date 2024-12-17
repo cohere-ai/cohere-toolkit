@@ -6,14 +6,19 @@
    cd <repository-folder>
    ```
 
-2. **Set Up with Make**:
+2. **Install Poetry and Docker**:
+   Install [Poetry >= 1.7.1](https://python-poetry.org/docs/#installation)
+   Install [Docker](https://www.docker.com/products/docker-desktop/)
+   Install [Docker Compose >= 2.22](https://docs.docker.com/compose/install/)
+
+3. **Set Up with Make**:
    Run:
    ```bash
    make first-run
    ```
    This generates the necessary configuration files and applies database migrations.
 
-3. **Manual Configuration**:
+4. **Manual Configuration**:
    If you prefer:
    - Create a `configuration.yaml` file based on `configuration.template.yaml`.
    - Replace the placeholders with your actual values.
@@ -25,10 +30,11 @@
 
 ### Environment Variables
 
-Ensure to configure your environment variables appropriately. Important ones include:
-- `COHERE_API_KEY`: Your API key for Cohere.
-- `DATABASE_URL`: Connection string for PostgreSQL.
-- `REDIS_URL`: Connection string for Redis.
+Ensure your `configuration.yaml` and `secrets.yaml` file are properly generated and have valid values, especially for the following: 
+
+- `cohere_platform.api_key` (in the secrets file): Your API key for Cohere.
+- `database.url` (in the config file): Connection string for PostgreSQL.
+- `redis.url` (in the config file): Connection string for Redis.
 
 ### Local Database Setup
 
@@ -72,6 +78,5 @@ Ensure to configure your environment variables appropriately. Important ones inc
 
 ### Additional Tips
 
-- **Use Poetry**: It manages dependencies efficiently. Ensure to install the required version (`1.7.1` or higher).
 - **Linting and Formatting**: Use `make lint` and `make lint-fix` for maintaining code quality.
 - **VSCode Setup**: Install extensions for Ruff and set up your environment as per the provided recommendations.
