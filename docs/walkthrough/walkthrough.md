@@ -54,9 +54,13 @@ Tools can be any function, data provider, connector, vector store, third-party a
 
 Pre-built tools which your can customize to your needs include:
 - Calculator
-- Web Search
+- Hybrid Web Search
 - Python Interpreter 
 - Files
+- GDrive
+- GMail
+- Slack
+- Etc.
 
 To add your own we have a [detailed guide here](../custom_tool_guides/tool_guide.md) and the main steps are:
 
@@ -65,14 +69,12 @@ To add your own we have a [detailed guide here](../custom_tool_guides/tool_guide
 - Then add the config of the tool to `src/backend/config/tools.py`
 - You can then view the tool in the chat UI or for customer interfaces add the tool to the API request to use it. 
 
-Coming soon: Support for tools that require authentication. 
-
 <p align="center">
   <img src="assets/model_providers.png" width="100px" height="100px" />
   <h1 align="center" >Model Providers</h1>
 </p>
 
-There is no required connection to cohere's platform. You can plug in any model provider to use Cohere's models including local models. A model provider is a service which allows you to make requests to Cohere's models. 
+There is no required connection to Cohere's platform. You can plug in any model provider to use Cohere's models including local models. A model provider is a service which allows you to make requests to Cohere's models. 
 
 Pre-built model providers which your can customize to your needs include:
 - Cohere Platform
