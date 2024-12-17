@@ -111,7 +111,7 @@ def test_list_deployments_no_available_db_models_with_all_option(
     assert len(response.json()) == len(AVAILABLE_MODEL_DEPLOYMENTS)
 
 
-def test_update_deployment(session_client: TestClient) -> None:
+def test_update_deployment(session_client: TestClient, db_deployment) -> None:
     request_json = {
         "name": "UpdatedDeployment",
         "default_deployment_config": {"COHERE_API_KEY": "test-api-key"},
@@ -119,7 +119,7 @@ def test_update_deployment(session_client: TestClient) -> None:
         "description": "Updated deployment",
         "is_community": False,
     }
-    response = session_client.put("/v1/deployments/cohere_platform", json=request_json)
+    response = session_client.put("/v1/deployments/" + db_deployment.id, json=request_json)
     assert response.status_code == 200
     updated_deployment = response.json()
     assert updated_deployment["name"] == request_json["name"]
@@ -140,10 +140,10 @@ def test_delete_deployment(session_client: TestClient, session: Session, db_depl
 
 
 def test_set_env_vars(
-    client: TestClient
+    client: TestClient, db_deployment
 ) -> None:
     response = client.post(
-        "/v1/deployments/cohere_platform/update_config",
+        f"/v1/deployments/{db_deployment.id}/update_config",
         json={
             "env_vars": {
                 "COHERE_API_KEY": "TestCohereValue",
@@ -163,10 +163,10 @@ def test_set_env_vars_with_invalid_deployment_name(
 
 
 def test_set_env_vars_with_var_for_other_deployment(
-    client: TestClient
+    client: TestClient, db_deployment
 ) -> None:
     response = client.post(
-        "/v1/deployments/cohere_platform/update_config",
+        f"/v1/deployments/{db_deployment.id}/update_config",
         json={
             "env_vars": {
                 "SAGEMAKER_VAR_1": "TestSageMakerValue",
@@ -180,10 +180,10 @@ def test_set_env_vars_with_var_for_other_deployment(
 
 
 def test_set_env_vars_with_invalid_var(
-    client: TestClient
+    client: TestClient, db_deployment
 ) -> None:
     response = client.post(
-        "/v1/deployments/cohere_platform/update_config",
+        f"/v1/deployments/{db_deployment.id}/update_config",
         json={
             "env_vars": {
                 "API_KEY": "12345",
