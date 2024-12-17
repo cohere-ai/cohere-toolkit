@@ -3,7 +3,7 @@ import os
 import yaml
 from dotenv import set_key
 
-from backend.cli.constants import (
+from backend.scripts.cli.constants import (
     CONFIG_FILE_PATH,
     CONFIG_TEMPLATE_PATH,
     DOT_ENV_FILE_PATH,
