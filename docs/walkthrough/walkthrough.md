@@ -5,7 +5,7 @@
   <h1 align="center" >Toolkit Guide</h1>
 </p>
 
-Cohere Toolkit is a collection of plug-in pre-built components enabling customers to quickly build and deploy **production** level RAG applications. Principles of the toolkit is that it is:
+Cohere Toolkit is a collection of plug-and-play pre-built components enabling customers to quickly build and deploy **production** level RAG applications. Toolkit was built with the following principles in mind:
 
 - Quick and simple to set up a light weight version
 - Quick and simple to configure for your needs
@@ -15,12 +15,7 @@ Cohere Toolkit is a collection of plug-in pre-built components enabling customer
 
 <h2>Initial Set Up</h2>
 
-When you first set up the toolkit by running one of the following commands:
-- `docker run -e COHERE_API_KEY='>>YOUR_API_KEY<<' -p 8000:8000 -p 4000:4000 ghcr.io/cohere-ai/cohere-toolkit:latest` 
-- Or cloning:
-  - `git clone https://github.com/cohere-ai/cohere-toolkit.git`
-  - `cd cohere-toolkit`
-  - `make first-run`
+Quickly setup Toolkit by following our [setup guide.](../setup.md)
 
 The default configuration of the toolkit is: 
 
@@ -33,7 +28,6 @@ On top of this the toolkit offers many configurable components
 Below we will go through each of these components including the prebuilt options and how to plug in your own. 
 
 
-
 <p align="center">
   <img src="assets/interfaces.png" width="100px" height="100px" />
   <h1 align="center" >Interfaces</h1>
@@ -42,9 +36,9 @@ Below we will go through each of these components including the prebuilt options
 Interfaces are applications on top of the backend API this could be anything from a website, workflows, a bot etc. 
 
 Pre-built interfaces which your can customize to your needs include:
-- Chat UI (Coral)
-
-- SlackBot
+- Assistants UI (Agentic, default)
+- Chat UI (Coral, non-agentic)
+- Slack Bot
 
 To add your own: 
 
@@ -138,10 +132,3 @@ We have a [detailed guide for each cloud deployment here](../service_deployments
 </p>
 
 The toolkit stores history of conversations to improve next turn generations. It stores these turns in a PostgreSQL database. It is possible to switch this out for a database that you prefer. There is also an option with no storage. 
-
-<p align="center">
-  <img src="assets/analytics.png" width="100px" height="100px" />
-  <h1 align="center" >Analytics</h1>
-</p>
-
-Currently in development. 

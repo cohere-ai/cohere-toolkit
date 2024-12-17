@@ -29,10 +29,10 @@ Toolkit is a deployable all-in-one RAG application that enables users to quickly
 ## Try Now:
 There are two main ways for quickly running Toolkit: local and cloud. See the specific instructions given below. 
 ### Local
-*You will need to have [Docker](https://www.docker.com/products/docker-desktop/) and [Docker-compose >= 2.22](https://docs.docker.com/compose/install/) installed. [Go here for a more detailed setup.](/docs/setup.md)*  
+*You will need to have [Docker](https://www.docker.com/products/docker-desktop/), [Docker-compose >= 2.22](https://docs.docker.com/compose/install/), and [Poetry](https://python-poetry.org/docs/#installation) installed. [Go here for a more detailed setup.](/docs/setup.md)*  
 Note: to include community tools when building locally, set the `INSTALL_COMMUNITY_DEPS` build arg in the `docker-compose.yml` to `true`.
 
-Both options will make the frontend available at http://localhost:4000.
+Both options will serve the frontend at http://localhost:4000.
 
 #### Using `make`
 Use the provided Makefile to simplify and automate your development workflow with Cohere Toolkit, including Docker Compose management, testing, linting, and environment setup.
@@ -41,8 +41,6 @@ git clone https://github.com/cohere-ai/cohere-toolkit.git
 cd cohere-toolkit
 make first-run
 ```
-
-
 
 #### Docker Compose only
 Use Docker Compose directly if you want to quickly spin up and manage your container environment without the additional automation provided by the Makefile.
