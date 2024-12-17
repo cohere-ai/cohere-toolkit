@@ -1,12 +1,30 @@
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.database_models import Deployment
-from backend.model_deployments.cohere_platform import CohereDeployment
+from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform import (
+    MockCohereDeployment,
+)
 
+
+@pytest.fixture
+def db_deployment(session):
+    session.query(Deployment).delete()
+    mock_cohere_deployment = Deployment(
+        name=MockCohereDeployment.name(),
+        description="A mock Cohere deployment from the DB",
+        deployment_class_name=MockCohereDeployment.__name__,
+        is_community=False,
+        default_deployment_config={"COHERE_API_KEY": "db-test-api-key"},
+        id="db-mock-cohere-platform-id",
+    )
+    session.add(mock_cohere_deployment)
+    session.commit()
+    return mock_cohere_deployment
 
 def test_create_deployment(session_client: TestClient) -> None:
     request_json = {
@@ -26,9 +44,9 @@ def test_create_deployment(session_client: TestClient) -> None:
     assert deployment["is_available"]
 
 
-def test_create_deployment_unique(session_client: TestClient) -> None:
+def test_create_deployment_unique(session_client: TestClient, db_deployment) -> None:
     request_json = {
-        "name": CohereDeployment.name(),
+        "name": MockCohereDeployment.name(),
         "default_deployment_config": {"COHERE_API_KEY": "test-api-key"},
         "deployment_class_name": "CohereDeployment",
     }
@@ -38,7 +56,7 @@ def test_create_deployment_unique(session_client: TestClient) -> None:
     )
     assert response.status_code == 400
     assert (
-        f"Deployment {CohereDeployment.name()} already exists."
+        f"Deployment {MockCohereDeployment.name()} already exists."
         in response.json()["detail"]
     )
 
@@ -93,8 +111,7 @@ def test_list_deployments_no_available_db_models_with_all_option(
     assert len(response.json()) == len(AVAILABLE_MODEL_DEPLOYMENTS)
 
 
-def test_update_deployment(session_client: TestClient, session: Session) -> None:
-    deployment = session.query(Deployment).first()
+def test_update_deployment(session_client: TestClient) -> None:
     request_json = {
         "name": "UpdatedDeployment",
         "default_deployment_config": {"COHERE_API_KEY": "test-api-key"},
@@ -102,7 +119,7 @@ def test_update_deployment(session_client: TestClient, session: Session) -> None
         "description": "Updated deployment",
         "is_community": False,
     }
-    response = session_client.put("/v1/deployments/" + deployment.id, json=request_json)
+    response = session_client.put("/v1/deployments/cohere_platform", json=request_json)
     assert response.status_code == 200
     updated_deployment = response.json()
     assert updated_deployment["name"] == request_json["name"]
@@ -112,7 +129,7 @@ def test_update_deployment(session_client: TestClient, session: Session) -> None
     assert updated_deployment["is_community"] == request_json["is_community"]
 
 
-def test_delete_deployment(session_client: TestClient, session: Session) -> None:
+def test_delete_deployment(session_client: TestClient, session: Session, db_deployment) -> None:
     deployment = session.query(Deployment).first()
     assert deployment is not None
     response = session_client.delete("/v1/deployments/" + deployment.id)
@@ -123,12 +140,10 @@ def test_delete_deployment(session_client: TestClient, session: Session) -> None
 
 
 def test_set_env_vars(
-    session: Session,
     client: TestClient
 ) -> None:
-    deployment = session.query(Deployment).filter(Deployment.name == "Cohere Platform").first()
     response = client.post(
-        f"/v1/deployments/{deployment.id}/update_config",
+        "/v1/deployments/cohere_platform/update_config",
         json={
             "env_vars": {
                 "COHERE_API_KEY": "TestCohereValue",
@@ -148,12 +163,10 @@ def test_set_env_vars_with_invalid_deployment_name(
 
 
 def test_set_env_vars_with_var_for_other_deployment(
-    session: Session,
     client: TestClient
 ) -> None:
-    deployment = session.query(Deployment).filter(Deployment.name == "Cohere Platform").first()
     response = client.post(
-        f"/v1/deployments/{deployment.id}/update_config",
+        "/v1/deployments/cohere_platform/update_config",
         json={
             "env_vars": {
                 "SAGEMAKER_VAR_1": "TestSageMakerValue",
@@ -167,12 +180,10 @@ def test_set_env_vars_with_var_for_other_deployment(
 
 
 def test_set_env_vars_with_invalid_var(
-    session: Session,
     client: TestClient
 ) -> None:
-    deployment = session.query(Deployment).filter(Deployment.name == "Cohere Platform").first()
     response = client.post(
-        f"/v1/deployments/{deployment.id}/update_config",
+        "/v1/deployments/cohere_platform/update_config",
         json={
             "env_vars": {
                 "API_KEY": "12345",
