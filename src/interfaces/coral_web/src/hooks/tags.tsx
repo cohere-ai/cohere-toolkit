@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { ManagedTool } from '@/cohere-client';
+import { ToolDefinition } from '@/cohere-client';
 import { Tag } from '@/components/Conversation/Composer/DataSourceMenu';
 import { TOOL_FALLBACK_ICON, TOOL_ID_TO_DISPLAY_INFO } from '@/constants';
 import { useListFiles } from '@/hooks/files';
@@ -28,7 +28,7 @@ export const useDataSourceTags = ({ requiredTools }: { requiredTools?: string[] 
 
     return requiredTools
       .map((rt) => availableTools.find((t) => t.name === rt))
-      .filter((t) => !!t) as ManagedTool[];
+      .filter((t) => !!t) as ToolDefinition[];
   }, [tools, requiredTools]);
 
   const filteredFileIdTags: Tag[] = useMemo(

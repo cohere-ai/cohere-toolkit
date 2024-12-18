@@ -2,7 +2,7 @@
 
 import React, { Fragment, useEffect, useMemo } from 'react';
 
-import { ListFile } from '@/cohere-client';
+import { ListConversationFile } from '@/cohere-client';
 import { Checkbox, Text, Tooltip } from '@/components/Shared';
 import { STRINGS } from '@/constants/strings';
 import { useFocusFileInput } from '@/hooks/actions';
@@ -10,7 +10,7 @@ import { useDefaultFileLoaderTool, useFilesInConversation } from '@/hooks/files'
 import { useFilesStore, useParamsStore } from '@/stores';
 import { cn, formatFileSize, getWeeksAgo } from '@/utils';
 
-interface UploadedFile extends ListFile {
+interface UploadedFile extends ListConversationFile {
   checked: boolean;
 }
 
@@ -41,7 +41,7 @@ export const FilesTab: React.FC<{ className?: string }> = ({ className = '' }) =
     if (!files) return [];
 
     return files
-      .map((document: ListFile) => ({
+      .map((document) => ({
         ...document,
         checked: (fileIds ?? []).some((id) => id === document.id),
       }))

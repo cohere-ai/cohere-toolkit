@@ -1,10 +1,12 @@
 from sqlalchemy.orm import Session
 
-from backend.database_models import Deployment
 from backend.database_models.model import Model
-from backend.schemas.deployment import Deployment as DeploymentSchema
+from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.model import ModelCreate, ModelUpdate
+from backend.services.logger.utils import LoggerFactory
 from backend.services.transaction import validate_transaction
+
+logger = LoggerFactory().get_logger()
 
 
 @validate_transaction
@@ -127,29 +129,29 @@ def delete_model(db: Session, model_id: str) -> None:
     db.commit()
 
 
-def create_model_by_config(db: Session, deployment: Deployment, deployment_config: DeploymentSchema, model: str) -> Model:
+def create_model_by_config(db: Session, deployment_config: DeploymentDefinition, deployment_id: str, model: str | None) -> Model:
     """
     Create a new model by config if present
 
     Args:
         db (Session): Database session.
-        deployment (Deployment): Deployment data.
-        deployment_config (DeploymentSchema): Deployment config data.
-        model (str): Model data.
+        deployment_config (DeploymentDefinition): A deployment definition for any kind of deployment.
+        deployment_id (DeploymentDefinition): Deployment ID for a deployment from the DB.
+        model (str): Optional model name that should have its data returned from this call.
 
     Returns:
         Model: Created model.
     """
-    deployment_config_models = deployment_config.models
-    deployment_db_models = get_models_by_deployment_id(db, deployment.id)
+    logger.debug(event="create_model_by_config", deployment_models=deployment_config.models, deployment_id=deployment_id, model=model)
+    deployment_db_models = get_models_by_deployment_id(db, deployment_id)
     model_to_return = None
-    for deployment_config_model in deployment_config_models:
+    for deployment_config_model in deployment_config.models:
         model_in_db = any(record.name == deployment_config_model for record in deployment_db_models)
         if not model_in_db:
             new_model = Model(
                 name=deployment_config_model,
                 cohere_name=deployment_config_model,
-                deployment_id=deployment.id,
+                deployment_id=deployment_id,
             )
             db.add(new_model)
             db.commit()
