@@ -20,7 +20,7 @@ is_cohere_env_set = (
     and os.environ.get("COHERE_API_KEY") != ""
 )
 
-def test_create_agent(session_client: TestClient, session: Session, user) -> None:
+def test_create_agent(session_client: TestClient, session: Session, user, mock_cohere_list_models) -> None:
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -60,7 +60,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
 
 
 def test_create_agent_with_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user, mock_cohere_list_models
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -118,7 +118,7 @@ def test_create_agent_with_tool_metadata(
 
 
 def test_create_agent_missing_non_required_fields(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user, mock_cohere_list_models
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -149,7 +149,7 @@ def test_create_agent_missing_non_required_fields(
     assert agent.model == request_json["model"]
 
 
-def test_update_agent(session_client: TestClient, session: Session, user) -> None:
+def test_update_agent(session_client: TestClient, session: Session, user, mock_cohere_list_models) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,

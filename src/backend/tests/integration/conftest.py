@@ -194,3 +194,8 @@ def mock_available_model_deployments(request):
 
     with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
         yield mock
+
+@pytest.fixture
+def mock_cohere_list_models():
+    with patch("backend.model_deployments.cohere_platform.CohereDeployment.list_models", return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]) as mock:
+        yield mock
