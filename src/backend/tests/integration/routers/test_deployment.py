@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.database_models import Deployment
+from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform import (
     MockCohereDeployment,
 )
@@ -15,9 +16,9 @@ from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform 
 def db_deployment(session):
     session.query(Deployment).delete()
     mock_cohere_deployment = Deployment(
-        name=MockCohereDeployment.name(),
+        name=CohereDeployment.name(),
         description="A mock Cohere deployment from the DB",
-        deployment_class_name=MockCohereDeployment.__name__,
+        deployment_class_name=CohereDeployment.__name__,
         is_community=False,
         default_deployment_config={"COHERE_API_KEY": "db-test-api-key"},
         id="db-mock-cohere-platform-id",
@@ -140,9 +141,9 @@ def test_delete_deployment(session_client: TestClient, session: Session, db_depl
 
 
 def test_set_env_vars(
-    client: TestClient, db_deployment
+    session_client: TestClient, db_deployment
 ) -> None:
-    response = client.post(
+    response = session_client.post(
         f"/v1/deployments/{db_deployment.id}/update_config",
         json={
             "env_vars": {
@@ -163,9 +164,9 @@ def test_set_env_vars_with_invalid_deployment_name(
 
 
 def test_set_env_vars_with_var_for_other_deployment(
-    client: TestClient, db_deployment
+    session_client: TestClient, db_deployment
 ) -> None:
-    response = client.post(
+    response = session_client.post(
         f"/v1/deployments/{db_deployment.id}/update_config",
         json={
             "env_vars": {
@@ -180,9 +181,9 @@ def test_set_env_vars_with_var_for_other_deployment(
 
 
 def test_set_env_vars_with_invalid_var(
-    client: TestClient, db_deployment
+    session_client: TestClient, db_deployment
 ) -> None:
-    response = client.post(
+    response = session_client.post(
         f"/v1/deployments/{db_deployment.id}/update_config",
         json={
             "env_vars": {
