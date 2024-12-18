@@ -53,6 +53,7 @@ class CohereDeployment(BaseDeployment):
             "authorization": f"Bearer {cls.api_key}",
         }
 
+        logger.info(event="[Cohere Deployment] Retrieving models", api_key=cls.api_key)
         response = requests.get(url, headers=headers)
 
         if not response.ok:
