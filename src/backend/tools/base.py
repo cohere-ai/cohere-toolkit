@@ -52,6 +52,32 @@ class ParametersValidationMeta(type):
         return super().__new__(cls, name, bases, class_dict)
 
 
+class BaseToolPreambleRegistry:
+    """
+    Registry to store default preamble values for tools.
+    Currently, it's implemented as a class with predefined values, but we can use set_preamble to set values.
+    """
+    _default_preambles = {
+        "toolkit_python_interpreter": "If you decide to use toolkit_python_interpreter tool and are going to plot something, try returning result as a png. Ensure that the generated code does not include any internet connection, and avoid using the module named requests. ",
+        "read_file": "When using the read_file tool, always ensure that the file parameter is prepared as a tuple in the format  (filename, file ID). The order of the tuple fields is critical. ",
+        "search_file":"When using the search_file tool, always ensure that the `files` parameter is prepared as a list of tuples in the format (filename, file ID). The order of the tuple fields is critical. "
+    }
+
+    @classmethod
+    def set_preamble(cls, tool_id, preamble):
+        """
+        Register a default preamble for a tool class. This method can be used to set a default preamble for a tool class.
+        """
+        cls._default_preambles[tool_id] = preamble
+
+    @classmethod
+    def get_preamble(cls, tool_class):
+        """
+        Retrieve the default preamble for a given tool class.
+        """
+        return cls._default_preambles.get(tool_class, None)
+
+
 class BaseTool(metaclass=ParametersValidationMeta):
     """
     Abstract base class for all Tools.
@@ -60,6 +86,15 @@ class BaseTool(metaclass=ParametersValidationMeta):
         ID (str): The name of the tool.
     """
     ID = None
+    TOOL_DEFAULT_PREAMBLE = None
+
+    def __init_subclass__(cls, **kwargs):
+        """
+        Automatically set TOOL_DEFAULT_PREAMBLE for child classes
+        using the registry class.
+        """
+        super().__init_subclass__(**kwargs)
+        cls.TOOL_DEFAULT_PREAMBLE = BaseToolPreambleRegistry.get_preamble(cls.ID)
 
     def __init__(self, *args, **kwargs):
         self._post_init_check()

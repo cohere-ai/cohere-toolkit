@@ -10,17 +10,18 @@ If you've forked the repo and want to customize Toolkit to your liking, then fee
 ## Step 1: Choose a Tool to Implement
 A tool is anything that can retrieve data to augment the chat experience with RAG.
 
-You can easily add a tool from Langchain or LlamaIndex by importing the required libraries, or write your own custom implementation.
+You can easily add a tool from Langchain or LlamaIndex by importing from their Python SDKs, or write your own custom implementation.
 
+- Cohere Quick Start Connector
+    - [Data Connectors | Cohere](https://github.com/cohere-ai/quick-start-connectors)
+- Custom implementation
 - LangChain
     - Tools: [Tools | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/tools/)
     - Retrievers: [Retrievers | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/retrievers/)
     - Vector Store: [Vector stores | 🦜️🔗 LangChain](https://python.langchain.com/docs/integrations/vectorstores/)
 - Llama index
     - Data Connectors: [Data Connectors | Llama Index](https://docs.llamaindex.ai/en/v0.9.48/api_reference/readers.html)
-- Connector
-    - https://github.com/cohere-ai/quick-start-connectors
-- Custom implementation
+
 
 ## Step 2: Add your Tool code implementation
 
@@ -33,13 +34,16 @@ If you need to install a new library to run your tool, execute the following com
 ```bash
 poetry add <MODULE> --group community
 ```
-### Langchain Tool example
-Below is an example of adding a Langchain tool using their SDK.
+### Tool example
+Below is an example of adding a tool using the Langchain SDK.
 
 To implement a tool, you will need to inherit from the `BaseTool` abstract class. You'll need to implement the following methods:
-    - `is_available`: Should return True/False depending on if the tool is available during runtime. Often this will involve checking for example an API key is set, if it is required.
-    - `get_tool_definition`: Should return the config for your tool. See existing implementations for details.
-    - `call`: The main method that is called during chat. This should return a list of dictionary results. For best model performance, each dictionary entry should be serialized to contain at minimum a `text` field. Optionally, a `url` and `title` fields can be added to include more metadata for citations.
+
+- `is_available`: Should return True/False depending on if the tool is available during runtime. 
+    Often this will involve checking for example an API key is set, if it is required.
+- `get_tool_definition`: Should return the config for your tool. See existing implementations for details.
+- `call`: The main method that is called during chat. This should return a list of dictionary results.
+    For best model performance, each dictionary entry should be serialized to contain at minimum a `text` field. Optionally, a `url` and `title` fields can be added to include more metadata for citations.
 
 Let's take a look at the community-implemented `ArxivRetriever`:
 

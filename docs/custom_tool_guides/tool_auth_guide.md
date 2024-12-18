@@ -1,5 +1,5 @@
 ### 1. **Create an Authentication Class**
-You need to create a class specifically for your tool's authentication.
+You need to create a class specifically for your tool's authentication. For great examples, check out the implementations for GMail, GDrive or Slack.
 
 ### 2. **Inheritance**
 Your authentication class should inherit from:
@@ -85,5 +85,5 @@ def retrieve_auth_token(self, request: Request, session: DBSessionDep, user_id: 
 ### 4. **Integrate the Auth Class**
 Once you've created your authentication class, integrate it into your tool’s configuration so that the frontend can use it for authenticating users when interacting with the tool.
 
-To do so, go to your tool config definition and add:
+To do so, go to your tool's `get_tool_definition` method and add:
 `auth_implementation=<YourAuthClass>,`

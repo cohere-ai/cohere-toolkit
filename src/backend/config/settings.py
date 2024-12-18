@@ -240,6 +240,10 @@ class ToolSettings(BaseSettings, BaseModel):
     gmail: Optional[GmailSettings] = Field(
         default=GmailSettings()
     )
+    use_tools_preamble: Optional[bool] = Field(
+        default=False,
+        validation_alias=AliasChoices("USE_TOOLS_PREAMBLE", "use_tools_preamble")
+    )
 
 
 class DatabaseSettings(BaseSettings, BaseModel):
