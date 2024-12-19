@@ -21,9 +21,14 @@ redis:
   url: redis://:redis@redis:6379
 tools:
   hybrid_web_search:
-    # List of web search tool names, eg: google_web_search, tavily_web_search
+    # List of web search tool names, from: google_web_search, tavily_web_search, brave_web_search
     enabled_web_searches:
       - tavily_web_search
+    # List of domains to filter (exclusively) for web search
+    domain_filters:
+      # - wikipedia.org
+    # List of sites to filter (exclusively) for web scraping
+    site_filters:
   python_interpreter:
     url: http://terrarium:8080
   gmail:
@@ -32,6 +37,8 @@ tools:
   slack:
     user_scopes:
       - search:read
+  # To disable the use of the tools preamble, set it to false
+  use_tools_preamble: true
 feature_flags:
   # Experimental features
   use_agents_view: false

@@ -116,10 +116,9 @@ def test_async_call_tools_failure(mock_get_available_tools) -> None:
                 "name": "toolkit_calculator",
                 "parameters": {"code": "6*7"},
             },
-            "outputs": [{'type': 'other', 'success': False, 'text': 'Calculator failed', 'details': ''}],
+            "outputs": [{'type': 'other', 'success': False, 'text': 'Error calling tool toolkit_calculator.', 'details': 'Calculator failed'}],
         },
     ]
-
 
 @patch("backend.chat.custom.tool_calls.TIMEOUT_SECONDS", 1)
 def test_async_call_tools_timeout(mock_get_available_tools) -> None:
@@ -249,8 +248,8 @@ def test_async_call_tools_failure_and_success(mock_get_available_tools) -> None:
     )
 
     assert {'call': {'name': 'web_scrape', 'parameters': {'code': '6*7'}}, 'outputs': [
-        {'details': '', 'success': False, 'text': "Model didn't pass required parameter: url", 'type'
-         : 'other'}]} in results
+        {'type': 'other', 'success': False, 'text': 'Error calling tool web_scrape.',
+         'details': "Model didn't pass required parameter: url"}]} in results
     assert {
         "call": {"name": "toolkit_calculator", "parameters": {"code": "6*7"}},
         "outputs": [{"result": 42}],
@@ -299,7 +298,7 @@ def test_tools_params_checker_invalid_param(mock_get_available_tools) -> None:
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
     assert {'call': {'name': 'toolkit_calculator', 'parameters': {'invalid_param': '6*7'}}, 'outputs': [
-        {'details': '', 'success': False, 'text': "Model didn't pass required parameter: code",
+        {'details': "Model didn't pass required parameter: code", 'success': False, 'text': 'Error calling tool toolkit_calculator.',
          'type': 'other'}]} in results
 
 def test_tools_params_checker_invalid_param_type(mock_get_available_tools) -> None:
@@ -343,9 +342,8 @@ def test_tools_params_checker_invalid_param_type(mock_get_available_tools) -> No
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
     assert {'call': {'name': 'toolkit_calculator', 'parameters': {'code': 6}}, 'outputs': [
-        {'details': '', 'success': False,
-         'text': "Model passed invalid parameter. Parameter 'code' must be of type str, but got int",
-         'type': 'other'}]} in results
+        {'type': 'other', 'success': False, 'text': 'Error calling tool toolkit_calculator.',
+         'details': "Model passed invalid parameter. Parameter 'code' must be of type str, but got int"}]} in results
 
 def test_tools_params_checker_required_param_empty(mock_get_available_tools) -> None:
     class MockCalculator(BaseTool):
@@ -388,5 +386,5 @@ def test_tools_params_checker_required_param_empty(mock_get_available_tools) -> 
         async_call_tools(chat_history, MockCohereDeployment(), ctx)
     )
     assert {'call': {'name': 'toolkit_calculator', 'parameters': {'code': ''}}, 'outputs': [
-        {'details': '', 'success': False, 'text': 'Model passed empty value for required parameter: code',
-         'type': 'other'}]} in results
+        {'details': 'Model passed empty value for required parameter: code', 'success': False,
+         'text': 'Error calling tool toolkit_calculator.', 'type': 'other'}]} in results

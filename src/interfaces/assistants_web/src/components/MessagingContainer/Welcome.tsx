@@ -5,6 +5,7 @@ import React from 'react';
 
 import { AssistantTools } from '@/components/MessagingContainer';
 import { CoralLogo, Icon, Text } from '@/components/UI';
+import { useAvailableTools } from '@/hooks';
 import { useAgent, useBrandedColors, useListTools } from '@/hooks';
 import { checkIsDefaultAgent } from '@/utils';
 import { cn } from '@/utils';
@@ -24,8 +25,15 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
 
   const isDefaultAgent = checkIsDefaultAgent(agent);
 
-  // // Filter out tools that are excluded for the base agent
-  let toolsFiltered = [...tools];
+  const { availableTools } = useAvailableTools({
+    agent,
+    allTools: tools,
+  });
+
+  let toolToggleMessage = 'Toggle Tools On/Off';
+  if (availableTools.length === 0) {
+    toolToggleMessage = 'Your Agent has no Tools enabled. Update your Agent to add Tools.';
+  }
 
   return (
     <Transition
@@ -65,16 +73,15 @@ export const Welcome: React.FC<Props> = ({ show, agentId }) => {
           )}
         </div>
         <Text className="text-mushroom-300 dark:text-marble-800">
-          {agent?.description || 'Ask questions and get answers based on your files.'}
+          {agent?.description || 'Ask questions and get answers based on your tools and files.'}
         </Text>
 
-        {tools.length > 0 && (
-          <div className="flex items-center gap-x-1">
-            <Icon name="circles-four" kind="outline" />
-            <Text className="font-medium">Toggle Tools On/Off</Text>
-          </div>
-        )}
-        <AssistantTools agent={agent} tools={toolsFiltered} />
+        <div className="flex items-center gap-x-1">
+          <Icon name="circles-four" kind="outline" />
+          <Text className="font-medium">{toolToggleMessage}</Text>
+        </div>
+
+        <AssistantTools agent={agent} tools={tools} />
       </div>
     </Transition>
   );

@@ -58,12 +58,12 @@ class ReadFileTool(BaseTool):
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
         if not file:
-            return []
+            return self.get_tool_error(details="Files are not passed in model generated params")
 
         _, file_id = file
         retrieved_file = file_crud.get_file(session, file_id, user_id)
         if not retrieved_file:
-            return []
+            return self.get_tool_error(details="The wrong files were passed in the tool parameters, or files were not found")
 
         return [
             {
@@ -125,13 +125,15 @@ class SearchFileTool(BaseTool):
         user_id = kwargs.get("user_id")
 
         if not query or not files:
-            return []
+            return self.get_tool_error(
+                details="Missing query or files. The wrong files might have been passed in the tool parameters")
 
         file_ids = [file_id for _, file_id in files]
         retrieved_files = file_crud.get_files_by_ids(session, file_ids, user_id)
 
         if not retrieved_files:
-            return []
+            return self.get_tool_error(
+                details="Missing files. The wrong files might have been passed in the tool parameters")
 
         results = []
         for file in retrieved_files:
@@ -142,4 +144,7 @@ class SearchFileTool(BaseTool):
                     "url": file.file_name,
                 }
             )
+        if not results:
+            return self.get_no_results_error()
+
         return results

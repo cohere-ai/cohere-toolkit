@@ -12,7 +12,7 @@ def get_default_agent() -> AgentPublic:
     return AgentPublic(
         id=DEFAULT_AGENT_ID,
         name='Command R+',
-        description='Ask questions and get answers based on your files.',
+        description='Ask questions and get answers based on your tools and files.',
         created_at=datetime.datetime.now(),
         updated_at=datetime.datetime.now(),
         preamble="",

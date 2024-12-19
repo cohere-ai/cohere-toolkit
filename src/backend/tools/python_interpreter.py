@@ -57,9 +57,15 @@ class PythonInterpreter(BaseTool):
             raise Exception("Python Interpreter tool called while URL not set")
 
         code = parameters.get("code", "")
-        res = requests.post(self.INTERPRETER_URL, json={"code": code})
+        try:
+            res = requests.post(self.INTERPRETER_URL, json={"code": code})
+            clean_res = self._clean_response(res.json())
+        except Exception as e:
+            return self.get_tool_error(details=str(e))
 
-        clean_res = self._clean_response(res.json())
+        if not clean_res:
+            return self.get_no_results_error()
+
         return clean_res
 
     def _clean_response(self, result: Any) -> Dict[str, str]:
@@ -82,7 +88,8 @@ class PythonInterpreter(BaseTool):
                 r.setdefault("text", r.get("std_out"))
             elif r.get("success") is False:
                 error_message = r.get("error", {}).get("message", "")
-                r.setdefault("text", error_message)
+                # r.setdefault("text", error_message)
+                return self.get_tool_error(details=error_message)
             elif r.get("output_file") and r.get("output_file").get("filename"):
                 if r["output_file"]["filename"] != "":
                     r.setdefault(

@@ -52,6 +52,26 @@ from backend.services.agent import validate_agent_exists
 LOOKBACKS = [3, 5, 7]
 DEATHLOOP_SIMILARITY_THRESHOLDS = [0.5, 0.7, 0.9]
 
+
+def generate_tools_preamble(chat_request: CohereChatRequest) -> str:
+    available_tools = get_available_tools()
+    full_managed_tools = [
+        available_tools.get(tool.name)
+        for tool in chat_request.tools
+        if available_tools.get(tool.name)
+    ]
+    tools_preamble = ""
+    if full_managed_tools:
+        tools_preamble = " ".join(tool.implementation.TOOL_DEFAULT_PREAMBLE for tool in full_managed_tools if
+                                   tool.implementation.TOOL_DEFAULT_PREAMBLE)
+    passed_preamble = ""
+    if chat_request.preamble:
+        passed_preamble = chat_request.preamble.replace("## Task And Context", "")
+    tools_preamble = f"## Task And Context\n{tools_preamble}{passed_preamble}"
+
+    return tools_preamble
+
+
 def process_chat(
     session: DBSessionDep,
     chat_request: BaseChatRequest,
@@ -471,7 +491,8 @@ def create_chat_history(
     chat_request: BaseChatRequest,
 ) -> list[ChatMessage]:
     """
-    Create chat history from conversation messages or request.
+    Create chat history from conversation messages or request, this chat history
+    is sent to the chat SDK call for added context.
 
     Args:
         conversation (Conversation): Conversation object.
@@ -487,11 +508,13 @@ def create_chat_history(
     if conversation.messages is None:
         return []
 
-    # Don't include the user message that was just sent
+    # Filter out user message that was just sent
+    # And any empty messages
     text_messages = [
         message
         for message in conversation.messages
         if message.position < user_message_position
+        and message.text
     ]
     return [
         ChatMessage(
@@ -1014,7 +1037,7 @@ def check_death_loop(
         event_state.distances_actions.append(
             1
             - nltk.edit_distance(event_state.previous_action, action)
-            / max(len(event_state.previous_action), len(action))
+            / max(len(str(event_state.previous_action)), len(action))
         )
         check_similarity(event_state.distances_actions, ctx)
 
@@ -1022,7 +1045,7 @@ def check_death_loop(
         event_state.distances_plans.append(
             1
             - nltk.edit_distance(event_state.previous_plan, plan)
-            / max(len(event_state.previous_plan), len(plan))
+            / max(len(str(event_state.previous_plan)), len(plan))
         )
         check_similarity(event_state.distances_plans, ctx)
 
