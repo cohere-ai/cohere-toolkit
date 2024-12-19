@@ -112,6 +112,10 @@ class PythonToolSettings(BaseSettings, BaseModel):
     url: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("PYTHON_INTERPRETER_URL", "url")
     )
+    forbidden_packages: Optional[List[str]] = Field(
+        default=["micropip","requests","aiohttp","urllib3","fsspec","smart_open","pyodide-http"],
+        validation_alias=AliasChoices("PYTHON_INTERPRETER_FORBIDDEN_PACKAGES", "forbidden_packages")
+    )
 
 
 class TavilySearchSettings(BaseSettings, BaseModel):

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from enum import StrEnum
 from typing import Any, Dict, List
 
+import requests
 from fastapi import Request
 from pydantic import BaseModel
 
@@ -52,13 +53,13 @@ class ParametersValidationMeta(type):
         return super().__new__(cls, name, bases, class_dict)
 
 
-class BaseToolPreambleRegistry:
+class ToolDefaultPreambleRegistry:
     """
     Registry to store default preamble values for tools.
     Currently, it's implemented as a class with predefined values, but we can use set_preamble to set values.
     """
     _default_preambles = {
-        "toolkit_python_interpreter": "If you decide to use toolkit_python_interpreter tool and are going to plot something, try returning result as a png. Ensure that the generated code does not include any internet connection, and avoid using the module named requests. ",
+        "toolkit_python_interpreter": "If you decide to use toolkit_python_interpreter tool and are going to plot something, try returning result as a png. Ensure that the generated code does not include any internet connection.",
         "read_file": "When using the read_file tool, always ensure that the file parameter is prepared as a tuple in the format  (filename, file ID). The order of the tuple fields is critical. ",
         "search_file":"When using the search_file tool, always ensure that the `files` parameter is prepared as a list of tuples in the format (filename, file ID). The order of the tuple fields is critical. "
     }
@@ -71,11 +72,42 @@ class BaseToolPreambleRegistry:
         cls._default_preambles[tool_id] = preamble
 
     @classmethod
-    def get_preamble(cls, tool_class):
+    def get_preamble(cls, tool_class_id):
         """
         Retrieve the default preamble for a given tool class.
         """
-        return cls._default_preambles.get(tool_class, None)
+        return cls._get_class_specific_preamble(tool_class_id) or cls._default_preambles.get(tool_class_id, None)
+
+    @classmethod
+    def _get_class_specific_preamble(cls, tool_class_id):
+        """
+        Retrieve the custom preamble for a given tool class.
+        """
+        if tool_class_id == "toolkit_python_interpreter":
+            interpreter_url = Settings().get('tools.python_interpreter.url')
+            if interpreter_url:
+                try:
+                    # TODO Confirm with TJ if we need to add this settings here or set predefined values on the interpreter side
+                    forbidden_packages = Settings().get('tools.python_interpreter.forbidden_packages')
+                    if forbidden_packages:
+                        forbidden_response = requests.post(interpreter_url + "/forbidden-packages", json={"packages": forbidden_packages})
+                        if forbidden_response.status_code != 200:
+                            return None
+                    forbidden_preamble_packages = ", ".join(forbidden_packages)
+                    # TODO Ask TJ do we need available packages
+                    # available_response = requests.get(interpreter_url + "/available-packages")
+                    # if available_response.status_code != 200:
+                    #     return None
+                    # available_packages = available_response.json()["packages"]
+                    # available_cleaned = [item for item in available_packages if item not in forbidden_packages]
+                    # available_preamble_packages = ", ".join(available_cleaned)
+                    preamble = f"If you decide to use the toolkit_python_interpreter tool and plan to plot something, try returning the result as a PNG. Ensure that the generated code does not require an internet connection. Avoid using the following packages in code generation: {forbidden_preamble_packages}. "
+                    return preamble
+                except Exception as e:
+                    logger.error(f"Error while retrieving the Python interpreter preamble.: {str(e)}")
+                    return None
+
+        return None
 
 
 class BaseTool(metaclass=ParametersValidationMeta):
@@ -94,7 +126,7 @@ class BaseTool(metaclass=ParametersValidationMeta):
         using the registry class.
         """
         super().__init_subclass__(**kwargs)
-        cls.TOOL_DEFAULT_PREAMBLE = BaseToolPreambleRegistry.get_preamble(cls.ID)
+        cls.TOOL_DEFAULT_PREAMBLE = ToolDefaultPreambleRegistry.get_preamble(cls.ID)
 
     def __init__(self, *args, **kwargs):
         self._post_init_check()
@@ -140,6 +172,13 @@ class BaseTool(metaclass=ParametersValidationMeta):
     ) -> List[Dict[str, Any]]:
         ...
 
+    @classmethod
+    def get_preamble(cls):
+        return cls.TOOL_DEFAULT_PREAMBLE
+
+    @classmethod
+    def set_preamble(cls, preamble):
+        cls.TOOL_DEFAULT_PREAMBLE = preamble
 
 class BaseToolAuthentication(ABC):
     """
