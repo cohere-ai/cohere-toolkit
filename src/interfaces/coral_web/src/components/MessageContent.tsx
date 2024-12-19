@@ -45,7 +45,7 @@ export const MessageContent: React.FC<Props> = ({ isLast, message, onRetry }) =>
         <MessageInfo type="error">
           {message.error}
           {isLast && (
-            <button className="underline underline-offset-1" type="button" onClick={onRetry}>
+            <button className="ml-2 underline underline-offset-1" type="button" onClick={onRetry}>
               {STRINGS.retryQuestion}
             </button>
           )}
