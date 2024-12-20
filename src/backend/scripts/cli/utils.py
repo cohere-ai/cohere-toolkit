@@ -3,13 +3,13 @@ from pathlib import Path
 
 import yaml
 
-from backend.cli.constants import (
+from backend.scripts.cli.constants import (
     ENV_YAML_CONFIG_MAPPING,
     WELCOME_MESSAGE,
     DeploymentName,
     bcolors,
 )
-from backend.cli.setters import read_yaml
+from backend.scripts.cli.setters import read_yaml
 
 
 def print_styled(text: str, color: str = bcolors.ENDC):
