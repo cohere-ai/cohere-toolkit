@@ -114,7 +114,7 @@ def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str,
     logger.debug(event="update_config", deployment_id=deployment_id, env_vars=env_vars)
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
     if db_deployment:
-        new_config = dict(db_deployment.default_deployment_config)
+        new_config = dict(db_deployment.default_deployment_config if db_deployment.default_deployment_config else {})
         new_config.update(env_vars)
         update = DeploymentUpdate(default_deployment_config=new_config)
         updated_db_deployment = deployment_crud.update_deployment(session, db_deployment, update)
