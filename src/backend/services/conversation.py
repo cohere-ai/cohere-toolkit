@@ -9,6 +9,7 @@ from backend.database_models import Message as MessageModel
 from backend.database_models.conversation import Conversation as ConversationModel
 from backend.database_models.database import DBSessionDep
 from backend.database_models.message import MessageAgent
+from backend.model_deployments.base import BaseDeployment
 from backend.schemas.chat import ChatRole
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
@@ -167,7 +168,7 @@ async def filter_conversations(
     query: str,
     conversations: List[Conversation],
     rerank_documents: List[str],
-    model_deployment,
+    model_deployment: BaseDeployment,
     ctx: Context,
 ) -> List[Conversation]:
     """Filter conversations based on the rerank score
@@ -183,7 +184,7 @@ async def filter_conversations(
         List[Conversation]: List of filtered conversations
     """
     # if rerank is not enabled, filter out conversations that don't contain the query
-    if not model_deployment.rerank_enabled:
+    if not model_deployment.rerank_enabled():
         filtered_conversations = []
 
         for rerank_document, conversation in zip(rerank_documents, conversations):

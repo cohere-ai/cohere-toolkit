@@ -5,7 +5,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import { BasicButton, Button, Dropdown, DropdownOptionGroups, Input } from '@/components/Shared';
 import { STRINGS } from '@/constants/strings';
 import { ModalContext } from '@/context/ModalContext';
-import { useListAllDeployments } from '@/hooks/deployments';
+import { useListAllDeployments, useUpdateDeploymentConfig } from '@/hooks/deployments';
 import { useParamsStore } from '@/stores';
 
 /**
@@ -40,16 +40,12 @@ export const EditEnvVariablesModal: React.FC<{
   onClose: () => void;
 }> = ({ defaultDeployment, onClose }) => {
   const { data: deployments } = useListAllDeployments();
+  const updateConfigMutation = useUpdateDeploymentConfig();
 
   const [deployment, setDeployment] = useState<string | undefined>(defaultDeployment);
   const [envVariables, setEnvVariables] = useState<Record<string, string>>(() => {
     const selectedDeployment = deployments?.find(({ name }) => name === defaultDeployment);
-    return (
-      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
-        acc[envVar] = '';
-        return acc;
-      }, {}) ?? {}
-    );
+    return selectedDeployment?.config ?? {};
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,12 +66,7 @@ export const EditEnvVariablesModal: React.FC<{
   const handleDeploymentChange = (newDeployment: string) => {
     setDeployment(newDeployment);
     const selectedDeployment = deployments?.find(({ name }) => name === newDeployment);
-    const emptyEnvVariables =
-      selectedDeployment?.env_vars.reduce<Record<string, string>>((acc, envVar) => {
-        acc[envVar] = '';
-        return acc;
-      }, {}) ?? {};
-    setEnvVariables(emptyEnvVariables);
+    setEnvVariables(selectedDeployment?.config ?? {});
   };
 
   const handleEnvVariableChange = (envVar: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,12 +75,25 @@ export const EditEnvVariablesModal: React.FC<{
 
   const handleSubmit = async () => {
     if (!deployment) return;
+    const selectedDeployment = deployments?.find(({ name }) => name === deployment);
+    if (!selectedDeployment) return;
 
     setIsSubmitting(true);
-    setParams({
-      deploymentConfig: Object.entries(envVariables)
-        .map(([k, v]) => k + '=' + v)
-        .join(';'),
+
+    // Only update the env variables that have changed. We need to do this for now because the backend
+    // reports config values as "*****" and we don't want to overwrite the real values with these
+    // obscured values.
+    const originalEnvVariables = selectedDeployment.config ?? {};
+    const updatedEnvVariables = Object.keys(envVariables).reduce((acc, key) => {
+      if (envVariables[key] !== originalEnvVariables[key]) {
+        acc[key] = envVariables[key];
+      }
+      return acc;
+    }, {} as Record<string, string>);
+
+    await updateConfigMutation.mutateAsync({
+      deploymentId: selectedDeployment.id,
+      config: updatedEnvVariables,
     });
     setIsSubmitting(false);
     onClose();
@@ -108,7 +112,7 @@ export const EditEnvVariablesModal: React.FC<{
           key={envVar}
           placeholder={STRINGS.value}
           label={envVar}
-          type="password"
+          type="text"
           value={envVariables[envVar]}
           onChange={handleEnvVariableChange(envVar)}
         />
