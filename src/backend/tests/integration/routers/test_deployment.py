@@ -41,7 +41,7 @@ def test_create_deployment(session_client: TestClient) -> None:
     assert response.status_code == 200
     deployment = response.json()
     assert deployment["name"] == request_json["name"]
-    assert deployment["config"] == {"COHERE_API_KEY": 'test-api-key'}
+    assert deployment["config"] == {"COHERE_API_KEY": '*****'}
     assert deployment["is_available"]
 
 
@@ -124,7 +124,7 @@ def test_update_deployment(session_client: TestClient, db_deployment) -> None:
     assert response.status_code == 200
     updated_deployment = response.json()
     assert updated_deployment["name"] == request_json["name"]
-    assert updated_deployment["config"] == {"COHERE_API_KEY": 'test-api-key'}
+    assert updated_deployment["config"] == {"COHERE_API_KEY": '*****'}
     assert updated_deployment["is_available"]
     assert updated_deployment["description"] == request_json["description"]
     assert updated_deployment["is_community"] == request_json["is_community"]
@@ -153,7 +153,7 @@ def test_set_env_vars(
     )
     assert response.status_code == 200
     updated_deployment = response.json()
-    assert updated_deployment["config"] == {"COHERE_API_KEY": "TestCohereValue"}
+    assert updated_deployment["config"] == {"COHERE_API_KEY": "*****"}
 
 
 def test_set_env_vars_with_invalid_deployment_name(
