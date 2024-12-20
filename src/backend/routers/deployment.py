@@ -47,11 +47,13 @@ def create_deployment(
         DeploymentDefinition: Created deployment.
     """
     try:
-        return DeploymentDefinition.from_db_deployment(
+        created = DeploymentDefinition.from_db_deployment(
             deployment_crud.create_deployment(session, deployment)
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    return mask_deployment_secrets(created)
 
 
 @router.put("/{deployment_id}", response_model=DeploymentDefinition)
@@ -76,9 +78,9 @@ def update_deployment(
     if not deployment:
         raise DeploymentNotFoundError(deployment_id=deployment_id)
 
-    return DeploymentDefinition.from_db_deployment(
+    return mask_deployment_secrets(DeploymentDefinition.from_db_deployment(
         deployment_crud.update_deployment(session, deployment, new_deployment)
-    )
+    ))
 
 
 @router.get("/{deployment_id}", response_model=DeploymentDefinition)
@@ -89,7 +91,9 @@ def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentDefin
     Returns:
         Deployment: Deployment with the given ID.
     """
-    return deployment_service.get_deployment_definition(session, deployment_id)
+    return mask_deployment_secrets(
+        deployment_service.get_deployment_definition(session, deployment_id)
+    )
 
 
 @router.get("", response_model=list[DeploymentDefinition])
@@ -110,7 +114,7 @@ def list_deployments(
 
     installed_deployments = deployment_service.get_deployment_definitions(session)
     available_deployments = [
-        deployment for deployment in installed_deployments if deployment.is_available or all
+        mask_deployment_secrets(deployment) for deployment in installed_deployments if deployment.is_available or all
     ]
 
     if not available_deployments:
@@ -176,4 +180,11 @@ async def update_config(
     Returns:
         str: Empty string.
     """
-    return deployment_service.update_config(session, deployment_id, valid_env_vars)
+    return mask_deployment_secrets(
+        deployment_service.update_config(session, deployment_id, valid_env_vars)
+    )
+
+
+def mask_deployment_secrets(deployment: DeploymentDefinition) -> DeploymentDefinition:
+    deployment.config = {key: "*****" if val else "" for [key, val] in deployment.config.items()}
+    return deployment

@@ -79,9 +79,21 @@ export const EditEnvVariablesModal: React.FC<{
     if (!selectedDeployment) return;
 
     setIsSubmitting(true);
+
+    // Only update the env variables that have changed. We need to do this for now because the backend
+    // reports config values as "*****" and we don't want to overwrite the real values with these
+    // obscured values.
+    const originalEnvVariables = selectedDeployment.config ?? {};
+    const updatedEnvVariables = Object.keys(envVariables).reduce((acc, key) => {
+      if (envVariables[key] !== originalEnvVariables[key]) {
+        acc[key] = envVariables[key];
+      }
+      return acc;
+    }, {} as Record<string, string>);
+
     await updateConfigMutation.mutateAsync({
       deploymentId: selectedDeployment.id,
-      config: envVariables,
+      config: updatedEnvVariables,
     });
     setIsSubmitting(false);
     onClose();
