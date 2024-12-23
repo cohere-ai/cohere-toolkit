@@ -93,17 +93,22 @@ install:
 .PHONY: setup
 setup:
 	poetry install --with setup,dev --verbose
-	poetry run python3 src/backend/cli/main.py
+	poetry run python3 src/backend/scripts/cli/main.py
 
 .PHONY: setup-use-community
 setup-use-community:
 	poetry install --with setup,community --verbose
-	poetry run python3 src/backend/cli/main.py --use-community
+	poetry run python3 src/backend/scripts/cli/main.py --use-community
 
 .PHONY: win-setup
 win-setup:
 	poetry install --with setup --verbose
-	poetry run python src/backend/cli/main.py
+	poetry run python src/backend/scripts/cli/main.py
+
+.PHONY: check-config
+check-config:
+	poetry install --with setup --verbose
+	poetry run python src/backend/scripts/config/check_config.py
 
 .PHONY: first-run
 first-run:

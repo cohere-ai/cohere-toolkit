@@ -1,0 +1,5 @@
+BASE_CONFIG_PATH = "src/backend/config"
+CONFIG_FILE_PATH = f"{BASE_CONFIG_PATH}/configuration.yaml"
+CONFIG_TEMPLATE_PATH = f"{BASE_CONFIG_PATH}/configuration.template.yaml"
+SECRETS_FILE_PATH = f"{BASE_CONFIG_PATH}/secrets.yaml"
+SECRETS_TEMPLATE_PATH = f"{BASE_CONFIG_PATH}/secrets.template.yaml"
