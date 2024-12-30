@@ -39,7 +39,7 @@ exec-terrarium:
 # Testing & Linting
 .PHONY: run-unit-tests
 run-unit-tests:
-	poetry run pytest -n auto src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
+	poetry run pytest src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:

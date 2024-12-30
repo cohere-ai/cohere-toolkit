@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from langchain_core.documents.base import Document
+from backend.tools.base import ToolError, ToolErrorCode
 
 from backend.services.context import Context
 from backend.tools import LangChainVectorDBRetriever, LangChainWikiRetriever
@@ -78,7 +79,7 @@ async def test_wiki_retriever_no_docs() -> None:
     ):
         result = await retriever.call({"query": query}, ctx)
 
-    assert result == [{'details': '','success': False,'text': 'No results found.','type': 'other'}]
+    assert result == ToolError(type=ToolErrorCode.OTHER, success=False, text='No results found.', details='No results found for the given params.')
 
 
 
@@ -164,4 +165,4 @@ async def test_vector_db_retriever_no_docs() -> None:
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
         result = await retriever.call({"query": query}, ctx)
 
-    assert result == [{'details': '', 'success': False, 'text': 'No results found.', 'type': 'other'}]
+    assert result == ToolError(type=ToolErrorCode.OTHER, success=False, text='No results found.', details='No results found for the given params.')
