@@ -73,6 +73,7 @@ freezegun = "^1.5.1"
 pre-commit = "^2.20.0"
 ruff = "^0.6.0"
 pytest-asyncio = "^0.23.7"
+pytest-xdist = "^3.6.1"
 
 [tool.poetry.group.setup]
 optional = true
