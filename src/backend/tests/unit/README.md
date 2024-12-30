@@ -1,4 +1,4 @@
-# Writing Unit Test
+# Writing Unit Tests
 
 This README will explain how to best write unit tests for the OSS Toolkit project.
 
@@ -10,7 +10,7 @@ make test-db
 make run-unit-tests
 ```
 
-## Test DB
+## Testing the Database
 
 Some of the unit tests rely on a database being present. The tests are expecting a postgres DB to be running in a docker container. the `make test-db` target will create the test database required for the tests to run.
 
