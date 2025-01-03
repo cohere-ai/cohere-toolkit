@@ -24,3 +24,7 @@ jobs:
         run: npm run format
       - name: Check build
         run: npm run build
+      - name: Generate client
+        run: npm run generate:client && npm run format:write
+      - name: Check generated client
+        run: git diff --exit-code ./src/cohere-client/generated || (echo "Generated client is outdated. Please regenerate and commit." && exit 1)
