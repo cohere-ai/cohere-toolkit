@@ -167,16 +167,15 @@ async def update_config(
     session: DBSessionDep,
     env_vars: UpdateDeploymentEnv,
     valid_env_vars = Depends(validate_env_vars),
-    # ctx: Context = Depends(get_context),
 ):
     """
     Set environment variables for the deployment.
 
     Args:
-        name (str): Deployment name.
+        deployment_id (str): Deployment ID.
+        session (DBSessionDep): Database session.
         env_vars (UpdateDeploymentEnv): Environment variables to set.
         valid_env_vars (str): Validated environment variables.
-        ctx (Context): Context object.
     Returns:
         str: Empty string.
     """

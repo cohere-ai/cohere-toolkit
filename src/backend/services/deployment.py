@@ -1,19 +1,16 @@
-"""Functions for handling operations with deployments.
+"""
+This module handles backend operations related to deployments, which define how to interact 
+with an LLM. 
 
-This module contains functions for handling backend operations with deployments. A Deployment
-represents the information required to interact with an LLM. New deployments are defined
-by creating a class that inherits from BaseDeployment and implementing the required methods in
-the model_deployments directory.
+New deployments are created by subclassing BaseDeployment and implementing required 
+methods in the model_deployments directory.
 
-Deployments can be configured in two different ways: by providing appropriate config values
-through the config (which itself should be set in a configuration.yaml file, or through setting
-environment variables), or by dynamically defining a deployment in the database through the
-deployment_crud module. This service attempts to abstract the differences between these two
-styles so that higher layers don't need to know about these differences.
+Deployments can be configured in two ways: via configuration.yaml or environment variables
+using the .env file, or dynamically in the database using the deployment_crud module. This 
+service abstracts these methods, ensuring higher layers remain unaffected by configuration details.
 
-We assume that for each kind of deployment, it will be configured either through the config or
-through the database, but not both. If a deployment is configured in the database, it is assumed
-to the be the correct definition.
+Each deployment is assumed to use either configuration files or the database, with database 
+configurations taking precedence.
 """
 
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
@@ -32,10 +29,10 @@ logger = LoggerFactory().get_logger()
 
 def create_db_deployment(session: DBSessionDep, deployment: DeploymentDefinition) -> DeploymentDefinition:
     logger.debug(event="create_db_deployment", deployment=deployment.model_dump())
+
     db_deployment = deployment_crud.create_deployment_by_config(session, deployment)
-    # for model in deployment.models:
-        # logger.debug(event="create_db_deployment/create_model", model=model, deployment=db_deployment.id)
     model_crud.create_model_by_config(session, deployment, db_deployment.id, None)
+
     return DeploymentDefinition.from_db_deployment(db_deployment)
 
 
@@ -87,14 +84,14 @@ def get_deployment_definition(session: DBSessionDep, deployment_id: str) -> Depl
 def get_deployment_definition_by_name(session: DBSessionDep, deployment_name: str) -> DeploymentDefinition:
     definitions = get_deployment_definitions(session)
     try:
-        definiton = next(definition for definition in definitions if definition.name == deployment_name)
+        definition = next(definition for definition in definitions if definition.name == deployment_name)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
-    if definiton.name not in [d.name for d in deployment_crud.get_deployments(session)]:
-        create_db_deployment(session, definiton)
+    if definition.name not in [d.name for d in deployment_crud.get_deployments(session)]:
+        create_db_deployment(session, definition)
 
-    return definiton
+    return definition
 
 def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefinition]:
     db_deployments = {
@@ -112,6 +109,7 @@ def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefiniti
 
 def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
     logger.debug(event="update_config", deployment_id=deployment_id, env_vars=env_vars)
+
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
     if db_deployment:
         new_config = dict(db_deployment.default_deployment_config if db_deployment.default_deployment_config else {})
