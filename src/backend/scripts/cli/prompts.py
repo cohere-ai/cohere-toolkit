@@ -1,6 +1,6 @@
 import inquirer
 
-from backend.cli.constants import (
+from backend.scripts.cli.constants import (
     DATABASE_URL_DEFAULT,
     FRONTEND_HOSTNAME_DEFAULT,
     NEXT_PUBLIC_API_HOSTNAME_DEFAULT,
@@ -8,8 +8,8 @@ from backend.cli.constants import (
     BuildTarget,
     bcolors,
 )
-from backend.cli.setters import write_env_file
-from backend.cli.utils import print_styled
+from backend.scripts.cli.setters import write_env_file
+from backend.scripts.cli.utils import print_styled
 
 
 def overwrite_config_prompt():
