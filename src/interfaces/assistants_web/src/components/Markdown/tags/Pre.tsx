@@ -1,7 +1,7 @@
 'use client';
 
-import { ExtraProps } from 'react-markdown';
 import { ComponentPropsWithoutRef, FC, useRef, useState } from 'react';
+import { ExtraProps } from 'react-markdown';
 
 import { Button, Icon, Text } from '@/components/UI';
 

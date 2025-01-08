@@ -1,7 +1,7 @@
 'use client';
 
+import { ComponentPropsWithoutRef, FC, useCallback } from 'react';
 import { ExtraProps } from 'react-markdown';
-import { ComponentPropsWithoutRef, useCallback, FC } from 'react';
 
 import { StructuredTable } from '@/components/Markdown/directives/table-tools';
 import { Icon, Text } from '@/components/UI';
