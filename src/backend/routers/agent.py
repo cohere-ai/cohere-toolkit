@@ -1,7 +1,7 @@
 import asyncio
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
@@ -41,6 +41,12 @@ from backend.schemas.file import (
     FileMetadata,
     UploadAgentFileResponse,
 )
+from backend.schemas.params.agent import (
+    agent_id_path,
+    agent_tool_metadata_id_path,
+    file_id_path,
+)
+from backend.schemas.params.shared import PaginationQueryParams
 from backend.services.agent import (
     raise_db_error,
     validate_agent_exists,
@@ -72,19 +78,13 @@ router.name = RouterName.AGENT
     ],
 )
 async def create_agent(
-    session: DBSessionDep,
     agent: CreateAgentRequest,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> AgentPublic:
     """
     Create an agent.
 
-    Args:
-        session (DBSessionDep): Database session.
-        agent (CreateAgentRequest): Agent data.
-        ctx (Context): Context object.
-    Returns:
-        AgentPublic: Created agent with no user ID or organization ID.
     Raises:
         HTTPException: If the agent creation fails.
     """
@@ -144,21 +144,20 @@ async def create_agent(
 @router.get("", response_model=list[AgentPublic])
 async def list_agents(
     *,
-    offset: int = 0,
-    limit: int = 100,
+    page_params: Annotated[PaginationQueryParams, Depends()],
+    visibility: Annotated[AgentVisibility, Query(
+        title="Visibility",
+        description="Agent visibility",
+    )] = AgentVisibility.ALL,
+    organization_id: Annotated[Optional[str], Query(
+        title="Organization ID",
+        description="Organization ID of the agent",
+    )] = None,
     session: DBSessionDep,
-    visibility: AgentVisibility = AgentVisibility.ALL,
-    organization_id: Optional[str] = None,
     ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
     """
     List all agents.
-
-    Args:
-        offset (int): Offset to start the list.
-        limit (int): Limit of agents to be listed.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
 
     Returns:
         list[AgentPublic]: List of agents with no user ID or organization ID.
@@ -176,8 +175,8 @@ async def list_agents(
         agents = agent_crud.get_agents(
             session,
             user_id=user_id,
-            offset=offset,
-            limit=limit,
+            offset=page_params.offset,
+            limit=page_params.limit,
             visibility=visibility,
             organization_id=organization_id,
         )
@@ -192,16 +191,12 @@ async def list_agents(
 
 @router.get("/{agent_id}", response_model=AgentPublic)
 async def get_agent_by_id(
-    agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    agent_id: Annotated[str, agent_id_path],
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context)
 ) -> AgentPublic:
     """
-    Args:
-        agent_id (str): Agent ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        Agent: Agent.
+    Return an agent by ID.
 
     Raises:
         HTTPException: If the agent with the given ID is not found.
@@ -230,17 +225,13 @@ async def get_agent_by_id(
 
 
 @router.get("/{agent_id}/deployments", response_model=list[DeploymentDefinition])
-async def get_agent_deployments(
-    agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+async def get_agent_deployment(
+    agent_id: Annotated[str, agent_id_path],
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context)
 ) -> list[DeploymentDefinition]:
     """
-    Args:
-        agent_id (str): Agent ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        Agent: Agent.
+    Get the deployment for an agent
 
     Raises:
         HTTPException: If the agent with the given ID is not found.
@@ -266,22 +257,13 @@ async def get_agent_deployments(
     ],
 )
 async def update_agent(
-        agent_id: str,
-        new_agent: UpdateAgentRequest,
-        session: DBSessionDep,
-        ctx: Context = Depends(get_context),
+    agent_id: Annotated[str, agent_id_path],
+    new_agent: UpdateAgentRequest,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> AgentPublic:
     """
     Update an agent by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        new_agent (UpdateAgentRequest): New agent data.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        AgentPublic: Updated agent with no user ID or organization ID.
 
     Raises:
         HTTPException: If the agent with the given ID is not found.
@@ -302,7 +284,7 @@ async def update_agent(
 
     try:
         db_deployment, db_model = get_deployment_model_from_agent(new_agent, session)
-        new_agent_db = UpdateAgentDB(**new_agent.dict())
+        new_agent_db = UpdateAgentDB(**new_agent.model_dump())
         if db_deployment and db_model:
             new_agent_db.model_id = db_model.id
             new_agent_db.deployment_id = db_deployment.id
@@ -323,20 +305,12 @@ async def update_agent(
 
 @router.delete("/{agent_id}", response_model=DeleteAgent)
 async def delete_agent(
-        agent_id: str,
-        session: DBSessionDep,
-        ctx: Context = Depends(get_context),
+    agent_id: Annotated[str, agent_id_path],
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteAgent:
     """
     Delete an agent by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteAgent: Empty response.
 
     Raises:
         HTTPException: If the agent with the given ID is not found.
@@ -357,10 +331,10 @@ async def delete_agent(
 
 
 async def handle_tool_metadata_update(
-        agent: Agent,
-        new_agent: Agent,
-        session: DBSessionDep,
-        ctx: Context = Depends(get_context),
+    agent: Agent,
+    new_agent: Agent,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> Agent:
     """Update or create tool metadata for an agent.
 
@@ -398,10 +372,10 @@ async def handle_tool_metadata_update(
 
 
 async def update_or_create_tool_metadata(
-        agent: Agent,
-        new_tool_metadata: AgentToolMetadata,
-        session: DBSessionDep,
-        ctx: Context = Depends(get_context),
+    agent: Agent,
+    new_tool_metadata: AgentToolMetadata,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> None:
     """Update or create tool metadata for an agent.
 
@@ -416,29 +390,23 @@ async def update_or_create_tool_metadata(
     existing_tools_names = [metadata.tool_name for metadata in agent.tools_metadata]
     if new_tool_metadata.tool_name in existing_tools_names or new_tool_metadata.id:
         await update_agent_tool_metadata(
-            agent.id, new_tool_metadata.id, session, new_tool_metadata, ctx
+            agent.id, new_tool_metadata.id, new_tool_metadata, session, ctx
         )
     else:
         create_metadata_req = CreateAgentToolMetadataRequest(
             **new_tool_metadata.model_dump(exclude_none=True)
         )
-        create_agent_tool_metadata(session, agent.id, create_metadata_req, ctx)
+        create_agent_tool_metadata(agent.id, create_metadata_req, session, ctx)
 
 
 @router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadataPublic])
 async def list_agent_tool_metadata(
-        agent_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    agent_id: Annotated[str, agent_id_path],
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context)
 ) -> list[AgentToolMetadataPublic]:
     """
     List all agent tool metadata by agent ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        list[AgentToolMetadataPublic]: List of agent tool metadata with no user ID or organization ID.
 
     Raises:
         HTTPException: If the agent tool metadata retrieval fails.
@@ -459,22 +427,13 @@ async def list_agent_tool_metadata(
     response_model=AgentToolMetadataPublic,
 )
 def create_agent_tool_metadata(
-        session: DBSessionDep,
-        agent_id: str,
-        agent_tool_metadata: CreateAgentToolMetadataRequest,
-        ctx: Context = Depends(get_context),
+    agent_id: Annotated[str, agent_id_path],
+    agent_tool_metadata: CreateAgentToolMetadataRequest,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> AgentToolMetadataPublic:
     """
     Create an agent tool metadata.
-
-    Args:
-        session (DBSessionDep): Database session.
-        agent_id (str): Agent ID.
-        agent_tool_metadata (CreateAgentToolMetadataRequest): Agent tool metadata data.
-        ctx (Context): Context object.
-
-    Returns:
-        AgentToolMetadataPublic: Created agent tool metadata.
 
     Raises:
         HTTPException: If the agent tool metadata creation fails.
@@ -508,24 +467,14 @@ def create_agent_tool_metadata(
 
 @router.put("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
 async def update_agent_tool_metadata(
-        agent_id: str,
-        agent_tool_metadata_id: str,
-        session: DBSessionDep,
-        new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
-        ctx: Context = Depends(get_context),
+    agent_id: Annotated[str, agent_id_path],
+    agent_tool_metadata_id: Annotated[str, agent_tool_metadata_id_path],
+    new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> AgentToolMetadata:
     """
     Update an agent tool metadata by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        agent_tool_metadata_id (str): Agent tool metadata ID.
-        session (DBSessionDep): Database session.
-        new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
-        ctx (Context): Context object.
-
-    Returns:
-        AgentToolMetadata: Updated agent tool metadata.
 
     Raises:
         HTTPException: If the agent tool metadata with the given ID is not found.
@@ -552,22 +501,13 @@ async def update_agent_tool_metadata(
 
 @router.delete("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
 async def delete_agent_tool_metadata(
-        agent_id: str,
-        agent_tool_metadata_id: str,
-        session: DBSessionDep,
-        ctx: Context = Depends(get_context),
+    agent_id: Annotated[str, agent_id_path],
+    agent_tool_metadata_id: Annotated[str, agent_tool_metadata_id_path],
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteAgentToolMetadata:
     """
     Delete an agent tool metadata by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        agent_tool_metadata_id (str): Agent tool metadata ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteAgentToolMetadata: Empty response.
 
     Raises:
         HTTPException: If the agent tool metadata with the given ID is not found.
@@ -594,10 +534,14 @@ async def delete_agent_tool_metadata(
 
 @router.post("/batch_upload_file", response_model=list[UploadAgentFileResponse])
 async def batch_upload_file(
-        session: DBSessionDep,
-        files: list[FastAPIUploadFile] = RequestFile(...),
-        ctx: Context = Depends(get_context),
+    *,
+    files: list[FastAPIUploadFile] = RequestFile(...),
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> UploadAgentFileResponse:
+    """
+    Upload a batch of files
+    """
     user_id = ctx.get_user_id()
 
     uploaded_files = []
@@ -618,22 +562,13 @@ async def batch_upload_file(
 
 @router.get("/{agent_id}/files/{file_id}", response_model=FileMetadata)
 async def get_agent_file(
-    agent_id: str,
-    file_id: str,
+    agent_id: Annotated[str, agent_id_path],
+    file_id: Annotated[str, file_id_path],
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> FileMetadata:
     """
     Get an agent file by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        file_id (str): File ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        FileMetadata: File with the given ID.
 
     Raises:
         HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
@@ -666,21 +601,13 @@ async def get_agent_file(
 
 @router.delete("/{agent_id}/files/{file_id}")
 async def delete_agent_file(
-        agent_id: str,
-        file_id: str,
-        session: DBSessionDep,
-        ctx: Context = Depends(get_context),
+    agent_id: Annotated[str, agent_id_path],
+    file_id: Annotated[str, file_id_path],
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteAgentFileResponse:
     """
     Delete an agent file by ID.
-
-    Args:
-        agent_id (str): Agent ID.
-        file_id (str): File ID.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        DeleteFile: Empty response.
 
     Raises:
         HTTPException: If the agent with the given ID is not found.
