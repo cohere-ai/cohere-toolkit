@@ -1,11 +1,11 @@
 'use client';
 
-import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
-import { ComponentPropsWithoutRef, useRef, useState } from 'react';
+import { ComponentPropsWithoutRef, FC, useRef, useState } from 'react';
+import { ExtraProps } from 'react-markdown';
 
 import { Button, Icon, Text } from '@/components/UI';
 
-export const Pre: Component<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ children }) => {
+export const Pre: FC<ComponentPropsWithoutRef<'pre'> & ExtraProps> = ({ children }) => {
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
