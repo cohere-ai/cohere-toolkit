@@ -1,7 +1,7 @@
 'use client';
 
-import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
-import { ComponentPropsWithoutRef, useCallback } from 'react';
+import { ExtraProps } from 'react-markdown';
+import { ComponentPropsWithoutRef, useCallback, FC } from 'react';
 
 import { StructuredTable } from '@/components/Markdown/directives/table-tools';
 import { Icon, Text } from '@/components/UI';
@@ -26,7 +26,7 @@ type ElementProps = {
  * How to test: Every Markdown table gets converted to a DataTable. In the chat app, try the following query:
  * "Create a table with 2 columns: (1) Cuisine; (2) One popular dish from that cuisine"
  */
-export const DataTable: Component<ComponentPropsWithoutRef<'table'> & ExtraProps> = ({
+export const DataTable: FC<ComponentPropsWithoutRef<'table'> & ExtraProps> = ({
   children,
   node,
 }) => {

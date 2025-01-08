@@ -1,11 +1,7 @@
 'use client';
 
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
-import type { Component } from 'hast-util-to-jsx-runtime/lib/components';
-import { Fragment, useEffect } from 'react';
-import { useRef } from 'react';
-import { useState } from 'react';
-import { ComponentPropsWithoutRef } from 'react';
+import { Fragment, useEffect, FC, useRef, useState, ComponentPropsWithoutRef } from 'react';
 
 import { CodeSnippet, Text } from '@/components/UI';
 import { cleanupCodeBlock, cn } from '@/utils';
@@ -19,7 +15,7 @@ const MIN_HEIGHT = 600;
  * When the iframe is loaded, the `data-src` attribute is replaced with the actual source URL.
  * The height of the iframe is adjusted to fit the content.
  */
-export const Iframe: Component<ComponentPropsWithoutRef<'iframe'> & { 'data-src': string }> = (
+export const Iframe: FC<ComponentPropsWithoutRef<'iframe'> & { 'data-src': string }> = (
   props
 ) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);

@@ -1,7 +1,7 @@
 'use client';
 
-import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
-import { ComponentPropsWithoutRef } from 'react';
+import { ExtraProps } from 'react-markdown';
+import { ComponentPropsWithoutRef, FC } from 'react';
 
 import { Text } from '@/components/UI';
 
@@ -9,6 +9,6 @@ import { Text } from '@/components/UI';
 // And that we're not specifyng the "as" prop
 // And that the default of Text is "p" styling
 // We get the props of p
-export const References: Component<ComponentPropsWithoutRef<'p'> & ExtraProps> = ({ children }) => {
+export const References: FC<ComponentPropsWithoutRef<'p'> & ExtraProps> = ({ children }) => {
   return <Text>From {children}</Text>;
 };

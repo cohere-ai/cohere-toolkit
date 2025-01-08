@@ -1,12 +1,13 @@
 'use client';
 
-import type { Component, ExtraProps } from 'hast-util-to-jsx-runtime/lib/components';
-import { ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef, FC } from 'react';
+import { ExtraProps } from 'react-markdown';
 
 import { Icon } from '@/components/UI';
+
 import { useOutputFiles } from '@/stores';
 
-export const Anchor: Component<ComponentPropsWithoutRef<'a'> & ExtraProps> = ({
+export const Anchor: FC<ComponentPropsWithoutRef<'a'> & ExtraProps> = ({
   children,
   node,
 }) => {
