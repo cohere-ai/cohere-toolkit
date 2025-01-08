@@ -2,8 +2,9 @@
 # Build & Run
 .PHONY: dev
 dev:
+	make check-config
 	make -j 2 watch up
-
+	
 .PHONY: watch
 watch:
 	@docker compose watch --no-up
@@ -113,9 +114,13 @@ win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/scripts/cli/main.py
 
-.PHONY: check-config
-check-config:
+.PHONY: check-config-install
+check-config-install:
 	poetry install --with setup --verbose
+	poetry run python src/backend/scripts/config/check_config.py
+
+.PHONY: check-config 
+check-config:
 	poetry run python src/backend/scripts/config/check_config.py
 
 .PHONY: first-run
