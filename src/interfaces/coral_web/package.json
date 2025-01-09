@@ -39,6 +39,7 @@
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "cross-fetch": "^4.0.0",
+    "cross-spawn": "^7.0.5",
     "csstype": "^3.0.10",
     "form-data": "^4.0.0",
     "hast-util-to-jsx-runtime": "^2.3.0",
