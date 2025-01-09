@@ -4,29 +4,35 @@ export const $AgentPublic = {
   properties: {
     user_id: {
       type: 'string',
-      title: 'User Id',
+      title: 'User ID',
+      description: 'User ID for the Agent',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Agent ID',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When the agent was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
-    },
-    version: {
-      type: 'integer',
-      title: 'Version',
+      title: 'Updated At Timestamp',
+      description: 'When the agent was updated',
     },
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the Agent',
+    },
+    version: {
+      type: 'integer',
+      title: 'Version',
+      description: 'Version of the Agent',
     },
     description: {
       anyOf: [
@@ -38,6 +44,7 @@ export const $AgentPublic = {
         },
       ],
       title: 'Description',
+      description: 'Agent Description',
     },
     preamble: {
       anyOf: [
@@ -49,10 +56,12 @@ export const $AgentPublic = {
         },
       ],
       title: 'Preamble',
+      description: 'The preamble for the Agent',
     },
     temperature: {
       type: 'number',
       title: 'Temperature',
+      description: 'The temperature for the Agent',
     },
     tools: {
       anyOf: [
@@ -67,6 +76,7 @@ export const $AgentPublic = {
         },
       ],
       title: 'Tools',
+      description: 'List of tools for the Agent',
     },
     tools_metadata: {
       anyOf: [
@@ -81,6 +91,7 @@ export const $AgentPublic = {
         },
       ],
       title: 'Tools Metadata',
+      description: 'List of tool metadata for the Agent',
     },
     deployment: {
       anyOf: [
@@ -92,6 +103,7 @@ export const $AgentPublic = {
         },
       ],
       title: 'Deployment',
+      description: 'Deployment for the Agent',
     },
     model: {
       anyOf: [
@@ -103,6 +115,7 @@ export const $AgentPublic = {
         },
       ],
       title: 'Model',
+      description: 'Model for the Agent',
     },
     is_private: {
       anyOf: [
@@ -114,42 +127,33 @@ export const $AgentPublic = {
         },
       ],
       title: 'Is Private',
+      description: 'If the Agent is private',
     },
   },
   type: 'object',
-  required: [
-    'user_id',
-    'id',
-    'created_at',
-    'updated_at',
-    'version',
-    'name',
-    'description',
-    'preamble',
-    'temperature',
-    'tools',
-    'deployment',
-    'model',
-    'is_private',
-  ],
+  required: ['user_id', 'id', 'created_at', 'updated_at', 'name', 'version', 'temperature'],
   title: 'AgentPublic',
+  description: 'Public agent schema',
 } as const;
 
 export const $AgentToolMetadata = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Agent tool metadata ID',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When the agent tool metadata was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When the agent tool metadata was updated',
     },
     user_id: {
       anyOf: [
@@ -160,15 +164,18 @@ export const $AgentToolMetadata = {
           type: 'null',
         },
       ],
-      title: 'User Id',
+      title: 'User ID',
+      description: 'User ID for the agent tool metadata',
     },
     agent_id: {
       type: 'string',
-      title: 'Agent Id',
+      title: 'Agent ID',
+      description: 'Agent ID for the agent tool metadata',
     },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
+      description: 'Tool Name for the agent tool metadata',
     },
     artifacts: {
       items: {
@@ -176,36 +183,43 @@ export const $AgentToolMetadata = {
       },
       type: 'array',
       title: 'Artifacts',
+      description: 'Artifacts for the agent tool metadata',
     },
   },
   type: 'object',
-  required: ['id', 'created_at', 'updated_at', 'user_id', 'agent_id', 'tool_name', 'artifacts'],
+  required: ['id', 'created_at', 'updated_at', 'agent_id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadata',
+  description: 'Agent tool metadata schema',
 } as const;
 
 export const $AgentToolMetadataPublic = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Agent tool metadata ID',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When the agent tool metadata was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When the agent tool metadata was updated',
     },
     agent_id: {
       type: 'string',
-      title: 'Agent Id',
+      title: 'Agent ID',
+      description: 'Agent ID for the agent tool metadata',
     },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
+      description: 'Tool Name for the agent tool metadata',
     },
     artifacts: {
       items: {
@@ -213,17 +227,20 @@ export const $AgentToolMetadataPublic = {
       },
       type: 'array',
       title: 'Artifacts',
+      description: 'Artifacts for the agent tool metadata',
     },
   },
   type: 'object',
   required: ['id', 'created_at', 'updated_at', 'agent_id', 'tool_name', 'artifacts'],
   title: 'AgentToolMetadataPublic',
+  description: 'Public agent tool metadata schema',
 } as const;
 
 export const $AgentVisibility = {
   type: 'string',
   enum: ['private', 'public', 'all'],
   title: 'AgentVisibility',
+  description: 'Supported values for Agent Visibility',
 } as const;
 
 export const $Body_batch_upload_file_v1_agents_batch_upload_file_post = {
@@ -943,6 +960,7 @@ export const $CreateAgentRequest = {
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the Agent',
     },
     version: {
       anyOf: [
@@ -954,6 +972,7 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Version',
+      description: 'Version of the Agent',
     },
     description: {
       anyOf: [
@@ -965,6 +984,7 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Description',
+      description: 'Agent Description',
     },
     preamble: {
       anyOf: [
@@ -976,6 +996,7 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Preamble',
+      description: 'The preamble for the Agent',
     },
     temperature: {
       anyOf: [
@@ -987,6 +1008,7 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Temperature',
+      description: 'The temperature for the Agent',
     },
     tools: {
       anyOf: [
@@ -1001,6 +1023,7 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Tools',
+      description: 'List of tools for the Agent',
     },
     tools_metadata: {
       anyOf: [
@@ -1015,6 +1038,12 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Tools Metadata',
+      description: 'Tools metadata for the Agent',
+    },
+    deployment: {
+      type: 'string',
+      title: 'Deployment',
+      description: 'Deployment for the Agent',
     },
     deployment_config: {
       anyOf: [
@@ -1029,14 +1058,12 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Deployment Config',
+      description: 'Deployment config for the Agent',
     },
     model: {
       type: 'string',
       title: 'Model',
-    },
-    deployment: {
-      type: 'string',
-      title: 'Deployment',
+      description: 'Model for the Agent',
     },
     organization_id: {
       anyOf: [
@@ -1047,7 +1074,8 @@ export const $CreateAgentRequest = {
           type: 'null',
         },
       ],
-      title: 'Organization Id',
+      title: 'Organization ID',
+      description: 'Organization ID for the Agent',
     },
     is_private: {
       anyOf: [
@@ -1059,12 +1087,14 @@ export const $CreateAgentRequest = {
         },
       ],
       title: 'Is Private',
+      description: 'If the Agent is private',
       default: false,
     },
   },
   type: 'object',
-  required: ['name', 'model', 'deployment'],
+  required: ['name', 'deployment', 'model'],
   title: 'CreateAgentRequest',
+  description: 'Schema to create an agent',
 } as const;
 
 export const $CreateAgentToolMetadataRequest = {
@@ -1078,11 +1108,13 @@ export const $CreateAgentToolMetadataRequest = {
           type: 'null',
         },
       ],
-      title: 'Id',
+      title: 'ID',
+      description: 'Agent Tool Metadata ID',
     },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
+      description: 'Tool Name for the agent tool metadata',
     },
     artifacts: {
       items: {
@@ -1090,11 +1122,13 @@ export const $CreateAgentToolMetadataRequest = {
       },
       type: 'array',
       title: 'Artifacts',
+      description: 'Artifacts for the agent tool metadata',
     },
   },
   type: 'object',
   required: ['tool_name', 'artifacts'],
   title: 'CreateAgentToolMetadataRequest',
+  description: 'Request to create Agent Tool Metadata',
 } as const;
 
 export const $CreateGroup = {
@@ -1174,6 +1208,7 @@ export const $DeleteAgent = {
   properties: {},
   type: 'object',
   title: 'DeleteAgent',
+  description: 'Response for deleting an agent',
 } as const;
 
 export const $DeleteAgentFileResponse = {
@@ -1186,6 +1221,7 @@ export const $DeleteAgentToolMetadata = {
   properties: {},
   type: 'object',
   title: 'DeleteAgentToolMetadata',
+  description: 'Delete agent tool metadata response',
 } as const;
 
 export const $DeleteConversationFileResponse = {
@@ -3118,6 +3154,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Name',
+      description: 'Name of the Agent',
     },
     version: {
       anyOf: [
@@ -3129,6 +3166,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Version',
+      description: 'Version of the Agent',
     },
     description: {
       anyOf: [
@@ -3140,6 +3178,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Description',
+      description: 'Agent Description',
     },
     preamble: {
       anyOf: [
@@ -3151,6 +3190,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Preamble',
+      description: 'The preamble for the Agent',
     },
     temperature: {
       anyOf: [
@@ -3162,6 +3202,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Temperature',
+      description: 'The temperature for the Agent',
     },
     tools: {
       anyOf: [
@@ -3176,6 +3217,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Tools',
+      description: 'List of tools for the Agent',
     },
     organization_id: {
       anyOf: [
@@ -3186,7 +3228,8 @@ export const $UpdateAgentRequest = {
           type: 'null',
         },
       ],
-      title: 'Organization Id',
+      title: 'Organization ID',
+      description: 'Organization ID for the Agent',
     },
     is_private: {
       anyOf: [
@@ -3198,6 +3241,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Is Private',
+      description: 'If the Agent is private',
     },
     deployment: {
       anyOf: [
@@ -3209,6 +3253,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Deployment',
+      description: 'Deployment for the Agent',
     },
     model: {
       anyOf: [
@@ -3220,6 +3265,7 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Model',
+      description: 'Model for the Agent',
     },
     tools_metadata: {
       anyOf: [
@@ -3234,10 +3280,12 @@ export const $UpdateAgentRequest = {
         },
       ],
       title: 'Tools Metadata',
+      description: 'Tools metadata for the Agent',
     },
   },
   type: 'object',
   title: 'UpdateAgentRequest',
+  description: 'Schema to update an agent',
 } as const;
 
 export const $UpdateAgentToolMetadataRequest = {
@@ -3251,7 +3299,8 @@ export const $UpdateAgentToolMetadataRequest = {
           type: 'null',
         },
       ],
-      title: 'Id',
+      title: 'ID',
+      description: 'Agent Tool Metadata ID',
     },
     tool_name: {
       anyOf: [
@@ -3263,6 +3312,7 @@ export const $UpdateAgentToolMetadataRequest = {
         },
       ],
       title: 'Tool Name',
+      description: 'Tool Name for the agent tool metadata',
     },
     artifacts: {
       anyOf: [
@@ -3277,10 +3327,12 @@ export const $UpdateAgentToolMetadataRequest = {
         },
       ],
       title: 'Artifacts',
+      description: 'Artifacts for the agent tool metadata',
     },
   },
   type: 'object',
   title: 'UpdateAgentToolMetadataRequest',
+  description: 'Request to update Agent Tool Metadata',
 } as const;
 
 export const $UpdateConversationRequest = {

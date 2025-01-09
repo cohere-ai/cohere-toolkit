@@ -2,7 +2,6 @@
 import type { BaseHttpRequest } from './core/BaseHttpRequest';
 import type { CancelablePromise } from './core/CancelablePromise';
 import type {
-  ApplyMigrationsMigratePostResponse,
   AuthorizeV1StrategyAuthPostData,
   AuthorizeV1StrategyAuthPostResponse,
   BatchUploadFileV1AgentsBatchUploadFilePostData,
@@ -1264,12 +1263,6 @@ export class DefaultService {
    * Create Agent
    * Create an agent.
    *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * agent (CreateAgentRequest): Agent data.
-   * ctx (Context): Context object.
-   * Returns:
-   * AgentPublic: Created agent with no user ID or organization ID.
    * Raises:
    * HTTPException: If the agent creation fails.
    * @param data The data for the request.
@@ -1295,19 +1288,13 @@ export class DefaultService {
    * List Agents
    * List all agents.
    *
-   * Args:
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of agents to be listed.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
    * Returns:
    * list[AgentPublic]: List of agents with no user ID or organization ID.
    * @param data The data for the request.
-   * @param data.offset
-   * @param data.limit
-   * @param data.visibility
-   * @param data.organizationId
+   * @param data.visibility Agent visibility
+   * @param data.organizationId Organization ID of the agent
+   * @param data.offset Offset for where request should start returning records from
+   * @param data.limit Maximum number of records to return per request
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1318,10 +1305,10 @@ export class DefaultService {
       method: 'GET',
       url: '/v1/agents',
       query: {
-        offset: data.offset,
-        limit: data.limit,
         visibility: data.visibility,
         organization_id: data.organizationId,
+        offset: data.offset,
+        limit: data.limit,
       },
       errors: {
         422: 'Validation Error',
@@ -1331,18 +1318,12 @@ export class DefaultService {
 
   /**
    * Get Agent By Id
-   * Args:
-   * agent_id (str): Agent ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * Agent: Agent.
+   * Return an agent by ID.
    *
    * Raises:
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
-   * @param data.agentId
+   * @param data.agentId Agent ID for agent in question
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1365,19 +1346,10 @@ export class DefaultService {
    * Update Agent
    * Update an agent by ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * new_agent (UpdateAgentRequest): New agent data.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * AgentPublic: Updated agent with no user ID or organization ID.
-   *
    * Raises:
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
-   * @param data.agentId
+   * @param data.agentId Agent ID for agent in question
    * @param data.requestBody
    * @returns AgentPublic Successful Response
    * @throws ApiError
@@ -1403,18 +1375,10 @@ export class DefaultService {
    * Delete Agent
    * Delete an agent by ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteAgent: Empty response.
-   *
    * Raises:
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
-   * @param data.agentId
+   * @param data.agentId Agent ID for agent in question
    * @returns DeleteAgent Successful Response
    * @throws ApiError
    */
@@ -1434,20 +1398,14 @@ export class DefaultService {
   }
 
   /**
-   * Get Agent Deployments
-   * Args:
-   * agent_id (str): Agent ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * Agent: Agent.
+   * Get Agent Deployment
+   * Get the deployment for an agent
    *
    * Raises:
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
-   * @param data.agentId
-   * @returns DeploymentDefinition Successful Response
+   * @param data.agentId Agent ID for agent in question
+   * @returns Deployment Successful Response
    * @throws ApiError
    */
   public getAgentDeploymentsV1AgentsAgentIdDeploymentsGet(
@@ -1469,18 +1427,10 @@ export class DefaultService {
    * List Agent Tool Metadata
    * List all agent tool metadata by agent ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * list[AgentToolMetadataPublic]: List of agent tool metadata with no user ID or organization ID.
-   *
    * Raises:
    * HTTPException: If the agent tool metadata retrieval fails.
    * @param data The data for the request.
-   * @param data.agentId
+   * @param data.agentId Agent ID for agent in question
    * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
    */
@@ -1503,19 +1453,10 @@ export class DefaultService {
    * Create Agent Tool Metadata
    * Create an agent tool metadata.
    *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * agent_id (str): Agent ID.
-   * agent_tool_metadata (CreateAgentToolMetadataRequest): Agent tool metadata data.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * AgentToolMetadataPublic: Created agent tool metadata.
-   *
    * Raises:
    * HTTPException: If the agent tool metadata creation fails.
    * @param data The data for the request.
-   * @param data.agentId
+   * @param data.agentId Agent ID for agent in question
    * @param data.requestBody
    * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
@@ -1541,22 +1482,12 @@ export class DefaultService {
    * Update Agent Tool Metadata
    * Update an agent tool metadata by ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * agent_tool_metadata_id (str): Agent tool metadata ID.
-   * session (DBSessionDep): Database session.
-   * new_agent_tool_metadata (UpdateAgentToolMetadataRequest): New agent tool metadata data.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * AgentToolMetadata: Updated agent tool metadata.
-   *
    * Raises:
    * HTTPException: If the agent tool metadata with the given ID is not found.
    * HTTPException: If the agent tool metadata update fails.
    * @param data The data for the request.
-   * @param data.agentId
-   * @param data.agentToolMetadataId
+   * @param data.agentId Agent ID for agent in question
+   * @param data.agentToolMetadataId Agent Tool Metadata ID for tool metadata in question
    * @param data.requestBody
    * @returns AgentToolMetadata Successful Response
    * @throws ApiError
@@ -1583,21 +1514,12 @@ export class DefaultService {
    * Delete Agent Tool Metadata
    * Delete an agent tool metadata by ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * agent_tool_metadata_id (str): Agent tool metadata ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteAgentToolMetadata: Empty response.
-   *
    * Raises:
    * HTTPException: If the agent tool metadata with the given ID is not found.
    * HTTPException: If the agent tool metadata deletion fails.
    * @param data The data for the request.
-   * @param data.agentId
-   * @param data.agentToolMetadataId
+   * @param data.agentId Agent ID for agent in question
+   * @param data.agentToolMetadataId Agent Tool Metadata ID for tool metadata in question
    * @returns DeleteAgentToolMetadata Successful Response
    * @throws ApiError
    */
@@ -1619,6 +1541,7 @@ export class DefaultService {
 
   /**
    * Batch Upload File
+   * Upload a batch of files
    * @param data The data for the request.
    * @param data.formData
    * @returns UploadAgentFileResponse Successful Response
@@ -1642,20 +1565,11 @@ export class DefaultService {
    * Get Agent File
    * Get an agent file by ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * file_id (str): File ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * FileMetadata: File with the given ID.
-   *
    * Raises:
    * HTTPException: If the agent or file with the given ID is not found, or if the file does not belong to the agent.
    * @param data The data for the request.
-   * @param data.agentId
-   * @param data.fileId
+   * @param data.agentId Agent ID for agent in question
+   * @param data.fileId File ID for file in question
    * @returns FileMetadata Successful Response
    * @throws ApiError
    */
@@ -1679,19 +1593,11 @@ export class DefaultService {
    * Delete Agent File
    * Delete an agent file by ID.
    *
-   * Args:
-   * agent_id (str): Agent ID.
-   * file_id (str): File ID.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * DeleteFile: Empty response.
-   *
    * Raises:
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
-   * @param data.agentId
-   * @param data.fileId
+   * @param data.agentId Agent ID for agent in question
+   * @param data.fileId File ID for file in question
    * @returns DeleteAgentFileResponse Successful Response
    * @throws ApiError
    */
@@ -2427,19 +2333,6 @@ export class DefaultService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/health',
-    });
-  }
-
-  /**
-   * Apply Migrations
-   * Applies Alembic migrations - useful for serverless applications
-   * @returns unknown Successful Response
-   * @throws ApiError
-   */
-  public applyMigrationsMigratePost(): CancelablePromise<ApplyMigrationsMigratePostResponse> {
-    return this.httpRequest.request({
-      method: 'POST',
-      url: '/migrate',
     });
   }
 }
