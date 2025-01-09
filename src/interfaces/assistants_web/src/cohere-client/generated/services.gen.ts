@@ -1287,9 +1287,6 @@ export class DefaultService {
   /**
    * List Agents
    * List all agents.
-   *
-   * Returns:
-   * list[AgentPublic]: List of agents with no user ID or organization ID.
    * @param data The data for the request.
    * @param data.visibility Agent visibility
    * @param data.organizationId Organization ID of the agent
