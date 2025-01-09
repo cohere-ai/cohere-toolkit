@@ -8,7 +8,11 @@ import { AgentSettingsFields, AgentSettingsForm } from '@/components/AgentSettin
 import { MobileHeader } from '@/components/Global';
 import { DeleteAgent } from '@/components/Modals/DeleteAgent';
 import { Button, Icon, Spinner, Text } from '@/components/UI';
-import { DEFAULT_AGENT_MODEL, DEPLOYMENT_COHERE_PLATFORM } from '@/constants';
+import {
+  DEFAULT_AGENT_MODEL,
+  DEFAULT_AGENT_TEMPERATURE,
+  DEPLOYMENT_COHERE_PLATFORM,
+} from '@/constants';
 import { useContextStore } from '@/context';
 import { useIsAgentNameUnique, useNotify, useUpdateAgent } from '@/hooks';
 
@@ -28,6 +32,7 @@ export const UpdateAgent: React.FC<Props> = ({ agent }) => {
     description: agent.description,
     deployment: agent.deployment ?? DEPLOYMENT_COHERE_PLATFORM,
     model: agent.model ?? DEFAULT_AGENT_MODEL,
+    temperature: agent.temperature ?? DEFAULT_AGENT_TEMPERATURE,
     tools: agent.tools,
     preamble: agent.preamble,
     tools_metadata: agent.tools_metadata,
