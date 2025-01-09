@@ -3,10 +3,10 @@ Shared Query and Path Parameters for Routers
 """
 from typing import Annotated
 
-from fastapi import Query
+from fastapi import Depends, Query
 
 
-class PaginationQueryParams:
+class PaginationParams:
     """
     Common pagination query parameters
     """
@@ -23,3 +23,5 @@ class PaginationQueryParams:
     ) -> None:
         self.offset = offset
         self.limit = limit
+
+PaginationQueryParams = Annotated[PaginationParams, Depends()]

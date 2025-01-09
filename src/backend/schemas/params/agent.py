@@ -1,19 +1,23 @@
 """
 Query and Path Parameters for Agents
 """
-from fastapi import Path
+from typing import Annotated
 
-agent_id_path = Path(
+from fastapi import Path, Query
+
+from backend.schemas.agent import AgentVisibility
+
+VisibilityQueryParam = Annotated[AgentVisibility, Query(
+    title="Visibility",
+    description="Agent visibility",
+)]
+
+AgentIdPathParam = Annotated[str, Path(
     title="Agent ID",
     description="Agent ID for agent in question",
-)
+)]
 
-agent_tool_metadata_id_path = Path(
+AgentToolMetadataIdPathParam = Annotated[str, Path(
     title="Agent Tool Metadata ID",
     description="Agent Tool Metadata ID for tool metadata in question",
-)
-
-file_id_path = Path(
-    title="File ID",
-    description="File ID for file in question",
-)
+)]

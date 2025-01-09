@@ -1,7 +1,6 @@
 import asyncio
-from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
@@ -42,10 +41,12 @@ from backend.schemas.file import (
     UploadAgentFileResponse,
 )
 from backend.schemas.params.agent import (
-    agent_id_path,
-    agent_tool_metadata_id_path,
-    file_id_path,
+    AgentIdPathParam,
+    AgentToolMetadataIdPathParam,
+    VisibilityQueryParam,
 )
+from backend.schemas.params.file import FileIdPathParam
+from backend.schemas.params.organization import OrganizationIdQueryParam
 from backend.schemas.params.shared import PaginationQueryParams
 from backend.services.agent import (
     raise_db_error,
@@ -144,23 +145,14 @@ async def create_agent(
 @router.get("", response_model=list[AgentPublic])
 async def list_agents(
     *,
-    page_params: Annotated[PaginationQueryParams, Depends()],
-    visibility: Annotated[AgentVisibility, Query(
-        title="Visibility",
-        description="Agent visibility",
-    )] = AgentVisibility.ALL,
-    organization_id: Annotated[Optional[str], Query(
-        title="Organization ID",
-        description="Organization ID of the agent",
-    )] = None,
+    page_params: PaginationQueryParams,
+    visibility: VisibilityQueryParam = AgentVisibility.ALL,
+    organization_id: OrganizationIdQueryParam = None,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
     """
     List all agents.
-
-    Returns:
-        list[AgentPublic]: List of agents with no user ID or organization ID.
     """
     logger = ctx.get_logger()
     # TODO: get organization_id from user
@@ -191,7 +183,7 @@ async def list_agents(
 
 @router.get("/{agent_id}", response_model=AgentPublic)
 async def get_agent_by_id(
-    agent_id: Annotated[str, agent_id_path],
+    agent_id: AgentIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context)
 ) -> AgentPublic:
@@ -226,7 +218,7 @@ async def get_agent_by_id(
 
 @router.get("/{agent_id}/deployments", response_model=list[DeploymentDefinition])
 async def get_agent_deployment(
-    agent_id: Annotated[str, agent_id_path],
+    agent_id: AgentIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context)
 ) -> list[DeploymentDefinition]:
@@ -257,7 +249,7 @@ async def get_agent_deployment(
     ],
 )
 async def update_agent(
-    agent_id: Annotated[str, agent_id_path],
+    agent_id: AgentIdPathParam,
     new_agent: UpdateAgentRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -305,7 +297,7 @@ async def update_agent(
 
 @router.delete("/{agent_id}", response_model=DeleteAgent)
 async def delete_agent(
-    agent_id: Annotated[str, agent_id_path],
+    agent_id: AgentIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteAgent:
@@ -401,7 +393,7 @@ async def update_or_create_tool_metadata(
 
 @router.get("/{agent_id}/tool-metadata", response_model=list[AgentToolMetadataPublic])
 async def list_agent_tool_metadata(
-    agent_id: Annotated[str, agent_id_path],
+    agent_id: AgentIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context)
 ) -> list[AgentToolMetadataPublic]:
@@ -427,7 +419,7 @@ async def list_agent_tool_metadata(
     response_model=AgentToolMetadataPublic,
 )
 def create_agent_tool_metadata(
-    agent_id: Annotated[str, agent_id_path],
+    agent_id: AgentIdPathParam,
     agent_tool_metadata: CreateAgentToolMetadataRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -467,8 +459,8 @@ def create_agent_tool_metadata(
 
 @router.put("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
 async def update_agent_tool_metadata(
-    agent_id: Annotated[str, agent_id_path],
-    agent_tool_metadata_id: Annotated[str, agent_tool_metadata_id_path],
+    agent_id: AgentIdPathParam,
+    agent_tool_metadata_id: AgentToolMetadataIdPathParam,
     new_agent_tool_metadata: UpdateAgentToolMetadataRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -501,8 +493,8 @@ async def update_agent_tool_metadata(
 
 @router.delete("/{agent_id}/tool-metadata/{agent_tool_metadata_id}")
 async def delete_agent_tool_metadata(
-    agent_id: Annotated[str, agent_id_path],
-    agent_tool_metadata_id: Annotated[str, agent_tool_metadata_id_path],
+    agent_id: AgentIdPathParam,
+    agent_tool_metadata_id: AgentToolMetadataIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteAgentToolMetadata:
@@ -562,8 +554,8 @@ async def batch_upload_file(
 
 @router.get("/{agent_id}/files/{file_id}", response_model=FileMetadata)
 async def get_agent_file(
-    agent_id: Annotated[str, agent_id_path],
-    file_id: Annotated[str, file_id_path],
+    agent_id: AgentIdPathParam,
+    file_id: FileIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> FileMetadata:
@@ -601,8 +593,8 @@ async def get_agent_file(
 
 @router.delete("/{agent_id}/files/{file_id}")
 async def delete_agent_file(
-    agent_id: Annotated[str, agent_id_path],
-    file_id: Annotated[str, file_id_path],
+    agent_id: AgentIdPathParam,
+    file_id: FileIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteAgentFileResponse:
