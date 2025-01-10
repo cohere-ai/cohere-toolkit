@@ -1,15 +1,15 @@
 """
-This module handles backend operations related to deployments, which define how to interact 
-with an LLM. 
+This module handles backend operations related to deployments, which define how to interact
+with an LLM.
 
-New deployments are created by subclassing BaseDeployment and implementing required 
+New deployments are created by subclassing BaseDeployment and implementing required
 methods in the model_deployments directory.
 
 Deployments can be configured in two ways: via configuration.yaml or environment variables
-using the .env file, or dynamically in the database using the deployment_crud module. This 
+using the .env file, or dynamically in the database using the deployment_crud module. This
 service abstracts these methods, ensuring higher layers remain unaffected by configuration details.
 
-Each deployment is assumed to use either configuration files or the database, with database 
+Each deployment is assumed to use either configuration files or the database, with database
 configurations taking precedence.
 """
 

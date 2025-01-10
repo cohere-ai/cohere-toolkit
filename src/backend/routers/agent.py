@@ -106,7 +106,7 @@ async def create_agent(
 
         deployment_db = default_deployment_db
         model_db = default_model_db
-        
+
     try:
         agent_data = AgentModel(
             name=agent.name,

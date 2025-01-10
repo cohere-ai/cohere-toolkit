@@ -14,8 +14,6 @@ from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
-
-# from backend.schemas.deployment import DeploymentDefinition
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -184,7 +182,6 @@ def mock_available_model_deployments(request):
         MockSageMakerDeployment,
     )
 
-    # is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
         MockCohereDeployment.name(): MockCohereDeployment,
         MockAzureDeployment.name(): MockAzureDeployment,

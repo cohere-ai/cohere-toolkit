@@ -178,7 +178,6 @@ def mock_available_model_deployments(request):
         MockSingleContainerDeployment,
     )
 
-    # is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
         MockCohereDeployment.name(): MockCohereDeployment,
         MockAzureDeployment.name(): MockAzureDeployment,

@@ -211,7 +211,6 @@ def test_streaming_chat_with_agent_tools_and_empty_request_tools(
         "/v1/chat-stream",
         headers={
             "User-Id": agent.user.id,
-            # "Deployment-Name": agent.deployment,
             "Deployment-Name": CohereDeployment.name(),
         },
         json={
