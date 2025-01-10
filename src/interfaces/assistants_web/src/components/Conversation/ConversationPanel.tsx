@@ -141,7 +141,7 @@ export const ConversationPanel: React.FC<Props> = () => {
               /> */}
             </div>
             <Transition
-              show={!disabledAssistantKnowledge.includes(agentId) ?? false}
+              show={!disabledAssistantKnowledge.includes(agentId)}
               enter="duration-300 ease-in-out transition-all"
               enterFrom="opacity-0 scale-90"
               enterTo="opacity-100 scale-100"

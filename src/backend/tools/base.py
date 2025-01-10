@@ -104,7 +104,7 @@ class ToolDefaultPreambleRegistry:
                     preamble = f"If you decide to use the toolkit_python_interpreter tool and plan to plot something, try returning the result as a PNG. Ensure that the generated code does not require an internet connection. Avoid using the following packages in code generation: {forbidden_preamble_packages}. "
                     return preamble
                 except Exception as e:
-                    logger.error(f"Error while retrieving the Python interpreter preamble.: {str(e)}")
+                    logger.error(event=f"Error while retrieving the Python interpreter preamble: {str(e)}")
                     return None
 
         return None

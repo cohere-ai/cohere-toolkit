@@ -2,8 +2,9 @@
 # Build & Run
 .PHONY: dev
 dev:
+	make check-config
 	make -j 2 watch up
-
+	
 .PHONY: watch
 watch:
 	@docker compose watch --no-up
@@ -39,10 +40,18 @@ exec-terrarium:
 # Testing & Linting
 .PHONY: run-unit-tests
 run-unit-tests:
+	poetry run pytest -n auto src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
+
+.PHONY: run-unit-tests-debug
+run-unit-tests-debug:
 	poetry run pytest src/backend/tests/unit/$(file) --cov=src/backend --cov-report=xml
 
 .PHONY: run-community-tests
 run-community-tests:
+	poetry run pytest -n auto src/community/tests/$(file) --cov=src/community --cov-report=xml
+
+.PHONY: run-community-tests-debug
+run-community-tests-debug:
 	poetry run pytest src/community/tests/$(file) --cov=src/community --cov-report=xml
 
 .PHONY: run-integration-tests
@@ -105,9 +114,13 @@ win-setup:
 	poetry install --with setup --verbose
 	poetry run python src/backend/scripts/cli/main.py
 
-.PHONY: check-config
-check-config:
+.PHONY: check-config-install
+check-config-install:
 	poetry install --with setup --verbose
+	poetry run python src/backend/scripts/config/check_config.py
+
+.PHONY: check-config 
+check-config:
 	poetry run python src/backend/scripts/config/check_config.py
 
 .PHONY: first-run
