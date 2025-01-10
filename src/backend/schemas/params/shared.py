@@ -6,7 +6,7 @@ from typing import Annotated, Optional
 from fastapi import Depends, Query
 
 
-class PaginationParams:
+class _PaginationParams:
     """
     Common pagination query parameters
     """
@@ -24,7 +24,7 @@ class PaginationParams:
         self.offset = offset
         self.limit = limit
 
-PaginationQueryParams = Annotated[PaginationParams, Depends()]
+PaginationQueryParams = Annotated[_PaginationParams, Depends()]
 
 
 OrderByQueryParam = Annotated[Optional[str], Query(
