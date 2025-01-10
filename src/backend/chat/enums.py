@@ -1,11 +1,10 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class StreamEvent(str, Enum):
+class StreamEvent(StrEnum):
     """
     Stream Events returned by Cohere's chat stream response.
     """
-
     STREAM_START = "stream-start"
     SEARCH_QUERIES_GENERATION = "search-queries-generation"
     SEARCH_RESULTS = "search-results"

@@ -23,14 +23,16 @@ from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
+    tags=["Chat"],
 )
 router.name = RouterName.CHAT
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
 async def chat_stream(
-    session: DBSessionDep,
     chat_request: CohereChatRequest,
+    request: Request,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
@@ -83,8 +85,9 @@ async def chat_stream(
 
 @router.post("/chat-stream/regenerate", dependencies=[Depends(validate_deployment_header)])
 async def regenerate_chat_stream(
-    session: DBSessionDep,
     chat_request: CohereChatRequest,
+    request: Request,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> EventSourceResponse:
     """
@@ -151,8 +154,9 @@ async def regenerate_chat_stream(
 
 @router.post("/chat", dependencies=[Depends(validate_deployment_header)])
 async def chat(
-    session: DBSessionDep,
     chat_request: CohereChatRequest,
+    request: Request,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> NonStreamedChatResponse:
     """
