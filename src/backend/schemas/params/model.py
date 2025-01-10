@@ -3,7 +3,12 @@ Query and Path Parameters for Models
 """
 from typing import Annotated, Optional
 
-from fastapi import Query
+from fastapi import Path, Query
+
+ModelIdPathParam =  Annotated[str, Path(
+    title="Model ID",
+    description="Model ID for the model in question",
+)]
 
 ModelQueryParam =  Annotated[Optional[str], Query(
     title="Model",

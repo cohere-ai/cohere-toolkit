@@ -6,6 +6,8 @@ from backend.database_models import Model
 from backend.database_models.database import DBSessionDep
 from backend.schemas.model import DeleteModel, ModelCreate, ModelUpdate
 from backend.schemas.model import Model as ModelSchema
+from backend.schemas.params.model import ModelIdPathParam
+from backend.schemas.params.shared import PaginationQueryParams
 from backend.services.request_validators import validate_create_update_model_request
 
 router = APIRouter(
@@ -22,16 +24,12 @@ router.name = RouterName.MODEL
         Depends(validate_create_update_model_request),
     ],
 )
-def create_model(model: ModelCreate, session: DBSessionDep) -> Model:
+def create_model(
+    model: ModelCreate,
+    session: DBSessionDep
+) -> Model:
     """
     Create a new model.
-
-    Args:
-        model (ModelCreate): Model data to be created.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        ModelSchema: Created model.
     """
     return model_crud.create_model(session, model)
 
@@ -44,18 +42,12 @@ def create_model(model: ModelCreate, session: DBSessionDep) -> Model:
     ],
 )
 def update_model(
-    model_id: str, new_model: ModelUpdate, session: DBSessionDep
+    model_id: ModelIdPathParam,
+    new_model: ModelUpdate,
+    session: DBSessionDep,
 ) -> ModelSchema:
     """
     Update a model by ID.
-
-    Args:
-        model_id (str): Model ID.
-        new_model (ModelCreateUpdate): New model data.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        ModelSchema: Updated model.
 
     Raises:
         HTTPException: If the model with the given ID is not found.
@@ -68,12 +60,12 @@ def update_model(
 
 
 @router.get("/{model_id}", response_model=ModelSchema)
-def get_model(model_id: str, session: DBSessionDep) -> ModelSchema:
+def get_model(
+    model_id: ModelIdPathParam,
+    session: DBSessionDep,
+) -> ModelSchema:
     """
     Get a model by ID.
-
-    Returns:
-        Model: Model with the given ID.
     """
     model = model_crud.get_model(session, model_id)
     if not model:
@@ -83,29 +75,22 @@ def get_model(model_id: str, session: DBSessionDep) -> ModelSchema:
 
 @router.get("", response_model=list[ModelSchema])
 def list_models(
-    *, offset: int = 0, limit: int = 100, session: DBSessionDep
+    page_params: PaginationQueryParams,
+    session: DBSessionDep,
 ) -> list[ModelSchema]:
     """
     List all available models
-
-    Returns:
-        list[Model]: List of available models.
     """
-    return model_crud.get_models(session, offset, limit)
+    return model_crud.get_models(session, page_params.offset, page_params.limit)
 
 
 @router.delete("/{model_id}")
-async def delete_model(model_id: str, session: DBSessionDep) -> DeleteModel:
+async def delete_model(
+    model_id: ModelIdPathParam,
+    session: DBSessionDep,
+) -> DeleteModel:
     """
     Delete a model by ID.
-
-    Args:
-        model_id (str): Model ID.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-
-    Returns:
-        DeleteModel: Empty response.
 
     Raises:
         HTTPException: If the model with the given ID is not found.
