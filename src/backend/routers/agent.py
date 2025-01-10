@@ -95,13 +95,18 @@ async def create_agent(
 
     deployment_db, model_db = get_deployment_model_from_agent(agent, session)
     default_deployment_db, default_model_db = get_default_deployment_model(session)
-    # deployment, model = get_deployment_for_agent(session, agent.deployment, agent.model)
     logger.debug(event="Deployment and model", deployment=deployment_db, model=model_db)
 
     if not deployment_db or not model_db:
-        logger.error(event="Unable to find deployment or model", agent=agent)
-        raise HTTPException(status_code=400, detail="Unable to find deployment or model")
+        logger.error(event="Unable to find deployment or model, using defaults", agent=agent)
 
+        if not default_deployment_db or not default_model_db:
+            logger.error(event="Unable to find default deployment or model", agent=agent)
+            raise HTTPException(status_code=400, detail="Unable to find deployment or model")
+
+        deployment_db = default_deployment_db
+        model_db = default_model_db
+        
     try:
         agent_data = AgentModel(
             name=agent.name,
