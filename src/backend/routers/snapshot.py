@@ -5,6 +5,7 @@ from backend.config.routers import RouterName
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
+from backend.schemas.params.snapshot import LinkIdPathParam, SnapshotIdPathParam
 from backend.schemas.snapshot import (
     CreateSnapshotRequest,
     CreateSnapshotResponse,
@@ -112,7 +113,7 @@ async def list_snapshots(
 
 @router.get("/link/{link_id}", response_model=SnapshotPublic)
 async def get_snapshot(
-    link_id: str,
+    link_id: LinkIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> SnapshotPublic:
@@ -138,7 +139,7 @@ async def get_snapshot(
 
 @router.delete("/link/{link_id}")
 async def delete_snapshot_link(
-    link_id: str,
+    link_id: LinkIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteSnapshotLinkResponse:
@@ -171,7 +172,7 @@ async def delete_snapshot_link(
 
 @router.delete("/{snapshot_id}")
 async def delete_snapshot(
-    snapshot_id: str,
+    snapshot_id: SnapshotIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteSnapshotResponse:

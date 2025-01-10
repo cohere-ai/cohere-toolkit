@@ -1,13 +1,20 @@
-from pydantic import BaseModel
-
-
-class SearchQueryBase(BaseModel):
-    pass
+from pydantic import BaseModel, Field
 
 
 class SearchQuery(BaseModel):
-    text: str
-    generation_id: str
+    """
+    Schema for search query
+    """
+    text: str = Field(
+        ...,
+        title="Text",
+        description="Text for the search",
+    )
+    generation_id: str = Field(
+        ...,
+        title="Generation ID",
+        description="Unique identifier for the generation",
+    )
 
     class Config:
         from_attributes = True
