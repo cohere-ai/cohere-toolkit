@@ -13,8 +13,10 @@ from backend.config.tools import Tool, get_available_tools
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
-from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
+from backend.schemas.auth import AuthStrategy, JWTResponse, Login, Logout
 from backend.schemas.context import Context
+from backend.schemas.params.auth import StrategyPathParam
+from backend.schemas.params.tool import ToolIdPathParam
 from backend.schemas.tool_auth import DeleteToolAuth
 from backend.services.auth.jwt import JWTService
 from backend.services.auth.request_validators import validate_authorization
@@ -25,21 +27,19 @@ from backend.services.auth.utils import (
 from backend.services.cache import cache_get_dict
 from backend.services.context import get_context
 
-router = APIRouter(prefix="/v1")
+router = APIRouter(
+    prefix="/v1",
+    tags=["Auth"],
+)
 router.name = RouterName.AUTH
 
 
-@router.get("/auth_strategies", response_model=list[ListAuthStrategy])
+@router.get("/auth_strategies", response_model=list[AuthStrategy])
 def get_strategies(
     ctx: Context = Depends(get_context),
-) -> list[ListAuthStrategy]:
+) -> list[AuthStrategy]:
     """
     Retrieves the currently enabled list of Authentication strategies.
-
-    Args:
-        ctx (Context): Context object.
-    Returns:
-        List[dict]: List of dictionaries containing the enabled auth strategy names.
     """
     strategies = []
     for strategy_name, strategy_instance in ENABLED_AUTH_STRATEGY_MAPPING.items():
@@ -74,14 +74,6 @@ async def login(
     """
     Logs user in, performing basic email/password auth.
     Verifies their credentials, retrieves the user and returns a JWT token.
-
-    Args:
-        login (Login): Login payload.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        dict: JWT token on Basic auth success
 
     Raises:
         HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -128,7 +120,7 @@ async def login(
 
 @router.post("/{strategy}/auth", response_model=JWTResponse)
 async def authorize(
-    strategy: str,
+    strategy: StrategyPathParam,
     request: Request,
     session: DBSessionDep,
     code: str = None,
@@ -136,16 +128,6 @@ async def authorize(
 ):
     """
     Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
-
-    Args:
-        strategy (str): Current strategy name.
-        request (Request): Current Request object.
-        session (Session): DB session.
-        code (str): OAuth code.
-        ctx (Context): Context object.
-
-    Returns:
-        dict: Containing "token" key, on success.
 
     Raises:
         HTTPException: If authentication fails, or strategy is invalid.
@@ -218,15 +200,6 @@ async def logout(
 ):
     """
     Logs out the current user, adding the given JWT token to the blacklist.
-
-    Args:
-        request (Request): current Request object.
-        session (DBSessionDep): Database session.
-        token (dict): JWT token payload.
-        ctx (Context): Context object.
-
-    Returns:
-        dict: Empty on success
     """
     if token is not None:
         db_blacklist = Blacklist(token_id=token["jti"])
@@ -245,11 +218,6 @@ async def tool_auth(
     after completion.
 
     If completed, a ToolAuth is stored in the DB containing the access token for the tool.
-
-    Args:
-        request (Request): current Request object.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
 
     Returns:
         RedirectResponse: A redirect pointing to the frontend, contains an error query parameter if
@@ -326,7 +294,7 @@ async def tool_auth(
 
 @router.delete("/tool/auth/{tool_id}")
 async def delete_tool_auth(
-    tool_id: str,
+    tool_id: ToolIdPathParam,
     request: Request,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -335,12 +303,6 @@ async def delete_tool_auth(
     Endpoint to delete Tool Authentication.
 
     If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
-
-    Args:
-        tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the Tool string enum class.
-        request (Request): current Request object.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
 
     Returns:
         DeleteToolAuth: Empty response.
