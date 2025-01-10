@@ -16,11 +16,6 @@ router.name = RouterName.EXPERIMENTAL_FEATURES
 def list_experimental_features(ctx: Context = Depends(get_context)) -> dict[str, bool]:
     """
     List all experimental features and if they are enabled
-
-    Args:
-        ctx (Context): Context object.
-    Returns:
-        Dict[str, bool]: Experimental feature and their isEnabled state
     """
     experimental_features = {
         "USE_AGENTS_VIEW": Settings().get('feature_flags.use_agents_view'),

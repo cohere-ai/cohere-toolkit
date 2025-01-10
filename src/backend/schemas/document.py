@@ -3,10 +3,6 @@ from typing import Union
 from pydantic import BaseModel
 
 
-class DocumentBase(BaseModel):
-    pass
-
-
 class Document(BaseModel):
     text: str
     document_id: str
