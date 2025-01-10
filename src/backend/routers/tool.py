@@ -8,7 +8,10 @@ from backend.schemas.tool import ToolDefinition
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 
-router = APIRouter(prefix="/v1/tools")
+router = APIRouter(
+    prefix="/v1/tools",
+    tags=["Tool"],
+)
 router.name = RouterName.TOOL
 
 

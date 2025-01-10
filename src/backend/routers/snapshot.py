@@ -25,7 +25,10 @@ from backend.services.snapshot import (
     wrap_create_snapshot_link,
 )
 
-router = APIRouter(prefix="/v1/snapshots")
+router = APIRouter(
+    prefix="/v1/snapshots",
+    tags=["Snapshot"],
+)
 router.name = RouterName.SNAPSHOT
 
 PRIVATE_KEYS = ["organization_id", "user_id", "conversation_id"]

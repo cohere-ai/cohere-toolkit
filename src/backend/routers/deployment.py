@@ -29,6 +29,7 @@ logger = LoggerFactory().get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",
+    tags=["Deployment"],
 )
 router.name = RouterName.DEPLOYMENT
 

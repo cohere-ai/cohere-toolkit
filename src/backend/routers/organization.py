@@ -15,7 +15,10 @@ from backend.schemas.user import User
 from backend.services.context import get_context
 from backend.services.request_validators import validate_organization_request
 
-router = APIRouter(prefix="/v1/organizations")
+router = APIRouter(
+    prefix="/v1/organizations",
+    tags=["Organization"],
+)
 router.name = RouterName.TOOL
 
 

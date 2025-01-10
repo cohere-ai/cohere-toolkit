@@ -9,7 +9,10 @@ from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 from backend.schemas.user import User as UserSchema
 from backend.services.context import get_context
 
-router = APIRouter(prefix="/v1/users")
+router = APIRouter(
+    prefix="/v1/users",
+    tags=["User"],
+)
 router.name = RouterName.USER
 
 
