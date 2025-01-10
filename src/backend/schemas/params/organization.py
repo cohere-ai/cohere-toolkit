@@ -7,5 +7,5 @@ from fastapi import Query
 
 OrganizationIdQueryParam =  Annotated[Optional[str], Query(
     title="Organization ID",
-    description="Organization ID of the agent",
+    description="Organization ID to filter results by",
 )]

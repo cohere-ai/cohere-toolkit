@@ -1,7 +1,7 @@
 """
 Shared Query and Path Parameters for Routers
 """
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import Depends, Query
 
@@ -25,3 +25,9 @@ class PaginationParams:
         self.limit = limit
 
 PaginationQueryParams = Annotated[PaginationParams, Depends()]
+
+
+OrderByQueryParam = Annotated[Optional[str], Query(
+    title="Orber By",
+    description="Field to sorts results by",
+)]

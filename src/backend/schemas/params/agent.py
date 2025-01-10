@@ -1,7 +1,7 @@
 """
 Query and Path Parameters for Agents
 """
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import Path, Query
 
@@ -10,6 +10,11 @@ from backend.schemas.agent import AgentVisibility
 VisibilityQueryParam = Annotated[AgentVisibility, Query(
     title="Visibility",
     description="Agent visibility",
+)]
+
+AgentIdQueryParam = Annotated[Optional[str], Query(
+    title="Agent ID",
+    description="Agent ID to filter results by",
 )]
 
 AgentIdPathParam = Annotated[str, Path(

@@ -1,6 +1,4 @@
-from typing import Optional
-
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 from starlette.responses import Response
@@ -28,6 +26,12 @@ from backend.schemas.file import (
     ListConversationFile,
     UploadConversationFileResponse,
 )
+from backend.schemas.params.agent import AgentIdQueryParam
+from backend.schemas.params.conversation import ConversationIdPathParam
+from backend.schemas.params.file import FileIdPathParam
+from backend.schemas.params.message import MessageIdPathParam
+from backend.schemas.params.model import ModelQueryParam
+from backend.schemas.params.shared import OrderByQueryParam, PaginationQueryParams
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 from backend.services.conversation import (
@@ -53,9 +57,8 @@ router.name = RouterName.CONVERSATION
 # CONVERSATIONS
 @router.get("/{conversation_id}", response_model=ConversationPublic)
 async def get_conversation(
-    conversation_id: str,
+    conversation_id: ConversationIdPathParam,
     session: DBSessionDep,
-    request: Request,
     ctx: Context = Depends(get_context),
 ) -> ConversationPublic:
     """
@@ -112,12 +115,10 @@ async def get_conversation(
 @router.get("", response_model=list[ConversationWithoutMessages])
 async def list_conversations(
     *,
-    offset: int = 0,
-    limit: int = 100,
-    order_by: str = None,
-    agent_id: str = None,
+    page_params: PaginationQueryParams,
+    order_by: OrderByQueryParam = None,
+    agent_id: AgentIdQueryParam = None,
     session: DBSessionDep,
-    request: Request,
     ctx: Context = Depends(get_context),
 ) -> list[ConversationWithoutMessages]:
     """
@@ -137,7 +138,7 @@ async def list_conversations(
     user_id = ctx.get_user_id()
 
     conversations = conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, order_by=order_by, user_id=user_id, agent_id=agent_id
+        session, offset=page_params.offset, limit=page_params.limit, order_by=order_by, user_id=user_id, agent_id=agent_id
     )
 
     results = []
@@ -169,7 +170,7 @@ async def list_conversations(
 
 @router.put("/{conversation_id}", response_model=ConversationPublic)
 async def update_conversation(
-    conversation_id: str,
+    conversation_id: ConversationIdPathParam,
     new_conversation: UpdateConversationRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -219,7 +220,7 @@ async def update_conversation(
 
 @router.put("/{conversation_id}/toggle-pin", response_model=ConversationWithoutMessages)
 async def toggle_conversation_pin(
-    conversation_id: str,
+    conversation_id: ConversationIdPathParam,
     new_conversation_pin: ToggleConversationPinRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -252,7 +253,9 @@ async def toggle_conversation_pin(
 
 @router.delete("/{conversation_id}")
 async def delete_conversation(
-    conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    conversation_id: ConversationIdPathParam,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteConversationResponse:
     """
     Delete a conversation by ID.
@@ -281,12 +284,11 @@ async def delete_conversation(
 
 @router.get(":search", response_model=list[ConversationWithoutMessages])
 async def search_conversations(
-    query: str,
+    *,
+    page_params: PaginationQueryParams,
+    order_by: OrderByQueryParam = None,
+    agent_id: AgentIdQueryParam = None,
     session: DBSessionDep,
-    request: Request,
-    offset: int = 0,
-    limit: int = 100,
-    agent_id: str = None,
     ctx: Context = Depends(get_context),
 ) -> list[ConversationWithoutMessages]:
     """
@@ -317,7 +319,7 @@ async def search_conversations(
         ctx.with_agent(agent_schema)
 
     conversations = conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
+        session, offset=page_params.offset, limit=page_params.limit, order_by=order_by, user_id=user_id, agent_id=agent_id
     )
 
     if not conversations:
@@ -361,9 +363,10 @@ async def search_conversations(
 # FILES
 @router.post("/batch_upload_file", response_model=list[UploadConversationFileResponse])
 async def batch_upload_file(
-    session: DBSessionDep,
+    *,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> UploadConversationFileResponse:
     """
@@ -435,7 +438,9 @@ async def batch_upload_file(
 
 @router.get("/{conversation_id}/files", response_model=list[ListConversationFile])
 async def list_files(
-    conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    conversation_id: ConversationIdPathParam,
+    session: DBSessionDep, ctx:
+    Context = Depends(get_context),
 ) -> list[ListConversationFile]:
     """
     List all files from a conversation. Important - no pagination support yet.
@@ -464,7 +469,10 @@ async def list_files(
 
 @router.get("/{conversation_id}/files/{file_id}", response_model=FileMetadata)
 async def get_file(
-    conversation_id: str, file_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    conversation_id: ConversationIdPathParam,
+    file_id: FileIdPathParam,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> FileMetadata:
     """
     Get a conversation file by ID.
@@ -505,8 +513,8 @@ async def get_file(
 
 @router.delete("/{conversation_id}/files/{file_id}")
 async def delete_file(
-    conversation_id: str,
-    file_id: str,
+    conversation_id: ConversationIdPathParam,
+    file_id: FileIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteConversationFileResponse:
@@ -538,10 +546,10 @@ async def delete_file(
 # MISC
 @router.post("/{conversation_id}/generate-title", response_model=GenerateTitleResponse)
 async def generate_title(
-    conversation_id: str,
+    *,
+    conversation_id: ConversationIdPathParam,
+    model: ModelQueryParam = "command-r",
     session: DBSessionDep,
-    request: Request,
-    model: Optional[str] = "command-r",
     ctx: Context = Depends(get_context),
 ) -> GenerateTitleResponse:
     """
@@ -592,8 +600,8 @@ async def generate_title(
 # SYNTHESIZE
 @router.get("/{conversation_id}/synthesize/{message_id}")
 async def synthesize_message(
-    conversation_id: str,
-    message_id: str,
+    conversation_id: ConversationIdPathParam,
+    message_id: MessageIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> Response:
