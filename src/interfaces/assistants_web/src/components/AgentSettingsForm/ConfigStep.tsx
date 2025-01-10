@@ -14,7 +14,7 @@ type Props = {
 
 export const ConfigStep: React.FC<Props> = ({ fields, setFields }) => {
   const [selectedModelValue, setSelectedModelValue] = useState<string | undefined>(fields.model);
-  const [selectedTempValue, setSelectedTempValue] = useState<number | undefined>(
+  const [selectedTemperatureValue, setSelectedTemperatureValue] = useState<number | undefined>(
     fields.temperature
   );
 
@@ -41,10 +41,10 @@ export const ConfigStep: React.FC<Props> = ({ fields, setFields }) => {
         min={0}
         max={1.0}
         step={0.1}
-        value={selectedTempValue || 0}
+        value={selectedTemperatureValue || 0}
         onChange={(temperature) => {
           setFields({ ...fields, temperature: temperature });
-          setSelectedTempValue(temperature);
+          setSelectedTemperatureValue(temperature);
         }}
       ></Slider>
     </div>
