@@ -12,12 +12,10 @@ type Props = {
   step: number;
   value: number;
   onChange: (value: number) => void;
-  showTicks?: boolean;
   sublabel?: string;
   className?: string;
   tooltipLabel?: React.ReactNode;
   formatValue?: (value: number) => string;
-  tickDescriptor?: (tickValue: number) => string;
 };
 
 /**
@@ -35,8 +33,6 @@ export const Slider: React.FC<Props> = ({
   onChange,
   tooltipLabel,
   formatValue,
-  showTicks = false,
-  tickDescriptor,
   className = '',
 }) => {
   // if `max` is changed dynamically don't allow the value to surpass it
@@ -80,24 +76,7 @@ export const Slider: React.FC<Props> = ({
             'focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-volcanic-100'
           )}
         />
-
-        {showTicks && (
-          <div className="absolute -z-10 flex w-full cursor-pointer justify-between">
-            {ticks.map((tick) => (
-              <span key={tick} className="h-2 w-2 rounded-full bg-black" />
-            ))}
-          </div>
-        )}
       </div>
-      {tickDescriptor && (
-        <div className="flex w-full justify-between">
-          {ticks.map((tick) => (
-            <Text styleAs="caption" className="text-volcanic-400" key={tick}>
-              {tickDescriptor(tick)}
-            </Text>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
