@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 
 from backend.config.routers import RouterName
 from backend.config.tools import get_available_tools
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
+from backend.schemas.params.agent import AgentIdQueryParam
 from backend.schemas.tool import ToolDefinition
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
@@ -17,21 +18,13 @@ router.name = RouterName.TOOL
 
 @router.get("", response_model=list[ToolDefinition])
 def list_tools(
-    request: Request,
+    *,
+    agent_id: AgentIdQueryParam = None,
     session: DBSessionDep,
-    agent_id: str | None = None,
     ctx: Context = Depends(get_context),
 ) -> list[ToolDefinition]:
     """
     List all available tools.
-
-    Args:
-        request (Request): The request to validate
-        session (DBSessionDep): Database session.
-        agent_id (str): Agent ID.
-        ctx (Context): Context object.
-    Returns:
-        list[ToolDefinition]: List of available tools.
     """
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()

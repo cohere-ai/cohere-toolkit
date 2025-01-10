@@ -12,42 +12,124 @@ class ToolCategory(StrEnum):
 
 
 class Tool(BaseModel):
-    name: Optional[str] = ""
-    parameter_definitions: Optional[dict] = {}
+    name: Optional[str] = Field(
+        "",
+        title="Name",
+        description="Name of the Tool",
+    )
+    parameter_definitions: Optional[dict] = Field(
+        {},
+        title="Parameter Definitions",
+        description="Parameters definitions for the tool",
+    )
 
 class ToolDefinition(Tool):
-    display_name: str = ""
-    description: str = ""
-    error_message: Optional[str] = ""
-    kwargs: dict = {}
-    is_visible: bool = False
-    is_available: bool = False
-    category: ToolCategory = ToolCategory.DataLoader
+    display_name: str = Field(
+        "",
+        title="Display Name",
+        description="Display name for the tool",
+    )
+    description: str = Field(
+        "",
+        title="Description",
+        description="Description of the tool",
+    )
+    error_message: Optional[str] = Field(
+        "",
+        title="Error Message",
+        description="Error message",
+    )
+    kwargs: dict = Field(
+        {},
+        title="kwargs",
+        description="kwags for the tool",
+    )
+    is_visible: bool = Field(
+        False,
+        title="Is Visible",
+        description="Is the tool visible",
+    )
+    is_available: bool = Field(
+        False,
+        title="Is Available",
+        description="Is the tool available",
+    )
+    category: ToolCategory = Field(
+        ToolCategory.DataLoader,
+        title="Category",
+        description="Tool category",
+    )
 
-    is_auth_required: bool = False  # Per user
-    auth_url: Optional[str] = ""  # Per user
-    token: Optional[str] = ""  # Per user
-    should_return_token: bool = False
+    is_auth_required: bool = Field(
+        False,
+        title="Is Auth Required",
+        description="Is auth required for the tool",
+    )  # Per user
+    auth_url: Optional[str] = Field(
+        "",
+        title="Auth Url",
+        description="Auth url for the tool",
+    )  # Per user
+    token: Optional[str] = Field(
+        "",
+        title="Token",
+        description="Token for the tool",
+    )  # Per user
+    should_return_token: bool = Field(
+        False,
+        title="Should Return Token",
+        description="If the tool returns a token",
+    )
 
-    implementation: Any = Field(exclude=True)
-    auth_implementation: Any = Field(default=None, exclude=True)
+    implementation: Any = Field(
+        ...,
+        title="Implementation",
+        description="Implementation for the tool",
+        exclude=True,
+    )
+    auth_implementation: Optional[Any] = Field(
+        None,
+        title="Auth Implementation",
+        description="Auth implementation for the tool",
+        exclude=True,
+    )
 
     class Config:
         from_attributes = True
 
 
 class ToolCall(BaseModel):
-    name: str
-    parameters: dict = {}
+    name: str = Field(
+        ...,
+        title="Name",
+        description="Name of the Tool",
+    )
+    parameters: dict = Field(
+        {},
+        title="Parameters",
+        description="Parameters for the tool call",
+    )
 
     class Config:
         from_attributes = True
 
 
 class ToolCallDelta(BaseModel):
-    name: str | None
-    index: int | None
-    parameters: str | None
+    name: Optional[str] = Field(
+        None,
+        title="Name",
+        description="Name of the Tool",
+    )
+    index: Optional[int] = Field(
+        None,
+        title="Index",
+        description="Index",
+    )
+    parameters: Optional[str] = Field(
+        None,
+        title="Parameters",
+        description="Parameters for the tool call",
+    )
 
     class Config:
         from_attributes = True
