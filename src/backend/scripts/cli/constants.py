@@ -87,7 +87,7 @@ ENV_YAML_CONFIG_MAPPING = {
         "type": "config",
         "path": "tools.python_interpreter.url",
     },
-    "TAVILY_API_KEY": {"type": "secret", "path": "tools.tavily.api_key"},
+    "TAVILY_API_KEY": {"type": "secret", "path": "tools.tavily_web_search.api_key"},
     "COHERE_API_KEY": {"type": "secret", "path": "deployments.cohere_platform.api_key"},
     "SAGE_MAKER_ACCESS_KEY": {
         "type": "secret",
