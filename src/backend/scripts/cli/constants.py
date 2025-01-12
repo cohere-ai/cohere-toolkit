@@ -73,7 +73,8 @@ COMMUNITY_TOOLS = {
     },
 }
 
-
+# Perhaps there is a better way to do this by using the Settings
+# class from the backend?
 ENV_YAML_CONFIG_MAPPING = {
     "USE_COMMUNITY_FEATURES": {
         "type": "config",
