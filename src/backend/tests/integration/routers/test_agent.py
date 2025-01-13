@@ -13,6 +13,7 @@ from backend.database_models.agent_tool_metadata import AgentToolMetadata
 from backend.database_models.snapshot import Snapshot
 from backend.exceptions import DeploymentNotFoundError
 from backend.model_deployments.cohere_platform import CohereDeployment
+from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
 is_cohere_env_set = (
@@ -20,7 +21,7 @@ is_cohere_env_set = (
     and os.environ.get("COHERE_API_KEY") != ""
 )
 
-def test_create_agent(session_client: TestClient, session: Session, user, mock_cohere_list_models) -> None:
+def test_create_agent(session_client: TestClient, session: Session, user: User, mock_cohere_list_models) -> None:
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -60,7 +61,7 @@ def test_create_agent(session_client: TestClient, session: Session, user, mock_c
 
 
 def test_create_agent_with_tool_metadata(
-    session_client: TestClient, session: Session, user, mock_cohere_list_models
+    session_client: TestClient, session: Session, user: User, mock_cohere_list_models
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -118,7 +119,7 @@ def test_create_agent_with_tool_metadata(
 
 
 def test_create_agent_missing_non_required_fields(
-    session_client: TestClient, session: Session, user, mock_cohere_list_models
+    session_client: TestClient, session: Session, user: User, mock_cohere_list_models
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -149,7 +150,7 @@ def test_create_agent_missing_non_required_fields(
     assert agent.model == request_json["model"]
 
 
-def test_update_agent(session_client: TestClient, session: Session, user, mock_cohere_list_models) -> None:
+def test_update_agent(session_client: TestClient, session: Session, user: User, mock_cohere_list_models) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
