@@ -13,7 +13,7 @@ from backend.config.tools import Tool, get_available_tools
 from backend.crud import blacklist as blacklist_crud
 from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
-from backend.schemas.auth import AuthStrategy, JWTResponse, Login, Logout
+from backend.schemas.auth import JWTResponse, ListAuthStrategy, Login, Logout
 from backend.schemas.context import Context
 from backend.schemas.params.auth import CodeQueryParam, StrategyPathParam
 from backend.schemas.params.tool import ToolIdPathParam
@@ -34,10 +34,10 @@ router = APIRouter(
 router.name = RouterName.AUTH
 
 
-@router.get("/auth_strategies", response_model=list[AuthStrategy])
+@router.get("/auth_strategies", response_model=list[ListAuthStrategy])
 def get_strategies(
     ctx: Context = Depends(get_context),
-) -> list[AuthStrategy]:
+) -> list[ListAuthStrategy]:
     """
     Retrieves the currently enabled list of Authentication strategies.
     """

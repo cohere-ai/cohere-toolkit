@@ -153,7 +153,7 @@ export class AuthService {
   /**
    * Get Strategies
    * Retrieves the currently enabled list of Authentication strategies.
-   * @returns AuthStrategy Successful Response
+   * @returns ListAuthStrategy Successful Response
    * @throws ApiError
    */
   public getStrategiesV1AuthStrategiesGet(): CancelablePromise<GetStrategiesV1AuthStrategiesGetResponse> {

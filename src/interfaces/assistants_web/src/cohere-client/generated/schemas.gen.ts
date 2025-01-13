@@ -243,49 +243,6 @@ export const $AgentVisibility = {
   description: 'Supported values for Agent Visibility',
 } as const;
 
-export const $AuthStrategy = {
-  properties: {
-    strategy: {
-      type: 'string',
-      title: 'Strategy',
-      description: 'Auth strategy name',
-    },
-    client_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Client ID',
-      description: 'Client ID to be used',
-    },
-    authorization_endpoint: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Authorization Endpoint',
-      description: 'The endpoint for authorization',
-    },
-    pkce_enabled: {
-      type: 'boolean',
-      title: 'PKCE Enabled',
-      description: 'If PKCE is enabled',
-    },
-  },
-  type: 'object',
-  required: ['strategy', 'pkce_enabled'],
-  title: 'AuthStrategy',
-  description: 'Auth Strategy',
-} as const;
-
 export const $Body_batch_upload_file_v1_agents_batch_upload_file_post = {
   properties: {
     files: {
@@ -1956,6 +1913,49 @@ export const $JWTResponse = {
   required: ['token'],
   title: 'JWTResponse',
   description: 'JWT Response',
+} as const;
+
+export const $ListAuthStrategy = {
+  properties: {
+    strategy: {
+      type: 'string',
+      title: 'Strategy',
+      description: 'Auth strategy name',
+    },
+    client_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Client ID',
+      description: 'Client ID to be used',
+    },
+    authorization_endpoint: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Authorization Endpoint',
+      description: 'The endpoint for authorization',
+    },
+    pkce_enabled: {
+      type: 'boolean',
+      title: 'PKCE Enabled',
+      description: 'If PKCE is enabled',
+    },
+  },
+  type: 'object',
+  required: ['strategy', 'pkce_enabled'],
+  title: 'ListAuthStrategy',
+  description: 'List Auth Strategy',
 } as const;
 
 export const $ListConversationFile = {

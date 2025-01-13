@@ -139,28 +139,6 @@ export enum AgentVisibility {
   ALL = 'all',
 }
 
-/**
- * Auth Strategy
- */
-export type AuthStrategy = {
-  /**
-   * Auth strategy name
-   */
-  strategy: string;
-  /**
-   * Client ID to be used
-   */
-  client_id?: string | null;
-  /**
-   * The endpoint for authorization
-   */
-  authorization_endpoint?: string | null;
-  /**
-   * If PKCE is enabled
-   */
-  pkce_enabled: boolean;
-};
-
 export type Body_batch_upload_file_v1_agents_batch_upload_file_post = {
   files: Array<Blob | File>;
 };
@@ -981,6 +959,28 @@ export type JWTResponse = {
    * JSON Web Token
    */
   token: string;
+};
+
+/**
+ * List Auth Strategy
+ */
+export type ListAuthStrategy = {
+  /**
+   * Auth strategy name
+   */
+  strategy: string;
+  /**
+   * Client ID to be used
+   */
+  client_id?: string | null;
+  /**
+   * The endpoint for authorization
+   */
+  authorization_endpoint?: string | null;
+  /**
+   * If PKCE is enabled
+   */
+  pkce_enabled: boolean;
 };
 
 /**
@@ -2121,7 +2121,7 @@ export type backend__schemas__user__User = {
   updated_at: string;
 };
 
-export type GetStrategiesV1AuthStrategiesGetResponse = Array<AuthStrategy>;
+export type GetStrategiesV1AuthStrategiesGetResponse = Array<ListAuthStrategy>;
 
 export type LoginV1LoginPostData = {
   requestBody: Login;
@@ -2829,7 +2829,7 @@ export type $OpenApiTs = {
         /**
          * Successful Response
          */
-        200: Array<AuthStrategy>;
+        200: Array<ListAuthStrategy>;
       };
     };
   };

@@ -33,9 +33,9 @@ class Logout(BaseModel):
     pass
 
 
-class AuthStrategy(BaseModel):
+class ListAuthStrategy(BaseModel):
     """
-    Auth Strategy
+    List Auth Strategy
     """
     strategy: str = Field(
         ...,
