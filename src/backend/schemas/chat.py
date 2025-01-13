@@ -218,10 +218,10 @@ class StreamSearchQueriesGeneration(ChatResponse):
 class StreamToolCallsGeneration(ChatResponse):
     """Stream tool calls generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_GENERATION
-    stream_search_results: list[StreamSearchResults] = Field(
-        [],
+    stream_search_results: Optional[StreamSearchResults] = Field(
+        None,
         title="Stream Search Results",
-        description="List of search results used to generate grounded response with citations",
+        description="Search results used to generate grounded response with citations",
     )
     tool_calls: Optional[list[ToolCall]] = Field(
         [],

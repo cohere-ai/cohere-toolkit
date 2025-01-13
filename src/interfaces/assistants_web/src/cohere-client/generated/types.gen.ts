@@ -1612,9 +1612,9 @@ export type StreamToolCallsChunk = {
  */
 export type StreamToolCallsGeneration = {
   /**
-   * List of search results used to generate grounded response with citations
+   * Search results used to generate grounded response with citations
    */
-  stream_search_results?: Array<StreamSearchResults>;
+  stream_search_results?: StreamSearchResults | null;
   /**
    * List of tool calls generated for custom tools
    */

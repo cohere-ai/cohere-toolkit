@@ -3159,13 +3159,16 @@ export const $StreamToolCallsChunk = {
 export const $StreamToolCallsGeneration = {
   properties: {
     stream_search_results: {
-      items: {
-        $ref: '#/components/schemas/StreamSearchResults',
-      },
-      type: 'array',
+      anyOf: [
+        {
+          $ref: '#/components/schemas/StreamSearchResults',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Stream Search Results',
-      description: 'List of search results used to generate grounded response with citations',
-      default: [],
+      description: 'Search results used to generate grounded response with citations',
     },
     tool_calls: {
       anyOf: [
