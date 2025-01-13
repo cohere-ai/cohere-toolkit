@@ -5,6 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class ToolCategory(StrEnum):
+    """
+    Supported Tool Categories
+    """
     DataLoader = "Data loader"
     FileLoader = "File loader"
     Function = "Function"
@@ -12,6 +15,9 @@ class ToolCategory(StrEnum):
 
 
 class Tool(BaseModel):
+    """
+    Tool Schema
+    """
     name: Optional[str] = Field(
         "",
         title="Name",
@@ -24,6 +30,9 @@ class Tool(BaseModel):
     )
 
 class ToolDefinition(Tool):
+    """
+    Tool Definition Schema
+    """
     display_name: str = Field(
         "",
         title="Display Name",
@@ -99,6 +108,9 @@ class ToolDefinition(Tool):
 
 
 class ToolCall(BaseModel):
+    """
+    Schema for Tool Call
+    """
     name: str = Field(
         ...,
         title="Name",
@@ -115,6 +127,9 @@ class ToolCall(BaseModel):
 
 
 class ToolCallDelta(BaseModel):
+    """
+    Schema for Tool Call Delta
+    """
     name: Optional[str] = Field(
         None,
         title="Name",

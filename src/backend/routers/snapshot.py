@@ -43,14 +43,6 @@ async def create_snapshot(
 ) -> CreateSnapshotResponse:
     """
     Create a new snapshot and snapshot link to share the conversation.
-
-    Args:
-        snapshot_request (CreateSnapshotRequest): Snapshot creation request.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        CreateSnapshotResponse: Snapshot creation response.
     """
     user_id = ctx.get_user_id()
     conversation_id = snapshot_request.conversation_id
@@ -85,13 +77,6 @@ async def list_snapshots(
 ) -> list[SnapshotWithLinks]:
     """
     List all snapshots.
-
-    Args:
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        list[SnapshotWithLinks]: List of all snapshots with their links.
     """
     user_id = ctx.get_user_id()
 
@@ -119,14 +104,6 @@ async def get_snapshot(
 ) -> SnapshotPublic:
     """
     Get a snapshot by link ID.
-
-    Args:
-        link_id (str): Snapshot link ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        Snapshot: Snapshot with the given link ID.
     """
     user_id = ctx.get_user_id()
 
@@ -145,14 +122,6 @@ async def delete_snapshot_link(
 ) -> DeleteSnapshotLinkResponse:
     """
     Delete a snapshot link by ID.
-
-    Args:
-        link_id (str): Snapshot link ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteSnapshotLinkResponse: Empty response.
     """
     user_id = ctx.get_user_id()
 
@@ -178,14 +147,6 @@ async def delete_snapshot(
 ) -> DeleteSnapshotResponse:
     """
     Delete a snapshot by ID.
-
-    Args:
-        snapshot_id (str): Snapshot ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteSnapshotResponse: Empty response.
     """
     user_id = ctx.get_user_id()
 

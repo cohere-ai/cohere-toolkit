@@ -13,7 +13,7 @@ from backend.schemas.tool import ToolCall
 
 class MessageBase(ABC, BaseModel):
     """
-    Aabstract class for Message schemas
+    Abstract class for Message schemas
     """
     text: str = Field(
         ...,
@@ -23,6 +23,9 @@ class MessageBase(ABC, BaseModel):
 
 
 class Message(MessageBase):
+    """
+    Message Schema
+    """
     id: str = Field(
         ...,
         title="ID",
@@ -93,6 +96,9 @@ class Message(MessageBase):
 
 
 class UpdateMessage(BaseModel):
+    """
+    Request to update a message
+    """
     text: Optional[str] = Field(
         None,
         title="Text",

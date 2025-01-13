@@ -37,13 +37,6 @@ def create_organization(
 ) -> Organization:
     """
     Create a new organization.
-
-    Args:
-        organization (CreateOrganization): Organization data
-        session (DBSessionDep): Database session.
-
-    Returns:
-        Organization: Created organization.
     """
     organization_data = OrganizationModel(**organization.dict())
 
@@ -65,15 +58,6 @@ def update_organization(
 ) -> Organization:
     """
     Update organization by ID.
-
-    Args:
-        organization_id (str): Tool ID.
-        new_organization (ToolUpdate): New organization data.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        Organization: Updated organization.
-
     """
     organization = organization_crud.get_organization(session, organization_id)
     return organization_crud.update_organization(
@@ -89,14 +73,6 @@ def get_organization(
 ) -> Organization:
     """
     Get a organization by ID.
-
-    Args:
-        organization_id (str): Tool ID.
-        session (DBSessionDep): Database session.
-        ctx: Context.
-
-    Returns:
-        Organization: Organization with the given ID.
     """
     organization = organization_crud.get_organization(session, organization_id)
     if not organization:
@@ -112,13 +88,6 @@ def delete_organization(
 ) -> DeleteOrganization:
     """
     Delete a organization by ID.
-
-    Args:
-        organization_id (str): Tool ID.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        DeleteOrganization: Organization deleted.
     """
     organization = organization_crud.get_organization(session, organization_id)
     if not organization:
@@ -135,13 +104,6 @@ def list_organizations(
 ) -> list[Organization]:
     """
     List all available organizations.
-
-    Args:
-        request (Request): Request object.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        list[Organization]: List of available organizations.
     """
     all_organizations = organization_crud.get_organizations(session)
     return all_organizations
@@ -155,13 +117,6 @@ def get_organization_users(
 ) -> list[User]:
     """
     Get organization users by ID.
-
-    Args:
-        organization_id (str): Organization ID.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        list[User]: List of users in the organization
     """
     organization = organization_crud.get_organization(session, organization_id)
     if not organization:

@@ -37,15 +37,6 @@ async def chat_stream(
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
-
-    Args:
-        session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        EventSourceResponse: Server-sent event response with chatbot responses.
     """
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
@@ -92,15 +83,6 @@ async def regenerate_chat_stream(
 ) -> EventSourceResponse:
     """
     Endpoint to regenerate stream chat response for the last user message.
-
-    Args:
-        session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        EventSourceResponse: Server-sent event response with chatbot responses.
     """
     ctx.with_model(chat_request.model)
 
@@ -161,15 +143,6 @@ async def chat(
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
-
-    Args:
-        chat_request (CohereChatRequest): Chat request data.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        NonStreamedChatResponse: Chatbot response.
     """
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
