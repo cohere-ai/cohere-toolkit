@@ -15,7 +15,7 @@ from backend.database_models import Blacklist
 from backend.database_models.database import DBSessionDep
 from backend.schemas.auth import AuthStrategy, JWTResponse, Login, Logout
 from backend.schemas.context import Context
-from backend.schemas.params.auth import StrategyPathParam
+from backend.schemas.params.auth import CodeQueryParam, StrategyPathParam
 from backend.schemas.params.tool import ToolIdPathParam
 from backend.schemas.tool_auth import DeleteToolAuth
 from backend.services.auth.jwt import JWTService
@@ -120,10 +120,11 @@ async def login(
 
 @router.post("/{strategy}/auth", response_model=JWTResponse)
 async def authorize(
+    *,
     strategy: StrategyPathParam,
     request: Request,
+    code: CodeQueryParam = None,
     session: DBSessionDep,
-    code: str = None,
     ctx: Context = Depends(get_context),
 ):
     """
@@ -193,7 +194,6 @@ async def authorize(
 
 @router.get("/logout", response_model=Logout)
 async def logout(
-    request: Request,
     session: DBSessionDep,
     token: dict | None = Depends(validate_authorization),
     ctx: Context = Depends(get_context),
@@ -210,8 +210,10 @@ async def logout(
 
 @router.get("/tool/auth")
 async def tool_auth(
-    request: Request, session: DBSessionDep, ctx: Context = Depends(get_context)
-):
+    request: Request,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
+) -> RedirectResponse:
     """
     Endpoint for Tool Authentication. Note: The flow is different from
     the regular login OAuth flow, the backend initiates it and redirects to the frontend
@@ -303,9 +305,6 @@ async def delete_tool_auth(
     Endpoint to delete Tool Authentication.
 
     If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
-
-    Returns:
-        DeleteToolAuth: Empty response.
 
     Raises:
         HTTPException: If there was an error deleting the tool auth.
