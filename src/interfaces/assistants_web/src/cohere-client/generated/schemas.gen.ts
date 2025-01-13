@@ -243,6 +243,49 @@ export const $AgentVisibility = {
   description: 'Supported values for Agent Visibility',
 } as const;
 
+export const $AuthStrategy = {
+  properties: {
+    strategy: {
+      type: 'string',
+      title: 'Strategy',
+      description: 'Auth strategy name',
+    },
+    client_id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Client ID',
+      description: 'Client ID to be used',
+    },
+    authorization_endpoint: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Authorization Endpoint',
+      description: 'The endpoint for authorization',
+    },
+    pkce_enabled: {
+      type: 'boolean',
+      title: 'PKCE Enabled',
+      description: 'If PKCE is enabled',
+    },
+  },
+  type: 'object',
+  required: ['strategy', 'pkce_enabled'],
+  title: 'AuthStrategy',
+  description: 'Auth Strategy',
+} as const;
+
 export const $Body_batch_upload_file_v1_agents_batch_upload_file_post = {
   properties: {
     files: {
@@ -283,7 +326,7 @@ export const $ChatMessage = {
   properties: {
     role: {
       $ref: '#/components/schemas/ChatRole',
-      title: 'One of CHATBOT|USER|SYSTEM to identify who the message is coming from.',
+      title: 'Role',
     },
     message: {
       anyOf: [
@@ -294,7 +337,8 @@ export const $ChatMessage = {
           type: 'null',
         },
       ],
-      title: 'Contents of the chat message.',
+      title: 'Message',
+      description: 'Contents of the chat message.',
     },
     tool_plan: {
       anyOf: [
@@ -305,7 +349,8 @@ export const $ChatMessage = {
           type: 'null',
         },
       ],
-      title: 'Contents of the tool plan.',
+      title: 'Tool Plan',
+      description: 'Contents of the tool plan.',
     },
     tool_results: {
       anyOf: [
@@ -319,7 +364,8 @@ export const $ChatMessage = {
           type: 'null',
         },
       ],
-      title: 'Results from the tool call.',
+      title: 'Tool Results',
+      description: 'Results from the tool call.',
     },
     tool_calls: {
       anyOf: [
@@ -333,21 +379,23 @@ export const $ChatMessage = {
           type: 'null',
         },
       ],
-      title: 'List of tool calls generated for custom tools',
+      title: 'Tool Calls',
+      description: 'List of tool calls generated for custom tools',
     },
   },
   type: 'object',
   required: ['role'],
   title: 'ChatMessage',
-  description:
-    "A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.",
+  description: `A list of previous messages between the user and the model, meant to give the mode
+conversational context for responding to the user's message.`,
 } as const;
 
 export const $ChatResponseEvent = {
   properties: {
     event: {
       $ref: '#/components/schemas/StreamEvent',
-      title: 'type of stream event',
+      title: 'Event',
+      description: 'Type of stream event',
     },
     data: {
       anyOf: [
@@ -388,12 +436,14 @@ export const $ChatResponseEvent = {
           $ref: '#/components/schemas/NonStreamedChatResponse',
         },
       ],
-      title: 'Data returned from chat response of a given event type',
+      title: 'Data',
+      description: 'Data returned from chat response of a given event type',
     },
   },
   type: 'object',
   required: ['event', 'data'],
   title: 'ChatResponseEvent',
+  description: 'Chat Response Event',
 } as const;
 
 export const $ChatRole = {
@@ -408,26 +458,31 @@ export const $Citation = {
     text: {
       type: 'string',
       title: 'Text',
+      description: 'Citation text',
     },
     start: {
       type: 'integer',
       title: 'Start',
+      description: 'Start position for the citation',
     },
     end: {
       type: 'integer',
       title: 'End',
+      description: 'End position for the citation',
     },
     document_ids: {
       items: {
         type: 'string',
       },
       type: 'array',
-      title: 'Document Ids',
+      title: 'Document IDs',
+      description: 'Documents used for the citation',
     },
   },
   type: 'object',
   required: ['text', 'start', 'end', 'document_ids'],
   title: 'Citation',
+  description: 'Schema for a citation',
 } as const;
 
 export const $CohereChatPromptTruncation = {
@@ -441,7 +496,8 @@ export const $CohereChatRequest = {
   properties: {
     message: {
       type: 'string',
-      title: 'The message to send to the chatbot.',
+      title: 'Message',
+      description: 'The message to send to the chatbot',
     },
     chat_history: {
       anyOf: [
@@ -455,12 +511,14 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Chat History',
+      description:
         'A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.',
     },
     conversation_id: {
       type: 'string',
-      title:
+      title: 'Conversation ID',
+      description:
         'To store a conversation then create a conversation id and use it for every related request',
     },
     tools: {
@@ -475,7 +533,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title: `
+      title: 'Tools',
+      description: `
             List of custom or managed tools to use for the response.
             If passing in managed tools, you only need to provide the name of the tool.
             If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.
@@ -532,7 +591,8 @@ export const $CohereChatRequest = {
         type: 'object',
       },
       type: 'array',
-      title: `Documents to use to generate grounded response with citations. Example:
+      title: 'Documents',
+      description: `Documents to use to generate grounded response with citations. Example:
             documents=[
                 {
                     "id": "national_geographic_everest",
@@ -558,7 +618,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title: 'The model to use for generating the response.',
+      title: 'Model',
+      description: 'The model to use for generating the response.',
       default: 'command-r-plus',
     },
     temperature: {
@@ -571,7 +632,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Temperature',
+      description:
         'A non-negative float that tunes the degree of randomness in generation. Lower temperatures mean less random generations, and higher temperatures mean more random generations.',
     },
     k: {
@@ -585,7 +647,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Top-K',
+      description:
         'Ensures only the top k most likely tokens are considered for generation at each step.',
     },
     p: {
@@ -599,7 +662,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Top-P',
+      description:
         'Ensures that only the most likely tokens, with total probability mass of p, are considered for generation at each step. If both k and p are enabled, p acts after k.',
     },
     preamble: {
@@ -611,7 +675,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title: 'A string to override the preamble.',
+      title: 'Preamble',
+      description: 'A string to override the preamble.',
     },
     file_ids: {
       anyOf: [
@@ -625,7 +690,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title: 'List of File IDs for PDFs used in RAG for the response.',
+      title: 'File IDs',
+      description: 'List of File IDs for PDFs used in RAG for the response.',
     },
     search_queries_only: {
       anyOf: [
@@ -636,7 +702,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Search Queries Only',
+      description:
         "When set to true a list of search queries are generated. No search will occur nor replies to the user's message.",
       default: false,
     },
@@ -650,7 +717,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Max Tokens',
+      description:
         'The maximum number of tokens the model will generate as part of the response. Note: Setting a low value may result in incomplete generations.',
     },
     seed: {
@@ -662,7 +730,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Seed',
+      description:
         'If specified, the backend will make a best effort to sample tokens deterministically, such that repeated requests with the same seed and parameters should return the same result. However, determinism cannot be totally guaranteed.',
     },
     stop_sequences: {
@@ -677,7 +746,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Stop Sequences',
+      description:
         'A list of up to 5 strings that the model will use to stop generation. If the model generates a string that matches any of the strings in the list, it will stop generating tokens and return the generated text up to that point not including the stop sequence.',
     },
     presence_penalty: {
@@ -691,7 +761,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Presence Penalty',
+      description:
         'Used to reduce repetitiveness of generated tokens. Similar to frequency_penalty, except that this penalty is applied equally to all tokens that have already appeared, regardless of their exact frequencies.',
     },
     frequency_penalty: {
@@ -705,12 +776,22 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Frequency Penalty',
+      description:
         'Used to reduce repetitiveness of generated tokens. The higher the value, the stronger a penalty is applied to previously present tokens, proportional to how many times they have already appeared in the prompt or prior generation.',
     },
     prompt_truncation: {
-      $ref: '#/components/schemas/CohereChatPromptTruncation',
-      title: "Dictates how the prompt will be constructed. Defaults to 'AUTO_PRESERVE_ORDER'.",
+      anyOf: [
+        {
+          $ref: '#/components/schemas/CohereChatPromptTruncation',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Prompt Truncation',
+      description:
+        "Dictates how the prompt will be constructed. Defaults to 'AUTO_PRESERVE_ORDER'.",
       default: 'AUTO_PRESERVE_ORDER',
     },
     tool_results: {
@@ -725,7 +806,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Tool Results',
+      description:
         'A list of results from invoking tools recommended by the model in the previous chat turn. Results are used to produce a text response and will be referenced in citations.',
     },
     force_single_step: {
@@ -737,7 +819,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Force Single Step',
+      description:
         'If set to true, the model will generate a single response in a single step. This is useful for generating a response to a single message.',
     },
     agent_id: {
@@ -749,7 +832,8 @@ export const $CohereChatRequest = {
           type: 'null',
         },
       ],
-      title: 'The agent ID to use for the chat.',
+      title: 'Agent ID',
+      description: 'The agent ID to use for the chat.',
     },
   },
   type: 'object',
@@ -763,61 +847,73 @@ export const $ConversationFilePublic = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
+      title: 'ID',
+      description: 'Unique identifier of the file',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When file was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
-    },
-    conversation_id: {
-      type: 'string',
-      title: 'Conversation Id',
+      title: 'Updated At Timestamp',
+      description: 'When file was updated',
     },
     file_name: {
       type: 'string',
       title: 'File Name',
+      description: 'Name of the file',
     },
     file_size: {
       type: 'integer',
       minimum: 0,
       title: 'File Size',
+      description: 'Size of the file in bytes',
       default: 0,
+    },
+    user_id: {
+      type: 'string',
+      title: 'User ID',
+      description: 'Unique identifier for who created the file',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation the file is associated to',
     },
   },
   type: 'object',
-  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'created_at', 'updated_at', 'file_name', 'user_id', 'conversation_id'],
   title: 'ConversationFilePublic',
+  description: 'Schema for a public conversation file',
 } as const;
 
 export const $ConversationPublic = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier for the conversation',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When the conversation was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When the conversation was updated',
     },
     title: {
       type: 'string',
       title: 'Title',
+      description: 'Title of the conversation',
     },
     messages: {
       items: {
@@ -825,6 +921,7 @@ export const $ConversationPublic = {
       },
       type: 'array',
       title: 'Messages',
+      description: 'The conversation messages',
     },
     files: {
       items: {
@@ -832,6 +929,7 @@ export const $ConversationPublic = {
       },
       type: 'array',
       title: 'Files',
+      description: 'List of files for the conversation',
     },
     description: {
       anyOf: [
@@ -843,6 +941,7 @@ export const $ConversationPublic = {
         },
       ],
       title: 'Description',
+      description: 'Description of the conversation',
     },
     agent_id: {
       anyOf: [
@@ -853,11 +952,13 @@ export const $ConversationPublic = {
           type: 'null',
         },
       ],
-      title: 'Agent Id',
+      title: 'Agent ID',
+      description: 'Unique identifier for the agent used in the conversation',
     },
     is_pinned: {
       type: 'boolean',
       title: 'Is Pinned',
+      description: 'If conversation is pinned',
     },
     total_file_size: {
       type: 'integer',
@@ -873,33 +974,36 @@ export const $ConversationPublic = {
     'title',
     'messages',
     'files',
-    'description',
-    'agent_id',
     'is_pinned',
     'total_file_size',
   ],
   title: 'ConversationPublic',
+  description: 'A public conversation which removes the User ID and Organization ID',
 } as const;
 
 export const $ConversationWithoutMessages = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier for the conversation',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When the conversation was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When the conversation was updated',
     },
     title: {
       type: 'string',
       title: 'Title',
+      description: 'Title of the conversation',
     },
     files: {
       items: {
@@ -907,6 +1011,7 @@ export const $ConversationWithoutMessages = {
       },
       type: 'array',
       title: 'Files',
+      description: 'List of files for the conversation',
     },
     description: {
       anyOf: [
@@ -918,6 +1023,7 @@ export const $ConversationWithoutMessages = {
         },
       ],
       title: 'Description',
+      description: 'Description of the conversation',
     },
     agent_id: {
       anyOf: [
@@ -928,11 +1034,13 @@ export const $ConversationWithoutMessages = {
           type: 'null',
         },
       ],
-      title: 'Agent Id',
+      title: 'Agent ID',
+      description: 'Unique identifier for the agent used in the conversation',
     },
     is_pinned: {
       type: 'boolean',
       title: 'Is Pinned',
+      description: 'If conversation is pinned',
     },
     total_file_size: {
       type: 'integer',
@@ -941,18 +1049,9 @@ export const $ConversationWithoutMessages = {
     },
   },
   type: 'object',
-  required: [
-    'id',
-    'created_at',
-    'updated_at',
-    'title',
-    'files',
-    'description',
-    'agent_id',
-    'is_pinned',
-    'total_file_size',
-  ],
+  required: ['id', 'created_at', 'updated_at', 'title', 'files', 'is_pinned', 'total_file_size'],
   title: 'ConversationWithoutMessages',
+  description: 'A public conversation without messages attached',
 } as const;
 
 export const $CreateAgentRequest = {
@@ -1139,6 +1238,7 @@ export const $CreateGroup = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for the group',
     },
     members: {
       items: {
@@ -1146,10 +1246,12 @@ export const $CreateGroup = {
       },
       type: 'array',
       title: 'Members',
+      description: 'Members of the group',
     },
     displayName: {
       type: 'string',
-      title: 'Displayname',
+      title: 'Display Name',
+      description: 'Display name for the group',
     },
   },
   type: 'object',
@@ -1162,34 +1264,40 @@ export const $CreateOrganization = {
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the organization',
     },
   },
   type: 'object',
   required: ['name'],
   title: 'CreateOrganization',
+  description: 'Request to create an organization',
 } as const;
 
 export const $CreateSnapshotRequest = {
   properties: {
     conversation_id: {
       type: 'string',
-      title: 'Conversation Id',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation',
     },
   },
   type: 'object',
   required: ['conversation_id'],
   title: 'CreateSnapshotRequest',
+  description: 'Request to create a snapshot',
 } as const;
 
 export const $CreateSnapshotResponse = {
   properties: {
     snapshot_id: {
       type: 'string',
-      title: 'Snapshot Id',
+      title: 'Snapshot ID',
+      description: 'Unique identifier for the snapshot',
     },
     link_id: {
       type: 'string',
-      title: 'Link Id',
+      title: 'Link ID',
+      description: 'Unique identifier for the link',
     },
     messages: {
       items: {
@@ -1197,11 +1305,13 @@ export const $CreateSnapshotResponse = {
       },
       type: 'array',
       title: 'Messages',
+      description: 'List of messages',
     },
   },
   type: 'object',
   required: ['snapshot_id', 'link_id', 'messages'],
   title: 'CreateSnapshotResponse',
+  description: 'Response for creating a snapshot',
 } as const;
 
 export const $DeleteAgent = {
@@ -1215,6 +1325,7 @@ export const $DeleteAgentFileResponse = {
   properties: {},
   type: 'object',
   title: 'DeleteAgentFileResponse',
+  description: 'Response for deleting an agent file',
 } as const;
 
 export const $DeleteAgentToolMetadata = {
@@ -1228,54 +1339,143 @@ export const $DeleteConversationFileResponse = {
   properties: {},
   type: 'object',
   title: 'DeleteConversationFileResponse',
+  description: 'Response for deleting a conversation file',
 } as const;
 
 export const $DeleteConversationResponse = {
   properties: {},
   type: 'object',
   title: 'DeleteConversationResponse',
+  description: 'Response for deleting a conversation',
 } as const;
 
 export const $DeleteDeployment = {
   properties: {},
   type: 'object',
   title: 'DeleteDeployment',
+  description: 'Delete Deployment Response',
 } as const;
 
 export const $DeleteModel = {
   properties: {},
   type: 'object',
   title: 'DeleteModel',
+  description: 'Response for deleting a model',
 } as const;
 
 export const $DeleteOrganization = {
   properties: {},
   type: 'object',
   title: 'DeleteOrganization',
+  description: 'Response when deleting organization',
 } as const;
 
 export const $DeleteSnapshotLinkResponse = {
   properties: {},
   type: 'object',
   title: 'DeleteSnapshotLinkResponse',
+  description: 'Response for deleting a snapshot link',
 } as const;
 
 export const $DeleteSnapshotResponse = {
   properties: {},
   type: 'object',
   title: 'DeleteSnapshotResponse',
+  description: 'Response for deleting a snapshot',
 } as const;
 
 export const $DeleteToolAuth = {
   properties: {},
   type: 'object',
   title: 'DeleteToolAuth',
+  description: 'Response when deleting a tool auth',
 } as const;
 
 export const $DeleteUser = {
   properties: {},
   type: 'object',
   title: 'DeleteUser',
+  description: 'Response when deleting a user',
+} as const;
+
+export const $Deployment = {
+  properties: {
+    id: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'ID',
+      description: 'Unique Identifier for the Deployment',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+      description: 'Name of the Deployment',
+    },
+    models: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Models',
+      description: 'List of models for the deployment',
+    },
+    is_available: {
+      type: 'boolean',
+      title: 'Is Available',
+      description: 'Is deployment is available',
+      default: false,
+    },
+    env_vars: {
+      anyOf: [
+        {
+          items: {
+            type: 'string',
+          },
+          type: 'array',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Env Vars',
+      description: 'Environment Variables for the Deployment',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+      description: 'Description of the deployment',
+    },
+    is_community: {
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Is Community',
+      description: 'Is the deployment from the commmunity',
+      default: false,
+    },
+  },
+  type: 'object',
+  required: ['name', 'models'],
+  title: 'Deployment',
+  description: 'Deployment Schema',
 } as const;
 
 export const $DeploymentCreate = {
@@ -1289,11 +1489,13 @@ export const $DeploymentCreate = {
           type: 'null',
         },
       ],
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique Identifier for the Deployment',
     },
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the Deployment',
     },
     description: {
       anyOf: [
@@ -1305,14 +1507,17 @@ export const $DeploymentCreate = {
         },
       ],
       title: 'Description',
+      description: 'Description of the deployment',
     },
     deployment_class_name: {
       type: 'string',
       title: 'Deployment Class Name',
+      description: 'Deployment Class Name',
     },
     is_community: {
       type: 'boolean',
       title: 'Is Community',
+      description: 'Is the deployment from the commmunity',
       default: false,
     },
     default_deployment_config: {
@@ -1321,11 +1526,13 @@ export const $DeploymentCreate = {
       },
       type: 'object',
       title: 'Default Deployment Config',
+      description: 'The default deployment configuration',
     },
   },
   type: 'object',
   required: ['name', 'deployment_class_name', 'default_deployment_config'],
   title: 'DeploymentCreate',
+  description: 'Deployment Create Schema',
 } as const;
 
 export const $DeploymentDefinition = {
@@ -1396,6 +1603,7 @@ export const $DeploymentUpdate = {
         },
       ],
       title: 'Name',
+      description: 'Name of the Deployment',
     },
     description: {
       anyOf: [
@@ -1407,6 +1615,7 @@ export const $DeploymentUpdate = {
         },
       ],
       title: 'Description',
+      description: 'Description of the deployment',
     },
     deployment_class_name: {
       anyOf: [
@@ -1418,6 +1627,7 @@ export const $DeploymentUpdate = {
         },
       ],
       title: 'Deployment Class Name',
+      description: 'Deployment Class Name',
     },
     is_community: {
       anyOf: [
@@ -1429,6 +1639,7 @@ export const $DeploymentUpdate = {
         },
       ],
       title: 'Is Community',
+      description: 'Is the deployment from the commmunity',
     },
     default_deployment_config: {
       anyOf: [
@@ -1443,10 +1654,12 @@ export const $DeploymentUpdate = {
         },
       ],
       title: 'Default Deployment Config',
+      description: 'The default deployment configuration',
     },
   },
   type: 'object',
   title: 'DeploymentUpdate',
+  description: 'Deployment Update Schema',
 } as const;
 
 export const $Document = {
@@ -1454,10 +1667,12 @@ export const $Document = {
     text: {
       type: 'string',
       title: 'Text',
+      description: 'Document text',
     },
     document_id: {
       type: 'string',
-      title: 'Document Id',
+      title: 'Document_Id',
+      description: 'Unique Identifier for the document',
     },
     title: {
       anyOf: [
@@ -1469,6 +1684,7 @@ export const $Document = {
         },
       ],
       title: 'Title',
+      description: 'Document title',
     },
     url: {
       anyOf: [
@@ -1479,7 +1695,8 @@ export const $Document = {
           type: 'null',
         },
       ],
-      title: 'Url',
+      title: 'URL',
+      description: 'Document URL',
     },
     fields: {
       anyOf: [
@@ -1491,6 +1708,7 @@ export const $Document = {
         },
       ],
       title: 'Fields',
+      description: 'Document Fields',
     },
     tool_name: {
       anyOf: [
@@ -1502,11 +1720,13 @@ export const $Document = {
         },
       ],
       title: 'Tool Name',
+      description: 'Tool name for the document',
     },
   },
   type: 'object',
-  required: ['text', 'document_id', 'title', 'url', 'fields', 'tool_name'],
+  required: ['text', 'document_id'],
   title: 'Document',
+  description: 'Schema for a Document',
 } as const;
 
 export const $Email = {
@@ -1514,6 +1734,7 @@ export const $Email = {
     primary: {
       type: 'boolean',
       title: 'Primary',
+      description: 'Is email the primary email',
     },
     value: {
       anyOf: [
@@ -1525,10 +1746,12 @@ export const $Email = {
         },
       ],
       title: 'Value',
+      description: 'Email value',
     },
     type: {
       type: 'string',
       title: 'Type',
+      description: 'Type of email',
     },
   },
   type: 'object',
@@ -1540,36 +1763,43 @@ export const $FileMetadata = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier of the file',
+    },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At Timestamp',
+      description: 'When file was created',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At Timestamp',
+      description: 'When file was updated',
     },
     file_name: {
       type: 'string',
       title: 'File Name',
-    },
-    file_content: {
-      type: 'string',
-      title: 'File Content',
+      description: 'Name of the file',
     },
     file_size: {
       type: 'integer',
       minimum: 0,
       title: 'File Size',
+      description: 'Size of the file in bytes',
       default: 0,
     },
-    created_at: {
+    file_content: {
       type: 'string',
-      format: 'date-time',
-      title: 'Created At',
-    },
-    updated_at: {
-      type: 'string',
-      format: 'date-time',
-      title: 'Updated At',
+      title: 'File Content',
+      description: 'The contents of the file',
     },
   },
   type: 'object',
-  required: ['id', 'file_name', 'file_content', 'created_at', 'updated_at'],
+  required: ['id', 'created_at', 'updated_at', 'file_name', 'file_content'],
   title: 'FileMetadata',
+  description: 'Schema for file metadata',
 } as const;
 
 export const $GenerateTitleResponse = {
@@ -1577,6 +1807,7 @@ export const $GenerateTitleResponse = {
     title: {
       type: 'string',
       title: 'Title',
+      description: 'Title generated for the conversation',
     },
     error: {
       anyOf: [
@@ -1588,11 +1819,13 @@ export const $GenerateTitleResponse = {
         },
       ],
       title: 'Error',
+      description: 'Error message if the response is an error',
     },
   },
   type: 'object',
   required: ['title'],
   title: 'GenerateTitleResponse',
+  description: 'Response for generating a title',
 } as const;
 
 export const $Group = {
@@ -1603,6 +1836,7 @@ export const $Group = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for the group',
     },
     members: {
       items: {
@@ -1610,17 +1844,21 @@ export const $Group = {
       },
       type: 'array',
       title: 'Members',
+      description: 'Members of the group',
     },
     displayName: {
       type: 'string',
-      title: 'Displayname',
+      title: 'Display Name',
+      description: 'Display name for the group',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier for the group',
     },
     meta: {
       $ref: '#/components/schemas/Meta',
+      description: 'Metadata for the group',
     },
   },
   type: 'object',
@@ -1633,10 +1871,12 @@ export const $GroupMember = {
     value: {
       type: 'string',
       title: 'Value',
+      description: 'Value',
     },
     display: {
       type: 'string',
       title: 'Display',
+      description: 'Display',
     },
   },
   type: 'object',
@@ -1649,6 +1889,7 @@ export const $GroupOperation = {
     op: {
       type: 'string',
       title: 'Op',
+      description: 'Op',
     },
     path: {
       anyOf: [
@@ -1660,6 +1901,7 @@ export const $GroupOperation = {
         },
       ],
       title: 'Path',
+      description: 'Path',
     },
     value: {
       anyOf: [
@@ -1680,6 +1922,7 @@ export const $GroupOperation = {
         },
       ],
       title: 'Value',
+      description: 'Value',
     },
   },
   type: 'object',
@@ -1706,104 +1949,79 @@ export const $JWTResponse = {
     token: {
       type: 'string',
       title: 'Token',
+      description: 'JSON Web Token',
     },
   },
   type: 'object',
   required: ['token'],
   title: 'JWTResponse',
-} as const;
-
-export const $ListAuthStrategy = {
-  properties: {
-    strategy: {
-      type: 'string',
-      title: 'Strategy',
-    },
-    client_id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Client Id',
-    },
-    authorization_endpoint: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Authorization Endpoint',
-    },
-    pkce_enabled: {
-      type: 'boolean',
-      title: 'Pkce Enabled',
-    },
-  },
-  type: 'object',
-  required: ['strategy', 'client_id', 'authorization_endpoint', 'pkce_enabled'],
-  title: 'ListAuthStrategy',
+  description: 'JWT Response',
 } as const;
 
 export const $ListConversationFile = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
+      title: 'ID',
+      description: 'Unique identifier of the file',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When file was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
-    },
-    conversation_id: {
-      type: 'string',
-      title: 'Conversation Id',
+      title: 'Updated At Timestamp',
+      description: 'When file was updated',
     },
     file_name: {
       type: 'string',
       title: 'File Name',
+      description: 'Name of the file',
     },
     file_size: {
       type: 'integer',
       minimum: 0,
       title: 'File Size',
+      description: 'Size of the file in bytes',
       default: 0,
+    },
+    user_id: {
+      type: 'string',
+      title: 'User ID',
+      description: 'Unique identifier for who created the file',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation the file is associated to',
     },
   },
   type: 'object',
-  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'created_at', 'updated_at', 'file_name', 'user_id', 'conversation_id'],
   title: 'ListConversationFile',
+  description: 'Listing conversation files',
 } as const;
 
 export const $ListGroupResponse = {
   properties: {
     totalResults: {
       type: 'integer',
-      title: 'Totalresults',
+      title: 'Total Results',
+      description: 'Total results available',
     },
     startIndex: {
       type: 'integer',
-      title: 'Startindex',
+      title: 'Start Index',
+      description: 'Start index for returned results',
     },
     itemsPerPage: {
       type: 'integer',
-      title: 'Itemsperpage',
+      title: 'Items Per Page',
+      description: 'Total results returned in the request',
     },
     Resources: {
       items: {
@@ -1811,6 +2029,7 @@ export const $ListGroupResponse = {
       },
       type: 'array',
       title: 'Resources',
+      description: 'List of Groups',
     },
   },
   type: 'object',
@@ -1822,15 +2041,18 @@ export const $ListUserResponse = {
   properties: {
     totalResults: {
       type: 'integer',
-      title: 'Totalresults',
+      title: 'Total Results',
+      description: 'Total results available',
     },
     startIndex: {
       type: 'integer',
-      title: 'Startindex',
+      title: 'Start Index',
+      description: 'Start index for returned results',
     },
     itemsPerPage: {
       type: 'integer',
-      title: 'Itemsperpage',
+      title: 'Items Per Page',
+      description: 'Total results returned in the request',
     },
     Resources: {
       items: {
@@ -1838,6 +2060,7 @@ export const $ListUserResponse = {
       },
       type: 'array',
       title: 'Resources',
+      description: 'List of Users',
     },
   },
   type: 'object',
@@ -1850,6 +2073,7 @@ export const $Login = {
     strategy: {
       type: 'string',
       title: 'Strategy',
+      description: 'Auth strategy to use',
     },
     payload: {
       anyOf: [
@@ -1864,17 +2088,20 @@ export const $Login = {
         },
       ],
       title: 'Payload',
+      description: 'Login payload depending on strategy used',
     },
   },
   type: 'object',
   required: ['strategy'],
   title: 'Login',
+  description: 'Login Request',
 } as const;
 
 export const $Logout = {
   properties: {},
   type: 'object',
   title: 'Logout',
+  description: 'Logout Request',
 } as const;
 
 export const $Message = {
@@ -1882,20 +2109,24 @@ export const $Message = {
     text: {
       type: 'string',
       title: 'Text',
+      description: 'The text content of the message',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier of the message',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When message was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When message was updated',
     },
     generation_id: {
       anyOf: [
@@ -1906,15 +2137,18 @@ export const $Message = {
           type: 'null',
         },
       ],
-      title: 'Generation Id',
+      title: 'Generation ID',
+      description: 'Generation ID for the message',
     },
     position: {
       type: 'integer',
       title: 'Position',
+      description: 'Position in the conversation',
     },
     is_active: {
       type: 'boolean',
       title: 'Is Active',
+      description: 'Is the message active',
     },
     documents: {
       items: {
@@ -1922,6 +2156,7 @@ export const $Message = {
       },
       type: 'array',
       title: 'Documents',
+      description: 'Documents associated with the message',
     },
     citations: {
       items: {
@@ -1929,6 +2164,7 @@ export const $Message = {
       },
       type: 'array',
       title: 'Citations',
+      description: 'Citations associated with the message',
     },
     files: {
       items: {
@@ -1936,6 +2172,7 @@ export const $Message = {
       },
       type: 'array',
       title: 'Files',
+      description: 'Files associated with the message',
     },
     tool_calls: {
       items: {
@@ -1943,6 +2180,7 @@ export const $Message = {
       },
       type: 'array',
       title: 'Tool Calls',
+      description: 'Tool calls associated with the message',
     },
     tool_plan: {
       anyOf: [
@@ -1954,9 +2192,12 @@ export const $Message = {
         },
       ],
       title: 'Tool Plan',
+      description: 'Tool plan associated with the message',
     },
     agent: {
       $ref: '#/components/schemas/MessageAgent',
+      title: 'Agent',
+      description: 'Agent associated with the message',
     },
   },
   type: 'object',
@@ -1965,17 +2206,16 @@ export const $Message = {
     'id',
     'created_at',
     'updated_at',
-    'generation_id',
     'position',
     'is_active',
     'documents',
     'citations',
     'files',
     'tool_calls',
-    'tool_plan',
     'agent',
   ],
   title: 'Message',
+  description: 'Message Schema',
 } as const;
 
 export const $MessageAgent = {
@@ -1988,35 +2228,32 @@ export const $Meta = {
   properties: {
     resourceType: {
       type: 'string',
-      title: 'Resourcetype',
+      title: 'Resource Type',
+      description: 'Type of resource the metadata is for',
     },
     created: {
       type: 'string',
       title: 'Created',
+      description: 'When metadata was created',
     },
     lastModified: {
       type: 'string',
-      title: 'Lastmodified',
+      title: 'Last Modified',
+      description: 'When metadata was last modified',
     },
   },
   type: 'object',
   required: ['resourceType', 'created', 'lastModified'],
   title: 'Meta',
+  description: 'Schema for metadata',
 } as const;
 
 export const $Model = {
   properties: {
-    id: {
-      type: 'string',
-      title: 'Id',
-    },
     name: {
       type: 'string',
       title: 'Name',
-    },
-    deployment_id: {
-      type: 'string',
-      title: 'Deployment Id',
+      description: 'Model name',
     },
     cohere_name: {
       anyOf: [
@@ -2028,6 +2265,7 @@ export const $Model = {
         },
       ],
       title: 'Cohere Name',
+      description: 'Cohere model name',
     },
     description: {
       anyOf: [
@@ -2039,10 +2277,21 @@ export const $Model = {
         },
       ],
       title: 'Description',
+      description: 'Model description',
+    },
+    id: {
+      type: 'string',
+      title: 'ID',
+      description: 'Unique identifier for the model',
+    },
+    deployment_id: {
+      type: 'string',
+      title: 'Deployment ID',
+      description: 'Unique identifier for the deployment',
     },
   },
   type: 'object',
-  required: ['id', 'name', 'deployment_id', 'cohere_name', 'description'],
+  required: ['name', 'id', 'deployment_id'],
   title: 'Model',
 } as const;
 
@@ -2051,6 +2300,7 @@ export const $ModelCreate = {
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Model name',
     },
     cohere_name: {
       anyOf: [
@@ -2062,6 +2312,7 @@ export const $ModelCreate = {
         },
       ],
       title: 'Cohere Name',
+      description: 'Cohere model name',
     },
     description: {
       anyOf: [
@@ -2073,14 +2324,16 @@ export const $ModelCreate = {
         },
       ],
       title: 'Description',
+      description: 'Model description',
     },
     deployment_id: {
       type: 'string',
-      title: 'Deployment Id',
+      title: 'Deployment ID',
+      description: 'Unique identifier for the deployment',
     },
   },
   type: 'object',
-  required: ['name', 'cohere_name', 'description', 'deployment_id'],
+  required: ['name', 'deployment_id'],
   title: 'ModelCreate',
 } as const;
 
@@ -2096,6 +2349,7 @@ export const $ModelUpdate = {
         },
       ],
       title: 'Name',
+      description: 'Model name',
     },
     cohere_name: {
       anyOf: [
@@ -2107,6 +2361,7 @@ export const $ModelUpdate = {
         },
       ],
       title: 'Cohere Name',
+      description: 'Cohere model name',
     },
     description: {
       anyOf: [
@@ -2118,6 +2373,7 @@ export const $ModelUpdate = {
         },
       ],
       title: 'Description',
+      description: 'Model description',
     },
     deployment_id: {
       anyOf: [
@@ -2128,7 +2384,8 @@ export const $ModelUpdate = {
           type: 'null',
         },
       ],
-      title: 'Deployment Id',
+      title: 'Deployment ID',
+      description: 'Unique identifier for the deployment',
     },
   },
   type: 'object',
@@ -2139,11 +2396,13 @@ export const $Name = {
   properties: {
     givenName: {
       type: 'string',
-      title: 'Givenname',
+      title: 'Given Name',
+      description: "User's given name",
     },
     familyName: {
       type: 'string',
-      title: 'Familyname',
+      title: 'Family Name',
+      description: "User's family name",
     },
   },
   type: 'object',
@@ -2162,7 +2421,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'Unique identifier for the response.',
+      title: 'Response ID',
+      description: 'Unique identifier for the response',
     },
     generation_id: {
       anyOf: [
@@ -2173,7 +2433,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'Unique identifier for the generation.',
+      title: 'Generation ID',
+      description: 'Unique identifier for the generation',
     },
     chat_history: {
       anyOf: [
@@ -2187,16 +2448,19 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Chat History',
+      description:
         "A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.",
     },
     finish_reason: {
       type: 'string',
-      title: 'Reason the chat stream ended.',
+      title: 'Finish Reason',
+      description: 'Reason the chat stream ended',
     },
     text: {
       type: 'string',
-      title: 'Contents of the chat message.',
+      title: 'Text',
+      description: 'Contents of the chat message',
     },
     citations: {
       anyOf: [
@@ -2210,7 +2474,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'Citations for the chat message.',
+      title: 'Citations',
+      description: 'Citations for the chat message',
       default: [],
     },
     documents: {
@@ -2225,7 +2490,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'Documents used to generate grounded response with citations.',
+      title: 'Documents',
+      description: 'Documents used to generate grounded response with citations',
       default: [],
     },
     search_results: {
@@ -2240,7 +2506,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'Search results used to generate grounded response with citations.',
+      title: 'Search Results',
+      description: 'Search results used to generate grounded response with citations',
       default: [],
     },
     search_queries: {
@@ -2255,7 +2522,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'List of generated search queries.',
+      title: 'Search Queries',
+      description: 'List of generated search queries.',
       default: [],
     },
     conversation_id: {
@@ -2267,8 +2535,9 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title:
-        'To store a conversation then create a conversation id and use it for every related request.',
+      title: 'Conversation ID',
+      description:
+        'To store a conversation then create a conversation id and use it for every related request',
     },
     tool_calls: {
       anyOf: [
@@ -2282,7 +2551,8 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'List of tool calls generated for custom tools',
+      title: 'Tool Calls',
+      description: 'List of tool calls generated for custom tools',
       default: [],
     },
     error: {
@@ -2294,19 +2564,14 @@ export const $NonStreamedChatResponse = {
           type: 'null',
         },
       ],
-      title: 'Error message if the response is an error.',
+      title: 'Error',
+      description: 'Error message if the response is an error',
     },
   },
   type: 'object',
-  required: [
-    'response_id',
-    'generation_id',
-    'chat_history',
-    'finish_reason',
-    'text',
-    'conversation_id',
-  ],
+  required: ['finish_reason', 'text'],
   title: 'NonStreamedChatResponse',
+  description: 'Non streamed chat response',
 } as const;
 
 export const $Operation = {
@@ -2314,6 +2579,7 @@ export const $Operation = {
     op: {
       type: 'string',
       title: 'Op',
+      description: 'Op',
     },
     value: {
       additionalProperties: {
@@ -2321,6 +2587,7 @@ export const $Operation = {
       },
       type: 'object',
       title: 'Value',
+      description: 'Value',
     },
   },
   type: 'object',
@@ -2333,25 +2600,30 @@ export const $Organization = {
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the organization',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier of the organization',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When organization was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When organization was updated',
     },
   },
   type: 'object',
   required: ['name', 'id', 'created_at', 'updated_at'],
   title: 'Organization',
+  description: 'Schema for an organization',
 } as const;
 
 export const $PatchGroup = {
@@ -2362,6 +2634,7 @@ export const $PatchGroup = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for group',
     },
     operations: {
       items: {
@@ -2369,6 +2642,7 @@ export const $PatchGroup = {
       },
       type: 'array',
       title: 'Operations',
+      description: 'Operations for the group',
     },
   },
   type: 'object',
@@ -2384,6 +2658,7 @@ export const $PatchUser = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for user',
     },
     operations: {
       items: {
@@ -2391,6 +2666,7 @@ export const $PatchUser = {
       },
       type: 'array',
       title: 'Operations',
+      description: 'Operations for the user',
     },
   },
   type: 'object',
@@ -2403,15 +2679,18 @@ export const $SearchQuery = {
     text: {
       type: 'string',
       title: 'Text',
+      description: 'Text for the search',
     },
     generation_id: {
       type: 'string',
-      title: 'Generation Id',
+      title: 'Generation ID',
+      description: 'Unique identifier for the generation',
     },
   },
   type: 'object',
   required: ['text', 'generation_id'],
   title: 'SearchQuery',
+  description: 'Schema for search query',
 } as const;
 
 export const $SnapshotData = {
@@ -2419,10 +2698,12 @@ export const $SnapshotData = {
     title: {
       type: 'string',
       title: 'Title',
+      description: 'Title of the snapshot',
     },
     description: {
       type: 'string',
       title: 'Description',
+      description: 'Description of the snapshot',
     },
     messages: {
       items: {
@@ -2430,43 +2711,53 @@ export const $SnapshotData = {
       },
       type: 'array',
       title: 'Messages',
+      description: 'List of messages',
     },
   },
   type: 'object',
   required: ['title', 'description', 'messages'],
   title: 'SnapshotData',
+  description: 'Snapshot data',
 } as const;
 
 export const $SnapshotPublic = {
   properties: {
     conversation_id: {
       type: 'string',
-      title: 'Conversation Id',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier for the snapshot',
     },
     last_message_id: {
       type: 'string',
-      title: 'Last Message Id',
+      title: 'Last Message ID',
+      description: 'Unique identifier for the last message',
     },
     version: {
       type: 'integer',
       title: 'Version',
+      description: 'Snapshot version',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When snapshot was creted',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When snapshot was updated',
     },
     snapshot: {
       $ref: '#/components/schemas/SnapshotData',
+      title: 'Snapshot Data',
+      description: 'Data for the snapshot',
     },
   },
   type: 'object',
@@ -2480,38 +2771,47 @@ export const $SnapshotPublic = {
     'snapshot',
   ],
   title: 'SnapshotPublic',
+  description: 'Public snapshot',
 } as const;
 
 export const $SnapshotWithLinks = {
   properties: {
     conversation_id: {
       type: 'string',
-      title: 'Conversation Id',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier for the snapshot',
     },
     last_message_id: {
       type: 'string',
-      title: 'Last Message Id',
+      title: 'Last Message ID',
+      description: 'Unique identifier for the last message',
     },
     version: {
       type: 'integer',
       title: 'Version',
+      description: 'Snapshot version',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When snapshot was creted',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When snapshot was updated',
     },
     snapshot: {
       $ref: '#/components/schemas/SnapshotData',
+      title: 'Snapshot Data',
+      description: 'Data for the snapshot',
     },
     links: {
       items: {
@@ -2519,6 +2819,7 @@ export const $SnapshotWithLinks = {
       },
       type: 'array',
       title: 'Links',
+      description: 'List of links',
     },
   },
   type: 'object',
@@ -2533,6 +2834,7 @@ export const $SnapshotWithLinks = {
     'links',
   ],
   title: 'SnapshotWithLinks',
+  description: 'Snapshot with links',
 } as const;
 
 export const $StreamCitationGeneration = {
@@ -2542,13 +2844,14 @@ export const $StreamCitationGeneration = {
         $ref: '#/components/schemas/Citation',
       },
       type: 'array',
-      title: 'Citations for the chat message.',
+      title: 'Citations',
+      description: 'Citations for the chat message',
       default: [],
     },
   },
   type: 'object',
   title: 'StreamCitationGeneration',
-  description: 'Stream citation generation event.',
+  description: 'Stream citation generation event',
 } as const;
 
 export const $StreamEnd = {
@@ -2562,7 +2865,8 @@ export const $StreamEnd = {
           type: 'null',
         },
       ],
-      title: 'Message Id',
+      title: 'Message ID',
+      description: 'Unique identifier for the message',
     },
     response_id: {
       anyOf: [
@@ -2573,7 +2877,8 @@ export const $StreamEnd = {
           type: 'null',
         },
       ],
-      title: 'Response Id',
+      title: 'Response ID',
+      description: 'Unique identifier for the response',
     },
     generation_id: {
       anyOf: [
@@ -2584,7 +2889,8 @@ export const $StreamEnd = {
           type: 'null',
         },
       ],
-      title: 'Generation Id',
+      title: 'Generation ID',
+      description: 'Unique identifier for the generation',
     },
     conversation_id: {
       anyOf: [
@@ -2595,18 +2901,21 @@ export const $StreamEnd = {
           type: 'null',
         },
       ],
-      title: 'Conversation Id',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation',
     },
     text: {
       type: 'string',
-      title: 'Contents of the chat message.',
+      title: 'Text',
+      description: 'Contents of the chat message',
     },
     citations: {
       items: {
         $ref: '#/components/schemas/Citation',
       },
       type: 'array',
-      title: 'Citations for the chat message.',
+      title: 'Citations',
+      description: 'Citations for the chat messae.',
       default: [],
     },
     documents: {
@@ -2614,7 +2923,8 @@ export const $StreamEnd = {
         $ref: '#/components/schemas/Document',
       },
       type: 'array',
-      title: 'Documents used to generate grounded response with citations.',
+      title: 'Documents',
+      description: 'Documents used to generate grounded response with citations',
       default: [],
     },
     search_results: {
@@ -2622,7 +2932,8 @@ export const $StreamEnd = {
         type: 'object',
       },
       type: 'array',
-      title: 'Search results used to generate grounded response with citations.',
+      title: 'Search Results',
+      description: 'Search results used to generate grounded response with citations',
       default: [],
     },
     search_queries: {
@@ -2630,7 +2941,8 @@ export const $StreamEnd = {
         $ref: '#/components/schemas/SearchQuery',
       },
       type: 'array',
-      title: 'List of generated search queries.',
+      title: 'Search Queries',
+      description: 'List of generated search queries',
       default: [],
     },
     tool_calls: {
@@ -2638,7 +2950,8 @@ export const $StreamEnd = {
         $ref: '#/components/schemas/ToolCall',
       },
       type: 'array',
-      title: 'List of tool calls generated for custom tools',
+      title: 'Tool Calls',
+      description: 'List of tool calls generated for custom tools',
       default: [],
     },
     finish_reason: {
@@ -2651,6 +2964,7 @@ export const $StreamEnd = {
         },
       ],
       title: 'Finish Reason',
+      description: 'Reson why the model finished the request',
     },
     chat_history: {
       anyOf: [
@@ -2664,7 +2978,8 @@ export const $StreamEnd = {
           type: 'null',
         },
       ],
-      title:
+      title: 'Chat History',
+      description:
         'A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.',
     },
     error: {
@@ -2676,12 +2991,14 @@ export const $StreamEnd = {
           type: 'null',
         },
       ],
-      title: 'Error message if the response is an error.',
+      title: 'Error',
+      description: 'Error message if the response is an error',
     },
   },
   type: 'object',
   required: ['text'],
   title: 'StreamEnd',
+  description: 'Stream end generation event',
 } as const;
 
 export const $StreamEvent = {
@@ -2707,13 +3024,14 @@ export const $StreamQueryGeneration = {
   properties: {
     query: {
       type: 'string',
-      title: 'Search query used to generate grounded response with citations.',
+      title: 'Query',
+      description: 'Search query used to generate grounded response with citations',
     },
   },
   type: 'object',
   required: ['query'],
   title: 'StreamQueryGeneration',
-  description: 'Stream query generation event.',
+  description: 'Stream query generation event',
 } as const;
 
 export const $StreamSearchQueriesGeneration = {
@@ -2723,13 +3041,14 @@ export const $StreamSearchQueriesGeneration = {
         $ref: '#/components/schemas/SearchQuery',
       },
       type: 'array',
-      title: 'Search query used to generate grounded response with citations.',
+      title: 'Search Queries',
+      description: 'Search query used to generate grounded response with citations',
       default: [],
     },
   },
   type: 'object',
   title: 'StreamSearchQueriesGeneration',
-  description: 'Stream queries generation event.',
+  description: 'Stream queries generation event',
 } as const;
 
 export const $StreamSearchResults = {
@@ -2739,7 +3058,8 @@ export const $StreamSearchResults = {
         type: 'object',
       },
       type: 'array',
-      title: 'Search results used to generate grounded response with citations.',
+      title: 'Search Results',
+      description: 'Search results used to generate grounded response with citations',
       default: [],
     },
     documents: {
@@ -2747,12 +3067,14 @@ export const $StreamSearchResults = {
         $ref: '#/components/schemas/Document',
       },
       type: 'array',
-      title: 'Documents used to generate grounded response with citations.',
+      title: 'Documents',
+      description: 'Documents used to generate grounded response with citations',
       default: [],
     },
   },
   type: 'object',
   title: 'StreamSearchResults',
+  description: 'Stream search generation event',
 } as const;
 
 export const $StreamStart = {
@@ -2766,7 +3088,8 @@ export const $StreamStart = {
           type: 'null',
         },
       ],
-      title: 'Generation Id',
+      title: 'Generation ID',
+      description: 'Generation ID for the event',
     },
     conversation_id: {
       anyOf: [
@@ -2777,25 +3100,27 @@ export const $StreamStart = {
           type: 'null',
         },
       ],
-      title: 'Conversation Id',
+      title: 'Conversation ID',
+      description: 'Conversation ID for the event',
     },
   },
   type: 'object',
   title: 'StreamStart',
-  description: 'Stream start event.',
+  description: 'Stream start event',
 } as const;
 
 export const $StreamTextGeneration = {
   properties: {
     text: {
       type: 'string',
-      title: 'Contents of the chat message.',
+      title: 'Text',
+      description: 'Contents of the chat message',
     },
   },
   type: 'object',
   required: ['text'],
   title: 'StreamTextGeneration',
-  description: 'Stream text generation event.',
+  description: 'Stream text generation event',
 } as const;
 
 export const $StreamToolCallsChunk = {
@@ -2809,7 +3134,8 @@ export const $StreamToolCallsChunk = {
           type: 'null',
         },
       ],
-      title: 'Partial tool call',
+      title: 'Tool Call Delta',
+      description: 'Partial tool call',
       default: {},
     },
     text: {
@@ -2821,26 +3147,24 @@ export const $StreamToolCallsChunk = {
           type: 'null',
         },
       ],
-      title: 'Contents of the chat message.',
+      title: 'Text',
+      description: 'Contents of the chat message',
     },
   },
   type: 'object',
-  required: ['text'],
   title: 'StreamToolCallsChunk',
+  description: 'Stream tool call chunk generated event',
 } as const;
 
 export const $StreamToolCallsGeneration = {
   properties: {
     stream_search_results: {
-      anyOf: [
-        {
-          $ref: '#/components/schemas/StreamSearchResults',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'List of search results used to generate grounded response with citations',
+      items: {
+        $ref: '#/components/schemas/StreamSearchResults',
+      },
+      type: 'array',
+      title: 'Stream Search Results',
+      description: 'List of search results used to generate grounded response with citations',
       default: [],
     },
     tool_calls: {
@@ -2855,7 +3179,8 @@ export const $StreamToolCallsGeneration = {
           type: 'null',
         },
       ],
-      title: 'List of tool calls generated for custom tools',
+      title: 'Tool Calls',
+      description: 'List of tool calls generated for custom tools',
       default: [],
     },
     text: {
@@ -2867,59 +3192,69 @@ export const $StreamToolCallsGeneration = {
           type: 'null',
         },
       ],
-      title: 'Contents of the chat message.',
+      title: 'Text',
+      description: 'Contents of the chat message',
     },
   },
   type: 'object',
-  required: ['text'],
   title: 'StreamToolCallsGeneration',
-  description: 'Stream tool calls generation event.',
+  description: 'Stream tool calls generation event',
 } as const;
 
 export const $StreamToolInput = {
   properties: {
     input_type: {
       $ref: '#/components/schemas/ToolInputType',
+      title: 'Input Type',
+      description: 'Tool input type',
     },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
+      description: 'Name of the tool to be used',
     },
     input: {
       type: 'string',
       title: 'Input',
+      description: 'Tool input',
     },
     text: {
       type: 'string',
       title: 'Text',
+      description: 'Contents of the chat message',
     },
   },
   type: 'object',
   required: ['input_type', 'tool_name', 'input', 'text'],
   title: 'StreamToolInput',
+  description: 'Stream tool input generation event',
 } as const;
 
 export const $StreamToolResult = {
   properties: {
     result: {
       title: 'Result',
+      description: 'Result from the tool',
     },
     tool_name: {
       type: 'string',
       title: 'Tool Name',
+      description: 'Name of tool that generated the result',
     },
     documents: {
       items: {
         $ref: '#/components/schemas/Document',
       },
       type: 'array',
-      title: 'Documents used to generate grounded response with citations.',
+      title: 'Documents',
+      description: 'Documents used to generate grounded response with citations',
       default: [],
     },
   },
   type: 'object',
   required: ['result', 'tool_name'],
   title: 'StreamToolResult',
+  description: 'Stream tool result generation event',
 } as const;
 
 export const $ToggleConversationPinRequest = {
@@ -2927,11 +3262,13 @@ export const $ToggleConversationPinRequest = {
     is_pinned: {
       type: 'boolean',
       title: 'Is Pinned',
+      description: 'If conversation is pinned',
     },
   },
   type: 'object',
   required: ['is_pinned'],
   title: 'ToggleConversationPinRequest',
+  description: 'Request to toggle pinning a conversation',
 } as const;
 
 export const $Tool = {
@@ -2946,6 +3283,7 @@ export const $Tool = {
         },
       ],
       title: 'Name',
+      description: 'Name of the Tool',
       default: '',
     },
     parameter_definitions: {
@@ -2958,11 +3296,13 @@ export const $Tool = {
         },
       ],
       title: 'Parameter Definitions',
+      description: 'Parameters definitions for the tool',
       default: {},
     },
   },
   type: 'object',
   title: 'Tool',
+  description: 'Tool Schema',
 } as const;
 
 export const $ToolCall = {
@@ -2970,16 +3310,19 @@ export const $ToolCall = {
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the Tool',
     },
     parameters: {
       type: 'object',
       title: 'Parameters',
+      description: 'Parameters for the tool call',
       default: {},
     },
   },
   type: 'object',
   required: ['name'],
   title: 'ToolCall',
+  description: 'Schema for Tool Call',
 } as const;
 
 export const $ToolCallDelta = {
@@ -2994,6 +3337,7 @@ export const $ToolCallDelta = {
         },
       ],
       title: 'Name',
+      description: 'Name of the Tool',
     },
     index: {
       anyOf: [
@@ -3005,6 +3349,7 @@ export const $ToolCallDelta = {
         },
       ],
       title: 'Index',
+      description: 'Index',
     },
     parameters: {
       anyOf: [
@@ -3016,17 +3361,19 @@ export const $ToolCallDelta = {
         },
       ],
       title: 'Parameters',
+      description: 'Parameters for the tool call',
     },
   },
   type: 'object',
-  required: ['name', 'index', 'parameters'],
   title: 'ToolCallDelta',
+  description: 'Schema for Tool Call Delta',
 } as const;
 
 export const $ToolCategory = {
   type: 'string',
   enum: ['Data loader', 'File loader', 'Function', 'Web search'],
   title: 'ToolCategory',
+  description: 'Supported Tool Categories',
 } as const;
 
 export const $ToolDefinition = {
@@ -3041,6 +3388,7 @@ export const $ToolDefinition = {
         },
       ],
       title: 'Name',
+      description: 'Name of the Tool',
       default: '',
     },
     parameter_definitions: {
@@ -3053,16 +3401,19 @@ export const $ToolDefinition = {
         },
       ],
       title: 'Parameter Definitions',
+      description: 'Parameters definitions for the tool',
       default: {},
     },
     display_name: {
       type: 'string',
       title: 'Display Name',
+      description: 'Display name for the tool',
       default: '',
     },
     description: {
       type: 'string',
       title: 'Description',
+      description: 'Description of the tool',
       default: '',
     },
     error_message: {
@@ -3075,30 +3426,37 @@ export const $ToolDefinition = {
         },
       ],
       title: 'Error Message',
+      description: 'Error message',
       default: '',
     },
     kwargs: {
       type: 'object',
-      title: 'Kwargs',
+      title: 'kwargs',
+      description: 'kwags for the tool',
       default: {},
     },
     is_visible: {
       type: 'boolean',
       title: 'Is Visible',
+      description: 'Is the tool visible',
       default: false,
     },
     is_available: {
       type: 'boolean',
       title: 'Is Available',
+      description: 'Is the tool available',
       default: false,
     },
     category: {
       $ref: '#/components/schemas/ToolCategory',
+      title: 'Category',
+      description: 'Tool category',
       default: 'Data loader',
     },
     is_auth_required: {
       type: 'boolean',
       title: 'Is Auth Required',
+      description: 'Is auth required for the tool',
       default: false,
     },
     auth_url: {
@@ -3111,6 +3469,7 @@ export const $ToolDefinition = {
         },
       ],
       title: 'Auth Url',
+      description: 'Auth url for the tool',
       default: '',
     },
     token: {
@@ -3123,16 +3482,19 @@ export const $ToolDefinition = {
         },
       ],
       title: 'Token',
+      description: 'Token for the tool',
       default: '',
     },
     should_return_token: {
       type: 'boolean',
       title: 'Should Return Token',
+      description: 'If the tool returns a token',
       default: false,
     },
   },
   type: 'object',
   title: 'ToolDefinition',
+  description: 'Tool Definition Schema',
 } as const;
 
 export const $ToolInputType = {
@@ -3347,6 +3709,7 @@ export const $UpdateConversationRequest = {
         },
       ],
       title: 'Title',
+      description: 'Title of the conversation',
     },
     description: {
       anyOf: [
@@ -3358,10 +3721,12 @@ export const $UpdateConversationRequest = {
         },
       ],
       title: 'Description',
+      description: 'Description of the conversation',
     },
   },
   type: 'object',
   title: 'UpdateConversationRequest',
+  description: 'Request to update a conversation',
 } as const;
 
 export const $UpdateDeploymentEnv = {
@@ -3372,11 +3737,13 @@ export const $UpdateDeploymentEnv = {
       },
       type: 'object',
       title: 'Env Vars',
+      description: 'Environment Variables for the Deployment',
     },
   },
   type: 'object',
   required: ['env_vars'],
   title: 'UpdateDeploymentEnv',
+  description: 'Request to update Deployment Environment Variables',
 } as const;
 
 export const $UpdateOrganization = {
@@ -3391,83 +3758,98 @@ export const $UpdateOrganization = {
         },
       ],
       title: 'Name',
+      description: 'Name of the organization',
     },
   },
   type: 'object',
-  required: ['name'],
   title: 'UpdateOrganization',
+  description: 'Request to update an organization',
 } as const;
 
 export const $UploadAgentFileResponse = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier of the file',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When file was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When file was updated',
     },
     file_name: {
       type: 'string',
       title: 'File Name',
+      description: 'Name of the file',
     },
     file_size: {
       type: 'integer',
       minimum: 0,
       title: 'File Size',
+      description: 'Size of the file in bytes',
       default: 0,
     },
   },
   type: 'object',
   required: ['id', 'created_at', 'updated_at', 'file_name'],
   title: 'UploadAgentFileResponse',
+  description: 'Reponse for uploading an agent file',
 } as const;
 
 export const $UploadConversationFileResponse = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
-    },
-    user_id: {
-      type: 'string',
-      title: 'User Id',
+      title: 'ID',
+      description: 'Unique identifier of the file',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When file was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
-    },
-    conversation_id: {
-      type: 'string',
-      title: 'Conversation Id',
+      title: 'Updated At Timestamp',
+      description: 'When file was updated',
     },
     file_name: {
       type: 'string',
       title: 'File Name',
+      description: 'Name of the file',
     },
     file_size: {
       type: 'integer',
       minimum: 0,
       title: 'File Size',
+      description: 'Size of the file in bytes',
       default: 0,
+    },
+    user_id: {
+      type: 'string',
+      title: 'User ID',
+      description: 'Unique identifier for who created the file',
+    },
+    conversation_id: {
+      type: 'string',
+      title: 'Conversation ID',
+      description: 'Unique identifier for the conversation the file is associated to',
     },
   },
   type: 'object',
-  required: ['id', 'user_id', 'created_at', 'updated_at', 'conversation_id', 'file_name'],
+  required: ['id', 'created_at', 'updated_at', 'file_name', 'user_id', 'conversation_id'],
   title: 'UploadConversationFileResponse',
+  description: 'Response for uploading a conversation file',
 } as const;
 
 export const $ValidationError = {
@@ -3511,7 +3893,8 @@ export const $backend__schemas__scim__CreateUser = {
           type: 'null',
         },
       ],
-      title: 'Username',
+      title: 'User Name',
+      description: 'User name',
     },
     active: {
       anyOf: [
@@ -3523,6 +3906,7 @@ export const $backend__schemas__scim__CreateUser = {
         },
       ],
       title: 'Active',
+      description: 'Is user active',
     },
     schemas: {
       items: {
@@ -3530,9 +3914,12 @@ export const $backend__schemas__scim__CreateUser = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for the user',
     },
     name: {
       $ref: '#/components/schemas/Name',
+      title: 'Name',
+      description: 'Name of user',
     },
     emails: {
       items: {
@@ -3540,14 +3927,16 @@ export const $backend__schemas__scim__CreateUser = {
       },
       type: 'array',
       title: 'Emails',
+      description: 'List of emails for user',
     },
     externalId: {
       type: 'string',
-      title: 'Externalid',
+      title: 'External ID',
+      description: 'External ID for the user',
     },
   },
   type: 'object',
-  required: ['userName', 'active', 'schemas', 'name', 'emails', 'externalId'],
+  required: ['schemas', 'name', 'emails', 'externalId'],
   title: 'CreateUser',
 } as const;
 
@@ -3562,7 +3951,8 @@ export const $backend__schemas__scim__UpdateUser = {
           type: 'null',
         },
       ],
-      title: 'Username',
+      title: 'User Name',
+      description: 'User name',
     },
     active: {
       anyOf: [
@@ -3574,6 +3964,7 @@ export const $backend__schemas__scim__UpdateUser = {
         },
       ],
       title: 'Active',
+      description: 'Is user active',
     },
     schemas: {
       items: {
@@ -3581,6 +3972,11 @@ export const $backend__schemas__scim__UpdateUser = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for the user',
+    },
+    name: {
+      $ref: '#/components/schemas/Name',
+      description: 'Name of user',
     },
     emails: {
       items: {
@@ -3588,13 +3984,11 @@ export const $backend__schemas__scim__UpdateUser = {
       },
       type: 'array',
       title: 'Emails',
-    },
-    name: {
-      $ref: '#/components/schemas/Name',
+      description: 'List of emails for user',
     },
   },
   type: 'object',
-  required: ['userName', 'active', 'schemas', 'emails', 'name'],
+  required: ['schemas', 'name', 'emails'],
   title: 'UpdateUser',
 } as const;
 
@@ -3609,7 +4003,8 @@ export const $backend__schemas__scim__User = {
           type: 'null',
         },
       ],
-      title: 'Username',
+      title: 'User Name',
+      description: 'User name',
     },
     active: {
       anyOf: [
@@ -3621,6 +4016,7 @@ export const $backend__schemas__scim__User = {
         },
       ],
       title: 'Active',
+      description: 'Is user active',
     },
     schemas: {
       items: {
@@ -3628,21 +4024,25 @@ export const $backend__schemas__scim__User = {
       },
       type: 'array',
       title: 'Schemas',
+      description: 'Schemas for the user',
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique identifier for the user',
     },
     externalId: {
       type: 'string',
-      title: 'Externalid',
+      title: 'External ID',
+      description: 'External ID for the user',
     },
     meta: {
       $ref: '#/components/schemas/Meta',
+      description: 'Metadata for the user',
     },
   },
   type: 'object',
-  required: ['userName', 'active', 'schemas', 'id', 'externalId', 'meta'],
+  required: ['schemas', 'id', 'externalId', 'meta'],
   title: 'User',
 } as const;
 
@@ -3658,6 +4058,7 @@ export const $backend__schemas__user__CreateUser = {
         },
       ],
       title: 'Password',
+      description: 'Password for the user',
     },
     hashed_password: {
       anyOf: [
@@ -3670,10 +4071,12 @@ export const $backend__schemas__user__CreateUser = {
         },
       ],
       title: 'Hashed Password',
+      description: "The user's password hashed",
     },
     fullname: {
       type: 'string',
-      title: 'Fullname',
+      title: 'Full Name',
+      description: "User's Full Name",
     },
     email: {
       anyOf: [
@@ -3685,11 +4088,13 @@ export const $backend__schemas__user__CreateUser = {
         },
       ],
       title: 'Email',
+      description: "User's email address",
     },
   },
   type: 'object',
   required: ['fullname'],
   title: 'CreateUser',
+  description: 'Request to create a user',
 } as const;
 
 export const $backend__schemas__user__UpdateUser = {
@@ -3704,6 +4109,7 @@ export const $backend__schemas__user__UpdateUser = {
         },
       ],
       title: 'Password',
+      description: 'Password for the user',
     },
     hashed_password: {
       anyOf: [
@@ -3716,6 +4122,7 @@ export const $backend__schemas__user__UpdateUser = {
         },
       ],
       title: 'Hashed Password',
+      description: "The user's password hashed",
     },
     fullname: {
       anyOf: [
@@ -3726,7 +4133,8 @@ export const $backend__schemas__user__UpdateUser = {
           type: 'null',
         },
       ],
-      title: 'Fullname',
+      title: 'Full Name',
+      description: "User's Full Name",
     },
     email: {
       anyOf: [
@@ -3738,17 +4146,20 @@ export const $backend__schemas__user__UpdateUser = {
         },
       ],
       title: 'Email',
+      description: "User's email address",
     },
   },
   type: 'object',
   title: 'UpdateUser',
+  description: 'Request to update a user',
 } as const;
 
 export const $backend__schemas__user__User = {
   properties: {
     fullname: {
       type: 'string',
-      title: 'Fullname',
+      title: 'Full Name',
+      description: "User's Full Name",
     },
     email: {
       anyOf: [
@@ -3760,23 +4171,28 @@ export const $backend__schemas__user__User = {
         },
       ],
       title: 'Email',
+      description: "User's email address",
     },
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: '',
     },
     created_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Created At',
+      title: 'Created At Timestamp',
+      description: 'When the user was created',
     },
     updated_at: {
       type: 'string',
       format: 'date-time',
-      title: 'Updated At',
+      title: 'Updated At Timestamp',
+      description: 'When the user was updated',
     },
   },
   type: 'object',
   required: ['fullname', 'id', 'created_at', 'updated_at'],
   title: 'User',
+  description: 'User schema',
 } as const;

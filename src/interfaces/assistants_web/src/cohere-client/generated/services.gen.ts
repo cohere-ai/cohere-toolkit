@@ -120,6 +120,8 @@ import type {
   RegenerateChatStreamV1ChatStreamRegeneratePostResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
+  SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostData,
+  SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostResponse,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
@@ -145,18 +147,13 @@ import type {
   UpdateUserV1UsersUserIdPutResponse,
 } from './types.gen';
 
-export class DefaultService {
+export class AuthService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Get Strategies
    * Retrieves the currently enabled list of Authentication strategies.
-   *
-   * Args:
-   * ctx (Context): Context object.
-   * Returns:
-   * List[dict]: List of dictionaries containing the enabled auth strategy names.
-   * @returns ListAuthStrategy Successful Response
+   * @returns AuthStrategy Successful Response
    * @throws ApiError
    */
   public getStrategiesV1AuthStrategiesGet(): CancelablePromise<GetStrategiesV1AuthStrategiesGetResponse> {
@@ -170,14 +167,6 @@ export class DefaultService {
    * Login
    * Logs user in, performing basic email/password auth.
    * Verifies their credentials, retrieves the user and returns a JWT token.
-   *
-   * Args:
-   * login (Login): Login payload.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * dict: JWT token on Basic auth success
    *
    * Raises:
    * HTTPException: If the strategy or payload are invalid, or if the login fails.
@@ -202,21 +191,11 @@ export class DefaultService {
    * Authorize
    * Callback authorization endpoint used for OAuth providers after authenticating on the provider's login screen.
    *
-   * Args:
-   * strategy (str): Current strategy name.
-   * request (Request): Current Request object.
-   * session (Session): DB session.
-   * code (str): OAuth code.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * dict: Containing "token" key, on success.
-   *
    * Raises:
    * HTTPException: If authentication fails, or strategy is invalid.
    * @param data The data for the request.
-   * @param data.strategy
-   * @param data.code
+   * @param data.strategy Name of strategy in question
+   * @param data.code OAuth Code
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
@@ -241,15 +220,6 @@ export class DefaultService {
   /**
    * Logout
    * Logs out the current user, adding the given JWT token to the blacklist.
-   *
-   * Args:
-   * request (Request): current Request object.
-   * session (DBSessionDep): Database session.
-   * token (dict): JWT token payload.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * dict: Empty on success
    * @returns Logout Successful Response
    * @throws ApiError
    */
@@ -267,11 +237,6 @@ export class DefaultService {
    * after completion.
    *
    * If completed, a ToolAuth is stored in the DB containing the access token for the tool.
-   *
-   * Args:
-   * request (Request): current Request object.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
    *
    * Returns:
    * RedirectResponse: A redirect pointing to the frontend, contains an error query parameter if
@@ -295,19 +260,10 @@ export class DefaultService {
    *
    * If completed, the corresponding ToolAuth for the requesting user is removed from the DB.
    *
-   * Args:
-   * tool_id (str): Tool ID to be deleted for the user. (eg. google_drive) Should be one of the values listed in the Tool string enum class.
-   * request (Request): current Request object.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteToolAuth: Empty response.
-   *
    * Raises:
    * HTTPException: If there was an error deleting the tool auth.
    * @param data The data for the request.
-   * @param data.toolId
+   * @param data.toolId Tool ID for tool in question
    * @returns DeleteToolAuth Successful Response
    * @throws ApiError
    */
@@ -325,19 +281,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class ChatService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Chat Stream
    * Stream chat endpoint to handle user messages and return chatbot responses.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * chat_request (CohereChatRequest): Chat request data.
-   * request (Request): Request object.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns ChatResponseEvent Successful Response
@@ -360,15 +311,6 @@ export class DefaultService {
   /**
    * Regenerate Chat Stream
    * Endpoint to regenerate stream chat response for the last user message.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * chat_request (CohereChatRequest): Chat request data.
-   * request (Request): Request object.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * EventSourceResponse: Server-sent event response with chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns unknown Successful Response
@@ -391,15 +333,6 @@ export class DefaultService {
   /**
    * Chat
    * Chat endpoint to handle user messages and return chatbot responses.
-   *
-   * Args:
-   * chat_request (CohereChatRequest): Chat request data.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * NonStreamedChatResponse: Chatbot response.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns NonStreamedChatResponse Successful Response
@@ -416,18 +349,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class UserService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Create User
    * Create a new user.
-   *
-   * Args:
-   * user (CreateUser): User data to be created.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * User: Created user.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns backend__schemas__user__User Successful Response
@@ -450,18 +379,9 @@ export class DefaultService {
   /**
    * List Users
    * List all users.
-   *
-   * Args:
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of users to be listed.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * list[User]: List of users.
    * @param data The data for the request.
-   * @param data.offset
-   * @param data.limit
+   * @param data.offset Offset for where request should start returning records from
+   * @param data.limit Maximum number of records to return per request
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -485,18 +405,10 @@ export class DefaultService {
    * Get User
    * Get a user by ID.
    *
-   * Args:
-   * user_id (str): User ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * User: User with the given ID.
-   *
    * Raises:
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
-   * @param data.userId
+   * @param data.userId User ID for the user in question
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -519,20 +431,10 @@ export class DefaultService {
    * Update User
    * Update a user by ID.
    *
-   * Args:
-   * user_id (str): User ID.
-   * new_user (UpdateUser): New user data.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   * ctx (Context): Context object
-   *
-   * Returns:
-   * User: Updated user.
-   *
    * Raises:
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
-   * @param data.userId
+   * @param data.userId User ID for the user in question
    * @param data.requestBody
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
@@ -556,21 +458,12 @@ export class DefaultService {
 
   /**
    * Delete User
-   * "
    * Delete a user by ID.
-   *
-   * Args:
-   * user_id (str): User ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteUser: Empty response.
    *
    * Raises:
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
-   * @param data.userId
+   * @param data.userId User ID for the user in question
    * @returns DeleteUser Successful Response
    * @throws ApiError
    */
@@ -588,23 +481,19 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class ConversationService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Get Conversation
    * Get a conversation by ID.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   *
-   * Returns:
-   * ConversationPublic: Conversation with the given ID.
-   *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
-   * @param data.conversationId
+   * @param data.conversationId Conversation ID for conversation in question
    * @returns ConversationPublic Successful Response
    * @throws ApiError
    */
@@ -627,19 +516,10 @@ export class DefaultService {
    * Update Conversation
    * Update a conversation by ID.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * new_conversation (UpdateConversationRequest): New conversation data.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * ConversationPublic: Updated conversation.
-   *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
-   * @param data.conversationId
+   * @param data.conversationId Conversation ID for conversation in question
    * @param data.requestBody
    * @returns ConversationPublic Successful Response
    * @throws ApiError
@@ -665,18 +545,10 @@ export class DefaultService {
    * Delete Conversation
    * Delete a conversation by ID.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteConversationResponse: Empty response.
-   *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
-   * @param data.conversationId
+   * @param data.conversationId Conversation ID for conversation in question
    * @returns DeleteConversationResponse Successful Response
    * @throws ApiError
    */
@@ -698,22 +570,11 @@ export class DefaultService {
   /**
    * List Conversations
    * List all conversations.
-   *
-   * Args:
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of conversations to be listed.
-   * order_by (str): A field by which to order the conversations.
-   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   *
-   * Returns:
-   * list[ConversationWithoutMessages]: List of conversations.
    * @param data The data for the request.
-   * @param data.offset
-   * @param data.limit
-   * @param data.orderBy
-   * @param data.agentId
+   * @param data.orderBy Field to sorts results by
+   * @param data.agentId Agent ID to filter results by
+   * @param data.offset Offset for where request should start returning records from
+   * @param data.limit Maximum number of records to return per request
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
@@ -724,10 +585,10 @@ export class DefaultService {
       method: 'GET',
       url: '/v1/conversations',
       query: {
-        offset: data.offset,
-        limit: data.limit,
         order_by: data.orderBy,
         agent_id: data.agentId,
+        offset: data.offset,
+        limit: data.limit,
       },
       errors: {
         422: 'Validation Error',
@@ -737,8 +598,9 @@ export class DefaultService {
 
   /**
    * Toggle Conversation Pin
+   * Toggle whether a conversation is pinned or not
    * @param data The data for the request.
-   * @param data.conversationId
+   * @param data.conversationId Conversation ID for conversation in question
    * @param data.requestBody
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
@@ -763,23 +625,12 @@ export class DefaultService {
   /**
    * Search Conversations
    * Search conversations by title.
-   *
-   * Args:
-   * query (str): Query string to search for in conversation titles.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   * offset (int): Offset to start the list.
-   * limit (int): Limit of conversations to be listed.
-   * agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * list[ConversationWithoutMessages]: List of conversations that match the query.
    * @param data The data for the request.
-   * @param data.query
-   * @param data.offset
-   * @param data.limit
-   * @param data.agentId
+   * @param data.query Query string to search for in a conversation title
+   * @param data.orderBy Field to sorts results by
+   * @param data.agentId Agent ID to filter results by
+   * @param data.offset Offset for where request should start returning records from
+   * @param data.limit Maximum number of records to return per request
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
@@ -791,9 +642,10 @@ export class DefaultService {
       url: '/v1/conversations:search',
       query: {
         query: data.query,
+        order_by: data.orderBy,
+        agent_id: data.agentId,
         offset: data.offset,
         limit: data.limit,
-        agent_id: data.agentId,
       },
       errors: {
         422: 'Validation Error',
@@ -805,15 +657,6 @@ export class DefaultService {
    * Batch Upload File
    * Uploads and creates a batch of File object.
    * If no conversation_id is provided, a new Conversation is created as well.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * conversation_id (Optional[str]): Conversation ID passed from request query parameter.
-   * files (list[FastAPIUploadFile]): List of files to be uploaded.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * list[UploadConversationFileResponse]: List of uploaded files.
    *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found. Status code 404.
@@ -841,18 +684,10 @@ export class DefaultService {
    * List Files
    * List all files from a conversation. Important - no pagination support yet.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * list[ListConversationFile]: List of files from the conversation.
-   *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
-   * @param data.conversationId
+   * @param data.conversationId Conversation ID for conversation in question
    * @returns ListConversationFile Successful Response
    * @throws ApiError
    */
@@ -875,20 +710,11 @@ export class DefaultService {
    * Get File
    * Get a conversation file by ID.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * file_id (str): File ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * FileMetadata: File with the given ID.
-   *
    * Raises:
    * HTTPException: If the conversation or file with the given ID is not found, or if the file does not belong to the conversation.
    * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.fileId
+   * @param data.conversationId Conversation ID for conversation in question
+   * @param data.fileId File ID for file in question
    * @returns FileMetadata Successful Response
    * @throws ApiError
    */
@@ -912,19 +738,11 @@ export class DefaultService {
    * Delete File
    * Delete a file by ID.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * file_id (str): File ID.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * DeleteFile: Empty response.
-   *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.fileId
+   * @param data.conversationId Conversation ID for conversation in question
+   * @param data.fileId File ID for file in question
    * @returns DeleteConversationFileResponse Successful Response
    * @throws ApiError
    */
@@ -948,20 +766,11 @@ export class DefaultService {
    * Generate Title
    * Generate a title for a conversation and update the conversation with the generated title.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * str: Generated title for the conversation.
-   *
    * Raises:
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.model
+   * @param data.conversationId Conversation ID for conversation in question
+   * @param data.model Model to filter results by
    * @returns GenerateTitleResponse Successful Response
    * @throws ApiError
    */
@@ -987,20 +796,11 @@ export class DefaultService {
    * Synthesize Message
    * Generate a synthesized audio for a specific message in a conversation.
    *
-   * Args:
-   * conversation_id (str): Conversation ID.
-   * message_id (str): Message ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * Response: Synthesized audio file.
-   *
    * Raises:
    * HTTPException: If the message with the given ID is not found or synthesis fails.
    * @param data The data for the request.
-   * @param data.conversationId
-   * @param data.messageId
+   * @param data.conversationId Conversation ID for conversation in question
+   * @param data.messageId Message ID for message in question
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -1019,20 +819,16 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class ToolService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * List Tools
    * List all available tools.
-   *
-   * Args:
-   * request (Request): The request to validate
-   * session (DBSessionDep): Database session.
-   * agent_id (str): Agent ID.
-   * ctx (Context): Context object.
-   * Returns:
-   * list[ToolDefinition]: List of available tools.
    * @param data The data for the request.
-   * @param data.agentId
+   * @param data.agentId Agent ID to filter results by
    * @returns ToolDefinition Successful Response
    * @throws ApiError
    */
@@ -1050,17 +846,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class DeploymentService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Create Deployment
    * Create a new deployment.
-   *
-   * Args:
-   * deployment (DeploymentCreate): Deployment data to be created.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * DeploymentDefinition: Created deployment.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns DeploymentDefinition Successful Response
@@ -1083,16 +876,9 @@ export class DefaultService {
   /**
    * List Deployments
    * List all available deployments and their models.
-   *
-   * Args:
-   * session (DBSessionDep)
-   * all (bool): Include all deployments, regardless of availability.
-   * ctx (Context): Context object.
-   * Returns:
-   * list[Deployment]: List of available deployment options.
    * @param data The data for the request.
-   * @param data.all
-   * @returns DeploymentDefinition Successful Response
+   * @param data.all Include all deployments, regardless of availability.
+   * @returns Deployment Successful Response
    * @throws ApiError
    */
   public listDeploymentsV1DeploymentsGet(
@@ -1114,18 +900,10 @@ export class DefaultService {
    * Update Deployment
    * Update a deployment.
    *
-   * Args:
-   * deployment_id (str): Deployment ID.
-   * new_deployment (DeploymentUpdate): Deployment data to be updated.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * Deployment: Updated deployment.
-   *
    * Raises:
    * HTTPException: If deployment not found.
    * @param data The data for the request.
-   * @param data.deploymentId
+   * @param data.deploymentId Deployment ID for deployment in question
    * @param data.requestBody
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
@@ -1150,12 +928,9 @@ export class DefaultService {
   /**
    * Get Deployment
    * Get a deployment by ID.
-   *
-   * Returns:
-   * Deployment: Deployment with the given ID.
    * @param data The data for the request.
-   * @param data.deploymentId
-   * @returns DeploymentDefinition Successful Response
+   * @param data.deploymentId Deployment ID for deployment in question
+   * @returns Deployment Successful Response
    * @throws ApiError
    */
   public getDeploymentV1DeploymentsDeploymentIdGet(
@@ -1177,18 +952,10 @@ export class DefaultService {
    * Delete Deployment
    * Delete a deployment by ID.
    *
-   * Args:
-   * deployment_id (str): Deployment ID.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   *
-   * Returns:
-   * DeleteDeployment: Empty response.
-   *
    * Raises:
    * HTTPException: If the deployment with the given ID is not found.
    * @param data The data for the request.
-   * @param data.deploymentId
+   * @param data.deploymentId Deployment ID for deployment in question
    * @returns DeleteDeployment Successful Response
    * @throws ApiError
    */
@@ -1210,28 +977,20 @@ export class DefaultService {
   /**
    * Update Config
    * Set environment variables for the deployment.
-   *
-   * Args:
-   * deployment_id (str): Deployment ID.
-   * session (DBSessionDep): Database session.
-   * env_vars (UpdateDeploymentEnv): Environment variables to set.
-   * valid_env_vars (str): Validated environment variables.
-   * Returns:
-   * str: Empty string.
    * @param data The data for the request.
-   * @param data.deploymentId
+   * @param data.deploymentName Deployment Name for deployment in question
    * @param data.requestBody
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public updateConfigV1DeploymentsDeploymentIdUpdateConfigPost(
-    data: UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData
-  ): CancelablePromise<UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse> {
+  public setEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPost(
+    data: SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostData
+  ): CancelablePromise<SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/v1/deployments/{deployment_id}/update_config',
+      url: '/v1/deployments/{deployment_name}/set_env_vars',
       path: {
-        deployment_id: data.deploymentId,
+        deployment_name: data.deploymentName,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1240,15 +999,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class ExperimentalFeaturesService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * List Experimental Features
    * List all experimental features and if they are enabled
-   *
-   * Args:
-   * ctx (Context): Context object.
-   * Returns:
-   * Dict[str, bool]: Experimental feature and their isEnabled state
    * @returns boolean Successful Response
    * @throws ApiError
    */
@@ -1258,6 +1016,10 @@ export class DefaultService {
       url: '/v1/experimental_features/',
     });
   }
+}
+
+export class AgentsService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Create Agent
@@ -1289,7 +1051,7 @@ export class DefaultService {
    * List all agents.
    * @param data The data for the request.
    * @param data.visibility Agent visibility
-   * @param data.organizationId Organization ID of the agent
+   * @param data.organizationId Organization ID to filter results by
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
    * @returns AgentPublic Successful Response
@@ -1613,17 +1375,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class SnapshotService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * List Snapshots
    * List all snapshots.
-   *
-   * Args:
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * list[SnapshotWithLinks]: List of all snapshots with their links.
    * @returns SnapshotWithLinks Successful Response
    * @throws ApiError
    */
@@ -1637,14 +1396,6 @@ export class DefaultService {
   /**
    * Create Snapshot
    * Create a new snapshot and snapshot link to share the conversation.
-   *
-   * Args:
-   * snapshot_request (CreateSnapshotRequest): Snapshot creation request.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * CreateSnapshotResponse: Snapshot creation response.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns CreateSnapshotResponse Successful Response
@@ -1667,16 +1418,8 @@ export class DefaultService {
   /**
    * Get Snapshot
    * Get a snapshot by link ID.
-   *
-   * Args:
-   * link_id (str): Snapshot link ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * Snapshot: Snapshot with the given link ID.
    * @param data The data for the request.
-   * @param data.linkId
+   * @param data.linkId Link ID for the snapshot link in question
    * @returns SnapshotPublic Successful Response
    * @throws ApiError
    */
@@ -1698,16 +1441,8 @@ export class DefaultService {
   /**
    * Delete Snapshot Link
    * Delete a snapshot link by ID.
-   *
-   * Args:
-   * link_id (str): Snapshot link ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteSnapshotLinkResponse: Empty response.
    * @param data The data for the request.
-   * @param data.linkId
+   * @param data.linkId Link ID for the snapshot link in question
    * @returns DeleteSnapshotLinkResponse Successful Response
    * @throws ApiError
    */
@@ -1729,16 +1464,8 @@ export class DefaultService {
   /**
    * Delete Snapshot
    * Delete a snapshot by ID.
-   *
-   * Args:
-   * snapshot_id (str): Snapshot ID.
-   * session (DBSessionDep): Database session.
-   * ctx (Context): Context object.
-   *
-   * Returns:
-   * DeleteSnapshotResponse: Empty response.
    * @param data The data for the request.
-   * @param data.snapshotId
+   * @param data.snapshotId Snapshot ID for the snapshot in question
    * @returns DeleteSnapshotResponse Successful Response
    * @throws ApiError
    */
@@ -1756,17 +1483,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class OrganizationService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * List Organizations
    * List all available organizations.
-   *
-   * Args:
-   * request (Request): Request object.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * list[Organization]: List of available organizations.
    * @returns Organization Successful Response
    * @throws ApiError
    */
@@ -1780,13 +1504,6 @@ export class DefaultService {
   /**
    * Create Organization
    * Create a new organization.
-   *
-   * Args:
-   * organization (CreateOrganization): Organization data
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * Organization: Created organization.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns Organization Successful Response
@@ -1809,16 +1526,8 @@ export class DefaultService {
   /**
    * Update Organization
    * Update organization by ID.
-   *
-   * Args:
-   * organization_id (str): Tool ID.
-   * new_organization (ToolUpdate): New organization data.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * Organization: Updated organization.
    * @param data The data for the request.
-   * @param data.organizationId
+   * @param data.organizationId Organization ID for the organization in question
    * @param data.requestBody
    * @returns Organization Successful Response
    * @throws ApiError
@@ -1843,16 +1552,8 @@ export class DefaultService {
   /**
    * Get Organization
    * Get a organization by ID.
-   *
-   * Args:
-   * organization_id (str): Tool ID.
-   * session (DBSessionDep): Database session.
-   * ctx: Context.
-   *
-   * Returns:
-   * Organization: Organization with the given ID.
    * @param data The data for the request.
-   * @param data.organizationId
+   * @param data.organizationId Organization ID for the organization in question
    * @returns Organization Successful Response
    * @throws ApiError
    */
@@ -1874,15 +1575,8 @@ export class DefaultService {
   /**
    * Delete Organization
    * Delete a organization by ID.
-   *
-   * Args:
-   * organization_id (str): Tool ID.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * DeleteOrganization: Organization deleted.
    * @param data The data for the request.
-   * @param data.organizationId
+   * @param data.organizationId Organization ID for the organization in question
    * @returns DeleteOrganization Successful Response
    * @throws ApiError
    */
@@ -1904,15 +1598,8 @@ export class DefaultService {
   /**
    * Get Organization Users
    * Get organization users by ID.
-   *
-   * Args:
-   * organization_id (str): Organization ID.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * list[User]: List of users in the organization
    * @param data The data for the request.
-   * @param data.organizationId
+   * @param data.organizationId Organization ID for the organization in question
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -1930,17 +1617,14 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class ModelService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Create Model
    * Create a new model.
-   *
-   * Args:
-   * model (ModelCreate): Model data to be created.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * ModelSchema: Created model.
    * @param data The data for the request.
    * @param data.requestBody
    * @returns Model Successful Response
@@ -1963,12 +1647,9 @@ export class DefaultService {
   /**
    * List Models
    * List all available models
-   *
-   * Returns:
-   * list[Model]: List of available models.
    * @param data The data for the request.
-   * @param data.offset
-   * @param data.limit
+   * @param data.offset Offset for where request should start returning records from
+   * @param data.limit Maximum number of records to return per request
    * @returns Model Successful Response
    * @throws ApiError
    */
@@ -1992,18 +1673,10 @@ export class DefaultService {
    * Update Model
    * Update a model by ID.
    *
-   * Args:
-   * model_id (str): Model ID.
-   * new_model (ModelCreateUpdate): New model data.
-   * session (DBSessionDep): Database session.
-   *
-   * Returns:
-   * ModelSchema: Updated model.
-   *
    * Raises:
    * HTTPException: If the model with the given ID is not found.
    * @param data The data for the request.
-   * @param data.modelId
+   * @param data.modelId Model ID for the model in question
    * @param data.requestBody
    * @returns Model Successful Response
    * @throws ApiError
@@ -2028,11 +1701,8 @@ export class DefaultService {
   /**
    * Get Model
    * Get a model by ID.
-   *
-   * Returns:
-   * Model: Model with the given ID.
    * @param data The data for the request.
-   * @param data.modelId
+   * @param data.modelId Model ID for the model in question
    * @returns Model Successful Response
    * @throws ApiError
    */
@@ -2055,18 +1725,10 @@ export class DefaultService {
    * Delete Model
    * Delete a model by ID.
    *
-   * Args:
-   * model_id (str): Model ID.
-   * session (DBSessionDep): Database session.
-   * request (Request): Request object.
-   *
-   * Returns:
-   * DeleteModel: Empty response.
-   *
    * Raises:
    * HTTPException: If the model with the given ID is not found.
    * @param data The data for the request.
-   * @param data.modelId
+   * @param data.modelId Model ID for the model in question
    * @returns DeleteModel Successful Response
    * @throws ApiError
    */
@@ -2084,13 +1746,18 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class ScimService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Get Users
+   * Return users
    * @param data The data for the request.
-   * @param data.count
-   * @param data.startIndex
-   * @param data.filter
+   * @param data.startIndex Start Index for request
+   * @param data.count Maximum number of records to return per request
+   * @param data.filter Filter to use when filtering response
    * @returns ListUserResponse Successful Response
    * @throws ApiError
    */
@@ -2101,8 +1768,8 @@ export class DefaultService {
       method: 'GET',
       url: '/scim/v2/Users',
       query: {
-        count: data.count,
         start_index: data.startIndex,
+        count: data.count,
         filter: data.filter,
       },
       errors: {
@@ -2113,6 +1780,7 @@ export class DefaultService {
 
   /**
    * Create User
+   * Create a new user
    * @param data The data for the request.
    * @param data.requestBody
    * @returns unknown Successful Response
@@ -2134,8 +1802,9 @@ export class DefaultService {
 
   /**
    * Get User
+   * Get user by User ID
    * @param data The data for the request.
-   * @param data.userId
+   * @param data.userId User ID for the user in question
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -2156,8 +1825,9 @@ export class DefaultService {
 
   /**
    * Update User
+   * Update a user
    * @param data The data for the request.
-   * @param data.userId
+   * @param data.userId User ID for the user in question
    * @param data.requestBody
    * @returns unknown Successful Response
    * @throws ApiError
@@ -2181,8 +1851,9 @@ export class DefaultService {
 
   /**
    * Patch User
+   * Patch a user
    * @param data The data for the request.
-   * @param data.userId
+   * @param data.userId User ID for the user in question
    * @param data.requestBody
    * @returns unknown Successful Response
    * @throws ApiError
@@ -2206,10 +1877,11 @@ export class DefaultService {
 
   /**
    * Get Groups
+   * Return Groups
    * @param data The data for the request.
-   * @param data.count
-   * @param data.startIndex
-   * @param data.filter
+   * @param data.startIndex Start Index for request
+   * @param data.count Maximum number of records to return per request
+   * @param data.filter Filter to use when filtering response
    * @returns ListGroupResponse Successful Response
    * @throws ApiError
    */
@@ -2220,8 +1892,8 @@ export class DefaultService {
       method: 'GET',
       url: '/scim/v2/Groups',
       query: {
-        count: data.count,
         start_index: data.startIndex,
+        count: data.count,
         filter: data.filter,
       },
       errors: {
@@ -2232,6 +1904,7 @@ export class DefaultService {
 
   /**
    * Create Group
+   * Create a group
    * @param data The data for the request.
    * @param data.requestBody
    * @returns unknown Successful Response
@@ -2253,8 +1926,9 @@ export class DefaultService {
 
   /**
    * Get Group
+   * Get group by group ID
    * @param data The data for the request.
-   * @param data.groupId
+   * @param data.groupId Group ID for the group in question
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -2275,8 +1949,9 @@ export class DefaultService {
 
   /**
    * Patch Group
+   * Patch a group
    * @param data The data for the request.
-   * @param data.groupId
+   * @param data.groupId Group ID for the group in question
    * @param data.requestBody
    * @returns unknown Successful Response
    * @throws ApiError
@@ -2300,8 +1975,9 @@ export class DefaultService {
 
   /**
    * Delete Group
+   * Delete a group
    * @param data The data for the request.
-   * @param data.groupId
+   * @param data.groupId Group ID for the group in question
    * @returns void Successful Response
    * @throws ApiError
    */
@@ -2319,6 +1995,10 @@ export class DefaultService {
       },
     });
   }
+}
+
+export class DefaultService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
    * Health
