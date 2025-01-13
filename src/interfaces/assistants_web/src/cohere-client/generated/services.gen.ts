@@ -1018,7 +1018,7 @@ export class ExperimentalFeaturesService {
   }
 }
 
-export class AgentsService {
+export class AgentService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**

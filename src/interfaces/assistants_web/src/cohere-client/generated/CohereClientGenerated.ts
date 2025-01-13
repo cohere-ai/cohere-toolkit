@@ -2,7 +2,7 @@ import type { BaseHttpRequest } from './core/BaseHttpRequest';
 import { FetchHttpRequest } from './core/FetchHttpRequest';
 import type { OpenAPIConfig } from './core/OpenAPI';
 import { Interceptors } from './core/OpenAPI';
-import { AgentsService } from './services.gen';
+import { AgentService } from './services.gen';
 import { AuthService } from './services.gen';
 import { ChatService } from './services.gen';
 import { ConversationService } from './services.gen';
@@ -19,7 +19,7 @@ import { UserService } from './services.gen';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 
 export class CohereClientGenerated {
-  public readonly agents: AgentsService;
+  public readonly agent: AgentService;
   public readonly auth: AuthService;
   public readonly chat: ChatService;
   public readonly conversation: ConversationService;
@@ -55,7 +55,7 @@ export class CohereClientGenerated {
       },
     });
 
-    this.agents = new AgentsService(this.request);
+    this.agent = new AgentService(this.request);
     this.auth = new AuthService(this.request);
     this.chat = new ChatService(this.request);
     this.conversation = new ConversationService(this.request);
