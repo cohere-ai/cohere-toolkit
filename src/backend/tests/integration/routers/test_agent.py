@@ -1,4 +1,3 @@
-
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -6,10 +5,11 @@ from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import Tool
 from backend.database_models.agent import Agent
 from backend.database_models.agent_tool_metadata import AgentToolMetadata
+from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
 
-def test_create_agent(session_client: TestClient, session: Session, user) -> None:
+def test_create_agent(session_client: TestClient, session: Session, user: User) -> None:
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -49,7 +49,7 @@ def test_create_agent(session_client: TestClient, session: Session, user) -> Non
 
 
 def test_create_agent_with_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -107,7 +107,7 @@ def test_create_agent_with_tool_metadata(
 
 
 def test_create_agent_missing_non_required_fields(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -138,7 +138,7 @@ def test_create_agent_missing_non_required_fields(
     assert agent.model == request_json["model"]
 
 
-def test_update_agent(session_client: TestClient, session: Session, user) -> None:
+def test_update_agent(session_client: TestClient, session: Session, user: User) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
