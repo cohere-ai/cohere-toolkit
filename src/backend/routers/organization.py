@@ -41,7 +41,7 @@ def create_organization(
     Returns:
         Organization: Created organization.
     """
-    organization_data = OrganizationModel(**organization.dict())
+    organization_data = OrganizationModel(**organization.model_dump())
 
     return organization_crud.create_organization(session, organization_data)
 
