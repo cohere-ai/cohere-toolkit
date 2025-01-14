@@ -8,16 +8,18 @@ on:
 jobs:
   pytest:
     permissions: write-all
-    environment: development
+    # environment: development
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
+
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
@@ -25,23 +27,28 @@ jobs:
           virtualenvs-in-project: true
           virtualenvs-path: .venv
           installer-parallel: true
+
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v4
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --with dev --no-interaction --no-root
+
       - name: Setup test DB container
         run: make test-db
+
       - name: Test with pytest
         if: github.actor != 'dependabot[bot]'
         run: |
           make run-integration-tests
         env:
           PYTHONPATH: src
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
