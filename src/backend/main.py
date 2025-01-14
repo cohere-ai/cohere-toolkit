@@ -17,6 +17,7 @@ from backend.config.auth import (
 )
 from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
 from backend.config.settings import Settings
+from backend.exceptions import DeploymentNotFoundError
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
@@ -125,6 +126,20 @@ async def validation_exception_handler(request: Request, exc: Exception):
                 f" Exception message is {exc!r}."
             )
         },
+    )
+
+
+@app.exception_handler(DeploymentNotFoundError)
+async def deployment_not_found_handler(request: Request, exc: DeploymentNotFoundError):
+    ctx = get_context(request)
+    logger = ctx.get_logger()
+    logger.error(
+        event="Deployment not found",
+        deployment_id=exc.deployment_id,
+    )
+    return JSONResponse(
+        status_code=404,
+        content={"detail": str(exc)},
     )
 
 

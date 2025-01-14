@@ -1,23 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
 from backend.config.routers import RouterName
 from backend.crud import deployment as deployment_crud
 from backend.database_models.database import DBSessionDep
+from backend.exceptions import DeploymentNotFoundError
 from backend.schemas.context import Context
 from backend.schemas.deployment import (
     DeleteDeployment,
     DeploymentCreate,
+    DeploymentDefinition,
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
-from backend.schemas.deployment import Deployment as DeploymentSchema
+from backend.services import deployment as deployment_service
 from backend.services.context import get_context
-from backend.services.env import update_env_file
+from backend.services.logger.utils import LoggerFactory
 from backend.services.request_validators import (
     validate_create_deployment_request,
     validate_env_vars,
 )
+
+logger = LoggerFactory().get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",
@@ -27,12 +30,12 @@ router.name = RouterName.DEPLOYMENT
 
 @router.post(
     "",
-    response_model=DeploymentSchema,
+    response_model=DeploymentDefinition,
     dependencies=[Depends(validate_create_deployment_request)],
 )
 def create_deployment(
     deployment: DeploymentCreate, session: DBSessionDep
-) -> DeploymentSchema:
+) -> DeploymentDefinition:
     """
     Create a new deployment.
 
@@ -41,20 +44,22 @@ def create_deployment(
         session (DBSessionDep): Database session.
 
     Returns:
-        DeploymentSchema: Created deployment.
+        DeploymentDefinition: Created deployment.
     """
     try:
-        return DeploymentSchema.custom_transform(
+        created = DeploymentDefinition.from_db_deployment(
             deployment_crud.create_deployment(session, deployment)
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    return mask_deployment_secrets(created)
 
-@router.put("/{deployment_id}", response_model=DeploymentSchema)
+
+@router.put("/{deployment_id}", response_model=DeploymentDefinition)
 def update_deployment(
     deployment_id: str, new_deployment: DeploymentUpdate, session: DBSessionDep
-) -> DeploymentSchema:
+) -> DeploymentDefinition:
     """
     Update a deployment.
 
@@ -71,31 +76,30 @@ def update_deployment(
     """
     deployment = deployment_crud.get_deployment(session, deployment_id)
     if not deployment:
-        raise HTTPException(status_code=404, detail="Deployment not found")
+        raise DeploymentNotFoundError(deployment_id=deployment_id)
 
-    return DeploymentSchema.custom_transform(
+    return mask_deployment_secrets(DeploymentDefinition.from_db_deployment(
         deployment_crud.update_deployment(session, deployment, new_deployment)
-    )
+    ))
 
 
-@router.get("/{deployment_id}", response_model=DeploymentSchema)
-def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentSchema:
+@router.get("/{deployment_id}", response_model=DeploymentDefinition)
+def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentDefinition:
     """
     Get a deployment by ID.
 
     Returns:
         Deployment: Deployment with the given ID.
     """
-    deployment = deployment_crud.get_deployment(session, deployment_id)
-    if not deployment:
-        raise HTTPException(status_code=404, detail="Deployment not found")
-    return DeploymentSchema.custom_transform(deployment)
+    return mask_deployment_secrets(
+        deployment_service.get_deployment_definition(session, deployment_id)
+    )
 
 
-@router.get("", response_model=list[DeploymentSchema])
+@router.get("", response_model=list[DeploymentDefinition])
 def list_deployments(
     session: DBSessionDep, all: bool = False, ctx: Context = Depends(get_context)
-) -> list[DeploymentSchema]:
+) -> list[DeploymentDefinition]:
     """
     List all available deployments and their models.
 
@@ -108,28 +112,11 @@ def list_deployments(
     """
     logger = ctx.get_logger()
 
-    if all:
-        available_db_deployments = [
-            DeploymentSchema.custom_transform(_)
-            for _ in deployment_crud.get_deployments(session)
-        ]
-
-    else:
-        available_db_deployments = [
-            DeploymentSchema.custom_transform(_)
-            for _ in deployment_crud.get_available_deployments(session)
-        ]
-
+    installed_deployments = deployment_service.get_deployment_definitions(session)
     available_deployments = [
-        deployment
-        for _, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items()
-        if all or deployment.is_available
+        mask_deployment_secrets(deployment) for deployment in installed_deployments if deployment.is_available or all
     ]
-    # If no config deployments found, return DB deployments
-    if not available_deployments:
-        available_deployments = available_db_deployments
 
-    # No available deployments
     if not available_deployments:
         logger.warning(
             event="[Deployment] No deployments available to list.",
@@ -167,31 +154,36 @@ async def delete_deployment(
     deployment = deployment_crud.get_deployment(session, deployment_id)
 
     if not deployment:
-        raise HTTPException(
-            status_code=404, detail=f"Deployment with ID: {deployment_id} not found."
-        )
+        raise DeploymentNotFoundError(deployment_id=deployment_id)
 
     deployment_crud.delete_deployment(session, deployment_id)
 
     return DeleteDeployment()
 
 
-@router.post("/{name}/set_env_vars", response_class=Response)
-async def set_env_vars(
-    name: str,
+@router.post("/{deployment_id}/update_config")
+async def update_config(
+    deployment_id: str,
+    session: DBSessionDep,
     env_vars: UpdateDeploymentEnv,
-    valid_env_vars=Depends(validate_env_vars),
-    ctx: Context = Depends(get_context),
+    valid_env_vars = Depends(validate_env_vars),
 ):
     """
     Set environment variables for the deployment.
 
     Args:
-        name (str): Deployment name.
+        deployment_id (str): Deployment ID.
+        session (DBSessionDep): Database session.
         env_vars (UpdateDeploymentEnv): Environment variables to set.
         valid_env_vars (str): Validated environment variables.
-        ctx (Context): Context object.
     Returns:
         str: Empty string.
     """
-    update_env_file(env_vars.env_vars)
+    return mask_deployment_secrets(
+        deployment_service.update_config(session, deployment_id, valid_env_vars)
+    )
+
+
+def mask_deployment_secrets(deployment: DeploymentDefinition) -> DeploymentDefinition:
+    deployment.config = {key: "*****" if val else "" for [key, val] in deployment.config.items()}
+    return deployment

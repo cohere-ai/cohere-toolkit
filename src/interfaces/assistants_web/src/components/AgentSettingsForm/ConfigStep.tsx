@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { AgentSettingsFields } from '@/components/AgentSettingsForm';
 import { Dropdown, Slider } from '@/components/UI';

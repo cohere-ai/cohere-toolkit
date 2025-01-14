@@ -7,17 +7,25 @@ from backend.schemas.cohere_chat import CohereChatRequest
 
 # To use local models install poetry with: poetry install --with setup,community,local-model --verbose
 from backend.schemas.context import Context
-from community.model_deployments import BaseDeployment
+from community.model_deployments.community_deployment import CommunityDeployment
 
 
-class LocalModelDeployment(BaseDeployment):
+class LocalModelDeployment(CommunityDeployment):
     def __init__(self, model_path: str, template: str = None):
         self.prompt_template = PromptTemplate()
         self.model_path = model_path
         self.template = template
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Local Model"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return []
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod

@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { Deployment, useCohereClient } from '@/cohere-client';
+import { DeploymentDefinition, useCohereClient } from '@/cohere-client';
 
 /**
  * @description Hook to get all possible deployments.
  */
 export const useListAllDeployments = (options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
-  return useQuery<Deployment[], Error>({
+  return useQuery<DeploymentDefinition[], Error>({
     queryKey: ['allDeployments'],
     queryFn: () => cohereClient.listDeployments({ all: true }),
     refetchOnWindowFocus: false,

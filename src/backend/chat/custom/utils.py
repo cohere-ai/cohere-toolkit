@@ -1,11 +1,10 @@
 from typing import Any
 
-from backend.config.deployments import (
-    AVAILABLE_MODEL_DEPLOYMENTS,
-    get_default_deployment,
-)
+from backend.database_models.database import get_session
+from backend.exceptions import DeploymentNotFoundError
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
+from backend.services import deployment as deployment_service
 
 
 def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
@@ -16,22 +15,12 @@ def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
 
     Returns:
         BaseDeployment: Deployment implementation instance based on the deployment name.
-
-    Raises:
-        ValueError: If the deployment is not supported.
     """
     kwargs["ctx"] = ctx
-    deployment = AVAILABLE_MODEL_DEPLOYMENTS.get(name)
+    try:
+        session = next(get_session())
+        deployment = deployment_service.get_deployment_by_name(session, name, **kwargs)
+    except DeploymentNotFoundError:
+        deployment = deployment_service.get_default_deployment(**kwargs)
 
-    # Check provided deployment against config const
-    if deployment is not None:
-        return deployment.deployment_class(**kwargs, **deployment.kwargs)
-
-    # Fallback to first available deployment
-    default = get_default_deployment(**kwargs)
-    if default is not None:
-        return default
-
-    raise ValueError(
-        f"Deployment {name} is not supported, and no available deployments were found."
-    )
+    return deployment
