@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import nltk
 from cohere.types import StreamedChatResponse
-from fastapi import HTTPException, Request
+from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 
 from backend.chat.collate import to_dict
@@ -74,19 +74,17 @@ def generate_tools_preamble(chat_request: CohereChatRequest) -> str:
 
 def process_chat(
     session: DBSessionDep,
-    chat_request: BaseChatRequest,
-    request: Request,
+    chat_request: CohereChatRequest,
     ctx: Context,
 ) -> tuple[
-    DBSessionDep, BaseChatRequest, Union[list[str], None], Message, str, str, dict
+    DBSessionDep, CohereChatRequest, Union[list[str], None], Message, str, str, Context
 ]:
     """
     Process a chat request.
 
     Args:
-        chat_request (BaseChatRequest): Chat request data.
+        chat_request (CohereChatRequest): Chat request data.
         session (DBSessionDep): Database session.
-        request (Request): Request object.
         ctx (Context): Context object.
 
     Returns:
@@ -123,6 +121,10 @@ def process_chat(
         # Set the agent settings in the chat request
         chat_request.model = agent.model
         chat_request.preamble = agent.preamble
+
+        # If temperature is not defined in the chat request, use the temperature from the agent
+        if not chat_request.temperature:
+            chat_request.temperature = agent.temperature
 
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
@@ -193,7 +195,6 @@ def process_chat(
 def process_message_regeneration(
     session: DBSessionDep,
     chat_request: CohereChatRequest,
-    request: Request,
     ctx: Context,
 ) -> tuple[Any, CohereChatRequest, Message, list[str], bool, Context]:
     """
@@ -202,7 +203,6 @@ def process_message_regeneration(
     Args:
         session (DBSessionDep): Database session.
         chat_request (CohereChatRequest): Chat request data.
-        request (Request): Request object.
         ctx (Context): Context object.
 
     Returns:
@@ -223,6 +223,10 @@ def process_message_regeneration(
 
         # Set the agent settings in the chat request
         chat_request.preamble = agent.preamble
+
+        # If temperature is not defined in the chat request, use the temperature from the agent
+        if not chat_request.temperature:
+            chat_request.temperature = agent.temperature
 
     conversation_id = chat_request.conversation_id
     ctx.with_conversation_id(conversation_id)

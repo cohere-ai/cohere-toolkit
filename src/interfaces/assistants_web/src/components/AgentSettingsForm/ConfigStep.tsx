@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { AgentSettingsFields } from '@/components/AgentSettingsForm';
-import { Dropdown } from '@/components/UI';
+import { Dropdown, Slider } from '@/components/UI';
 import { useListAllDeployments } from '@/hooks';
 
 type Props = {
@@ -13,7 +13,10 @@ type Props = {
 };
 
 export const ConfigStep: React.FC<Props> = ({ fields, setFields }) => {
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(fields.model);
+  const [selectedModelValue, setSelectedModelValue] = useState<string | undefined>(fields.model);
+  const [selectedTemperatureValue, setSelectedTemperatureValue] = useState<number | undefined>(
+    fields.temperature
+  );
 
   const { data: deployments } = useListAllDeployments();
 
@@ -27,12 +30,23 @@ export const ConfigStep: React.FC<Props> = ({ fields, setFields }) => {
       <Dropdown
         label="Model"
         options={modelOptions ?? []}
-        value={selectedValue}
+        value={selectedModelValue}
         onChange={(model) => {
           setFields({ ...fields, model: model });
-          setSelectedValue(model);
+          setSelectedModelValue(model);
         }}
       />
+      <Slider
+        label="Temperature"
+        min={0}
+        max={1.0}
+        step={0.1}
+        value={selectedTemperatureValue || 0}
+        onChange={(temperature) => {
+          setFields({ ...fields, temperature: temperature });
+          setSelectedTemperatureValue(temperature);
+        }}
+      ></Slider>
     </div>
   );
 };
