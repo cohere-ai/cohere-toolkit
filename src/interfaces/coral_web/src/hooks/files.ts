@@ -4,9 +4,9 @@ import { useMemo } from 'react';
 
 import {
   ApiError,
-  File as CohereFile,
-  DeleteFile,
-  ListFile,
+  ConversationFilePublic,
+  DeleteConversationFileResponse,
+  ListConversationFile,
   useCohereClient,
 } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES, MAX_NUM_FILES_PER_UPLOAD_BATCH } from '@/constants';
@@ -31,7 +31,7 @@ class FileUploadError extends Error {
 
 export const useListFiles = (conversationId?: string, options?: { enabled?: boolean }) => {
   const cohereClient = useCohereClient();
-  return useQuery<ListFile[], ApiError>({
+  return useQuery<ListConversationFile[], ApiError>({
     queryKey: ['listFiles', conversationId],
     queryFn: async () => {
       if (!conversationId) throw new Error(STRINGS.conversationIDNotFoundError);
@@ -52,8 +52,8 @@ export const useFilesInConversation = () => {
   const {
     conversation: { messages },
   } = useConversationStore();
-  const files = useMemo<CohereFile[]>(() => {
-    return messages.reduce<CohereFile[]>((filesInConversation, msg) => {
+  const files = useMemo<ConversationFilePublic[]>(() => {
+    return messages.reduce<ConversationFilePublic[]>((filesInConversation, msg) => {
       if (msg.type === MessageType.USER && msg.files) {
         filesInConversation.push(...msg.files);
       }
@@ -62,15 +62,6 @@ export const useFilesInConversation = () => {
   }, [messages.length]);
 
   return { files };
-};
-
-export const useUploadFile = () => {
-  const cohereClient = useCohereClient();
-
-  return useMutation({
-    mutationFn: ({ file, conversationId }: { file: File; conversationId?: string }) =>
-      cohereClient.uploadFile({ file, conversation_id: conversationId }),
-  });
 };
 
 export const useBatchUploadFile = () => {
@@ -86,7 +77,11 @@ export const useDeleteUploadedFile = () => {
   const cohereClient = useCohereClient();
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteFile, ApiError, { conversationId: string; fileId: string }>({
+  return useMutation<
+    DeleteConversationFileResponse,
+    ApiError,
+    { conversationId: string; fileId: string }
+  >({
     mutationFn: async ({ conversationId, fileId }) =>
       cohereClient.deletefile({ conversationId, fileId }),
     onSettled: () => {

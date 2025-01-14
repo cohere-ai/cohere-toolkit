@@ -1080,6 +1080,20 @@ files = [
 ]
 
 [[package]]
+name = "execnet"
+version = "2.1.1"
+description = "execnet: rapid multi-Python deployment"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "execnet-2.1.1-py3-none-any.whl", hash = "sha256:26dee51f1b80cebd6d0ca8e74dd8745419761d3bef34163928cbebbdc4749fdc"},
+    {file = "execnet-2.1.1.tar.gz", hash = "sha256:5189b52c6121c24feae288166ab41b32549c7e2348652736540b9e6e7d4e72e3"},
+]
+
+[package.extras]
+testing = ["hatch", "pre-commit", "pytest", "tox"]
+
+[[package]]
 name = "factory-boy"
 version = "3.3.1"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
@@ -1136,22 +1150,23 @@ probabilistic = ["pyprobables (>=0.6,<0.7)"]
 
 [[package]]
 name = "fastapi"
-version = "0.109.2"
+version = "0.115.5"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "fastapi-0.109.2-py3-none-any.whl", hash = "sha256:2c9bab24667293b501cad8dd388c05240c850b58ec5876ee3283c47d6e1e3a4d"},
-    {file = "fastapi-0.109.2.tar.gz", hash = "sha256:f3817eac96fe4f65a2ebb4baa000f394e55f5fccdaf7f75250804bc58f354f73"},
+    {file = "fastapi-0.115.5-py3-none-any.whl", hash = "sha256:596b95adbe1474da47049e802f9a65ab2ffa9c2b07e7efee70eb8a66c9f2f796"},
+    {file = "fastapi-0.115.5.tar.gz", hash = "sha256:0e7a4d0dc0d01c68df21887cce0945e72d3c48b9f4f79dfe7a7d53aa08fbb289"},
 ]
 
 [package.dependencies]
 pydantic = ">=1.7.4,<1.8 || >1.8,<1.8.1 || >1.8.1,<2.0.0 || >2.0.0,<2.0.1 || >2.0.1,<2.1.0 || >2.1.0,<3.0.0"
-starlette = ">=0.36.3,<0.37.0"
+starlette = ">=0.40.0,<0.42.0"
 typing-extensions = ">=4.8.0"
 
 [package.extras]
-all = ["email-validator (>=2.0.0)", "httpx (>=0.23.0)", "itsdangerous (>=1.1.0)", "jinja2 (>=2.11.2)", "orjson (>=3.2.1)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.7)", "pyyaml (>=5.3.1)", "ujson (>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0)", "uvicorn[standard] (>=0.12.0)"]
+all = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "httpx (>=0.23.0)", "itsdangerous (>=1.1.0)", "jinja2 (>=2.11.2)", "orjson (>=3.2.1)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.7)", "pyyaml (>=5.3.1)", "ujson (>=4.0.1,!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0)", "uvicorn[standard] (>=0.12.0)"]
+standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "httpx (>=0.23.0)", "jinja2 (>=2.11.2)", "python-multipart (>=0.0.7)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
 name = "fastavro"
@@ -2177,13 +2192,13 @@ test = ["portend", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-c
 
 [[package]]
 name = "jinja2"
-version = "3.1.4"
+version = "3.1.5"
 description = "A very fast and expressive template engine."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "jinja2-3.1.4-py3-none-any.whl", hash = "sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d"},
-    {file = "jinja2-3.1.4.tar.gz", hash = "sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369"},
+    {file = "jinja2-3.1.5-py3-none-any.whl", hash = "sha256:aba0f4dc9ed8013c424088f68a5c226f7d6097ed89b246d7749c2ec4175c6adb"},
+    {file = "jinja2-3.1.5.tar.gz", hash = "sha256:8fefff8dc3034e27bb80d67c671eb8a9bc424c0ef4c0826edbff304cceff43bb"},
 ]
 
 [package.dependencies]
@@ -2400,18 +2415,18 @@ adal = ["adal (>=1.0.2)"]
 
 [[package]]
 name = "langchain"
-version = "0.2.15"
+version = "0.2.17"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = "<4.0,>=3.8.1"
 files = [
-    {file = "langchain-0.2.15-py3-none-any.whl", hash = "sha256:9e6231441870aaa8523be24a5785ccccfdde759a7e27dd082b6ec80f68e49dec"},
-    {file = "langchain-0.2.15.tar.gz", hash = "sha256:f613ce7594be34f9bac687134a56f6e8274951907b798dbd037aefc95df78953"},
+    {file = "langchain-0.2.17-py3-none-any.whl", hash = "sha256:a97a33e775f8de074370aecab95db148b879c794695d9e443c95457dce5eb525"},
+    {file = "langchain-0.2.17.tar.gz", hash = "sha256:5a99ce94aae05925851777dba45cbf2c475565d1e91cbe7d82c5e329d514627e"},
 ]
 
 [package.dependencies]
 aiohttp = ">=3.8.3,<4.0.0"
-langchain-core = ">=0.2.35,<0.3.0"
+langchain-core = ">=0.2.43,<0.3.0"
 langchain-text-splitters = ">=0.2.0,<0.3.0"
 langsmith = ">=0.1.17,<0.2.0"
 numpy = {version = ">=1,<2", markers = "python_version < \"3.12\""}
@@ -2444,21 +2459,21 @@ langchain-community = ["langchain-community (>=0.2.4)"]
 
 [[package]]
 name = "langchain-community"
-version = "0.2.15"
+version = "0.2.19"
 description = "Community contributed LangChain integrations."
 optional = false
 python-versions = "<4.0,>=3.8.1"
 files = [
-    {file = "langchain_community-0.2.15-py3-none-any.whl", hash = "sha256:edcf8e9829559822a044a193b66cbea40600b8b9ce9b435fa0ae96f69377be46"},
-    {file = "langchain_community-0.2.15.tar.gz", hash = "sha256:5bd5a6d055b07ee228eb6a9f0ca59d8124a1d450e4c82a6a62cec3add3cb73a9"},
+    {file = "langchain_community-0.2.19-py3-none-any.whl", hash = "sha256:651d761f2d37d63f89de75d65858f6c7f6ea99c455622e9c13ca041622dad0c5"},
+    {file = "langchain_community-0.2.19.tar.gz", hash = "sha256:74f8db6992d03668c3d82e0d896845c413d167dad3b8e349fb2a9a57fd2d1396"},
 ]
 
 [package.dependencies]
 aiohttp = ">=3.8.3,<4.0.0"
 dataclasses-json = ">=0.5.7,<0.7"
-langchain = ">=0.2.15,<0.3.0"
-langchain-core = ">=0.2.37,<0.3.0"
-langsmith = ">=0.1.0,<0.2.0"
+langchain = ">=0.2.17,<0.3.0"
+langchain-core = ">=0.2.43,<0.3.0"
+langsmith = ">=0.1.112,<0.2.0"
 numpy = {version = ">=1,<2", markers = "python_version < \"3.12\""}
 PyYAML = ">=5.3"
 requests = ">=2,<3"
@@ -5026,6 +5041,26 @@ pytest = ">=7.4.3"
 test = ["covdefaults (>=2.3)", "coverage (>=7.3.2)", "pytest-mock (>=3.12)"]
 
 [[package]]
+name = "pytest-xdist"
+version = "3.6.1"
+description = "pytest xdist plugin for distributed testing, most importantly across multiple CPUs"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pytest_xdist-3.6.1-py3-none-any.whl", hash = "sha256:9ed4adfb68a016610848639bb7e02c9352d5d9f03d04809919e2dafc3be4cca7"},
+    {file = "pytest_xdist-3.6.1.tar.gz", hash = "sha256:ead156a4db231eec769737f57668ef58a2084a34b2e55c4a8fa20d861107300d"},
+]
+
+[package.dependencies]
+execnet = ">=2.1"
+pytest = ">=7.0.0"
+
+[package.extras]
+psutil = ["psutil (>=3.0)"]
+setproctitle = ["setproctitle"]
+testing = ["filelock"]
+
+[[package]]
 name = "python-calamine"
 version = "0.2.3"
 description = "Python binding for Rust's library for reading excel and odf file - calamine"
@@ -5884,13 +5919,13 @@ examples = ["fastapi"]
 
 [[package]]
 name = "starlette"
-version = "0.36.3"
+version = "0.41.3"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "starlette-0.36.3-py3-none-any.whl", hash = "sha256:13d429aa93a61dc40bf503e8c801db1f1bca3dc706b10ef2434a36123568f044"},
-    {file = "starlette-0.36.3.tar.gz", hash = "sha256:90a671733cfb35771d8cc605e0b679d23b992f8dcfad48cc60b38cb29aeb7080"},
+    {file = "starlette-0.41.3-py3-none-any.whl", hash = "sha256:44cedb2b7c77a9de33a8b74b2b90e9f50d11fcf25d8270ea525ad71a25374ff7"},
+    {file = "starlette-0.41.3.tar.gz", hash = "sha256:0e4ab3d16522a255be6b28260b938eae2482f98ce5cc934cb08dce8dc3ba5835"},
 ]
 
 [package.dependencies]
@@ -6922,4 +6957,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11"
-content-hash = "af5099ee84fd05fc417aca11e279c9b4e8581a18814da3cdf9d513254cb56c1a"
+content-hash = "9cf4c3aa73e1b1181ad0c993c36b9585edf7827f33a4cb1cc1f0c67c6bdc8f87"

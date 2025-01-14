@@ -24,13 +24,13 @@ type RequiredAndNotNull<T> = {
 type RequireAndNotNullSome<T, K extends keyof T> = RequiredAndNotNull<Pick<T, K>> & Omit<T, K>;
 
 type CreateAgentSettingsFields = RequireAndNotNullSome<
-  Omit<CreateAgentRequest, 'version' | 'temperature'>,
-  'name' | 'model' | 'deployment'
+  Omit<CreateAgentRequest, 'version'>,
+  'name' | 'model' | 'deployment' | 'temperature'
 >;
 
 type UpdateAgentSettingsFields = RequireAndNotNullSome<
-  Omit<UpdateAgentRequest, 'version' | 'temperature'>,
-  'name' | 'model' | 'deployment'
+  Omit<UpdateAgentRequest, 'version'>,
+  'name' | 'model' | 'deployment' | 'temperature'
 > & { is_private?: boolean };
 
 export type AgentSettingsFields = CreateAgentSettingsFields | UpdateAgentSettingsFields;

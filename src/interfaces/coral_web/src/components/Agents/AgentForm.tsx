@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 
-import { CreateAgent, UpdateAgent } from '@/cohere-client';
+import { CreateAgentRequest, UpdateAgentRequest } from '@/cohere-client';
 import { AgentToolFilePicker } from '@/components/Agents/AgentToolFilePicker';
 import { Checkbox, Input, InputLabel, STYLE_LEVEL_TO_CLASSES, Text } from '@/components/Shared';
 import { BACKGROUND_TOOLS, TOOL_GOOGLE_DRIVE_ID } from '@/constants';
@@ -11,8 +11,14 @@ import { useListTools } from '@/hooks/tools';
 import { GoogleDriveToolArtifact } from '@/types/tools';
 import { cn } from '@/utils';
 
-export type CreateAgentFormFields = Omit<CreateAgent, 'version' | 'temperature'>;
-export type UpdateAgentFormFields = Omit<UpdateAgent, 'version' | 'temperature'>;
+export type CreateAgentFormFields = Omit<
+  CreateAgentRequest,
+  'version' | 'temperature' | 'organization_id'
+>;
+export type UpdateAgentFormFields = Omit<
+  UpdateAgentRequest,
+  'version' | 'temperature' | 'organization_id'
+>;
 export type AgentFormFieldKeys = keyof CreateAgentFormFields | keyof UpdateAgentFormFields;
 
 type Props<K extends UpdateAgentFormFields | CreateAgentFormFields> = {

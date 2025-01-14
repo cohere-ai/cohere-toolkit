@@ -19,7 +19,7 @@ class AgentFactory(BaseFactory):
     description = factory.Faker("sentence")
     preamble = factory.Faker("sentence")
     version = factory.Faker("random_int")
-    temperature = factory.Faker("pyfloat")
+    temperature = factory.Faker("pyfloat", min_value=0.0, max_value=1.0)
     created_at = factory.Faker("date_time")
     updated_at = factory.Faker("date_time")
     tools = factory.List(
