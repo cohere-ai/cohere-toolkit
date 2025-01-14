@@ -49,6 +49,7 @@ const Chat: React.FC<{ agentId?: string; conversationId?: string }> = ({
     const fileIds = conversation?.files.map((file) => file.id);
 
     setParams({
+      temperature: agent?.temperature,
       tools: agentTools,
       fileIds,
     });

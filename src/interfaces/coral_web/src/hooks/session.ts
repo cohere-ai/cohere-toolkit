@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { Create } from 'hast-util-to-jsx-runtime/lib';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { useCookies } from 'next-client-cookies';
@@ -6,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
 import { clearAuthToken, setAuthToken } from '@/app/server.actions';
-import { ApiError, JWTResponse, useCohereClient } from '@/cohere-client';
+import { ApiError, CreateUserV1UsersPostData, JWTResponse, useCohereClient } from '@/cohere-client';
 import { COOKIE_KEYS } from '@/constants';
 import { useServerAuthStrategies } from '@/hooks/authStrategies';
 
@@ -70,9 +71,11 @@ export const useSession = () => {
   const registerMutation = useMutation({
     mutationFn: async (params: RegisterParams) => {
       return cohereClient.createUser({
-        fullname: params.name,
-        email: params.email,
-        password: params.password,
+        requestBody: {
+          fullname: params.name,
+          email: params.email,
+          password: params.password,
+        },
       });
     },
   });

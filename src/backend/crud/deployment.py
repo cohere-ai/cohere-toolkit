@@ -1,15 +1,14 @@
-import os
 
 from sqlalchemy.orm import Session
 
 from backend.database_models import Deployment
 from backend.model_deployments.utils import class_name_validator
-from backend.schemas.deployment import Deployment as DeploymentSchema
-from backend.schemas.deployment import DeploymentCreate, DeploymentUpdate
-from backend.services.transaction import validate_transaction
-from community.config.deployments import (
-    AVAILABLE_MODEL_DEPLOYMENTS as COMMUNITY_DEPLOYMENTS,
+from backend.schemas.deployment import (
+    DeploymentCreate,
+    DeploymentDefinition,
+    DeploymentUpdate,
 )
+from backend.services.transaction import validate_transaction
 
 
 @validate_transaction
@@ -19,7 +18,7 @@ def create_deployment(db: Session, deployment: DeploymentCreate) -> Deployment:
 
     Args:
         db (Session): Database session.
-        deployment (DeploymentSchema): Deployment data to be created.
+        deployment (DeploymentDefinition): Deployment data to be created.
 
     Returns:
         Deployment: Created deployment.
@@ -132,14 +131,14 @@ def delete_deployment(db: Session, deployment_id: str) -> None:
 
 
 @validate_transaction
-def create_deployment_by_config(db: Session, deployment_config: DeploymentSchema) -> Deployment:
+def create_deployment_by_config(db: Session, deployment_config: DeploymentDefinition) -> Deployment:
     """
     Create a new deployment by config.
 
     Args:
         db (Session): Database session.
         deployment (str): Deployment data to be created.
-        deployment_config (DeploymentSchema): Deployment config.
+        deployment_config (DeploymentDefinition): Deployment config.
 
     Returns:
         Deployment: Created deployment.
@@ -147,12 +146,9 @@ def create_deployment_by_config(db: Session, deployment_config: DeploymentSchema
     deployment = Deployment(
         name=deployment_config.name,
         description="",
-        default_deployment_config= {
-                env_var: os.environ.get(env_var, "")
-                for env_var in deployment_config.env_vars
-        },
-        deployment_class_name=deployment_config.deployment_class.__name__,
-        is_community=deployment_config.name in COMMUNITY_DEPLOYMENTS
+        default_deployment_config=deployment_config.config,
+        deployment_class_name=deployment_config.class_name,
+        is_community=deployment_config.is_community,
     )
     db.add(deployment)
     db.commit()

@@ -3,15 +3,28 @@ from typing import Any, Dict, Generator, List
 from cohere.types import StreamedChatResponse
 
 from backend.chat.enums import StreamEvent
-from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
+from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
+    MockDeployment,
+)
 
 
-class MockSingleContainerDeployment(BaseDeployment):
+class MockSingleContainerDeployment(MockDeployment):
     """Mocked Single Container Deployment."""
 
     DEFAULT_MODELS = ["command-r"]
+
+    def __init__(self, **kwargs: Any):
+        pass
+
+    @classmethod
+    def name(cls) -> str:
+        return "Single Container"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return []
 
     @property
     def rerank_enabled(self) -> bool:

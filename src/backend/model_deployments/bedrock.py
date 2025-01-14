@@ -13,12 +13,6 @@ BEDROCK_ACCESS_KEY_ENV_VAR = "BEDROCK_ACCESS_KEY"
 BEDROCK_SECRET_KEY_ENV_VAR = "BEDROCK_SECRET_KEY"
 BEDROCK_SESSION_TOKEN_ENV_VAR = "BEDROCK_SESSION_TOKEN"
 BEDROCK_REGION_NAME_ENV_VAR = "BEDROCK_REGION_NAME"
-BEDROCK_ENV_VARS = [
-    BEDROCK_ACCESS_KEY_ENV_VAR,
-    BEDROCK_SECRET_KEY_ENV_VAR,
-    BEDROCK_SESSION_TOKEN_ENV_VAR,
-    BEDROCK_REGION_NAME_ENV_VAR,
-]
 
 
 class BedrockDeployment(BaseDeployment):
@@ -48,8 +42,21 @@ class BedrockDeployment(BaseDeployment):
             ),
         )
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "Bedrock"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return [
+            BEDROCK_ACCESS_KEY_ENV_VAR,
+            BEDROCK_SECRET_KEY_ENV_VAR,
+            BEDROCK_SESSION_TOKEN_ENV_VAR,
+            BEDROCK_REGION_NAME_ENV_VAR,
+        ]
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod

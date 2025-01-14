@@ -10,7 +10,7 @@ from typing import Sequence, Union
 
 from alembic import op
 
-from backend.database_models.seeders.deplyments_models_seed import (
+from backend.database_models.seeders.deployments_models_seed import (
     delete_default_models,
     deployments_models_seed,
 )

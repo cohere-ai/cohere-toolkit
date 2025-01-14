@@ -15,13 +15,6 @@ SAGE_MAKER_SECRET_KEY_ENV_VAR = "SAGE_MAKER_SECRET_KEY"
 SAGE_MAKER_SESSION_TOKEN_ENV_VAR = "SAGE_MAKER_SESSION_TOKEN"
 SAGE_MAKER_REGION_NAME_ENV_VAR = "SAGE_MAKER_REGION_NAME"
 SAGE_MAKER_ENDPOINT_NAME_ENV_VAR = "SAGE_MAKER_ENDPOINT_NAME"
-SAGE_MAKER_ENV_VARS = [
-    SAGE_MAKER_ACCESS_KEY_ENV_VAR,
-    SAGE_MAKER_SECRET_KEY_ENV_VAR,
-    SAGE_MAKER_SESSION_TOKEN_ENV_VAR,
-    SAGE_MAKER_REGION_NAME_ENV_VAR,
-    SAGE_MAKER_ENDPOINT_NAME_ENV_VAR,
-]
 
 
 class SageMakerDeployment(BaseDeployment):
@@ -72,8 +65,22 @@ class SageMakerDeployment(BaseDeployment):
             "ContentType": "application/json",
         }
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @classmethod
+    def name(cls) -> str:
+        return "SageMaker"
+
+    @classmethod
+    def env_vars(cls) -> List[str]:
+        return [
+            SAGE_MAKER_ACCESS_KEY_ENV_VAR,
+            SAGE_MAKER_SECRET_KEY_ENV_VAR,
+            SAGE_MAKER_SESSION_TOKEN_ENV_VAR,
+            SAGE_MAKER_REGION_NAME_ENV_VAR,
+            SAGE_MAKER_ENDPOINT_NAME_ENV_VAR,
+        ]
+
+    @classmethod
+    def rerank_enabled(cls) -> bool:
         return False
 
     @classmethod
