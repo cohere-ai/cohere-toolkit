@@ -25,7 +25,6 @@ class RouterName(StrEnum):
     TOOL = "tool"
     USER = "user"
     AGENT = "agent"
-    DEFAULT_AGENT = "default_agent"
     SNAPSHOT = "snapshot"
     MODEL = "model"
     SCIM = "scim"
