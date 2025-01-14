@@ -24,7 +24,7 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 
 
 @pytest.fixture
-def client():
+def client() -> Generator[TestClient, None, None]:
     yield TestClient(app)
 
 

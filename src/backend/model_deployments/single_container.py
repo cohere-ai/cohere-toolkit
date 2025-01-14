@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 import cohere
 
@@ -39,7 +39,7 @@ class SingleContainerDeployment(BaseDeployment):
         return SingleContainerDeployment.default_model.startswith("rerank")
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not SingleContainerDeployment.is_available():
             return []
 
@@ -73,7 +73,7 @@ class SingleContainerDeployment(BaseDeployment):
             yield to_dict(event)
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+        self, query: str, documents: list[str], ctx: Context
     ) -> Any:
         return self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL

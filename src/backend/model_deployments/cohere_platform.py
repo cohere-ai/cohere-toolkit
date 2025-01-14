@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import cohere
 import requests
@@ -34,7 +34,7 @@ class CohereDeployment(BaseDeployment):
         return True
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         logger = LoggerFactory().get_logger()
         if not CohereDeployment.is_available():
             return []
@@ -91,7 +91,7 @@ class CohereDeployment(BaseDeployment):
             yield event_dict
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
         response = self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL

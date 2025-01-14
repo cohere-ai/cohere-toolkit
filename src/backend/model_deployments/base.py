@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
@@ -19,8 +19,8 @@ class BaseDeployment:
     @abstractmethod
     def rerank_enabled(self) -> bool: ...
 
-    @staticmethod
-    def list_models() -> List[str]: ...
+    @classmethod
+    def list_models(cls) -> list[str]: ...
 
     @staticmethod
     def is_available() -> bool: ...
@@ -37,5 +37,5 @@ class BaseDeployment:
 
     @abstractmethod
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any: ...

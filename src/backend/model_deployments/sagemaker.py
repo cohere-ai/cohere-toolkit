@@ -1,6 +1,6 @@
 import io
 import json
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 import boto3
 
@@ -77,7 +77,7 @@ class SageMakerDeployment(BaseDeployment):
         return False
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not SageMakerDeployment.is_available():
             return []
 
@@ -114,7 +114,7 @@ class SageMakerDeployment(BaseDeployment):
             yield stream_event
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+        self, query: str, documents: list[str], ctx: Context
     ) -> Any:
         return None
 

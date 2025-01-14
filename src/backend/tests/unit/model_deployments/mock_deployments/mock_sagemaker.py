@@ -21,8 +21,8 @@ class MockSageMakerDeployment(BaseDeployment):
     def list_models(cls) -> List[str]:
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return True
 
     def invoke_chat_stream(

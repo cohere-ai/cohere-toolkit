@@ -24,8 +24,8 @@ class MockAzureDeployment(BaseDeployment):
 
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return True
 
     def invoke_chat(
@@ -84,6 +84,6 @@ class MockAzureDeployment(BaseDeployment):
             yield event
 
     def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
         return None
