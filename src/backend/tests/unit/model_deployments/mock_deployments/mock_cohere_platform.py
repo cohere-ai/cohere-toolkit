@@ -1,4 +1,5 @@
-from typing import Any, Dict, Generator, List
+import random
+from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
@@ -6,6 +7,7 @@ from backend.chat.enums import StreamEvent
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
+from backend.services.conversation import SEARCH_RELEVANCE_THRESHOLD
 
 
 class MockCohereDeployment(BaseDeployment):
@@ -13,20 +15,23 @@ class MockCohereDeployment(BaseDeployment):
 
     DEFAULT_MODELS = ["command", "command-r"]
 
+    def __init__(self, **kwargs: Any):
+        pass
+
     @property
     def rerank_enabled(self) -> bool:
         return True
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return True
 
-    def invoke_chat(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+    async def invoke_chat(
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         event = {
             "text": "Hi! Hello there! How's it going?",
@@ -51,7 +56,7 @@ class MockCohereDeployment(BaseDeployment):
         }
         yield event
 
-    def invoke_chat_stream(
+    async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         events = [
@@ -79,8 +84,22 @@ class MockCohereDeployment(BaseDeployment):
         for event in events:
             yield event
 
-    def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+    async def invoke_rerank(
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
-        # TODO: Add
-        pass
+        results = []
+        for idx, doc in enumerate(documents):
+            if query in doc:
+                results.append({
+                    "index": idx,
+                    "relevance_score": random.uniform(SEARCH_RELEVANCE_THRESHOLD, 1),
+                })
+        event = {
+            "id": "eae2b023-bf49-4139-bf15-9825022762f4",
+            "results": results,
+            "meta": {
+                "api_version":{"version":"1"},
+                "billed_units":{"search_units":1}
+                }
+        }
+        return event
