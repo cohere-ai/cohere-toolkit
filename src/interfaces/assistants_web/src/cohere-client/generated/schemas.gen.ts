@@ -1242,78 +1242,6 @@ export const $DeleteUser = {
   title: 'DeleteUser',
 } as const;
 
-export const $Deployment = {
-  properties: {
-    id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Id',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-    },
-    models: {
-      items: {
-        type: 'string',
-      },
-      type: 'array',
-      title: 'Models',
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      default: false,
-    },
-    env_vars: {
-      anyOf: [
-        {
-          items: {
-            type: 'string',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Env Vars',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-    },
-    is_community: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Community',
-      default: false,
-    },
-  },
-  type: 'object',
-  required: ['name', 'models', 'env_vars'],
-  title: 'Deployment',
-} as const;
-
 export const $DeploymentCreate = {
   properties: {
     id: {
@@ -1362,6 +1290,62 @@ export const $DeploymentCreate = {
   type: 'object',
   required: ['name', 'deployment_class_name', 'default_deployment_config'],
   title: 'DeploymentCreate',
+} as const;
+
+export const $DeploymentDefinition = {
+  properties: {
+    id: {
+      type: 'string',
+      title: 'Id',
+    },
+    name: {
+      type: 'string',
+      title: 'Name',
+    },
+    description: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'null',
+        },
+      ],
+      title: 'Description',
+    },
+    config: {
+      additionalProperties: {
+        type: 'string',
+      },
+      type: 'object',
+      title: 'Config',
+      default: {},
+    },
+    is_available: {
+      type: 'boolean',
+      title: 'Is Available',
+      default: false,
+    },
+    is_community: {
+      type: 'boolean',
+      title: 'Is Community',
+      default: false,
+    },
+    models: {
+      items: {
+        type: 'string',
+      },
+      type: 'array',
+      title: 'Models',
+    },
+    class_name: {
+      type: 'string',
+      title: 'Class Name',
+    },
+  },
+  type: 'object',
+  required: ['id', 'name', 'models', 'class_name'],
+  title: 'DeploymentDefinition',
 } as const;
 
 export const $DeploymentUpdate = {

@@ -9,13 +9,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS, ModelDeploymentName
 from backend.database_models import get_session
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
-from backend.schemas.deployment import Deployment as DeploymentSchema
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -184,43 +182,17 @@ def mock_available_model_deployments(request):
         MockSageMakerDeployment,
     )
 
-    is_available_values = getattr(request, "param", {})
     MOCKED_DEPLOYMENTS = {
-        ModelDeploymentName.CoherePlatform: DeploymentSchema(
-            id="cohere_platform",
-            name=ModelDeploymentName.CoherePlatform,
-            models=MockCohereDeployment.list_models(),
-            is_available=is_available_values.get(
-                ModelDeploymentName.CoherePlatform, True
-            ),
-            deployment_class=MockCohereDeployment,
-            env_vars=["COHERE_VAR_1", "COHERE_VAR_2"],
-        ),
-        ModelDeploymentName.SageMaker: DeploymentSchema(
-            id="sagemaker",
-            name=ModelDeploymentName.SageMaker,
-            models=MockSageMakerDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.SageMaker, True),
-            deployment_class=MockSageMakerDeployment,
-            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
-        ),
-        ModelDeploymentName.Azure: DeploymentSchema(
-            id="azure",
-            name=ModelDeploymentName.Azure,
-            models=MockAzureDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.Azure, True),
-            deployment_class=MockAzureDeployment,
-            env_vars=["SAGEMAKER_VAR_1", "SAGEMAKER_VAR_2"],
-        ),
-        ModelDeploymentName.Bedrock: DeploymentSchema(
-            id="bedrock",
-            name=ModelDeploymentName.Bedrock,
-            models=MockBedrockDeployment.list_models(),
-            is_available=is_available_values.get(ModelDeploymentName.Bedrock, True),
-            deployment_class=MockBedrockDeployment,
-            env_vars=["BEDROCK_VAR_1", "BEDROCK_VAR_2"],
-        ),
+        MockCohereDeployment.name(): MockCohereDeployment,
+        MockAzureDeployment.name(): MockAzureDeployment,
+        MockSageMakerDeployment.name(): MockSageMakerDeployment,
+        MockBedrockDeployment.name(): MockBedrockDeployment,
     }
 
-    with patch.dict(AVAILABLE_MODEL_DEPLOYMENTS, MOCKED_DEPLOYMENTS) as mock:
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
+        yield mock
+
+@pytest.fixture
+def mock_cohere_list_models():
+    with patch("backend.model_deployments.cohere_platform.CohereDeployment.list_models", return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]) as mock:
         yield mock

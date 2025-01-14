@@ -1,12 +1,12 @@
 import { StateCreator } from 'zustand';
 
-import { CohereChatRequest, DEFAULT_CHAT_TEMPERATURE } from '@/cohere-client';
+import { CohereChatRequest } from '@/cohere-client';
 
 import { StoreState } from '..';
 
 const INITIAL_STATE: ConfigurableParams = {
   model: undefined,
-  temperature: DEFAULT_CHAT_TEMPERATURE,
+  temperature: undefined,
   preamble: '',
   tools: [],
   fileIds: [],

@@ -6,7 +6,7 @@ import { Modal } from '@/components/UI';
 
 interface OpenParams {
   title?: string;
-  content?: React.ReactNode | React.FC;
+  content?: React.ReactNode;
   dialogPaddingClassName?: string;
 }
 
@@ -18,7 +18,7 @@ interface Context {
   title?: string;
   open: OpenFunction;
   close: CloseFunction;
-  content: React.ReactNode | React.FC;
+  content: React.ReactNode;
   dialogPaddingClassName?: string;
 }
 
@@ -28,7 +28,7 @@ interface Context {
 const useModal = (): Context => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState<string | undefined>(undefined);
-  const [content, setContent] = useState<React.ReactNode | React.FC>(undefined);
+  const [content, setContent] = useState<React.ReactNode>(undefined);
   const [dialogPaddingClassName, setDialogPaddingClassName] = useState<string | undefined>(
     undefined
   );

@@ -1,8 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.config.deployments import ModelDeploymentName
 from backend.database_models.user import User
+from backend.model_deployments.sagemaker import SageMakerDeployment
 from backend.tests.unit.model_deployments.mock_deployments import (
     MockSageMakerDeployment,
 )
@@ -17,7 +17,7 @@ def test_streamed_chat(
     deployment = mock_sagemaker_deployment.return_value
     response = session_client_chat.post(
         "/v1/chat-stream",
-        headers={"User-Id": user.id, "Deployment-Name": ModelDeploymentName.SageMaker},
+        headers={"User-Id": user.id, "Deployment-Name": SageMakerDeployment.name()},
         json={"message": "Hello", "max_tokens": 10},
     )
 
@@ -32,7 +32,7 @@ def test_non_streamed_chat(
     mock_sagemaker_deployment.return_value
     response = session_client_chat.post(
         "/v1/chat",
-        headers={"User-Id": user.id, "Deployment-Name": ModelDeploymentName.SageMaker},
+        headers={"User-Id": user.id, "Deployment-Name": SageMakerDeployment.name()},
         json={"message": "Hello", "max_tokens": 10},
     )
 

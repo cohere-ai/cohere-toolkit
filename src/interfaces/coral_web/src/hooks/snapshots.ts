@@ -3,14 +3,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
   ListSnapshotsV1SnapshotsGetResponse,
-  Snapshot,
   SnapshotData,
+  SnapshotPublic,
   useCohereClient,
 } from '@/cohere-client';
 import { ChatMessage } from '@/types/message';
 
 type FormattedSnapshotData = Omit<SnapshotData, 'messages'> & { messages?: ChatMessage[] };
-export type ChatSnapshot = Omit<Snapshot, 'snapshot'> & { snapshot: FormattedSnapshotData };
+export type ChatSnapshot = Omit<SnapshotPublic, 'snapshot'> & { snapshot: FormattedSnapshotData };
 export type ChatSnapshotWithLinks = ChatSnapshot & { links: string[] };
 
 /**

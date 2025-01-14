@@ -1,11 +1,11 @@
 import datetime
 
-from backend.config.deployments import ModelDeploymentName
 from backend.config.tools import Tool
+from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.schemas.agent import AgentPublic
 
 DEFAULT_AGENT_ID = "default"
-DEFAULT_DEPLOYMENT = ModelDeploymentName.CoherePlatform
+DEFAULT_DEPLOYMENT = CohereDeployment.name()
 DEFAULT_MODEL = "command-r-plus"
 
 def get_default_agent() -> AgentPublic:
