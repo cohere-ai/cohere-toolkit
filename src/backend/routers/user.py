@@ -13,7 +13,7 @@ from backend.services.context import get_context
 
 router = APIRouter(
     prefix="/v1/users",
-    tags=["User"],
+    tags=[RouterName.USER],
 )
 router.name = RouterName.USER
 

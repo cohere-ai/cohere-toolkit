@@ -29,7 +29,7 @@ from backend.services.context import get_context
 
 router = APIRouter(
     prefix="/v1",
-    tags=["Auth"],
+    tags=[RouterName.AUTH],
 )
 router.name = RouterName.AUTH
 

@@ -50,7 +50,7 @@ from backend.services.synthesizer import synthesize
 
 router = APIRouter(
     prefix="/v1/conversations",
-    tags=["Conversation"],
+    tags=[RouterName.CONVERSATION],
 )
 router.name = RouterName.CONVERSATION
 

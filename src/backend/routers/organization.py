@@ -18,9 +18,9 @@ from backend.services.request_validators import validate_organization_request
 
 router = APIRouter(
     prefix="/v1/organizations",
-    tags=["Organization"],
+    tags=[RouterName.ORGANIZATION],
 )
-router.name = RouterName.TOOL
+router.name = RouterName.ORGANIZATION
 
 
 @router.post(

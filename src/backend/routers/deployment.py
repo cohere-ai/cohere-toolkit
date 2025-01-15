@@ -28,7 +28,7 @@ logger = LoggerFactory().get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",
-    tags=["Deployment"],
+    tags=[RouterName.DEPLOYMENT],
 )
 router.name = RouterName.DEPLOYMENT
 
@@ -143,7 +143,7 @@ async def delete_deployment(
     return DeleteDeployment()
 
 
-@router.post("/{deployment_id}/set_env_vars", response_class=DeploymentDefinition)
+@router.post("/{deployment_id}/set_env_vars", response_model=DeploymentDefinition)
 async def set_env_vars(
     *,
     deployment_id: DeploymentIdPathParam,

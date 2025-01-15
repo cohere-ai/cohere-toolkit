@@ -31,7 +31,7 @@ from backend.services.context import get_context
 scim_auth = Settings().get('auth.scim')
 router = APIRouter(
     prefix="/scim/v2",
-    tags=["SCIM"]
+    tags=[RouterName.SCIM]
 )
 router.name = RouterName.SCIM
 

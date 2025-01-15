@@ -7,7 +7,7 @@ from backend.services.context import get_context
 
 router = APIRouter(
     prefix="/v1/experimental_features",
-    tags=["Experimental Features"],
+    tags=[RouterName.EXPERIMENTAL_FEATURES],
 )
 
 router.name = RouterName.EXPERIMENTAL_FEATURES

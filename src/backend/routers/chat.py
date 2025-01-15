@@ -23,7 +23,7 @@ from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
-    tags=["Chat"],
+    tags=[RouterName.CHAT],
 )
 router.name = RouterName.CHAT
 

@@ -11,7 +11,7 @@ from backend.services.context import get_context
 
 router = APIRouter(
     prefix="/v1/tools",
-    tags=["Tool"],
+    tags=[RouterName.TOOL],
 )
 router.name = RouterName.TOOL
 

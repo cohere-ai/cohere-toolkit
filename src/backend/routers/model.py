@@ -12,7 +12,7 @@ from backend.services.request_validators import validate_create_update_model_req
 
 router = APIRouter(
     prefix="/v1/models",
-    tags=["Model"],
+    tags=[RouterName.MODEL],
 )
 
 router.name = RouterName.MODEL

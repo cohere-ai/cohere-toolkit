@@ -28,7 +28,7 @@ from backend.services.snapshot import (
 
 router = APIRouter(
     prefix="/v1/snapshots",
-    tags=["Snapshot"],
+    tags=[RouterName.SNAPSHOT],
 )
 router.name = RouterName.SNAPSHOT
 

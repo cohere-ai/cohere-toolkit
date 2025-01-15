@@ -66,7 +66,7 @@ from backend.services.request_validators import (
 
 router = APIRouter(
     prefix="/v1/agents",
-    tags=["Agent"],
+    tags=[RouterName.AGENT],
 )
 router.name = RouterName.AGENT
 
