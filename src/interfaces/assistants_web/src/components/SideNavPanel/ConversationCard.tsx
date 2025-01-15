@@ -21,7 +21,7 @@ export type ConversationListItem = {
   conversationId: string;
   updatedAt: string;
   title: string;
-  description: string | null;
+  description: string | null | undefined;
   isPinned: boolean;
   weekHeading?: string;
   agent?: AgentPublic;

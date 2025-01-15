@@ -13,6 +13,9 @@ from backend.services.utils import get_deployment_config
 
 
 class Context(BaseModel):
+    """
+    Context for a request
+    """
     request: Optional[dict] = {}
     response: Optional[dict] = {}
     receive: Optional[dict] = {}

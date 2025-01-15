@@ -16,7 +16,7 @@ export type ConversationListItem = {
   conversationId: string;
   updatedAt: string;
   title: string;
-  description: string | null;
+  description: string | null | undefined;
   weekHeading?: string;
 };
 

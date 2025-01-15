@@ -1,45 +1,52 @@
-from typing import Dict, List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from backend.schemas.model import ModelSimple
-
-
-class DeploymentSimple(BaseModel):
-    id: str
-    name: str
-    deployment_class_name: Optional[str] = Field(exclude=True, default="")
-    env_vars: Optional[List[str]]
-    is_available: bool
-    is_community: bool
-
-    class Config:
-        from_attributes = True
-
-
-class DeploymentWithModels(BaseModel):
-    id: Optional[str] = None
-    name: str
-    description: Optional[str] = None
-    deployment_class_name: Optional[str] = Field(exclude=True, default="")
-    env_vars: Optional[List[str]]
-    is_available: bool = False
-    is_community: Optional[bool] = False
-    models: list[ModelSimple]
-
-    class Config:
-        from_attributes = True
-
 
 class DeploymentDefinition(BaseModel):
-    id: str
-    name: str
-    description: Optional[str] = None
-    config: Dict[str, str] = {}
-    is_available: bool = False
-    is_community: bool = False
-    models: list[str]
-    class_name: str
+    """
+    Deployment Definition
+    """
+    id: str = Field(
+        ...,
+        title="ID",
+        description="Unique Identifier for the Deployment",
+    )
+    name: str = Field(
+        ...,
+        title="Name",
+        description="Name of the Deployment",
+    )
+    description: Optional[str] = Field(
+        None,
+        title="Description",
+        description="Description of the deployment",
+    )
+    config: dict[str, str] = Field(
+        {},
+        title="Config",
+        description="Config for the deployment",
+    )
+    is_available: bool = Field(
+        False,
+        title="Is Available",
+        description="Is deployment is available",
+    )
+    is_community: Optional[bool] = Field(
+        False,
+        title="Is Community",
+        description="Is the deployment from the commmunity",
+    )
+    models: list[str] = Field(
+        ...,
+        title="Models",
+        description="List of models for the deployment",
+    )
+    class_name: str = Field(
+        ...,
+        title="Class Name",
+        description="Deployment class name",
+    )
 
     class Config:
         from_attributes = True
@@ -60,25 +67,85 @@ class DeploymentDefinition(BaseModel):
 
 
 class DeploymentCreate(BaseModel):
-    id: Optional[str] = None
-    name: str
-    description: Optional[str] = None
-    deployment_class_name: str
-    is_community: bool = False
-    default_deployment_config: Dict[str, str]
+    """
+    Deployment Create Schema
+    """
+    id: Optional[str] = Field(
+        None,
+        title="ID",
+        description="Unique Identifier for the Deployment",
+    )
+    name: str = Field(
+        ...,
+        title="Name",
+        description="Name of the Deployment",
+    )
+    description: Optional[str] = Field(
+        None,
+        title="Description",
+        description="Description of the deployment",
+    )
+    deployment_class_name: str = Field(
+        ...,
+        title="Deployment Class Name",
+        description="Deployment Class Name",
+    )
+    is_community: bool = Field(
+        False,
+        title="Is Community",
+        description="Is the deployment from the commmunity",
+    )
+    default_deployment_config: dict[str, str] = Field(
+        ...,
+        title="Default Deployment Config",
+        description="The default deployment configuration",
+    )
 
 
 class DeploymentUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    deployment_class_name: Optional[str] = None
-    is_community: Optional[bool] = None
-    default_deployment_config: Optional[Dict[str, str]] = None
+    """
+    Deployment Update Schema
+    """
+    name: Optional[str] = Field(
+        None,
+        title="Name",
+        description="Name of the Deployment",
+    )
+    description: Optional[str] = Field(
+        None,
+        title="Description",
+        description="Description of the deployment",
+    )
+    deployment_class_name: Optional[str] = Field(
+        None,
+        title="Deployment Class Name",
+        description="Deployment Class Name",
+    )
+    is_community: Optional[bool] = Field(
+        None,
+        title="Is Community",
+        description="Is the deployment from the commmunity",
+    )
+    default_deployment_config: Optional[dict[str, str]] = Field(
+        None,
+        title="Default Deployment Config",
+        description="The default deployment configuration",
+    )
 
 
 class DeleteDeployment(BaseModel):
+    """
+    Delete Deployment Response
+    """
     pass
 
 
 class UpdateDeploymentEnv(BaseModel):
-    env_vars: dict[str, str]
+    """
+    Request to update Deployment Environment Variables
+    """
+    env_vars: dict[str, str] = Field(
+        ...,
+        title="Env Vars",
+        description="Environment Variables for the Deployment",
+    )

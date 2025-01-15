@@ -12,6 +12,10 @@ from backend.schemas.deployment import (
     DeploymentUpdate,
     UpdateDeploymentEnv,
 )
+from backend.schemas.params.deployment import (
+    AllQueryParam,
+    DeploymentIdPathParam,
+)
 from backend.services import deployment as deployment_service
 from backend.services.context import get_context
 from backend.services.logger.utils import LoggerFactory
@@ -24,6 +28,7 @@ logger = LoggerFactory().get_logger()
 
 router = APIRouter(
     prefix="/v1/deployments",
+    tags=[RouterName.DEPLOYMENT],
 )
 router.name = RouterName.DEPLOYMENT
 
@@ -34,17 +39,11 @@ router.name = RouterName.DEPLOYMENT
     dependencies=[Depends(validate_create_deployment_request)],
 )
 def create_deployment(
-    deployment: DeploymentCreate, session: DBSessionDep
+    deployment: DeploymentCreate,
+    session: DBSessionDep,
 ) -> DeploymentDefinition:
     """
     Create a new deployment.
-
-    Args:
-        deployment (DeploymentCreate): Deployment data to be created.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        DeploymentDefinition: Created deployment.
     """
     try:
         created = DeploymentDefinition.from_db_deployment(
@@ -58,18 +57,12 @@ def create_deployment(
 
 @router.put("/{deployment_id}", response_model=DeploymentDefinition)
 def update_deployment(
-    deployment_id: str, new_deployment: DeploymentUpdate, session: DBSessionDep
+    deployment_id: DeploymentIdPathParam,
+    new_deployment: DeploymentUpdate,
+    session: DBSessionDep,
 ) -> DeploymentDefinition:
     """
     Update a deployment.
-
-    Args:
-        deployment_id (str): Deployment ID.
-        new_deployment (DeploymentUpdate): Deployment data to be updated.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        Deployment: Updated deployment.
 
     Raises:
         HTTPException: If deployment not found.
@@ -84,12 +77,12 @@ def update_deployment(
 
 
 @router.get("/{deployment_id}", response_model=DeploymentDefinition)
-def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentDefinition:
+def get_deployment(
+    deployment_id: DeploymentIdPathParam,
+    session: DBSessionDep,
+) -> DeploymentDefinition:
     """
     Get a deployment by ID.
-
-    Returns:
-        Deployment: Deployment with the given ID.
     """
     return mask_deployment_secrets(
         deployment_service.get_deployment_definition(session, deployment_id)
@@ -98,17 +91,13 @@ def get_deployment(deployment_id: str, session: DBSessionDep) -> DeploymentDefin
 
 @router.get("", response_model=list[DeploymentDefinition])
 def list_deployments(
-    session: DBSessionDep, all: bool = False, ctx: Context = Depends(get_context)
+    *,
+    all: AllQueryParam = False,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> list[DeploymentDefinition]:
     """
     List all available deployments and their models.
-
-    Args:
-        session (DBSessionDep)
-        all (bool): Include all deployments, regardless of availability.
-        ctx (Context): Context object.
-    Returns:
-        list[Deployment]: List of available deployment options.
     """
     logger = ctx.get_logger()
 
@@ -135,18 +124,11 @@ def list_deployments(
 
 @router.delete("/{deployment_id}")
 async def delete_deployment(
-    deployment_id: str, session: DBSessionDep
+    deployment_id: DeploymentIdPathParam,
+    session: DBSessionDep,
 ) -> DeleteDeployment:
     """
     Delete a deployment by ID.
-
-    Args:
-        deployment_id (str): Deployment ID.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-
-    Returns:
-        DeleteDeployment: Empty response.
 
     Raises:
         HTTPException: If the deployment with the given ID is not found.
@@ -161,23 +143,16 @@ async def delete_deployment(
     return DeleteDeployment()
 
 
-@router.post("/{deployment_id}/update_config")
+@router.post("/{deployment_id}/update_config", response_model=DeploymentDefinition)
 async def update_config(
-    deployment_id: str,
-    session: DBSessionDep,
+    *,
+    deployment_id: DeploymentIdPathParam,
     env_vars: UpdateDeploymentEnv,
     valid_env_vars = Depends(validate_env_vars),
-):
+    session: DBSessionDep,
+) -> DeploymentDefinition:
     """
     Set environment variables for the deployment.
-
-    Args:
-        deployment_id (str): Deployment ID.
-        session (DBSessionDep): Database session.
-        env_vars (UpdateDeploymentEnv): Environment variables to set.
-        valid_env_vars (str): Validated environment variables.
-    Returns:
-        str: Empty string.
     """
     return mask_deployment_secrets(
         deployment_service.update_config(session, deployment_id, valid_env_vars)
