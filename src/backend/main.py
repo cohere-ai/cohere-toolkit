@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
     # Shutdown logic
 
 
-def create_app():
+def create_app() -> FastAPI:
     app = FastAPI(
         title="Cohere Toolkit API",
         description="This is the API for the Open Source Cohere Toolkit",

@@ -16,7 +16,8 @@ load_dotenv()
 config = context.config
 
 # Overwrite alembic.file `sqlachemy.url` value
-config.set_main_option("sqlalchemy.url", Settings().get('database.url'))
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", Settings().get('database.url'))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

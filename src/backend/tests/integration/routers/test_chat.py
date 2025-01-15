@@ -24,7 +24,7 @@ is_cohere_env_set = (
 )
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def user(session_chat: Session) -> User:
     return get_factory("User", session_chat).create()
 
