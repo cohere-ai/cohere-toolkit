@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 import cohere
 
@@ -33,33 +33,33 @@ class SingleContainerDeployment(BaseDeployment):
             base_url=self.url, client_name=self.client_name, api_key="none"
         )
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Single Container"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return [SC_URL_ENV_VAR, SC_MODEL_ENV_VAR]
 
-    @classmethod
-    def rerank_enabled(cls) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return SingleContainerDeployment.default_model.startswith("rerank")
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not SingleContainerDeployment.is_available():
             return []
 
         return [SingleContainerDeployment.default_model]
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return (
             SingleContainerDeployment.default_model is not None
             and SingleContainerDeployment.default_url is not None
         )
 
-    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(
                 exclude={"stream", "file_ids", "model", "agent_id"}
@@ -80,7 +80,7 @@ class SingleContainerDeployment(BaseDeployment):
             yield to_dict(event)
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+        self, query: str, documents: list[str], ctx: Context, **kwargs
     ) -> Any:
         return self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL

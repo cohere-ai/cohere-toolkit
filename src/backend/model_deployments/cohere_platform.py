@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import cohere
 import requests
@@ -29,20 +29,20 @@ class CohereDeployment(BaseDeployment):
         )
         self.client = cohere.Client(api_key, client_name=self.client_name)
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Cohere Platform"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return [COHERE_API_KEY_ENV_VAR]
 
-    @classmethod
-    def rerank_enabled(cls) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return True
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         logger = LoggerFactory().get_logger()
         if not CohereDeployment.is_available():
             return []
@@ -64,12 +64,12 @@ class CohereDeployment(BaseDeployment):
         models = response.json()["models"]
         return [model["name"] for model in models if model.get("endpoints") and "chat" in model["endpoints"]]
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return CohereDeployment.api_key is not None
 
     async def invoke_chat(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
@@ -99,7 +99,7 @@ class CohereDeployment(BaseDeployment):
             yield event_dict
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
         response = self.client.rerank(
             query=query, documents=documents, model=DEFAULT_RERANK_MODEL

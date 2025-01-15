@@ -1,10 +1,12 @@
-from typing import Any, Dict, Generator, List
+import random
+from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
 from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
+from backend.services.conversation import SEARCH_RELEVANCE_THRESHOLD
 from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
     MockDeployment,
 )
@@ -18,28 +20,28 @@ class MockCohereDeployment(MockDeployment):
     def __init__(self, **kwargs: Any):
         pass
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Cohere Platform"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return ["COHERE_API_KEY"]
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return True
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return True
 
     @classmethod
-    def config(cls) -> Dict[str, Any]:
+    def config(cls) -> dict[str, Any]:
         return {"COHERE_API_KEY": "fake-api-key"}
 
 
@@ -69,36 +71,63 @@ class MockCohereDeployment(MockDeployment):
         }
         yield event
 
-    def invoke_chat_stream(
+    async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        events = [
-            {
-                "event_type": StreamEvent.STREAM_START,
-                "generation_id": "test",
+        # Start Event Stream
+        events = [{
+            "event_type": StreamEvent.STREAM_START,
+            "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
+        }]
+
+        # Add Tool Calls
+        for tool in chat_request.tools:
+            events.append({
+                "event_type": StreamEvent.TOOL_CALLS_GENERATION,
+                "text": "",
+                "tool_calls": [
+                    { "name": tool.name, "parameters": {} },
+                ],
+            })
+
+        # Add Text Generation
+        events.append({
+            "event_type": StreamEvent.TEXT_GENERATION,
+            "text": "This is a test.",
+        })
+
+        # End Stream
+        events.append({
+            "event_type": StreamEvent.STREAM_END,
+            "response": {
+                "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
+                "citations": [],
+                "documents": [],
+                "search_results": [],
+                "search_queries": [],
             },
-            {
-                "event_type": StreamEvent.TEXT_GENERATION,
-                "text": "This is a test.",
-            },
-            {
-                "event_type": StreamEvent.STREAM_END,
-                "response": {
-                    "generation_id": "test",
-                    "citations": [],
-                    "documents": [],
-                    "search_results": [],
-                    "search_queries": [],
-                },
-                "finish_reason": "MAX_TOKENS",
-            },
-        ]
+            "finish_reason": "MAX_TOKENS",
+        })
 
         for event in events:
             yield event
 
-    def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+    async def invoke_rerank(
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
-        # TODO: Add
-        pass
+        results = []
+        for idx, doc in enumerate(documents):
+            if query in doc:
+                results.append({
+                    "index": idx,
+                    "relevance_score": random.uniform(SEARCH_RELEVANCE_THRESHOLD, 1),
+                })
+        event = {
+            "id": "eae2b023-bf49-4139-bf15-9825022762f4",
+            "results": results,
+            "meta": {
+                "api_version":{"version":"1"},
+                "billed_units":{"search_units":1}
+            }
+        }
+        return event

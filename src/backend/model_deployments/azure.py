@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 import cohere
 
@@ -43,33 +43,33 @@ class AzureDeployment(BaseDeployment):
             base_url=self.chat_endpoint_url, api_key=self.api_key
         )
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Azure"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return [AZURE_API_KEY_ENV_VAR, AZURE_CHAT_URL_ENV_VAR]
 
-    @classmethod
-    def rerank_enabled(cls) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return False
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not cls.is_available():
             return []
 
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return (
             AzureDeployment.default_api_key is not None
             and AzureDeployment.default_chat_endpoint_url is not None
         )
 
-    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs) -> Any:
         response = self.client.chat(
             **chat_request.model_dump(exclude={"stream", "file_ids", "agent_id"}),
         )
@@ -86,6 +86,6 @@ class AzureDeployment(BaseDeployment):
             yield to_dict(event)
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+        self, query: str, documents: list[str], ctx: Context, **kwargs
     ) -> Any:
         return None
