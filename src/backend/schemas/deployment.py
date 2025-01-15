@@ -22,7 +22,11 @@ class DeploymentDefinition(BaseModel):
         title="Description",
         description="Description of the deployment",
     )
-    config: dict[str, str] = {}
+    config: dict[str, str] = Field(
+        {},
+        title="Config",
+        description="Config for the deployment",
+    )
     is_available: bool = Field(
         False,
         title="Is Available",
@@ -43,6 +47,23 @@ class DeploymentDefinition(BaseModel):
         title="Class Name",
         description="Deployment class name",
     )
+
+    class Config:
+        from_attributes = True
+
+    @classmethod
+    def from_db_deployment(cls, obj):
+        data = {
+            "id": obj.id,
+            "name": obj.name,
+            "description": obj.description if obj.description else None,
+            "models": [model.name for model in obj.models],
+            "is_community": obj.is_community,
+            "is_available": obj.is_available,
+            "config": obj.default_deployment_config,
+            "class_name": obj.deployment_class_name,
+        }
+        return cls(**data)
 
 
 class DeploymentCreate(BaseModel):

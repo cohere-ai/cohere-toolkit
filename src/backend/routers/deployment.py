@@ -15,7 +15,6 @@ from backend.schemas.deployment import (
 from backend.schemas.params.deployment import (
     AllQueryParam,
     DeploymentIdPathParam,
-    DeploymentNamePathParam,
 )
 from backend.services import deployment as deployment_service
 from backend.services.context import get_context
@@ -144,12 +143,14 @@ async def delete_deployment(
     return DeleteDeployment()
 
 
-@router.post("/{deployment_name}/set_env_vars", response_class=Response)
+@router.post("/{deployment_id}/set_env_vars", response_class=DeploymentDefinition)
 async def set_env_vars(
-    deployment_name: DeploymentNamePathParam,
+    *,
+    deployment_id: DeploymentIdPathParam,
     env_vars: UpdateDeploymentEnv,
     valid_env_vars = Depends(validate_env_vars),
-):
+    session: DBSessionDep,
+) -> DeploymentDefinition:
     """
     Set environment variables for the deployment.
     """

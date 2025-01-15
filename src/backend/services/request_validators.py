@@ -214,7 +214,7 @@ async def validate_env_vars(session: DBSessionDep, request: Request):
     env_vars = body.get("env_vars")
     invalid_keys = []
 
-    deployment_id = unquote_plus(request.path_params.get("deployment_name"))
+    deployment_id = unquote_plus(request.path_params.get("deployment_id"))
     deployment = deployment_service.get_deployment(session, deployment_id)
 
     for key in env_vars:
