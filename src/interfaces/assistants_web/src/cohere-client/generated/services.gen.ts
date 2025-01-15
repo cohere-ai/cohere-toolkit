@@ -60,8 +60,8 @@ import type {
   GenerateTitleV1ConversationsConversationIdGenerateTitlePostResponse,
   GetAgentByIdV1AgentsAgentIdGetData,
   GetAgentByIdV1AgentsAgentIdGetResponse,
-  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData,
-  GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse,
+  GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData,
+  GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse,
   GetAgentFileV1AgentsAgentIdFilesFileIdGetData,
   GetAgentFileV1AgentsAgentIdFilesFileIdGetResponse,
   GetConversationV1ConversationsConversationIdGetData,
@@ -120,8 +120,8 @@ import type {
   RegenerateChatStreamV1ChatStreamRegeneratePostResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
-  SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostData,
-  SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostResponse,
+  SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData,
+  SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostResponse,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
@@ -131,8 +131,6 @@ import type {
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
   UpdateAgentV1AgentsAgentIdPutData,
   UpdateAgentV1AgentsAgentIdPutResponse,
-  UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData,
-  UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse,
   UpdateConversationV1ConversationsConversationIdPutData,
   UpdateConversationV1ConversationsConversationIdPutResponse,
   UpdateDeploymentV1DeploymentsDeploymentIdPutData,
@@ -878,7 +876,7 @@ export class DeploymentService {
    * List all available deployments and their models.
    * @param data The data for the request.
    * @param data.all Include all deployments, regardless of availability.
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public listDeploymentsV1DeploymentsGet(
@@ -930,7 +928,7 @@ export class DeploymentService {
    * Get a deployment by ID.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public getDeploymentV1DeploymentsDeploymentIdGet(
@@ -975,22 +973,22 @@ export class DeploymentService {
   }
 
   /**
-   * Update Config
+   * Set Env Vars
    * Set environment variables for the deployment.
    * @param data The data for the request.
-   * @param data.deploymentName Deployment Name for deployment in question
+   * @param data.deploymentId Deployment ID for deployment in question
    * @param data.requestBody
-   * @returns unknown Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
-  public setEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPost(
-    data: SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostData
-  ): CancelablePromise<SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostResponse> {
+  public setEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPost(
+    data: SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData
+  ): CancelablePromise<SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/v1/deployments/{deployment_name}/set_env_vars',
+      url: '/v1/deployments/{deployment_id}/set_env_vars',
       path: {
-        deployment_name: data.deploymentName,
+        deployment_id: data.deploymentId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1164,12 +1162,12 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @returns Deployment Successful Response
+   * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
-  public getAgentDeploymentsV1AgentsAgentIdDeploymentsGet(
-    data: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData
-  ): CancelablePromise<GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse> {
+  public getAgentDeploymentV1AgentsAgentIdDeploymentsGet(
+    data: GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData
+  ): CancelablePromise<GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents/{agent_id}/deployments',

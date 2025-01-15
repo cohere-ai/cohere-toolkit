@@ -1355,86 +1355,6 @@ export const $DeleteUser = {
   description: 'Response when deleting a user',
 } as const;
 
-export const $Deployment = {
-  properties: {
-    id: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'ID',
-      description: 'Unique Identifier for the Deployment',
-    },
-    name: {
-      type: 'string',
-      title: 'Name',
-      description: 'Name of the Deployment',
-    },
-    models: {
-      items: {
-        type: 'string',
-      },
-      type: 'array',
-      title: 'Models',
-      description: 'List of models for the deployment',
-    },
-    is_available: {
-      type: 'boolean',
-      title: 'Is Available',
-      description: 'Is deployment is available',
-      default: false,
-    },
-    env_vars: {
-      anyOf: [
-        {
-          items: {
-            type: 'string',
-          },
-          type: 'array',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Env Vars',
-      description: 'Environment Variables for the Deployment',
-    },
-    description: {
-      anyOf: [
-        {
-          type: 'string',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Description',
-      description: 'Description of the deployment',
-    },
-    is_community: {
-      anyOf: [
-        {
-          type: 'boolean',
-        },
-        {
-          type: 'null',
-        },
-      ],
-      title: 'Is Community',
-      description: 'Is the deployment from the commmunity',
-      default: false,
-    },
-  },
-  type: 'object',
-  required: ['name', 'models'],
-  title: 'Deployment',
-  description: 'Deployment Schema',
-} as const;
-
 export const $DeploymentCreate = {
   properties: {
     id: {
@@ -1496,11 +1416,13 @@ export const $DeploymentDefinition = {
   properties: {
     id: {
       type: 'string',
-      title: 'Id',
+      title: 'ID',
+      description: 'Unique Identifier for the Deployment',
     },
     name: {
       type: 'string',
       title: 'Name',
+      description: 'Name of the Deployment',
     },
     description: {
       anyOf: [
@@ -1512,6 +1434,7 @@ export const $DeploymentDefinition = {
         },
       ],
       title: 'Description',
+      description: 'Description of the deployment',
     },
     config: {
       additionalProperties: {
@@ -1519,16 +1442,26 @@ export const $DeploymentDefinition = {
       },
       type: 'object',
       title: 'Config',
+      description: 'Config for the deployment',
       default: {},
     },
     is_available: {
       type: 'boolean',
       title: 'Is Available',
+      description: 'Is deployment is available',
       default: false,
     },
     is_community: {
-      type: 'boolean',
+      anyOf: [
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'null',
+        },
+      ],
       title: 'Is Community',
+      description: 'Is the deployment from the commmunity',
       default: false,
     },
     models: {
@@ -1537,15 +1470,18 @@ export const $DeploymentDefinition = {
       },
       type: 'array',
       title: 'Models',
+      description: 'List of models for the deployment',
     },
     class_name: {
       type: 'string',
       title: 'Class Name',
+      description: 'Deployment class name',
     },
   },
   type: 'object',
   required: ['id', 'name', 'models', 'class_name'],
   title: 'DeploymentDefinition',
+  description: 'Deployment Definition',
 } as const;
 
 export const $DeploymentUpdate = {

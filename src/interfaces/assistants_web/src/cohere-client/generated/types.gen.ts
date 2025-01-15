@@ -708,40 +708,6 @@ export type DeleteToolAuth = unknown;
 export type DeleteUser = unknown;
 
 /**
- * Deployment Schema
- */
-export type Deployment = {
-  /**
-   * Unique Identifier for the Deployment
-   */
-  id?: string | null;
-  /**
-   * Name of the Deployment
-   */
-  name: string;
-  /**
-   * List of models for the deployment
-   */
-  models: Array<string>;
-  /**
-   * Is deployment is available
-   */
-  is_available?: boolean;
-  /**
-   * Environment Variables for the Deployment
-   */
-  env_vars?: Array<string> | null;
-  /**
-   * Description of the deployment
-   */
-  description?: string | null;
-  /**
-   * Is the deployment from the commmunity
-   */
-  is_community?: boolean | null;
-};
-
-/**
  * Deployment Create Schema
  */
 export type DeploymentCreate = {
@@ -771,6 +737,46 @@ export type DeploymentCreate = {
   default_deployment_config: {
     [key: string]: string;
   };
+};
+
+/**
+ * Deployment Definition
+ */
+export type DeploymentDefinition = {
+  /**
+   * Unique Identifier for the Deployment
+   */
+  id: string;
+  /**
+   * Name of the Deployment
+   */
+  name: string;
+  /**
+   * Description of the deployment
+   */
+  description?: string | null;
+  /**
+   * Config for the deployment
+   */
+  config?: {
+    [key: string]: string;
+  };
+  /**
+   * Is deployment is available
+   */
+  is_available?: boolean;
+  /**
+   * Is the deployment from the commmunity
+   */
+  is_community?: boolean | null;
+  /**
+   * List of models for the deployment
+   */
+  models: Array<string>;
+  /**
+   * Deployment class name
+   */
+  class_name: string;
 };
 
 /**
@@ -2429,15 +2435,15 @@ export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteData = {
 
 export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteResponse = DeleteDeployment;
 
-export type SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostData = {
+export type SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData = {
   /**
-   * Deployment Name for deployment in question
+   * Deployment ID for deployment in question
    */
-  deploymentName: string;
+  deploymentId: string;
   requestBody: UpdateDeploymentEnv;
 };
 
-export type SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostResponse = unknown;
+export type SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostResponse = DeploymentDefinition;
 
 export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = {
   [key: string]: boolean;
@@ -2505,7 +2511,7 @@ export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData = {
   agentId: string;
 };
 
-export type GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetResponse = Array<DeploymentDefinition>;
+export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetResponse = Array<DeploymentDefinition>;
 
 export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
   /**
@@ -3270,14 +3276,14 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/deployments/{deployment_name}/set_env_vars': {
+  '/v1/deployments/{deployment_id}/set_env_vars': {
     post: {
-      req: SetEnvVarsV1DeploymentsDeploymentNameSetEnvVarsPostData;
+      req: SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData;
       res: {
         /**
          * Successful Response
          */
-        200: unknown;
+        200: DeploymentDefinition;
         /**
          * Validation Error
          */
@@ -3368,7 +3374,7 @@ export type $OpenApiTs = {
   };
   '/v1/agents/{agent_id}/deployments': {
     get: {
-      req: GetAgentDeploymentsV1AgentsAgentIdDeploymentsGetData;
+      req: GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData;
       res: {
         /**
          * Successful Response
