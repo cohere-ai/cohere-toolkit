@@ -5,6 +5,7 @@ from backend.config.routers import RouterName
 from backend.crud import snapshot as snapshot_crud
 from backend.database_models.database import DBSessionDep
 from backend.schemas.context import Context
+from backend.schemas.params.snapshot import LinkIdPathParam, SnapshotIdPathParam
 from backend.schemas.snapshot import (
     CreateSnapshotRequest,
     CreateSnapshotResponse,
@@ -25,7 +26,10 @@ from backend.services.snapshot import (
     wrap_create_snapshot_link,
 )
 
-router = APIRouter(prefix="/v1/snapshots")
+router = APIRouter(
+    prefix="/v1/snapshots",
+    tags=[RouterName.SNAPSHOT],
+)
 router.name = RouterName.SNAPSHOT
 
 PRIVATE_KEYS = ["organization_id", "user_id", "conversation_id"]
@@ -39,14 +43,6 @@ async def create_snapshot(
 ) -> CreateSnapshotResponse:
     """
     Create a new snapshot and snapshot link to share the conversation.
-
-    Args:
-        snapshot_request (CreateSnapshotRequest): Snapshot creation request.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        CreateSnapshotResponse: Snapshot creation response.
     """
     user_id = ctx.get_user_id()
     conversation_id = snapshot_request.conversation_id
@@ -81,13 +77,6 @@ async def list_snapshots(
 ) -> list[SnapshotWithLinks]:
     """
     List all snapshots.
-
-    Args:
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        list[SnapshotWithLinks]: List of all snapshots with their links.
     """
     user_id = ctx.get_user_id()
 
@@ -109,20 +98,12 @@ async def list_snapshots(
 
 @router.get("/link/{link_id}", response_model=SnapshotPublic)
 async def get_snapshot(
-    link_id: str,
+    link_id: LinkIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> SnapshotPublic:
     """
     Get a snapshot by link ID.
-
-    Args:
-        link_id (str): Snapshot link ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        Snapshot: Snapshot with the given link ID.
     """
     user_id = ctx.get_user_id()
 
@@ -135,20 +116,12 @@ async def get_snapshot(
 
 @router.delete("/link/{link_id}")
 async def delete_snapshot_link(
-    link_id: str,
+    link_id: LinkIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteSnapshotLinkResponse:
     """
     Delete a snapshot link by ID.
-
-    Args:
-        link_id (str): Snapshot link ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteSnapshotLinkResponse: Empty response.
     """
     user_id = ctx.get_user_id()
 
@@ -168,20 +141,12 @@ async def delete_snapshot_link(
 
 @router.delete("/{snapshot_id}")
 async def delete_snapshot(
-    snapshot_id: str,
+    snapshot_id: SnapshotIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteSnapshotResponse:
     """
     Delete a snapshot by ID.
-
-    Args:
-        snapshot_id (str): Snapshot ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteSnapshotResponse: Empty response.
     """
     user_id = ctx.get_user_id()
 

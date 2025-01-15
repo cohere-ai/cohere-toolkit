@@ -1,6 +1,7 @@
+from abc import ABC
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any, ClassVar, Dict, List, Union
+from typing import Any, ClassVar, Optional, Union
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -19,9 +20,11 @@ class EventState:
     previous_plan: str
     previous_action: str
 
-class ChatRole(StrEnum):
-    """One of CHATBOT|USER|SYSTEM to identify who the message is coming from."""
 
+class ChatRole(StrEnum):
+    """
+    One of CHATBOT|USER|SYSTEM to identify who the message is coming from.
+    """
     CHATBOT = "CHATBOT"
     USER = "USER"
     SYSTEM = "SYSTEM"
@@ -29,43 +32,54 @@ class ChatRole(StrEnum):
 
 
 class ChatCitationQuality(StrEnum):
-    """Dictates the approach taken to generating citations by allowing the user to specify whether they want "accurate" results or "fast" results. Defaults to "accurate"."""
-
+    """
+    Dictates the approach taken to generating citations by allowing the user to specify
+    whether they want "accurate" results or "fast" results. Defaults to "accurate".
+    """
     FAST = "FAST"
     ACCURATE = "ACCURATE"
 
 
 class ToolInputType(StrEnum):
-    """Type of input passed to the tool"""
-
+    """
+    Type of input passed to the tool
+    """
     QUERY = "QUERY"
     CODE = "CODE"
 
 
 class ChatMessage(BaseModel):
-    """A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message."""
-
+    """
+    A list of previous messages between the user and the model, meant to give the mode
+    conversational context for responding to the user's message.
+    """
     role: ChatRole = Field(
-        title="One of CHATBOT|USER|SYSTEM to identify who the message is coming from.",
+        ...,
+        title="Role",
+        description="One of CHATBOT|USER|SYSTEM to identify who the message is coming from.",
     )
-    message: str | None = Field(
-        title="Contents of the chat message.",
-        default=None,
+    message: Optional[str] = Field(
+        None,
+        title="Message",
+        description="Contents of the chat message.",
     )
-    tool_plan: str | None = Field(
-        title="Contents of the tool plan.",
-        default=None,
+    tool_plan: Optional[str] = Field(
+        None,
+        title="Tool Plan",
+        description="Contents of the tool plan.",
     )
-    tool_results: List[Dict[str, Any]] | None = Field(
-        title="Results from the tool call.",
-        default=None,
+    tool_results: Optional[list[dict[str, Any]]] = Field(
+        None,
+        title="Tool Results",
+        description="Results from the tool call.",
     )
-    tool_calls: List[Dict[str, Any]] | None = Field(
-        title="List of tool calls generated for custom tools",
-        default=None,
+    tool_calls: Optional[list[dict[str, Any]]] = Field(
+        None,
+        title="Tool Calls",
+        description="List of tool calls generated for custom tools",
     )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "role": self.role,
             "message": self.message,
@@ -75,209 +89,302 @@ class ChatMessage(BaseModel):
 
 
 # TODO: fix titles of these types
-class ChatResponse(BaseModel):
-    event_type: ClassVar[StreamEvent] = Field()
+class ChatResponse(ABC, BaseModel):
+    """
+    Abstract class for Chat Responses
+    """
+    event_type: ClassVar[StreamEvent] = Field(
+        ...,
+        title="Event Type",
+        description="Chat response event type",
+    )
 
 
 class StreamStart(ChatResponse):
-    """Stream start event."""
-
+    """Stream start event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_START
-    generation_id: str | None = Field(default=None)
-    conversation_id: str | None = Field(default=None)
+    generation_id: Optional[str] = Field(
+        None,
+        title="Generation ID",
+        description="Generation ID for the event",
+    )
+    conversation_id: Optional[str] = Field(
+        None,
+        title="Conversation ID",
+        description="Conversation ID for the event",
+    )
 
 
 class StreamTextGeneration(ChatResponse):
-    """Stream text generation event."""
-
+    """Stream text generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.TEXT_GENERATION
-
     text: str = Field(
-        title="Contents of the chat message.",
+        ...,
+        title="Text",
+        description="Contents of the chat message",
     )
 
 
 class StreamCitationGeneration(ChatResponse):
-    """Stream citation generation event."""
-
+    """Stream citation generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.CITATION_GENERATION
-
-    citations: List[Citation] = Field(
-        title="Citations for the chat message.", default=[]
+    citations: list[Citation] = Field(
+        [],
+        title="Citations",
+        description="Citations for the chat message",
     )
 
 
 class StreamQueryGeneration(ChatResponse):
-    """Stream query generation event."""
-
+    """Stream query generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.SEARCH_QUERIES_GENERATION
-
     query: str = Field(
-        title="Search query used to generate grounded response with citations.",
+        ...,
+        title="Query",
+        description="Search query used to generate grounded response with citations",
     )
 
 
 class StreamSearchResults(ChatResponse):
+    """Stream search generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.SEARCH_RESULTS
-
-    search_results: List[Dict[str, Any]] = Field(
-        title="Search results used to generate grounded response with citations.",
-        default=[],
+    search_results: list[dict[str, Any]] = Field(
+        [],
+        title="Search Results",
+        description="Search results used to generate grounded response with citations",
     )
-    documents: List[Document] = Field(
-        title="Documents used to generate grounded response with citations.",
-        default=[],
+    documents: list[Document] = Field(
+        [],
+        title="Documents",
+        description="Documents used to generate grounded response with citations",
     )
 
 
 class StreamToolInput(ChatResponse):
+    """Stream tool input generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_INPUT
-    input_type: ToolInputType
-    tool_name: str
-    input: str
-    text: str
+    input_type: ToolInputType = Field(
+        ...,
+        title="Input Type",
+        description="Tool input type",
+    )
+    tool_name: str = Field(
+        ...,
+        title="Tool Name",
+        description="Name of the tool to be used",
+    )
+    input: str = Field(
+        ...,
+        title="Input",
+        description="Tool input",
+    )
+    text: str = Field(
+        ...,
+        title="Text",
+        description="Contents of the chat message",
+    )
 
 
 class StreamToolResult(ChatResponse):
+    """Stream tool result generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_RESULT
-    result: Any
-    tool_name: str
-
-    documents: List[Document] = Field(
-        title="Documents used to generate grounded response with citations.",
-        default=[],
+    result: Any = Field(
+        ...,
+        title="Result",
+        description="Result from the tool",
+    )
+    tool_name: str = Field(
+        ...,
+        title="Tool Name",
+        description="Name of tool that generated the result",
+    )
+    documents: list[Document] = Field(
+        [],
+        title="Documents",
+        description="Documents used to generate grounded response with citations",
     )
 
 
 class StreamSearchQueriesGeneration(ChatResponse):
-    """Stream queries generation event."""
-
+    """Stream queries generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.SEARCH_QUERIES_GENERATION
-
-    search_queries: List[SearchQuery] = Field(
-        title="Search query used to generate grounded response with citations.",
-        default=[],
+    search_queries: list[SearchQuery] = Field(
+        [],
+        title="Search Queries",
+        description="Search query used to generate grounded response with citations",
     )
 
 
 class StreamToolCallsGeneration(ChatResponse):
-    """Stream tool calls generation event."""
-
+    """Stream tool calls generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_GENERATION
-
-    stream_search_results: StreamSearchResults | None = Field(
-        title="List of search results used to generate grounded response with citations",
-        default=[],
+    stream_search_results: Optional[StreamSearchResults] = Field(
+        None,
+        title="Stream Search Results",
+        description="Search results used to generate grounded response with citations",
     )
-
-    tool_calls: List[ToolCall] | None = Field(
-        title="List of tool calls generated for custom tools",
-        default=[],
+    tool_calls: Optional[list[ToolCall]] = Field(
+        [],
+        title="Tool Calls",
+        description="List of tool calls generated for custom tools",
     )
-
     text: str | None = Field(
-        title="Contents of the chat message.",
+        None,
+        title="Text",
+        description="Contents of the chat message",
     )
 
 
 class StreamEnd(ChatResponse):
-    message_id: str | None = Field(default=None)
-    response_id: str | None = Field(default=None)
+    """Stream end generation event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.STREAM_END
-    generation_id: str | None = Field(default=None)
-    conversation_id: str | None = Field(default=None)
+    message_id: Optional[str] = Field(
+        None,
+        title="Message ID",
+        description="Unique identifier for the message",
+    )
+    response_id: Optional[str] = Field(
+        None,
+        title="Response ID",
+        description="Unique identifier for the response",
+    )
+    generation_id: Optional[str] = Field(
+        None,
+        title="Generation ID",
+        description="Unique identifier for the generation",
+    )
+    conversation_id: Optional[str] = Field(
+        None,
+        title="Conversation ID",
+        description="Unique identifier for the conversation",
+    )
     text: str = Field(
-        title="Contents of the chat message.",
+        ...,
+        title="Text",
+        description="Contents of the chat message",
     )
-    citations: List[Citation] = Field(
-        title="Citations for the chat message.", default=[]
+    citations: list[Citation] = Field(
+        [],
+        title="Citations",
+        description="Citations for the chat messae.",
     )
-    documents: List[Document] = Field(
-        title="Documents used to generate grounded response with citations.",
-        default=[],
+    documents: list[Document] = Field(
+        [],
+        title="Documents",
+        description="Documents used to generate grounded response with citations",
     )
-    search_results: List[Dict[str, Any]] = Field(
-        title="Search results used to generate grounded response with citations.",
-        default=[],
+    search_results: list[dict[str, Any]] = Field(
+        [],
+        title="Search Results",
+        description="Search results used to generate grounded response with citations",
     )
-    search_queries: List[SearchQuery] = Field(
-        title="List of generated search queries.",
-        default=[],
+    search_queries: list[SearchQuery] = Field(
+        [],
+        title="Search Queries",
+        description="List of generated search queries",
     )
-    tool_calls: List[ToolCall] = Field(
-        title="List of tool calls generated for custom tools",
-        default=[],
+    tool_calls: list[ToolCall] = Field(
+        [],
+        title="Tool Calls",
+        description="List of tool calls generated for custom tools",
     )
-    finish_reason: str | None = (Field(default=None),)
-    chat_history: List[ChatMessage] | None = Field(
-        default=None,
-        title="A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.",
+    finish_reason: Optional[str] = Field(
+        None,
+        title="Finish Reason",
+        description="Reson why the model finished the request",
     )
-    error: str | None = Field(
-        title="Error message if the response is an error.",
-        default=None,
+    chat_history: Optional[list[ChatMessage]] = Field(
+        None,
+        title="Chat History",
+        description="A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.",
+    )
+    error: Optional[str] = Field(
+        None,
+        title="Error",
+        description="Error message if the response is an error",
     )
 
 
 class NonStreamedChatResponse(ChatResponse):
-    response_id: str | None = Field(
-        title="Unique identifier for the response.",
+    """Non streamed chat response"""
+    response_id: Optional[str] = Field(
+        None,
+        title="Response ID",
+        description="Unique identifier for the response",
     )
-    generation_id: str | None = Field(
-        title="Unique identifier for the generation.",
+    generation_id: Optional[str] = Field(
+        None,
+        title="Generation ID",
+        description="Unique identifier for the generation",
     )
-    chat_history: List[ChatMessage] | None = Field(
-        title="A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.",
+    chat_history: Optional[list[ChatMessage]] = Field(
+        None,
+        title="Chat History",
+        description="A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.",
     )
     finish_reason: str = Field(
-        title="Reason the chat stream ended.",
+        ...,
+        title="Finish Reason",
+        description="Reason the chat stream ended",
     )
     text: str = Field(
-        title="Contents of the chat message.",
+        ...,
+        title="Text",
+        description="Contents of the chat message",
     )
-    citations: List[Citation] | None = Field(
-        title="Citations for the chat message.",
-        default=[],
+    citations: list[Citation] | None = Field(
+        [],
+        title="Citations",
+        description="Citations for the chat message",
     )
-    documents: List[Document] | None = Field(
-        title="Documents used to generate grounded response with citations.",
-        default=[],
+    documents: list[Document] | None = Field(
+        [],
+        title="Documents",
+        description="Documents used to generate grounded response with citations",
     )
-    search_results: List[Dict[str, Any]] | None = Field(
-        title="Search results used to generate grounded response with citations.",
-        default=[],
+    search_results: list[dict[str, Any]] | None = Field(
+        [],
+        title="Search Results",
+        description="Search results used to generate grounded response with citations",
     )
-    search_queries: List[SearchQuery] | None = Field(
-        title="List of generated search queries.",
-        default=[],
+    search_queries: list[SearchQuery] | None = Field(
+        [],
+        title="Search Queries",
+        description="List of generated search queries.",
     )
-    conversation_id: str | None = Field(
-        title="To store a conversation then create a conversation id and use it for every related request.",
+    conversation_id: Optional[str] = Field(
+        None,
+        title="Conversation ID",
+        description="To store a conversation then create a conversation id and use it for every related request",
     )
-    tool_calls: List[ToolCall] | None = Field(
-        title="List of tool calls generated for custom tools",
-        default=[],
+    tool_calls: list[ToolCall] | None = Field(
+        [],
+        title="Tool Calls",
+        description="List of tool calls generated for custom tools",
     )
-    error: str | None = Field(
-        title="Error message if the response is an error.",
-        default=None,
+    error: Optional[str] = Field(
+        None,
+        title="Error",
+        description="Error message if the response is an error",
     )
 
 
 class StreamToolCallsChunk(ChatResponse):
+    """Stream tool call chunk generated event"""
     event_type: ClassVar[StreamEvent] = StreamEvent.TOOL_CALLS_CHUNK
-
-    tool_call_delta: ToolCallDelta | None = Field(
-        title="Partial tool call",
-        default=ToolCallDelta(
+    tool_call_delta: Optional[ToolCallDelta] = Field(
+        ToolCallDelta(
             name=None,
             index=None,
             parameters=None,
         ),
+        title="Tool Call Delta",
+        description="Partial tool call",
     )
-
-    text: str | None = Field(
-        title="Contents of the chat message.",
+    text: Optional[str] = Field(
+        None,
+        title="Text",
+        description="Contents of the chat message",
     )
 
 
@@ -298,30 +405,44 @@ StreamEventType = Union[
 
 
 class ChatResponseEvent(BaseModel):
+    """
+    Chat Response Event
+    """
     event: StreamEvent = Field(
-        title="type of stream event",
+        ...,
+        title="Event",
+        description="Type of stream event",
     )
-
     data: StreamEventType = Field(
-        title="Data returned from chat response of a given event type",
+        ...,
+        title="Data",
+        description="Data returned from chat response of a given event type",
     )
 
 
 class BaseChatRequest(BaseModel):
+    """
+    Base Chat Request
+    """
     message: str = Field(
-        title="The message to send to the chatbot.",
+        ...,
+        title="Message",
+        description="The message to send to the chatbot",
     )
-    chat_history: List[ChatMessage] | None = Field(
-        default=None,
-        title="A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.",
+    chat_history: list[ChatMessage] | None = Field(
+        None,
+        title="Chat History",
+        description="A list of entries used to construct the conversation. If provided, these messages will be used to build the prompt and the conversation_id will be ignored so no data will be stored to maintain state.",
     )
     conversation_id: str = Field(
         default_factory=lambda: str(uuid4()),
-        title="To store a conversation then create a conversation id and use it for every related request",
+        title="Conversation ID",
+        description="To store a conversation then create a conversation id and use it for every related request",
     )
-    tools: List[Tool] | None = Field(
+    tools: Optional[list[Tool]] = Field(
         default_factory=list,
-        title="""
+        title="Tools",
+        description="""
             List of custom or managed tools to use for the response.
             If passing in managed tools, you only need to provide the name of the tool.
             If passing in custom tools, you need to provide the name, description, and optionally parameter defintions of the tool.

@@ -1,6 +1,4 @@
-from typing import Optional
-
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 from starlette.responses import Response
@@ -28,6 +26,12 @@ from backend.schemas.file import (
     ListConversationFile,
     UploadConversationFileResponse,
 )
+from backend.schemas.params.agent import AgentIdQueryParam
+from backend.schemas.params.conversation import ConversationIdPathParam, QueryQueryParam
+from backend.schemas.params.file import FileIdPathParam
+from backend.schemas.params.message import MessageIdPathParam
+from backend.schemas.params.model import ModelQueryParam
+from backend.schemas.params.shared import OrderByQueryParam, PaginationQueryParams
 from backend.services.agent import validate_agent_exists
 from backend.services.context import get_context
 from backend.services.conversation import (
@@ -46,6 +50,7 @@ from backend.services.synthesizer import synthesize
 
 router = APIRouter(
     prefix="/v1/conversations",
+    tags=[RouterName.CONVERSATION],
 )
 router.name = RouterName.CONVERSATION
 
@@ -53,21 +58,12 @@ router.name = RouterName.CONVERSATION
 # CONVERSATIONS
 @router.get("/{conversation_id}", response_model=ConversationPublic)
 async def get_conversation(
-    conversation_id: str,
+    conversation_id: ConversationIdPathParam,
     session: DBSessionDep,
-    request: Request,
     ctx: Context = Depends(get_context),
 ) -> ConversationPublic:
     """
     Get a conversation by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-
-    Returns:
-        ConversationPublic: Conversation with the given ID.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -112,32 +108,19 @@ async def get_conversation(
 @router.get("", response_model=list[ConversationWithoutMessages])
 async def list_conversations(
     *,
-    offset: int = 0,
-    limit: int = 100,
-    order_by: str = None,
-    agent_id: str = None,
+    page_params: PaginationQueryParams,
+    order_by: OrderByQueryParam = None,
+    agent_id: AgentIdQueryParam = None,
     session: DBSessionDep,
-    request: Request,
     ctx: Context = Depends(get_context),
 ) -> list[ConversationWithoutMessages]:
     """
     List all conversations.
-
-    Args:
-        offset (int): Offset to start the list.
-        limit (int): Limit of conversations to be listed.
-        order_by (str): A field by which to order the conversations.
-        agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-
-    Returns:
-        list[ConversationWithoutMessages]: List of conversations.
     """
     user_id = ctx.get_user_id()
 
     conversations = conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, order_by=order_by, user_id=user_id, agent_id=agent_id
+        session, offset=page_params.offset, limit=page_params.limit, order_by=order_by, user_id=user_id, agent_id=agent_id
     )
 
     results = []
@@ -169,22 +152,13 @@ async def list_conversations(
 
 @router.put("/{conversation_id}", response_model=ConversationPublic)
 async def update_conversation(
-    conversation_id: str,
+    conversation_id: ConversationIdPathParam,
     new_conversation: UpdateConversationRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> ConversationPublic:
     """
     Update a conversation by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        new_conversation (UpdateConversationRequest): New conversation data.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        ConversationPublic: Updated conversation.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -219,11 +193,14 @@ async def update_conversation(
 
 @router.put("/{conversation_id}/toggle-pin", response_model=ConversationWithoutMessages)
 async def toggle_conversation_pin(
-    conversation_id: str,
+    conversation_id: ConversationIdPathParam,
     new_conversation_pin: ToggleConversationPinRequest,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> ConversationWithoutMessages:
+    """
+    Toggle whether a conversation is pinned or not
+    """
     user_id = ctx.get_user_id()
     conversation = validate_conversation(session, conversation_id, user_id)
     conversation = conversation_crud.toggle_conversation_pin(
@@ -252,18 +229,12 @@ async def toggle_conversation_pin(
 
 @router.delete("/{conversation_id}")
 async def delete_conversation(
-    conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    conversation_id: ConversationIdPathParam,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> DeleteConversationResponse:
     """
     Delete a conversation by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        DeleteConversationResponse: Empty response.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -281,28 +252,16 @@ async def delete_conversation(
 
 @router.get(":search", response_model=list[ConversationWithoutMessages])
 async def search_conversations(
-    query: str,
+    *,
+    query: QueryQueryParam,
+    page_params: PaginationQueryParams,
+    order_by: OrderByQueryParam = None,
+    agent_id: AgentIdQueryParam = None,
     session: DBSessionDep,
-    request: Request,
-    offset: int = 0,
-    limit: int = 100,
-    agent_id: str = None,
     ctx: Context = Depends(get_context),
 ) -> list[ConversationWithoutMessages]:
     """
     Search conversations by title.
-
-    Args:
-        query (str): Query string to search for in conversation titles.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-        offset (int): Offset to start the list.
-        limit (int): Limit of conversations to be listed.
-        agent_id (str): Query parameter for agent ID to optionally filter conversations by agent.
-        ctx (Context): Context object.
-
-    Returns:
-        list[ConversationWithoutMessages]: List of conversations that match the query.
     """
     user_id = ctx.get_user_id()
     deployment_name = ctx.get_deployment_name()
@@ -317,7 +276,7 @@ async def search_conversations(
         ctx.with_agent(agent_schema)
 
     conversations = conversation_crud.get_conversations(
-        session, offset=offset, limit=limit, user_id=user_id, agent_id=agent_id
+        session, offset=page_params.offset, limit=page_params.limit, order_by=order_by, user_id=user_id, agent_id=agent_id
     )
 
     if not conversations:
@@ -361,23 +320,15 @@ async def search_conversations(
 # FILES
 @router.post("/batch_upload_file", response_model=list[UploadConversationFileResponse])
 async def batch_upload_file(
-    session: DBSessionDep,
+    *,
     conversation_id: str = Form(None),
     files: list[FastAPIUploadFile] = RequestFile(...),
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> UploadConversationFileResponse:
     """
     Uploads and creates a batch of File object.
     If no conversation_id is provided, a new Conversation is created as well.
-
-    Args:
-        session (DBSessionDep): Database session.
-        conversation_id (Optional[str]): Conversation ID passed from request query parameter.
-        files (list[FastAPIUploadFile]): List of files to be uploaded.
-        ctx (Context): Context object.
-
-    Returns:
-        list[UploadConversationFileResponse]: List of uploaded files.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found. Status code 404.
@@ -435,18 +386,12 @@ async def batch_upload_file(
 
 @router.get("/{conversation_id}/files", response_model=list[ListConversationFile])
 async def list_files(
-    conversation_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    conversation_id: ConversationIdPathParam,
+    session: DBSessionDep, ctx:
+    Context = Depends(get_context),
 ) -> list[ListConversationFile]:
     """
     List all files from a conversation. Important - no pagination support yet.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        list[ListConversationFile]: List of files from the conversation.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -464,19 +409,13 @@ async def list_files(
 
 @router.get("/{conversation_id}/files/{file_id}", response_model=FileMetadata)
 async def get_file(
-    conversation_id: str, file_id: str, session: DBSessionDep, ctx: Context = Depends(get_context)
+    conversation_id: ConversationIdPathParam,
+    file_id: FileIdPathParam,
+    session: DBSessionDep,
+    ctx: Context = Depends(get_context),
 ) -> FileMetadata:
     """
     Get a conversation file by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        file_id (str): File ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        FileMetadata: File with the given ID.
 
     Raises:
         HTTPException: If the conversation or file with the given ID is not found, or if the file does not belong to the conversation.
@@ -505,21 +444,13 @@ async def get_file(
 
 @router.delete("/{conversation_id}/files/{file_id}")
 async def delete_file(
-    conversation_id: str,
-    file_id: str,
+    conversation_id: ConversationIdPathParam,
+    file_id: FileIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteConversationFileResponse:
     """
     Delete a file by ID.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        file_id (str): File ID.
-        session (DBSessionDep): Database session.
-
-    Returns:
-        DeleteFile: Empty response.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -538,23 +469,14 @@ async def delete_file(
 # MISC
 @router.post("/{conversation_id}/generate-title", response_model=GenerateTitleResponse)
 async def generate_title(
-    conversation_id: str,
+    *,
+    conversation_id: ConversationIdPathParam,
+    model: ModelQueryParam = "command-r",
     session: DBSessionDep,
-    request: Request,
-    model: Optional[str] = "command-r",
     ctx: Context = Depends(get_context),
 ) -> GenerateTitleResponse:
     """
     Generate a title for a conversation and update the conversation with the generated title.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        str: Generated title for the conversation.
 
     Raises:
         HTTPException: If the conversation with the given ID is not found.
@@ -592,22 +514,13 @@ async def generate_title(
 # SYNTHESIZE
 @router.get("/{conversation_id}/synthesize/{message_id}")
 async def synthesize_message(
-    conversation_id: str,
-    message_id: str,
+    conversation_id: ConversationIdPathParam,
+    message_id: MessageIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> Response:
     """
     Generate a synthesized audio for a specific message in a conversation.
-
-    Args:
-        conversation_id (str): Conversation ID.
-        message_id (str): Message ID.
-        session (DBSessionDep): Database session.
-        ctx (Context): Context object.
-
-    Returns:
-        Response: Synthesized audio file.
 
     Raises:
         HTTPException: If the message with the given ID is not found or synthesis fails.

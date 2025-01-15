@@ -45,6 +45,9 @@ load_dotenv()
 ORIGINS = ["*"]
 
 
+_RELEASE_VERSION = "v1.1.5"
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Retrieves all the Auth provider endpoints if authentication is enabled.
@@ -55,7 +58,12 @@ async def lifespan(app: FastAPI):
 
 
 def create_app():
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI(
+        title="Cohere Toolkit API",
+        description="This is the API for the Open Source Cohere Toolkit",
+        version=_RELEASE_VERSION,
+        lifespan=lifespan,
+    )
 
     routers = [
         auth_router,
@@ -151,7 +159,11 @@ async def health():
     return {"status": "OK"}
 
 
-@app.post("/migrate", dependencies=[Depends(verify_migrate_token)])
+@app.post(
+    "/migrate",
+    dependencies=[Depends(verify_migrate_token)],
+    include_in_schema=False,
+)
 async def apply_migrations():
     """
     Applies Alembic migrations - useful for serverless applications

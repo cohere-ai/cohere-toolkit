@@ -1,43 +1,69 @@
+from abc import ABC
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
-class Model(BaseModel):
-    id: str
-    name: str
-    deployment_id: str
-    cohere_name: Optional[str]
-    description: Optional[str]
+class BaseModelSchema(ABC, BaseModel):
+    """
+    Abstract class for Model Schemas
+    """
+    name: str = Field(
+        ...,
+        title="Name",
+        description="Model name",
+    )
+    cohere_name: Optional[str] = Field(
+        None,
+        title="Cohere Name",
+        description="Cohere model name",
+    )
+    description: Optional[str] = Field(
+        None,
+        title="Description",
+        description="Model description",
+    )
+
+
+class Model(BaseModelSchema):
+    id: str = Field(
+        ...,
+        title="ID",
+        description="Unique identifier for the model"
+    )
+    deployment_id: str = Field(
+        ...,
+        title="Deployment ID",
+        description="Unique identifier for the deployment"
+    )
 
     class Config:
         from_attributes = True
 
 
-class ModelCreate(BaseModel):
-    name: str
-    cohere_name: Optional[str]
-    description: Optional[str]
-    deployment_id: str
+class ModelCreate(BaseModelSchema):
+    deployment_id: str = Field(
+        ...,
+        title="Deployment ID",
+        description="Unique identifier for the deployment"
+    )
 
 
-class ModelUpdate(BaseModel):
-    name: Optional[str] = None
-    cohere_name: Optional[str] = None
-    description: Optional[str] = None
-    deployment_id: Optional[str] = None
+class ModelUpdate(BaseModelSchema):
+    name: Optional[str] = Field(
+        None,
+        title="Name",
+        description="Model name",
+    )
+    deployment_id: Optional[str] = Field(
+        None,
+        title="Deployment ID",
+        description="Unique identifier for the deployment"
+    )
 
 
 class DeleteModel(BaseModel):
+    """
+    Response for deleting a model
+    """
     pass
-
-
-class ModelSimple(BaseModel):
-    id: str
-    name: str
-    cohere_name: Optional[str]
-    description: Optional[str]
-
-    class Config:
-        from_attributes = True
-        use_enum_values = True

@@ -23,27 +23,19 @@ from backend.services.request_validators import validate_deployment_header
 
 router = APIRouter(
     prefix="/v1",
+    tags=[RouterName.CHAT],
 )
 router.name = RouterName.CHAT
 
 
 @router.post("/chat-stream", dependencies=[Depends(validate_deployment_header)])
 async def chat_stream(
-    session: DBSessionDep,
     chat_request: CohereChatRequest,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> Generator[ChatResponseEvent, Any, None]:
     """
     Stream chat endpoint to handle user messages and return chatbot responses.
-
-    Args:
-        session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        EventSourceResponse: Server-sent event response with chatbot responses.
     """
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id
@@ -83,21 +75,12 @@ async def chat_stream(
 
 @router.post("/chat-stream/regenerate", dependencies=[Depends(validate_deployment_header)])
 async def regenerate_chat_stream(
-    session: DBSessionDep,
     chat_request: CohereChatRequest,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> EventSourceResponse:
     """
     Endpoint to regenerate stream chat response for the last user message.
-
-    Args:
-        session (DBSessionDep): Database session.
-        chat_request (CohereChatRequest): Chat request data.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        EventSourceResponse: Server-sent event response with chatbot responses.
     """
     ctx.with_model(chat_request.model)
 
@@ -151,21 +134,12 @@ async def regenerate_chat_stream(
 
 @router.post("/chat", dependencies=[Depends(validate_deployment_header)])
 async def chat(
-    session: DBSessionDep,
     chat_request: CohereChatRequest,
+    session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> NonStreamedChatResponse:
     """
     Chat endpoint to handle user messages and return chatbot responses.
-
-    Args:
-        chat_request (CohereChatRequest): Chat request data.
-        session (DBSessionDep): Database session.
-        request (Request): Request object.
-        ctx (Context): Context object.
-
-    Returns:
-        NonStreamedChatResponse: Chatbot response.
     """
     ctx.with_model(chat_request.model)
     agent_id = chat_request.agent_id

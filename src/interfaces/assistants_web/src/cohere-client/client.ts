@@ -61,7 +61,7 @@ export class CohereClient {
     conversationId: string;
     fileId: string;
   }) {
-    return this.cohereService.default.getFileV1ConversationsConversationIdFilesFileIdGet({
+    return this.cohereService.conversation.getFileV1ConversationsConversationIdFilesFileIdGet({
       conversationId,
       fileId,
     });
@@ -70,33 +70,35 @@ export class CohereClient {
   public batchUploadConversationFile(
     formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post
   ) {
-    return this.cohereService.default.batchUploadFileV1ConversationsBatchUploadFilePost({
+    return this.cohereService.conversation.batchUploadFileV1ConversationsBatchUploadFilePost({
       formData,
     });
   }
 
   public getAgentFile({ agentId, fileId }: { agentId: string; fileId: string }) {
-    return this.cohereService.default.getAgentFileV1AgentsAgentIdFilesFileIdGet({
+    return this.cohereService.agent.getAgentFileV1AgentsAgentIdFilesFileIdGet({
       agentId,
       fileId,
     });
   }
 
   public batchUploadAgentFile(formData: Body_batch_upload_file_v1_agents_batch_upload_file_post) {
-    return this.cohereService.default.batchUploadFileV1AgentsBatchUploadFilePost({
+    return this.cohereService.agent.batchUploadFileV1AgentsBatchUploadFilePost({
       formData,
     });
   }
 
   public deletefile({ conversationId, fileId }: { conversationId: string; fileId: string }) {
-    return this.cohereService.default.deleteFileV1ConversationsConversationIdFilesFileIdDelete({
-      conversationId,
-      fileId,
-    });
+    return this.cohereService.conversation.deleteFileV1ConversationsConversationIdFilesFileIdDelete(
+      {
+        conversationId,
+        fileId,
+      }
+    );
   }
 
   public listFiles({ conversationId }: { conversationId: string }) {
-    return this.cohereService.default.listFilesV1ConversationsConversationIdFilesGet({
+    return this.cohereService.conversation.listFilesV1ConversationsConversationIdFilesGet({
       conversationId,
     });
   }
@@ -164,30 +166,30 @@ export class CohereClient {
     orderBy?: string;
     agentId?: string;
   }) {
-    return this.cohereService.default.listConversationsV1ConversationsGet(params);
+    return this.cohereService.conversation.listConversationsV1ConversationsGet(params);
   }
 
   public getConversation({ conversationId }: { conversationId: string }) {
-    return this.cohereService.default.getConversationV1ConversationsConversationIdGet({
+    return this.cohereService.conversation.getConversationV1ConversationsConversationIdGet({
       conversationId,
     });
   }
 
   public deleteConversation({ conversationId }: { conversationId: string }) {
-    return this.cohereService.default.deleteConversationV1ConversationsConversationIdDelete({
+    return this.cohereService.conversation.deleteConversationV1ConversationsConversationIdDelete({
       conversationId,
     });
   }
 
   public editConversation(requestBody: UpdateConversationRequest, conversationId: string) {
-    return this.cohereService.default.updateConversationV1ConversationsConversationIdPut({
+    return this.cohereService.conversation.updateConversationV1ConversationsConversationIdPut({
       conversationId: conversationId,
       requestBody,
     });
   }
 
   public toggleConversationPin(requestBody: ToggleConversationPinRequest, conversationId: string) {
-    return this.cohereService.default.toggleConversationPinV1ConversationsConversationIdTogglePinPut(
+    return this.cohereService.conversation.toggleConversationPinV1ConversationsConversationIdTogglePinPut(
       {
         conversationId: conversationId,
         requestBody,
@@ -196,7 +198,7 @@ export class CohereClient {
   }
 
   public async synthesizeMessage(conversationId: string, messageId: string) {
-    return this.cohereService.default.synthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGet(
+    return this.cohereService.conversation.synthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGet(
       {
         conversationId,
         messageId,
@@ -205,30 +207,30 @@ export class CohereClient {
   }
 
   public async getExperimentalFeatures() {
-    return this.cohereService.default.listExperimentalFeaturesV1ExperimentalFeaturesGet();
+    return this.cohereService.experimentalFeatures.listExperimentalFeaturesV1ExperimentalFeaturesGet();
   }
 
   public listTools({ agentId }: { agentId?: string | null }) {
-    return this.cohereService.default.listToolsV1ToolsGet({ agentId });
+    return this.cohereService.tool.listToolsV1ToolsGet({ agentId });
   }
 
   public deleteAuthTool({ toolId }: { toolId: string }) {
-    return this.cohereService.default.deleteToolAuthV1ToolAuthToolIdDelete({ toolId });
+    return this.cohereService.auth.deleteToolAuthV1ToolAuthToolIdDelete({ toolId });
   }
 
   public listDeployments({ all }: { all?: boolean }) {
-    return this.cohereService.default.listDeploymentsV1DeploymentsGet({ all });
+    return this.cohereService.deployment.listDeploymentsV1DeploymentsGet({ all });
   }
 
   public updateDeploymentEnvVariables(requestBody: UpdateDeploymentEnv, deploymentId: string) {
-    return this.cohereService.default.updateConfigV1DeploymentsDeploymentIdUpdateConfigPost({
+    return this.cohereService.deployment.updateConfigV1DeploymentsDeploymentIdUpdateConfigPost({
       deploymentId: deploymentId,
       requestBody,
     });
   }
 
   public login({ email, password }: { email: string; password: string }) {
-    return this.cohereService.default.loginV1LoginPost({
+    return this.cohereService.auth.loginV1LoginPost({
       requestBody: {
         strategy: 'Basic',
         payload: { email, password },
@@ -237,15 +239,15 @@ export class CohereClient {
   }
 
   public logout() {
-    return this.cohereService.default.logoutV1LogoutGet();
+    return this.cohereService.auth.logoutV1LogoutGet();
   }
 
   public getAuthStrategies() {
-    return this.cohereService.default.getStrategiesV1AuthStrategiesGet();
+    return this.cohereService.auth.getStrategiesV1AuthStrategiesGet();
   }
 
   public createUser(requestBody: CreateUserV1UsersPostData) {
-    return this.cohereService.default.createUserV1UsersPost(requestBody);
+    return this.cohereService.user.createUserV1UsersPost(requestBody);
   }
 
   public async googleSSOAuth({ code }: { code: string }) {
@@ -304,56 +306,58 @@ export class CohereClient {
   }
 
   public getDefaultAgent() {
-    return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId: DEFAULT_AGENT_ID });
+    return this.cohereService.agent.getAgentByIdV1AgentsAgentIdGet({ agentId: DEFAULT_AGENT_ID });
   }
 
   public getAgent(agentId: string) {
-    return this.cohereService.default.getAgentByIdV1AgentsAgentIdGet({ agentId });
+    return this.cohereService.agent.getAgentByIdV1AgentsAgentIdGet({ agentId });
   }
 
   public createAgent(requestBody: CreateAgentRequest) {
-    return this.cohereService.default.createAgentV1AgentsPost({ requestBody });
+    return this.cohereService.agent.createAgentV1AgentsPost({ requestBody });
   }
 
   public listAgents({ offset, limit = 100 }: { offset?: number; limit?: number }) {
-    return this.cohereService.default.listAgentsV1AgentsGet({ offset, limit });
+    return this.cohereService.agent.listAgentsV1AgentsGet({ offset, limit });
   }
 
   public updateAgent(requestBody: UpdateAgentRequest, agentId: string) {
-    return this.cohereService.default.updateAgentV1AgentsAgentIdPut({
+    return this.cohereService.agent.updateAgentV1AgentsAgentIdPut({
       agentId: agentId,
       requestBody,
     });
   }
 
   public deleteAgent(request: { agentId: string }) {
-    return this.cohereService.default.deleteAgentV1AgentsAgentIdDelete(request);
+    return this.cohereService.agent.deleteAgentV1AgentsAgentIdDelete(request);
   }
 
   public generateTitle({ conversationId }: { conversationId: string }) {
-    return this.cohereService.default.generateTitleV1ConversationsConversationIdGenerateTitlePost({
-      conversationId,
-    });
+    return this.cohereService.conversation.generateTitleV1ConversationsConversationIdGenerateTitlePost(
+      {
+        conversationId,
+      }
+    );
   }
 
   public listSnapshots() {
-    return this.cohereService.default.listSnapshotsV1SnapshotsGet();
+    return this.cohereService.snapshot.listSnapshotsV1SnapshotsGet();
   }
 
   public createSnapshot(requestBody: CreateSnapshotRequest) {
-    return this.cohereService.default.createSnapshotV1SnapshotsPost({ requestBody });
+    return this.cohereService.snapshot.createSnapshotV1SnapshotsPost({ requestBody });
   }
 
   public getSnapshot({ linkId }: { linkId: string }) {
-    return this.cohereService.default.getSnapshotV1SnapshotsLinkLinkIdGet({ linkId });
+    return this.cohereService.snapshot.getSnapshotV1SnapshotsLinkLinkIdGet({ linkId });
   }
 
   public deleteSnapshotLink({ linkId }: { linkId: string }) {
-    return this.cohereService.default.deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({ linkId });
+    return this.cohereService.snapshot.deleteSnapshotLinkV1SnapshotsLinkLinkIdDelete({ linkId });
   }
 
   public deleteSnapshot({ snapshotId }: { snapshotId: string }) {
-    return this.cohereService.default.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
+    return this.cohereService.snapshot.deleteSnapshotV1SnapshotsSnapshotIdDelete({ snapshotId });
   }
 
   private getEndpoint(endpoint: 'chat-stream' | 'google/auth' | 'oidc/auth') {
