@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator, List
+from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
@@ -18,20 +18,20 @@ class MockAzureDeployment(MockDeployment):
     def __init__(self, **kwargs: Any):
         pass
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Azure"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return ["AZURE_API_KEY", "AZURE_CHAT_ENDPOINT_URL"]
 
-    @classmethod
-    def rerank_enabled(cls) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return False
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not cls.is_available():
             return []
 
@@ -42,7 +42,7 @@ class MockAzureDeployment(MockDeployment):
         return True
 
     def invoke_chat(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Any:
         event = {
             "text": "Hi! Hello there! How's it going?",

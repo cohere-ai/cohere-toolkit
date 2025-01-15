@@ -21,7 +21,12 @@ is_cohere_env_set = (
 )
 
 
-def test_create_agent(session_client: TestClient, session: Session, user: User, mock_cohere_list_models) -> None:
+def test_create_agent(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+    mock_cohere_list_models,
+) -> None:
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -297,7 +302,7 @@ def test_create_agent_deployment_not_in_db(
 
 
 def test_create_agent_invalid_tool(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -314,7 +319,7 @@ def test_create_agent_invalid_tool(
 
 
 def test_create_existing_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(name="test agent")
     request_json = {
@@ -336,7 +341,9 @@ def test_list_agents_empty_returns_default_agent(session_client: TestClient, ses
     assert len(response_agents) == 1
 
 
-def test_list_agents(session_client: TestClient, session: Session, user) -> None:
+def test_list_agents(
+    session_client: TestClient, session: Session, user: User,
+) -> None:
     num_agents = 3
     for _ in range(num_agents):
         _ = get_factory("Agent", session).create(user=user)
@@ -350,7 +357,7 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
 def test_list_organization_agents(
     session_client: TestClient,
     session: Session,
-    user,
+    user: User,
 ) -> None:
     num_agents = 3
     organization = get_factory("Organization", session).create()
@@ -379,7 +386,7 @@ def test_list_organization_agents(
 def test_list_organization_agents_query_param(
     session_client: TestClient,
     session: Session,
-    user,
+    user: User,
 ) -> None:
     num_agents = 3
     organization = get_factory("Organization", session).create()
@@ -408,7 +415,7 @@ def test_list_organization_agents_query_param(
 def test_list_organization_agents_nonexistent_organization(
     session_client: TestClient,
     session: Session,
-    user,
+    user: User,
 ) -> None:
     response = session_client.get(
         "/v1/agents", headers={"User-Id": user.id, "Organization-Id": "123"}
@@ -418,7 +425,7 @@ def test_list_organization_agents_nonexistent_organization(
 
 
 def test_list_private_agents(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user, is_private=True)
@@ -438,7 +445,9 @@ def test_list_private_agents(
     assert len(response_agents) == 3
 
 
-def test_list_public_agents(session_client: TestClient, session: Session, user) -> None:
+def test_list_public_agents(
+    session_client: TestClient, session: Session, user: User,
+) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user, is_private=True)
 
@@ -451,6 +460,7 @@ def test_list_public_agents(session_client: TestClient, session: Session, user) 
     )
 
     assert response.status_code == 200
+    breakpoint()
     response_agents = filter_default_agent(response.json())
 
     # Only the agents created by user should be returned
@@ -458,7 +468,7 @@ def test_list_public_agents(session_client: TestClient, session: Session, user) 
 
 
 def list_public_and_private_agents(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user, is_private=True)
@@ -479,7 +489,7 @@ def list_public_and_private_agents(
 
 
 def test_list_agents_with_pagination(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     for _ in range(5):
         _ = get_factory("Agent", session).create(user=user)
@@ -495,6 +505,7 @@ def test_list_agents_with_pagination(
         "/v1/agents?limit=2&offset=4", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
+    breakpoint()
     response_agents = filter_default_agent(response.json())
     assert len(response_agents) == 1
 

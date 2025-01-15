@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator
+from typing import Any
 
 from backend.config.settings import Settings
 from backend.schemas.cohere_chat import CohereChatRequest
@@ -25,31 +25,32 @@ class BaseDeployment(ABC):
     def id(cls) -> str:
         return cls.db_id if cls.db_id else cls.name().replace(" ", "_").lower()
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def name(cls) -> str: ...
+    def name() -> str: ...
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def env_vars(cls) -> List[str]: ...
+    def env_vars() -> list[str]: ...
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def rerank_enabled(cls) -> bool: ...
+    def rerank_enabled() -> bool: ...
 
     @classmethod
     @abstractmethod
     def list_models(cls) -> list[str]: ...
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def is_available(cls) -> bool: ...
+    def is_available() -> bool: ...
 
     @classmethod
     def is_community(cls) -> bool:
         return False
 
-    def config(cls) -> Dict[str, Any]:
+    @classmethod
+    def config(cls) -> dict[str, Any]:
         config = Settings().get(f"deployments.{cls.id()}")
         config_dict = {} if not config else dict(config)
         for key, value in config_dict.items():
@@ -78,7 +79,7 @@ class BaseDeployment(ABC):
     @abstractmethod
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
-    ) -> AsyncGenerator[Any, Any]: ...
+    ) -> Any: ...
 
     @abstractmethod
     async def invoke_rerank(
