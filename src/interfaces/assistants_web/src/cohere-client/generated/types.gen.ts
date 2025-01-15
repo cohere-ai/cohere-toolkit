@@ -2435,7 +2435,7 @@ export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteData = {
 
 export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteResponse = DeleteDeployment;
 
-export type SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData = {
+export type UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData = {
   /**
    * Deployment ID for deployment in question
    */
@@ -2443,7 +2443,7 @@ export type SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData = {
   requestBody: UpdateDeploymentEnv;
 };
 
-export type SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostResponse = DeploymentDefinition;
+export type UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse = DeploymentDefinition;
 
 export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = {
   [key: string]: boolean;
@@ -3276,9 +3276,9 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/deployments/{deployment_id}/set_env_vars': {
+  '/v1/deployments/{deployment_id}/update_config': {
     post: {
-      req: SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData;
+      req: UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData;
       res: {
         /**
          * Successful Response

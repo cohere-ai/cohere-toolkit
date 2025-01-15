@@ -120,8 +120,6 @@ import type {
   RegenerateChatStreamV1ChatStreamRegeneratePostResponse,
   SearchConversationsV1ConversationsSearchGetData,
   SearchConversationsV1ConversationsSearchGetResponse,
-  SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData,
-  SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostResponse,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetData,
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
@@ -131,6 +129,8 @@ import type {
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
   UpdateAgentV1AgentsAgentIdPutData,
   UpdateAgentV1AgentsAgentIdPutResponse,
+  UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData,
+  UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse,
   UpdateConversationV1ConversationsConversationIdPutData,
   UpdateConversationV1ConversationsConversationIdPutResponse,
   UpdateDeploymentV1DeploymentsDeploymentIdPutData,
@@ -973,7 +973,7 @@ export class DeploymentService {
   }
 
   /**
-   * Set Env Vars
+   * Update Config
    * Set environment variables for the deployment.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
@@ -981,12 +981,12 @@ export class DeploymentService {
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
-  public setEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPost(
-    data: SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostData
-  ): CancelablePromise<SetEnvVarsV1DeploymentsDeploymentIdSetEnvVarsPostResponse> {
+  public updateConfigV1DeploymentsDeploymentIdUpdateConfigPost(
+    data: UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData
+  ): CancelablePromise<UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/v1/deployments/{deployment_id}/set_env_vars',
+      url: '/v1/deployments/{deployment_id}/update_config',
       path: {
         deployment_id: data.deploymentId,
       },

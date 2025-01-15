@@ -143,8 +143,8 @@ async def delete_deployment(
     return DeleteDeployment()
 
 
-@router.post("/{deployment_id}/set_env_vars", response_model=DeploymentDefinition)
-async def set_env_vars(
+@router.post("/{deployment_id}/update_config", response_model=DeploymentDefinition)
+async def update_config(
     *,
     deployment_id: DeploymentIdPathParam,
     env_vars: UpdateDeploymentEnv,
