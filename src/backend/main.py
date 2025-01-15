@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
     # Shutdown logic
 
 
-def create_app():
+def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
 
     routers = [
