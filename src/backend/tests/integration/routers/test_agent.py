@@ -460,7 +460,6 @@ def test_list_public_agents(
     )
 
     assert response.status_code == 200
-    breakpoint()
     response_agents = filter_default_agent(response.json())
 
     # Only the agents created by user should be returned
@@ -505,7 +504,6 @@ def test_list_agents_with_pagination(
         "/v1/agents?limit=2&offset=4", headers={"User-Id": user.id}
     )
     assert response.status_code == 200
-    breakpoint()
     response_agents = filter_default_agent(response.json())
     assert len(response_agents) == 1
 
