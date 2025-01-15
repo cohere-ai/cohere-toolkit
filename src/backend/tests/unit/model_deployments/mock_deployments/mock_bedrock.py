@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator, List
+from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
@@ -18,28 +18,28 @@ class MockBedrockDeployment(MockDeployment):
     def __init__(self, **kwargs: Any):
         pass
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Bedrock"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return []
 
-    @property
-    def rerank_enabled(self) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return False
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return True
 
     def invoke_chat(
-        self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
+        self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         event = {
             "text": "Hi! Hello there! How's it going?",
@@ -93,6 +93,6 @@ class MockBedrockDeployment(MockDeployment):
             yield event
 
     def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context, **kwargs: Any
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
         return None

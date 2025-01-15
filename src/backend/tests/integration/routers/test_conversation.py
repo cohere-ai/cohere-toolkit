@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -10,11 +8,14 @@ from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
+_IS_GOOGLE_CLOUD_API_KEY_SET = bool(Settings().get('google_cloud.api_key'))
+
 
 def test_search_conversations(
     session_client: TestClient,
     session: Session,
     user: User,
+    mock_available_model_deployments,
 ) -> None:
     conversation = get_factory("Conversation", session).create(
         title="test title", user_id=user.id
@@ -24,8 +25,6 @@ def test_search_conversations(
         headers={"User-Id": user.id},
         params={"query": "test"},
     )
-    print("here")
-    print(response.json)
     results = response.json()
 
     assert response.status_code == 200
@@ -33,14 +32,11 @@ def test_search_conversations(
     assert results[0]["id"] == conversation.id
 
 
-@pytest.mark.skipif(
-    os.environ.get("COHERE_API_KEY") is None,
-    reason="Cohere API key not set, skipping test",
-)
 def test_search_conversations_with_reranking(
     session_client: TestClient,
     session: Session,
     user: User,
+    mock_available_model_deployments,
 ) -> None:
     _ = get_factory("Conversation", session).create(
         title="Hello, how are you?", text_messages=[], user_id=user.id
@@ -83,19 +79,16 @@ def test_search_conversations_no_conversations(
     assert response.json() == []
 
 
-# MISC
-
-
-@pytest.mark.skip(reason="Restore this test when we get access to run models on Huggingface")
 def test_generate_title(
     session_client: TestClient,
     session: Session,
     user: User,
+    mock_available_model_deployments,
 ) -> None:
-    conversation = get_factory("Conversation", session).create(user_id=user.id)
+    conversation_initial = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.post(
-        f"/v1/conversations/{conversation.id}/generate-title",
-        headers={"User-Id": conversation.user_id},
+        f"/v1/conversations/{conversation_initial.id}/generate-title",
+        headers={"User-Id": conversation_initial.user_id},
     )
     response_json = response.json()
 
@@ -105,7 +98,7 @@ def test_generate_title(
     # Check if the conversation was updated
     conversation = (
         session.query(Conversation)
-        .filter_by(id=conversation.id, user_id=conversation.user_id)
+        .filter_by(id=conversation_initial.id, user_id=conversation_initial.user_id)
         .first()
     )
     assert conversation is not None
@@ -165,10 +158,7 @@ def test_generate_title_error_invalid_model(
 # SYNTHESIZE
 
 
-is_google_cloud_api_key_set = bool(Settings().get('google_cloud.api_key'))
-
-
-@pytest.mark.skipif(not is_google_cloud_api_key_set, reason="Google Cloud API key not set, skipping test")
+@pytest.mark.skipif(not _IS_GOOGLE_CLOUD_API_KEY_SET, reason="Google Cloud API key not set, skipping test")
 def test_synthesize_english_message(
     session_client: TestClient,
     session: Session,
@@ -186,7 +176,7 @@ def test_synthesize_english_message(
     assert response.headers["Content-Type"] == "audio/mp3"
 
 
-@pytest.mark.skipif(not is_google_cloud_api_key_set, reason="Google Cloud API key not set, skipping test")
+@pytest.mark.skipif(not _IS_GOOGLE_CLOUD_API_KEY_SET, reason="Google Cloud API key not set, skipping test")
 def test_synthesize_non_english_message(
     session_client: TestClient,
     session: Session,

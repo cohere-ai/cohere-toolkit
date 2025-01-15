@@ -22,7 +22,7 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 
 
 @pytest.fixture
-def client():
+def client() -> Generator[TestClient, None, None]:
     yield TestClient(app)
 
 
@@ -194,5 +194,8 @@ def mock_available_model_deployments(request):
 
 @pytest.fixture
 def mock_cohere_list_models():
-    with patch("backend.model_deployments.cohere_platform.CohereDeployment.list_models", return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]) as mock:
+    with patch(
+        "backend.model_deployments.cohere_platform.CohereDeployment.list_models",
+        return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]
+    ) as mock:
         yield mock

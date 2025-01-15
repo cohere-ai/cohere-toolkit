@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Self
 
 from pydantic import BaseModel
 
@@ -68,7 +68,7 @@ class Context(BaseModel):
 
     def with_user(
         self, session: DBSessionDep | None = None, user: User | None = None
-    ) -> "Context":
+    ) -> Self:
         if not user and not session:
             return self
 
@@ -81,42 +81,42 @@ class Context(BaseModel):
 
         return self
 
-    def with_agent(self, agent: Agent | None) -> "Context":
+    def with_agent(self, agent: Agent | None) -> Self:
         self.agent = agent
         return self
 
     def with_agent_tool_metadata(
         self, agent_tool_metadata: AgentToolMetadata
-    ) -> "Context":
+    ) -> Self:
         self.agent_tool_metadata = agent_tool_metadata
         return self
 
-    def with_model(self, model: str) -> "Context":
+    def with_model(self, model: str) -> Self:
         self.model = model
         return self
 
-    def with_deployment_config(self, deployment_config=None) -> "Context":
+    def with_deployment_config(self, deployment_config=None) -> Self:
         if deployment_config:
             self.deployment_config = deployment_config
         else:
             self.deployment_config = get_deployment_config(self.request)
         return self
 
-    def with_conversation_id(self, conversation_id: str) -> "Context":
+    def with_conversation_id(self, conversation_id: str) -> Self:
         self.conversation_id = conversation_id
         return self
 
-    def with_stream_start_ms(self, now_ms: float) -> "Context":
+    def with_stream_start_ms(self, now_ms: float) -> Self:
         self.stream_start_ms = now_ms
 
-    def with_agent_id(self, agent_id: str) -> "Context":
+    def with_agent_id(self, agent_id: str) -> Self:
         if not agent_id:
             return self
 
         self.agent_id = agent_id
         return self
 
-    def with_organization_id(self, organization_id: str) -> "Context":
+    def with_organization_id(self, organization_id: str) -> Self:
         self.organization_id = organization_id
         return self
 
@@ -124,7 +124,7 @@ class Context(BaseModel):
         self,
         session: DBSessionDep | None = None,
         organization: Organization | None = None,
-    ) -> "Context":
+    ) -> Self:
         if not organization and not session:
             return self
 
@@ -141,11 +141,11 @@ class Context(BaseModel):
 
         return self
 
-    def with_global_filtering(self) -> "Context":
+    def with_global_filtering(self) -> Self:
         self.use_global_filtering = True
         return self
 
-    def without_global_filtering(self) -> "Context":
+    def without_global_filtering(self) -> Self:
         self.use_global_filtering = False
         return self
 

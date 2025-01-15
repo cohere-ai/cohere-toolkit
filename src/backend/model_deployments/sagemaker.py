@@ -1,6 +1,6 @@
 import io
 import json
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 import boto3
 
@@ -65,12 +65,12 @@ class SageMakerDeployment(BaseDeployment):
             "ContentType": "application/json",
         }
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "SageMaker"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return [
             SAGE_MAKER_ACCESS_KEY_ENV_VAR,
             SAGE_MAKER_SECRET_KEY_ENV_VAR,
@@ -79,19 +79,19 @@ class SageMakerDeployment(BaseDeployment):
             SAGE_MAKER_ENDPOINT_NAME_ENV_VAR,
         ]
 
-    @classmethod
-    def rerank_enabled(cls) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return False
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not SageMakerDeployment.is_available():
             return []
 
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return (
             SageMakerDeployment.region_name is not None
             and SageMakerDeployment.aws_access_key_id is not None
@@ -121,7 +121,7 @@ class SageMakerDeployment(BaseDeployment):
             yield stream_event
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+        self, query: str, documents: list[str], ctx: Context, **kwargs
     ) -> Any:
         return None
 
