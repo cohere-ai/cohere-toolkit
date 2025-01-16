@@ -93,7 +93,7 @@ def test_list_deployments_no_available_models_404(
     session_client: TestClient, session: Session
 ) -> None:
     session.query(Deployment).delete()
-    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", []):
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", {}):
         response = session_client.get("/v1/deployments")
     assert response.status_code == 404
     assert response.json() == {

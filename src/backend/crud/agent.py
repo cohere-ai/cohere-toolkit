@@ -140,7 +140,7 @@ def update_agent(
     if agent.is_private and agent.user_id != user_id:
         return None
 
-    new_agent_cleaned = new_agent.dict(exclude_unset=True, exclude_none=True)
+    new_agent_cleaned = new_agent.model_dump(exclude_unset=True, exclude_none=True)
 
     for attr, value in new_agent_cleaned.items():
         setattr(agent, attr, value)
