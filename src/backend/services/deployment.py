@@ -38,7 +38,7 @@ def create_db_deployment(session: DBSessionDep, deployment: DeploymentDefinition
 
 def get_default_deployment(**kwargs) -> BaseDeployment:
     try:
-        fallback = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.is_available)
+        fallback = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.is_available())
     except StopIteration:
         raise NoAvailableDeploymentsError()
 
@@ -47,7 +47,7 @@ def get_default_deployment(**kwargs) -> BaseDeployment:
         return next(
             (
                 d
-                for d in AVAILABLE_MODEL_DEPLOYMENTS
+                for d in AVAILABLE_MODEL_DEPLOYMENTS.values()
                 if d.id() == default_deployment
             ),
             fallback,
@@ -63,7 +63,9 @@ def get_deployment_by_name(session: DBSessionDep, deployment_name: str, **kwargs
     definition = get_deployment_definition_by_name(session, deployment_name)
 
     try:
-        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == definition.class_name)(db_id=definition.id, **definition.config, **kwargs)
+        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.__name__ == definition.class_name)(
+            db_id=definition.id, **definition.config, **kwargs
+        )
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
@@ -73,7 +75,7 @@ def get_deployment_definition(session: DBSessionDep, deployment_id: str) -> Depl
         return DeploymentDefinition.from_db_deployment(db_deployment)
 
     try:
-        deployment = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.id() == deployment_id)
+        deployment = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.id() == deployment_id)
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_id)
 
@@ -101,7 +103,7 @@ def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefiniti
 
     installed_deployments = [
         deployment.to_deployment_definition()
-        for deployment in AVAILABLE_MODEL_DEPLOYMENTS
+        for deployment in AVAILABLE_MODEL_DEPLOYMENTS.values()
         if deployment.name() not in db_deployments
     ]
 

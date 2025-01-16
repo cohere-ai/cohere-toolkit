@@ -207,5 +207,5 @@ def mock_available_model_deployments(request):
         MockSingleContainerDeployment.name(): MockSingleContainerDeployment,
     }
 
-    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", MOCKED_DEPLOYMENTS) as mock:
         yield mock

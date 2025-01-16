@@ -42,7 +42,9 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
             detail=f"Deployment {deployment} not found or is not available in the Database.",
         )
 
-    deployment_config = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS if d.__name__ == found.class_name).to_deployment_definition()
+    deployment_config = next(
+        d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.__name__ == found.class_name
+    ).to_deployment_definition()
     deployment_model = next(
         (
             model_db
