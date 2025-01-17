@@ -56,7 +56,7 @@ run-community-tests-debug:
 
 .PHONY: run-integration-tests
 run-integration-tests:
-	docker compose run --rm --build backend poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
+	poetry run pytest -c src/backend/pytest_integration.ini src/backend/tests/integration/$(file)
 
 .PHONY: test-db
 test-db:

@@ -10,9 +10,9 @@ from typing import Sequence, Union
 
 from alembic import op
 
-from backend.database_models.seeders.deployments_models_seed import (
-    delete_default_models,
-    deployments_models_seed,
+from backend.database_models.seeders.organization_seed import (
+    delete_default_organization,
+    seed_default_organization,
 )
 
 # revision identifiers, used by Alembic.
@@ -23,8 +23,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    deployments_models_seed(op)
+    seed_default_organization(op)
 
 
 def downgrade() -> None:
-    delete_default_models(op)
+    delete_default_organization(op)
