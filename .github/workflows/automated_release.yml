@@ -1,0 +1,73 @@
+name: Automated Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Get the latest release version
+      - name: Get latest release version
+        id: get_latest_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest_release=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "v0.0.0")
+          echo "latest_release=${latest_release}" >> $GITHUB_ENV
+
+      # Extract version from _RELEASE_VERSION constant in main.py
+      - name: Extract version from main.py
+        id: get_submitted_version
+        run: |
+          submitted_version=$(grep '_RELEASE_VERSION' src/backend/main.py | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "submitted_version=${submitted_version}" >> $GITHUB_ENV
+
+      # Check if new version is greater
+      - name: Check if new version is greater
+        id: check_version
+        run: |
+          latest_version_number=$(echo "$latest_release" | sed 's/^v//')
+          submitted_version_number=$(echo "$submitted_version" | sed 's/^v//')
+          # Get major, minor, and patch from the versions
+          IFS='.' read -r l_major l_minor l_patch <<<"$latest_version_number"
+          IFS='.' read -r f_major f_minor f_patch <<<"$submitted_version_number"
+          # Compare major, minor, and patch versions
+          if [ "$f_major" -gt "$l_major" ] || 
+             ([ "$f_major" -eq "$l_major" ] && [ "$f_minor" -gt "$l_minor" ]) || 
+             ([ "$f_major" -eq "$l_major" ] && [ "$f_minor" -eq "$l_minor" ] && [ "$f_patch" -gt "$l_patch" ]); then
+            echo "new_version_needed=true" >> $GITHUB_ENV
+            echo "NEED TO CREATE A NEW RELEASE."
+          else
+            echo "new_version_needed=false" >> $GITHUB_ENV
+            echo "NO NEED TO CREATE A NEW RELEASE."
+            exit 0
+          fi
+
+      # Create a new release if the version is greater
+      - name: Create new release
+        if: env.new_version_needed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_date=$(date +'%Y-%m-%d')
+          release_title="${release_date} (${submitted_version})"
+          description="### Full Changelog: https://github.com/${GITHUB_REPOSITORY}/compare/${latest_release}...${submitted_version}"
+          latest_release_date=$(gh release view "${latest_release}" --json createdAt --jq '.createdAt')
+          changelog=$(gh pr list --state merged --base main --search "merged:>$latest_release_date" --json title,number,url,author --jq '.[] | "- PR #" + (.number|tostring) + " by @" + (.author.login) + ": " + .title')
+          if [[ -z "$changelog" ]]; then
+            echo "No pull requests found since the last release."
+            changelog="No pull requests found since the last release."
+          fi
+          description="## What's Changed:\n${changelog}\n${description}"
+          echo "Creating release with title: $release_title"
+          gh release create "${submitted_version}" \
+            --title "$release_title" \
+            --notes "$(echo -e "$description")"
+          echo "Release created successfully."
