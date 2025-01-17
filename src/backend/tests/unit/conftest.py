@@ -15,6 +15,7 @@ from sqlalchemy.sql import text
 
 from backend.database_models import get_session
 from backend.database_models.base import CustomFilterQuery
+from backend.database_models.deployment import Deployment
 from backend.main import app, create_app
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
@@ -188,6 +189,11 @@ def user(session: Session) -> User:
 def organization(session: Session) -> Organization:
     return get_factory("Organization", session).create()
 
+@pytest.fixture
+def deployment(session: Session) -> Deployment:
+    return get_factory("Deployment", session).create(
+        deployment_class_name="CohereDeployment"
+    )
 
 @pytest.fixture
 def mock_available_model_deployments(request):

@@ -162,7 +162,6 @@ def deployment(session: Session) -> Deployment:
         deployment_class_name="CohereDeployment"
     )
 
-
 @pytest.fixture
 def model(session: Session) -> Model:
     return get_factory("Model", session).create()
