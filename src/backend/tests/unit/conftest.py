@@ -21,11 +21,10 @@ from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5433")
 MASTER_DB_NAME = "postgres"
 TEST_DB_PREFIX = "postgres_"
 MASTER_DATABASE_FULL_URL = f"{DATABASE_URL}/{MASTER_DB_NAME}"
-
 
 def create_test_database(test_db_name: str):
     engine = create_engine(
