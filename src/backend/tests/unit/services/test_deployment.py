@@ -41,7 +41,7 @@ def test_all_tools_have_id() -> None:
         assert tool.value.ID is not None
 
 def test_get_default_deployment_none_available() -> None:
-    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", []):
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", {}):
         with pytest.raises(NoAvailableDeploymentsError):
             deployment_service.get_default_deployment()
 
@@ -106,7 +106,10 @@ def test_get_deployment_definitions_with_db_deployments(session, mock_available_
         id="db-mock-cohere-platform-id",
     )
     with patch("backend.crud.deployment.get_deployments", return_value=[mock_cohere_deployment]):
-        with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", [MockCohereDeployment, MockAzureDeployment]):
+        with patch(
+            "backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS",
+            { MockCohereDeployment.name(): MockCohereDeployment, MockAzureDeployment.name(): MockAzureDeployment }
+        ):
             definitions = deployment_service.get_deployment_definitions(session)
 
     assert len(definitions) == 2

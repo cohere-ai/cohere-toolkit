@@ -65,7 +65,7 @@ def core_env_var_prompt(secrets):
 
 
 def deployment_prompt(secrets, configs):
-    for secret in configs.env_vars:
+    for secret in configs.env_vars():
         value = secrets.get(secret)
 
         if not value:
@@ -149,7 +149,7 @@ def select_deployments_prompt(deployments, _):
 
     deployments = inquirer.checkbox(
         "Select the model deployments you want to set up",
-        choices=[deployment.value for deployment in deployments.keys()],
+        choices=[deployment for deployment in deployments.keys()],
         default=["Cohere Platform"],
         validate=lambda _, x: len(x) > 0,
     )

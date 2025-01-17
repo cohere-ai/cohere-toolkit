@@ -189,7 +189,7 @@ def mock_available_model_deployments(request):
         MockBedrockDeployment.name(): MockBedrockDeployment,
     }
 
-    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", list(MOCKED_DEPLOYMENTS.values())) as mock:
+    with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", MOCKED_DEPLOYMENTS) as mock:
         yield mock
 
 @pytest.fixture
