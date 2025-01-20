@@ -413,9 +413,9 @@ class Settings(BaseSettings):
         # Below are in prioritized order
         return (
             env_settings,
-            dotenv_settings,
             YamlConfigSettingsSource(settings_cls, yaml_file=CONFIG_FILE_PATH),
             YamlConfigSettingsSource(settings_cls, yaml_file=SECRETS_FILE_PATH),
+            dotenv_settings,
             file_secret_settings,
             init_settings,
         )
