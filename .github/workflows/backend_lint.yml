@@ -2,8 +2,13 @@ name: Backend - Lint
 
 on:
   push:
-    branches: [main]
-  pull_request: {}
+    branches:
+      - main
+    paths:
+      - src/backend/**
+  pull_request:
+    paths:
+      - src/backend/**
 
 jobs:
   lint:
@@ -15,7 +20,7 @@ jobs:
           fetch-depth: 0
           clean: true
       - name: Run lint checks
-        uses: chartboost/ruff-action@v1
+        uses: astral-sh/ruff-action@v3
         with:
           src: './src/'
           version: 0.6.0
