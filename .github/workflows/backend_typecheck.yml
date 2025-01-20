@@ -2,8 +2,13 @@ name: Backend - Typecheck new files
 
 on:
   push:
-    branches: [main]
-  pull_request: {}
+    branches:
+      - main
+    paths:
+      - src/backend/**
+  pull_request:
+    paths:
+      - src/backend/**
 
 jobs:
   check:
