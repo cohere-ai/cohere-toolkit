@@ -2,8 +2,13 @@ name: Backend - Unit tests
 
 on:
   push:
-    branches: [main]
-  pull_request: {}
+    branches:
+      - main
+    paths:
+      - src/backend/**
+  pull_request:
+    paths:
+      - src/backend/**
 
 jobs:
   pytest:
