@@ -36,18 +36,19 @@ def get_deployment_config_var(var_name: str, default: str, **kwargs: Any) -> str
     """
     ctx = kwargs.get("ctx")
     db_config = kwargs.get("db_config", {})
+    config = None
 
     # Get Request Header value
     ctx_deployment_config = ctx.deployment_config if ctx else {}
-    config = ctx_deployment_config.get(var_name)
 
-    # Return immediately with a valid config
-    if config:
-        return config
+    if ctx_deployment_config:
+        config = ctx_deployment_config.get(var_name)
 
-    # Check if DB config exists, otherwise use default
-    config = db_config.get(var_name, default)
+    if not config:
+        # Check if DB config exists, otherwise use default
+        config = db_config.get(var_name, default)
 
+    # After all fallbacks, if config is still invalid
     if not config:
         raise ValueError(f"Missing deployment config variable: {var_name}")
 
