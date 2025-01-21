@@ -57,7 +57,12 @@ class DeploymentSettingsMixin:
         for old_field_name, field in fields:
             choices = field.validation_alias.choices
             env_var = get_first_upper(choices)
-            new_dict[env_var] = config.get(old_field_name)
+
+            value = config.get(old_field_name)
+            if not value:
+                value = ""
+
+            new_dict[env_var ] = value
 
         return new_dict
 
