@@ -759,7 +759,7 @@ export type DeploymentDefinition = {
    * Config for the deployment
    */
   config?: {
-    [key: string]: string | null;
+    [key: string]: string;
   };
   /**
    * Is deployment is available
