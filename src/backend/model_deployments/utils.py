@@ -38,7 +38,7 @@ def get_deployment_config_var(var_name: str, default: str, **kwargs: Any) -> str
     db_config = kwargs.get("db_config", {})
 
     # Get Request Header value
-    ctx_deployment_config = ctx.deployment_config if ctx else None
+    ctx_deployment_config = ctx.deployment_config if ctx else {}
     config = ctx_deployment_config.get(var_name)
 
     # Return immediately with a valid config
