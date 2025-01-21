@@ -62,7 +62,7 @@ class DeploymentSettingsMixin:
             if not value:
                 value = ""
 
-            new_dict[env_var ] = value
+            new_dict[env_var] = value
 
         return new_dict
 
