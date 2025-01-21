@@ -8,7 +8,8 @@ from backend.services import deployment as deployment_service
 
 
 def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
-    """Get the deployment implementation.
+    """
+    Get the deployment implementation instance.
 
     Args:
         deployment (str): Deployment name.
@@ -19,8 +20,8 @@ def get_deployment(name: str, ctx: Context, **kwargs: Any) -> BaseDeployment:
     kwargs["ctx"] = ctx
     try:
         session = next(get_session())
-        deployment = deployment_service.get_deployment_by_name(session, name, **kwargs)
+        deployment = deployment_service.get_deployment_instance_by_name(session, name, **kwargs)
     except DeploymentNotFoundError:
-        deployment = deployment_service.get_default_deployment(**kwargs)
+        deployment = deployment_service.get_default_deployment_instance(**kwargs)
 
     return deployment

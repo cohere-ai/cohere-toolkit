@@ -18,26 +18,39 @@ def class_name_validator(v: str):
     return v
 
 
-def get_model_config_var(var_name: str, default: str, **kwargs: Any) -> str:
-    """Get the model config variable.
+def get_deployment_config_var(var_name: str, default: str, **kwargs: Any) -> str:
+    """
+    Get the Deployment's config, in order of priority:
+
+    1. Request header values
+    2. DB values
+    3. Default values (from config)
 
     Args:
-        var_name (str): Variable name.
-        model_config (dict): Model config.
+        var_name (str): Variable name
+        default (str): Variable  default value
 
     Returns:
-        str: Model config variable value.
+        str: Deployment config  value
 
     """
     ctx = kwargs.get("ctx")
-    model_config = ctx.model_config if ctx else None
-    config = (
-        model_config[var_name]
-        if model_config and model_config.get(var_name)
-        else default
-    )
+    db_config = kwargs.get("db_config", {})
+
+    # Get Request Header value
+    ctx_deployment_config = ctx.deployment_config if ctx else None
+    config = ctx_deployment_config.get(var_name)
+
+    # Return immediately with a valid config
+    if config:
+        return config
+
+    # Check if DB config exists, otherwise use default
+    config = db_config.get(var_name, default)
+
     if not config:
-        raise ValueError(f"Missing model config variable: {var_name}")
+        raise ValueError(f"Missing deployment config variable: {var_name}")
+
     return config
 
 

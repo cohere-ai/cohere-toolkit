@@ -8,9 +8,9 @@ from backend.services.logger.utils import LoggerFactory
 
 def get_deployment_for_agent(session: DBSessionDep, deployment, model) -> tuple[CohereDeployment, str | None]:
     try:
-        deployment = deployment_service.get_deployment_by_name(session, deployment)
+        deployment = deployment_service.get_deployment_instance_by_name(session, deployment)
     except DeploymentNotFoundError:
-        deployment = deployment_service.get_default_deployment()
+        deployment = deployment_service.get_default_deployment_instance()
 
     model = next((m for m in deployment.models() if m.name == model), None)
 

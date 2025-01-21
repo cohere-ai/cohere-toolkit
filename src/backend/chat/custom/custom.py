@@ -48,8 +48,6 @@ class CustomChat(BaseChat):
             Generator[StreamResponse, None, None]: Chat response.
         """
         logger = ctx.get_logger()
-        # TODO Eugene: Discuss with Scott how to get agent here and use the Agent deployment
-        # Choose the deployment model - validation already performed by request validator
         deployment_name = ctx.get_deployment_name()
         deployment_model = get_deployment(deployment_name, ctx)
 

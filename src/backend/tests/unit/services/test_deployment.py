@@ -43,27 +43,27 @@ def test_all_tools_have_id() -> None:
 def test_get_default_deployment_none_available() -> None:
     with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", {}):
         with pytest.raises(NoAvailableDeploymentsError):
-            deployment_service.get_default_deployment()
+            deployment_service.get_default_deployment_instance()
 
 def test_get_default_deployment_no_settings(mock_available_model_deployments) -> None:
-    assert isinstance(deployment_service.get_default_deployment(), MockCohereDeployment)
+    assert isinstance(deployment_service.get_default_deployment_instance(), MockCohereDeployment)
 
 def test_get_default_deployment_with_settings(mock_available_model_deployments) -> None:
     with patch("backend.config.settings.Settings.get", return_value="azure") as mock_settings:
-        assert isinstance(deployment_service.get_default_deployment(), MockAzureDeployment)
+        assert isinstance(deployment_service.get_default_deployment_instance(), MockAzureDeployment)
         mock_settings.assert_called_once_with("deployments.default_deployment")
 
 def test_get_deployment(session, mock_available_model_deployments, db_deployment) -> None:
-    deployment = deployment_service.get_deployment(session, db_deployment.id)
+    deployment = deployment_service.get_deployment_instance_by_id(session, db_deployment.id)
     assert isinstance(deployment, MockCohereDeployment)
 
 def test_get_deployment_by_name(session, mock_available_model_deployments, clear_db_deployments) -> None:
-    deployment = deployment_service.get_deployment_by_name(session, MockCohereDeployment.name())
+    deployment = deployment_service.get_deployment_instance_by_name(session, MockCohereDeployment.name())
     assert isinstance(deployment, MockCohereDeployment)
 
 def test_get_deployment_by_name_wrong_name(session, mock_available_model_deployments) -> None:
     with pytest.raises(DeploymentNotFoundError):
-        deployment_service.get_deployment_by_name(session, "wrong-name")
+        deployment_service.get_deployment_instance_by_name(session, "wrong-name")
 
 def test_get_deployment_definition(session, mock_available_model_deployments, db_deployment) -> None:
     definition = deployment_service.get_deployment_definition(session, "db-mock-cohere-platform-id")

@@ -5,7 +5,7 @@ import cohere
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_deployment_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 
@@ -30,10 +30,10 @@ class AzureDeployment(BaseDeployment):
 
     def __init__(self, **kwargs: Any):
         # Override the environment variable from the request
-        self.api_key = get_model_config_var(
+        self.api_key = get_deployment_config_var(
             AZURE_API_KEY_ENV_VAR, AzureDeployment.default_api_key, **kwargs
         )
-        self.chat_endpoint_url = get_model_config_var(
+        self.chat_endpoint_url = get_deployment_config_var(
             AZURE_CHAT_URL_ENV_VAR, AzureDeployment.default_chat_endpoint_url, **kwargs
         )
 

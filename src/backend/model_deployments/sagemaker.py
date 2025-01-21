@@ -6,7 +6,7 @@ import boto3
 
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_deployment_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 
@@ -37,29 +37,29 @@ class SageMakerDeployment(BaseDeployment):
         # Create the AWS client for the Bedrock runtime with boto3
         self.client = boto3.client(
             "sagemaker-runtime",
-            region_name=get_model_config_var(
+            region_name=get_deployment_config_var(
                 SAGE_MAKER_REGION_NAME_ENV_VAR,
                 SageMakerDeployment.region_name,
                 **kwargs,
             ),
-            aws_access_key_id=get_model_config_var(
+            aws_access_key_id=get_deployment_config_var(
                 SAGE_MAKER_ACCESS_KEY_ENV_VAR,
                 SageMakerDeployment.aws_access_key_id,
                 **kwargs,
             ),
-            aws_secret_access_key=get_model_config_var(
+            aws_secret_access_key=get_deployment_config_var(
                 SAGE_MAKER_SECRET_KEY_ENV_VAR,
                 SageMakerDeployment.aws_secret_access_key,
                 **kwargs,
             ),
-            aws_session_token=get_model_config_var(
+            aws_session_token=get_deployment_config_var(
                 SAGE_MAKER_SESSION_TOKEN_ENV_VAR,
                 SageMakerDeployment.aws_session_token,
                 **kwargs,
             ),
         )
         self.params = {
-            "EndpointName": get_model_config_var(
+            "EndpointName": get_deployment_config_var(
                 SAGE_MAKER_ENDPOINT_NAME_ENV_VAR, SageMakerDeployment.endpoint, **kwargs
             ),
             "ContentType": "application/json",

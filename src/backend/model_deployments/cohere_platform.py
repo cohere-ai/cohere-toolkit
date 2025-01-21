@@ -6,7 +6,7 @@ import requests
 from backend.chat.collate import to_dict
 from backend.config.settings import Settings
 from backend.model_deployments.base import BaseDeployment
-from backend.model_deployments.utils import get_model_config_var
+from backend.model_deployments.utils import get_deployment_config_var
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.logger.utils import LoggerFactory
@@ -22,9 +22,9 @@ class CohereDeployment(BaseDeployment):
     api_key = Settings().get('deployments.cohere_platform.api_key')
 
     def __init__(self, **kwargs: Any):
-        # Override the environment variable from the request
         super().__init__(**kwargs)
-        api_key = get_model_config_var(
+
+        api_key = get_deployment_config_var(
             COHERE_API_KEY_ENV_VAR, CohereDeployment.api_key, **kwargs
         )
         self.client = cohere.Client(api_key, client_name=self.client_name)

@@ -22,7 +22,7 @@ class DeploymentDefinition(BaseModel):
         title="Description",
         description="Description of the deployment",
     )
-    config: dict[str, str] = Field(
+    config: dict[str, str | None] = Field(
         {},
         title="Config",
         description="Config for the deployment",

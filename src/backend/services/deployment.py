@@ -36,7 +36,7 @@ def create_db_deployment(session: DBSessionDep, deployment: DeploymentDefinition
     return DeploymentDefinition.from_db_deployment(db_deployment)
 
 
-def get_default_deployment(**kwargs) -> BaseDeployment:
+def get_default_deployment_instance(**kwargs) -> BaseDeployment:
     try:
         fallback = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.is_available())
     except StopIteration:
@@ -55,17 +55,21 @@ def get_default_deployment(**kwargs) -> BaseDeployment:
 
     return fallback(**kwargs)
 
-def get_deployment(session: DBSessionDep, deployment_id: str, **kwargs) -> BaseDeployment:
+def get_deployment_instance_by_id(session: DBSessionDep, deployment_id: str, **kwargs) -> BaseDeployment:
     definition = get_deployment_definition(session, deployment_id)
-    return get_deployment_by_name(session, definition.name, **kwargs)
+    # TODO: What's the point of fetching by ID if we just fetch by name after?
+    return get_deployment_instance_by_name(session, definition.name, **kwargs)
 
-def get_deployment_by_name(session: DBSessionDep, deployment_name: str, **kwargs) -> BaseDeployment:
+def get_deployment_instance_by_name(session: DBSessionDep, deployment_name: str, **kwargs) -> BaseDeployment:
     definition = get_deployment_definition_by_name(session, deployment_name)
 
     try:
-        return next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.__name__ == definition.class_name)(
-            db_id=definition.id, **definition.config, **kwargs
+        deployment_class =  next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.__name__ == definition.class_name)
+        deployment_instance = deployment_class(
+            db_id=definition.id, db_config=definition.config, **kwargs
         )
+
+        return deployment_instance
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
@@ -76,10 +80,9 @@ def get_deployment_definition(session: DBSessionDep, deployment_id: str) -> Depl
 
     try:
         deployment = next(d for d in AVAILABLE_MODEL_DEPLOYMENTS.values() if d.id() == deployment_id)
+        create_db_deployment(session, deployment.to_deployment_definition())
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_id)
-
-    create_db_deployment(session, deployment.to_deployment_definition())
 
     return deployment.to_deployment_definition()
 
@@ -90,6 +93,7 @@ def get_deployment_definition_by_name(session: DBSessionDep, deployment_name: st
     except StopIteration:
         raise DeploymentNotFoundError(deployment_id=deployment_name)
 
+    # Creates deployment in DB if it doesn't exist
     if definition.name not in [d.name for d in deployment_crud.get_deployments(session)]:
         create_db_deployment(session, definition)
 
