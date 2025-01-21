@@ -1438,7 +1438,14 @@ export const $DeploymentDefinition = {
     },
     config: {
       additionalProperties: {
-        type: 'string',
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'null',
+          },
+        ],
       },
       type: 'object',
       title: 'Config',
