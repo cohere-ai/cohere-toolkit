@@ -95,7 +95,7 @@ class Context(BaseModel):
         self.model = model
         return self
 
-    def with_deployment_config(self, deployment_config=None) -> "Context":
+    def with_deployment_config(self, deployment_config={}) -> "Context":
         if deployment_config:
             self.deployment_config = deployment_config
         else:
