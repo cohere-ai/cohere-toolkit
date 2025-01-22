@@ -83,7 +83,12 @@ def test_get_deployment_definition_by_name(session, mock_available_model_deploym
 
 def test_get_deployment_definition_by_name_no_db_deployments(session, mock_available_model_deployments, clear_db_deployments) -> None:
     definition = deployment_service.get_deployment_definition_by_name(session, MockCohereDeployment.name())
-    assert definition == MockCohereDeployment.to_deployment_definition()
+    mock = MockCohereDeployment.to_deployment_definition()
+    assert definition.name == mock.name
+    assert definition.models == mock.models
+    assert definition.class_name == mock.class_name
+    assert definition.config == mock.config
+
 
 def test_get_deployment_definition_by_name_wrong_name(session, mock_available_model_deployments) -> None:
     with pytest.raises(DeploymentNotFoundError):

@@ -11,6 +11,10 @@ from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
 
+@pytest.mark.skipif(
+    os.environ.get("COHERE_API_KEY") is None,
+    reason="Cohere API key not set, skipping test",
+)
 def test_search_conversations(
     session_client: TestClient,
     session: Session,
@@ -64,7 +68,10 @@ def test_search_conversations_with_reranking(
     assert len(results) == 1
     assert results[0]["id"] == conversation2.id
 
-
+@pytest.mark.skipif(
+    os.environ.get("COHERE_API_KEY") is None,
+    reason="Cohere API key not set, skipping test",
+)
 def test_search_conversations_no_conversations(
     session_client: TestClient,
     session: Session,

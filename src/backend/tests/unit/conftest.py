@@ -15,12 +15,13 @@ from sqlalchemy.sql import text
 
 from backend.database_models import get_session
 from backend.database_models.base import CustomFilterQuery
+from backend.database_models.deployment import Deployment
 from backend.main import app, create_app
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5433")
 MASTER_DB_NAME = "postgres"
 TEST_DB_PREFIX = "postgres_"
 MASTER_DATABASE_FULL_URL = f"{DATABASE_URL}/{MASTER_DB_NAME}"
@@ -58,12 +59,38 @@ def client():
     yield TestClient(app)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def engine(worker_id: str) -> Generator[Any, None, None]:
     """
     Yields a SQLAlchemy engine which is disposed of after the test session
     """
     test_db_name = f"{TEST_DB_PREFIX}{worker_id.replace('gw', '')}"
+    test_db_url = f"{DATABASE_URL}/{test_db_name}"
+
+    drop_test_database_if_exists(test_db_name)
+    create_test_database(test_db_name)
+    engine = create_engine(test_db_url, echo=True)
+
+    with engine.begin():
+        alembic_cfg = Config("src/backend/alembic.ini")
+        alembic_cfg.set_main_option("sqlalchemy.url", test_db_url)
+        upgrade(alembic_cfg, "head")
+
+    yield engine
+
+    engine.dispose()
+    drop_test_database_if_exists(test_db_name)
+
+
+@pytest.fixture(scope="session")
+def engine_chat(worker_id: str) -> Generator[Any, None, None]:
+    """
+    Yields a SQLAlchemy engine which is disposed of after the test session
+    """
+    test_db_name = f"{TEST_DB_PREFIX}{worker_id}"
+    if worker_id == "master":
+        test_db_name = f"{TEST_DB_PREFIX}{worker_id}_chat"
+
     test_db_url = f"{DATABASE_URL}/{test_db_name}"
 
     drop_test_database_if_exists(test_db_name)
@@ -122,7 +149,7 @@ def session_client(session: Session, fastapi_app: FastAPI) -> Generator[TestClie
 
 
 @pytest.fixture(scope="session")
-def session_chat(engine: Any) -> Generator[Session, None, None]:
+def session_chat(engine_chat: Any) -> Generator[Session, None, None]:
     """
     Yields a SQLAlchemy session within a transaction
     that is rolled back after every session
@@ -130,7 +157,7 @@ def session_chat(engine: Any) -> Generator[Session, None, None]:
     We need to use the fixture in the session scope because the chat
     endpoint is asynchronous and needs to be open for the entire session
     """
-    connection = engine.connect()
+    connection = engine_chat.connect()
     transaction = connection.begin()
     # Use connection within the started transaction
     session = Session(bind=connection, query_cls=CustomFilterQuery)
@@ -188,6 +215,11 @@ def user(session: Session) -> User:
 def organization(session: Session) -> Organization:
     return get_factory("Organization", session).create()
 
+@pytest.fixture
+def deployment(session: Session) -> Deployment:
+    return get_factory("Deployment", session).create(
+        deployment_class_name="CohereDeployment"
+    )
 
 @pytest.fixture
 def mock_available_model_deployments(request):
