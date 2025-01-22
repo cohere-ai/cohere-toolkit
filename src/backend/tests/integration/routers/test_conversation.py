@@ -10,6 +10,7 @@ from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
+
 @pytest.mark.skipif(
     os.environ.get("COHERE_API_KEY") is None,
     reason="Cohere API key not set, skipping test",
