@@ -157,9 +157,9 @@ def test_set_env_vars(
 
 
 def test_set_env_vars_with_invalid_deployment_name(
-    client: TestClient
+    session_client: TestClient
 ):
-    response = client.post("/v1/deployments/unknown/update_config", json={})
+    response = session_client.post("/v1/deployments/unknown/update_config", json={})
     assert response.status_code == 404
 
 
