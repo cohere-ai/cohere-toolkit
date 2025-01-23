@@ -1,5 +1,5 @@
 deployments:
-  default_deployment:
+  default_deployment: cohere_platform
   enabled_deployments:
   sagemaker:
     access_key: "sagemaker_access_key"

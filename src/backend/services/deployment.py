@@ -95,7 +95,7 @@ def get_deployment_definition_by_name(session: DBSessionDep, deployment_name: st
 
     # Creates deployment in DB if it doesn't exist
     if definition.name not in [d.name for d in deployment_crud.get_deployments(session)]:
-        create_db_deployment(session, definition)
+        definition = create_db_deployment(session, definition)
 
     return definition
 

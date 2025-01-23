@@ -11,6 +11,7 @@ from backend.crud import deployment as deployment_crud
 from backend.crud import model as model_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
+from backend.exceptions import DeploymentNotFoundError
 from backend.model_deployments.utils import class_name_validator
 from backend.services import deployment as deployment_service
 from backend.services.agent import validate_agent_exists
@@ -217,7 +218,12 @@ async def validate_env_vars(session: DBSessionDep, request: Request):
     invalid_keys = []
 
     deployment_id = unquote_plus(request.path_params.get("deployment_id"))
-    deployment = deployment_service.get_deployment_instance_by_id(session, deployment_id)
+    try:
+        deployment = deployment_service.get_deployment_instance_by_id(session, deployment_id)
+    except DeploymentNotFoundError:
+        raise HTTPException(
+            status_code=404, detail=f"Deployment {deployment_id} not found."
+        )
 
     for key in env_vars:
         if key not in deployment.env_vars():
