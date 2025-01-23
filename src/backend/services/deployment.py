@@ -136,4 +136,9 @@ def update_db_config_from_env(session: DBSessionDep):
         # Fetch DB entity
         db_deployment = deployment_crud.get_deployment_by_name(session, deployment_name)
 
+        # Skip to next if no config or no DB deployment found
+        if not env_config or not db_deployment:
+            logger.debug(event="Updating DB deployment config, no config or no DB deployment found.")
+            continue
+
         breakpoint()
