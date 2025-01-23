@@ -113,7 +113,7 @@ def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefiniti
 
     return [*db_deployments.values(), *installed_deployments]
 
-def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
+def update_db_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
     logger.debug(event="update_config", deployment_id=deployment_id, env_vars=env_vars)
 
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
@@ -128,3 +128,12 @@ def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str,
         updated_deployment = get_deployment_definition(session, deployment_id)
 
     return updated_deployment
+
+def update_db_config_from_env(session: DBSessionDep):
+    for deployment_name, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items():
+        # Fetch local config
+        env_config = deployment.config()
+        # Fetch DB entity
+        db_deployment = deployment_crud.get_deployment_by_name(session, deployment_name)
+
+        breakpoint()

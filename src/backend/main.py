@@ -17,6 +17,7 @@ from backend.config.auth import (
 )
 from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
 from backend.config.settings import Settings
+from backend.database_models.database import get_session
 from backend.exceptions import DeploymentNotFoundError
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
@@ -31,6 +32,7 @@ from backend.routers.scim import router as scim_router
 from backend.routers.snapshot import router as snapshot_router
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
+from backend.services import deployment as deployment_service
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
 
@@ -107,6 +109,9 @@ def create_app() -> FastAPI:
     app.add_middleware(LoggingMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_exception_handler(SCIMException, scim_exception_handler)  # pyright: ignore
+
+    # Update Deployments config
+    deployment_service.update_db_config_from_env(next(get_session()))
 
     return app
 
