@@ -27,7 +27,7 @@ class Deployment(Base):
 
     @property
     def is_available(self) -> bool:
-        # check if the deployment has a default config
+        # Check if the deployment has a default config
         if not self.default_deployment_config:
             return False
         return all(value != "" for value in self.default_deployment_config.values())

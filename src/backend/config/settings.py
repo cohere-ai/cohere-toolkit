@@ -35,6 +35,37 @@ SECRETS_FILE_PATH = (
 # First create the nested structure in the YAML file
 # Then add the env variables as an AliasChoices in the Field - these aren't nested
 
+class DeploymentSettingsMixin:
+    """
+    Formats deployment config, used prior to saving values to DB
+    """
+
+    def to_dict(self) -> dict[str, str]:
+        def get_first_upper(strings: list[str]) -> str | None:
+            """
+            Heuristic method to retrieve the first all upper-case string in a list of strings.
+
+            This is needed to match the var used for a deployment.
+            """
+            return next((s for s in strings if s.isupper()), None)
+
+        config = dict(self)
+        fields = self.__fields__.items()
+
+        # Retrieve capitalized variable names
+        new_dict = {}
+        for old_field_name, field in fields:
+            choices = field.validation_alias.choices
+            env_var = get_first_upper(choices)
+
+            value = config.get(old_field_name)
+            if not value:
+                value = ""
+
+            new_dict[env_var] = value
+
+        return new_dict
+
 
 class GoogleOAuthSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
@@ -274,7 +305,7 @@ class GoogleCloudSettings(BaseSettings, BaseModel):
     )
 
 
-class SageMakerSettings(BaseSettings, BaseModel):
+class SageMakerSettings(BaseSettings, BaseModel, DeploymentSettingsMixin):
     model_config = SETTINGS_CONFIG
     endpoint_name: Optional[str] = Field(
         default=None,
@@ -298,7 +329,7 @@ class SageMakerSettings(BaseSettings, BaseModel):
     )
 
 
-class AzureSettings(BaseSettings, BaseModel):
+class AzureSettings(BaseSettings, BaseModel, DeploymentSettingsMixin):
     model_config = SETTINGS_CONFIG
     endpoint_url: Optional[str] = Field(
         default=None,
@@ -309,14 +340,14 @@ class AzureSettings(BaseSettings, BaseModel):
     )
 
 
-class CoherePlatformSettings(BaseSettings, BaseModel):
+class CoherePlatformSettings(BaseSettings, BaseModel, DeploymentSettingsMixin):
     model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("COHERE_API_KEY", "api_key")
     )
 
 
-class SingleContainerSettings(BaseSettings, BaseModel):
+class SingleContainerSettings(BaseSettings, BaseModel, DeploymentSettingsMixin):
     model_config = SETTINGS_CONFIG
     model: Optional[str] = Field(
         default=None, validation_alias=AliasChoices("SINGLE_CONTAINER_MODEL", "model")
@@ -326,7 +357,7 @@ class SingleContainerSettings(BaseSettings, BaseModel):
     )
 
 
-class BedrockSettings(BaseSettings, BaseModel):
+class BedrockSettings(BaseSettings, BaseModel, DeploymentSettingsMixin):
     model_config = SETTINGS_CONFIG
     region_name: Optional[str] = Field(
         default=None,
@@ -349,15 +380,15 @@ class DeploymentSettings(BaseSettings, BaseModel):
     default_deployment: Optional[str] = None
     enabled_deployments: Optional[List[str]] = None
 
-    sagemaker: Optional[SageMakerSettings] = Field(default=SageMakerSettings())
     azure: Optional[AzureSettings] = Field(default=AzureSettings())
+    bedrock: Optional[BedrockSettings] = Field(default=BedrockSettings())
     cohere_platform: Optional[CoherePlatformSettings] = Field(
         default=CoherePlatformSettings()
     )
+    sagemaker: Optional[SageMakerSettings] = Field(default=SageMakerSettings())
     single_container: Optional[SingleContainerSettings] = Field(
         default=SingleContainerSettings()
     )
-    bedrock: Optional[BedrockSettings] = Field(default=BedrockSettings())
 
 
 class LoggerSettings(BaseSettings, BaseModel):

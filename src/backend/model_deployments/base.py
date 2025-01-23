@@ -52,10 +52,12 @@ class BaseDeployment(ABC):
     @classmethod
     def config(cls) -> Dict[str, Any]:
         config = Settings().get(f"deployments.{cls.id()}")
-        config_dict = {} if not config else dict(config)
-        for key, value in config_dict.items():
-            if value is None:
-                config_dict[key] = ""
+
+        if not config:
+            config_dict = {}
+        else:
+            config_dict = config.to_dict()
+
         return config_dict
 
     @classmethod

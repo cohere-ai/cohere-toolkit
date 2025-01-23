@@ -219,7 +219,7 @@ async def validate_env_vars(session: DBSessionDep, request: Request):
 
     deployment_id = unquote_plus(request.path_params.get("deployment_id"))
     try:
-        deployment = deployment_service.get_deployment(session, deployment_id)
+        deployment = deployment_service.get_deployment_instance_by_id(session, deployment_id)
     except DeploymentNotFoundError:
         raise HTTPException(
             status_code=404, detail=f"Deployment {deployment_id} not found."

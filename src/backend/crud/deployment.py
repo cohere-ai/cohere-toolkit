@@ -60,6 +60,20 @@ def get_deployment_by_name(db: Session, deployment_name: str) -> Deployment:
     return db.query(Deployment).filter(Deployment.name == deployment_name).first()
 
 
+def get_deployment_by_class_name(db: Session, deployment_class_name: str) -> Deployment:
+    """
+    Get a deployment by deployment_class_name.
+
+    Args:
+        db (Session): Database session.
+        deployment_class_name (str): Deployment Class Name.
+
+    Returns:
+        Deployment: Deployment with the given class name.
+    """
+    return db.query(Deployment).filter(Deployment.name == deployment_class_name).first()
+
+
 def get_deployments(db: Session, offset: int = 0, limit: int = 100) -> list[Deployment]:
     """
     List all deployments.
