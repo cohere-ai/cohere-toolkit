@@ -24,7 +24,7 @@ def get_deployment(name: str, session: Session, ctx: Context, **kwargs: Any) -> 
     kwargs["ctx"] = ctx
     try:
         deployment = deployment_service.get_deployment_instance_by_name(session, name, **kwargs)
-    except DeploymentNotFoundError:
+    except (DeploymentNotFoundError, Exception):
         deployment = deployment_service.get_default_deployment_instance(**kwargs)
 
     return deployment
