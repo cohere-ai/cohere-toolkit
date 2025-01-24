@@ -3,7 +3,6 @@ from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
-from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.services.conversation import SEARCH_RELEVANCE_THRESHOLD
@@ -74,42 +73,7 @@ class MockCohereDeployment(MockDeployment):
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        # Start Event Stream
-        events = [{
-            "event_type": StreamEvent.STREAM_START,
-            "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
-        }]
-
-        # Add Tool Calls
-        for tool in chat_request.tools:
-            events.append({
-                "event_type": StreamEvent.TOOL_CALLS_GENERATION,
-                "text": "",
-                "tool_calls": [
-                    { "name": tool.name, "parameters": {} },
-                ],
-            })
-
-        # Add Text Generation
-        events.append({
-            "event_type": StreamEvent.TEXT_GENERATION,
-            "text": "This is a test.",
-        })
-
-        # End Stream
-        events.append({
-            "event_type": StreamEvent.STREAM_END,
-            "response": {
-                "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
-                "citations": [],
-                "documents": [],
-                "search_results": [],
-                "search_queries": [],
-            },
-            "finish_reason": "MAX_TOKENS",
-        })
-
-        for event in events:
+        for event in self.event_steam:
             yield event
 
     async def invoke_rerank(
@@ -131,3 +95,6 @@ class MockCohereDeployment(MockDeployment):
             }
         }
         return event
+
+# Overriding the name so that the proper deployment is selected
+MockCohereDeployment.__name__ = "CohereDeployment"

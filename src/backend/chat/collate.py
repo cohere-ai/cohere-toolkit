@@ -139,7 +139,7 @@ def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=
     return chunks
 
 
-def to_dict(obj):
+def to_dict(obj) -> dict:
     return json.loads(
         json.dumps(
             obj, default=lambda o: o.__dict__ if hasattr(o, "__dict__") else str(o)

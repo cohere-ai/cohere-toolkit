@@ -2,7 +2,6 @@ from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
-from backend.chat.enums import StreamEvent
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
@@ -36,9 +35,9 @@ class MockSingleContainerDeployment(MockDeployment):
 
     @staticmethod
     def is_available() -> bool:
-        return True
+        return False
 
-    def invoke_chat(
+    async def invoke_chat(
         self, chat_request: CohereChatRequest, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
         event = {
@@ -64,36 +63,17 @@ class MockSingleContainerDeployment(MockDeployment):
         }
         yield event
 
-    def invoke_chat_stream(
+    async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        events = [
-            {
-                "event_type": StreamEvent.STREAM_START,
-                "generation_id": "test",
-            },
-            {
-                "event_type": StreamEvent.TEXT_GENERATION,
-                "text": "This is a test.",
-            },
-            {
-                "event_type": StreamEvent.STREAM_END,
-                "response": {
-                    "generation_id": "test",
-                    "citations": [],
-                    "documents": [],
-                    "search_results": [],
-                    "search_queries": [],
-                },
-                "finish_reason": "MAX_TOKENS",
-            },
-        ]
-
-        for event in events:
+        for event in self.event_steam:
             yield event
 
-    def invoke_rerank(
+    async def invoke_rerank(
         self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
         # TODO: Add
         pass
+
+# Overriding the name so that the proper deployment is selected
+MockSingleContainerDeployment.__name__ = "SingleContainerDeployment"

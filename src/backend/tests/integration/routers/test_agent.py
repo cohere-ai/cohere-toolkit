@@ -1,6 +1,3 @@
-
-import os
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -16,12 +13,13 @@ from backend.model_deployments.cohere_platform import CohereDeployment
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
 
-is_cohere_env_set = (
-    os.environ.get("COHERE_API_KEY") is not None
-    and os.environ.get("COHERE_API_KEY") != ""
-)
 
-def test_create_agent(session_client: TestClient, session: Session, user: User, mock_cohere_list_models) -> None:
+def test_create_agent(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+    mock_cohere_list_models,
+) -> None:
     request_json = {
         "name": "test agent",
         "version": 1,
@@ -61,7 +59,10 @@ def test_create_agent(session_client: TestClient, session: Session, user: User, 
 
 
 def test_create_agent_with_tool_metadata(
-    session_client: TestClient, session: Session, user: User, mock_cohere_list_models
+    session_client: TestClient,
+    session: Session,
+    user: User,
+    mock_cohere_list_models,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -119,7 +120,10 @@ def test_create_agent_with_tool_metadata(
 
 
 def test_create_agent_missing_non_required_fields(
-    session_client: TestClient, session: Session, user: User, mock_cohere_list_models
+    session_client: TestClient,
+    session: Session,
+    user: User,
+    mock_cohere_list_models,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -150,7 +154,12 @@ def test_create_agent_missing_non_required_fields(
     assert agent.model == request_json["model"]
 
 
-def test_update_agent(session_client: TestClient, session: Session, user: User, mock_cohere_list_models) -> None:
+def test_update_agent(
+    session_client: TestClient,
+    session: Session,
+    user: User,
+    mock_cohere_list_models,
+) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
         version=1,
@@ -186,11 +195,13 @@ def test_update_agent(session_client: TestClient, session: Session, user: User, 
     assert updated_agent["model"] == "command-r"
     assert updated_agent["deployment"] == CohereDeployment.name()
 
+
 def filter_default_agent(agents: list) -> list:
     return [agent for agent in agents if agent.get("id") != DEFAULT_AGENT_ID]
 
+
 def test_create_agent_missing_name(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "description": "test description",
@@ -207,7 +218,7 @@ def test_create_agent_missing_name(
 
 
 def test_create_agent_missing_model(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -224,7 +235,7 @@ def test_create_agent_missing_model(
 
 
 def test_create_agent_missing_deployment(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -241,7 +252,7 @@ def test_create_agent_missing_deployment(
 
 
 def test_create_agent_missing_user_id_header(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -253,7 +264,7 @@ def test_create_agent_missing_user_id_header(
 
 
 def test_create_agent_invalid_deployment(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -271,9 +282,8 @@ def test_create_agent_invalid_deployment(
         )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_create_agent_deployment_not_in_db(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -298,7 +308,7 @@ def test_create_agent_deployment_not_in_db(
 
 
 def test_create_agent_invalid_tool(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "test agent",
@@ -315,7 +325,7 @@ def test_create_agent_invalid_tool(
 
 
 def test_create_existing_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(name="test agent")
     request_json = {
@@ -337,7 +347,9 @@ def test_list_agents_empty_returns_default_agent(session_client: TestClient, ses
     assert len(response_agents) == 1
 
 
-def test_list_agents(session_client: TestClient, session: Session, user) -> None:
+def test_list_agents(
+    session_client: TestClient, session: Session, user: User,
+) -> None:
     num_agents = 3
     for _ in range(num_agents):
         _ = get_factory("Agent", session).create(user=user)
@@ -347,11 +359,12 @@ def test_list_agents(session_client: TestClient, session: Session, user) -> None
     response_agents = filter_default_agent(response.json())
     assert len(response_agents) == num_agents
 
+
 @pytest.mark.skip(reason="We don't yet have the concept of organizations in Toolkit")
 def test_list_organization_agents(
     session_client: TestClient,
     session: Session,
-    user,
+    user: User,
 ) -> None:
     num_agents = 3
     organization = get_factory("Organization", session).create()
@@ -380,7 +393,7 @@ def test_list_organization_agents(
 def test_list_organization_agents_query_param(
     session_client: TestClient,
     session: Session,
-    user,
+    user: User,
 ) -> None:
     num_agents = 3
     organization = get_factory("Organization", session).create()
@@ -409,7 +422,7 @@ def test_list_organization_agents_query_param(
 def test_list_organization_agents_nonexistent_organization(
     session_client: TestClient,
     session: Session,
-    user,
+    user: User,
 ) -> None:
     response = session_client.get(
         "/v1/agents", headers={"User-Id": user.id, "Organization-Id": "123"}
@@ -419,7 +432,7 @@ def test_list_organization_agents_nonexistent_organization(
 
 
 def test_list_private_agents(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user, is_private=True)
@@ -439,7 +452,9 @@ def test_list_private_agents(
     assert len(response_agents) == 3
 
 
-def test_list_public_agents(session_client: TestClient, session: Session, user) -> None:
+def test_list_public_agents(
+    session_client: TestClient, session: Session, user: User,
+) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user, is_private=True)
 
@@ -459,7 +474,7 @@ def test_list_public_agents(session_client: TestClient, session: Session, user) 
 
 
 def list_public_and_private_agents(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     for _ in range(3):
         _ = get_factory("Agent", session).create(user=user, is_private=True)
@@ -480,7 +495,7 @@ def list_public_and_private_agents(
 
 
 def test_list_agents_with_pagination(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     for _ in range(5):
         _ = get_factory("Agent", session).create(user=user)
@@ -500,7 +515,7 @@ def test_list_agents_with_pagination(
     assert len(response_agents) == 1
 
 
-def test_get_agent(session_client: TestClient, session: Session, user) -> None:
+def test_get_agent(session_client: TestClient, session: Session, user: User) -> None:
     agent = get_factory("Agent", session).create(name="test agent", user_id=user.id)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
         user_id=user.id,
@@ -534,7 +549,7 @@ def test_get_agent(session_client: TestClient, session: Session, user) -> None:
 
 
 def test_get_nonexistent_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     response = session_client.get("/v1/agents/456", headers={"User-Id": user.id})
     assert response.status_code == 404
@@ -556,7 +571,7 @@ def test_get_public_agent(session_client: TestClient, session: Session, user) ->
     assert response_agent["name"] == agent.name
 
 
-def test_get_private_agent(session_client: TestClient, session: Session, user) -> None:
+def test_get_private_agent(session_client: TestClient, session: Session, user: User) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent", user=user, is_private=True
     )
@@ -571,7 +586,7 @@ def test_get_private_agent(session_client: TestClient, session: Session, user) -
 
 
 def test_get_private_agent_by_another_user(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     user2 = get_factory("User", session).create(id="456")
     agent = get_factory("Agent", session).create(
@@ -619,7 +634,7 @@ def test_partial_update_agent(session_client: TestClient, session: Session) -> N
 
 
 def test_update_agent_with_tool_metadata(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session,
 ) -> None:
     user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
@@ -683,7 +698,7 @@ def test_update_agent_with_tool_metadata(
 
 
 def test_update_agent_with_tool_metadata_and_new_tool_metadata(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session,
 ) -> None:
     user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
@@ -763,7 +778,7 @@ def test_update_agent_with_tool_metadata_and_new_tool_metadata(
 
 
 def test_update_agent_remove_existing_tool_metadata(
-    session_client: TestClient, session: Session
+    session_client: TestClient, session: Session,
 ) -> None:
     user = get_factory("User", session).create(id="123")
     agent = get_factory("Agent", session).create(
@@ -809,7 +824,7 @@ def test_update_agent_remove_existing_tool_metadata(
 
 
 def test_update_nonexistent_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     request_json = {
         "name": "updated name",
@@ -822,7 +837,7 @@ def test_update_nonexistent_agent(
 
 
 def test_update_agent_wrong_user(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
     request_json = {
@@ -839,7 +854,7 @@ def test_update_agent_wrong_user(
 
 
 def test_update_agent_invalid_model(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -865,7 +880,7 @@ def test_update_agent_invalid_model(
 
 
 def test_update_agent_invalid_deployment(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -888,7 +903,7 @@ def test_update_agent_invalid_deployment(
 
 
 def test_update_agent_invalid_tool(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -913,7 +928,7 @@ def test_update_agent_invalid_tool(
 
 
 def test_update_private_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -939,7 +954,7 @@ def test_update_private_agent(
 
 
 def test_update_public_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -965,7 +980,7 @@ def test_update_public_agent(
 
 
 def test_update_agent_change_visibility_to_public(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -990,7 +1005,7 @@ def test_update_agent_change_visibility_to_public(
 
 
 def test_update_agent_change_visibility_to_private(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -1015,7 +1030,7 @@ def test_update_agent_change_visibility_to_private(
 
 
 def test_update_agent_change_visibility_to_private_delete_snapshot(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(
         name="test agent",
@@ -1058,7 +1073,7 @@ def test_update_agent_change_visibility_to_private_delete_snapshot(
 
 
 def test_delete_public_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user, is_private=False)
     response = session_client.delete(
@@ -1072,7 +1087,7 @@ def test_delete_public_agent(
 
 
 def test_delete_private_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user, is_private=True)
     response = session_client.delete(
@@ -1086,7 +1101,7 @@ def test_delete_private_agent(
 
 
 def test_cannot_delete_private_agent_not_belonging_to_user_id(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user, is_private=True)
     other_user = get_factory("User", session).create()
@@ -1101,7 +1116,7 @@ def test_cannot_delete_private_agent_not_belonging_to_user_id(
 
 
 def test_cannot_delete_public_agent_not_belonging_to_user_id(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user, is_private=False)
     other_user = get_factory("User", session).create()
@@ -1116,7 +1131,7 @@ def test_cannot_delete_public_agent_not_belonging_to_user_id(
 
 
 def test_fail_delete_nonexistent_agent(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     response = session_client.delete("/v1/agents/456", headers={"User-Id": user.id})
     assert response.status_code == 404
@@ -1125,7 +1140,7 @@ def test_fail_delete_nonexistent_agent(
 
 # Test create agent tool metadata
 def test_create_agent_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
     request_json = {
@@ -1174,7 +1189,7 @@ def test_create_agent_tool_metadata(
 
 
 def test_update_agent_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
@@ -1235,7 +1250,7 @@ def test_update_agent_tool_metadata(
 
 
 def test_get_agent_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata_1 = get_factory("AgentToolMetadata", session).create(
@@ -1269,7 +1284,7 @@ def test_get_agent_tool_metadata(
 
 
 def test_delete_agent_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     agent = get_factory("Agent", session).create(user=user)
     agent_tool_metadata = get_factory("AgentToolMetadata", session).create(
@@ -1302,7 +1317,7 @@ def test_delete_agent_tool_metadata(
 
 
 def test_fail_delete_nonexistent_agent_tool_metadata(
-    session_client: TestClient, session: Session, user
+    session_client: TestClient, session: Session, user: User,
 ) -> None:
     get_factory("Agent", session).create(user=user, id="456")
     response = session_client.delete(
