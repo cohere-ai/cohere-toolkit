@@ -25,7 +25,7 @@ def cache_put(key: str, value: Any) -> None:
     client = get_client()
 
     if isinstance(value, dict):
-        client.hset(key, value)
+        client.hset(key, mapping=value)
     else:
         client.set(key, value)
 
