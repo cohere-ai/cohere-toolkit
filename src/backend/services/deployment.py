@@ -141,15 +141,15 @@ def update_db_config_from_env(session: DBSessionDep):
             if not env_config or not db_deployment:
                 logger.debug(event="Updating DB deployment config, no config or no DB deployment found.")
                 continue
-            
+
             db_config = dict(db_deployment.default_deployment_config)
 
-            for key, value in env_config.items(): 
+            for key, value in env_config.items():
                 db_config[key] = value
-            
+
             deployment_crud.update_deployment(
                 session,
-                db_deployment, 
+                db_deployment,
                 DeploymentUpdate(
                     default_deployment_config=db_config
                 )
