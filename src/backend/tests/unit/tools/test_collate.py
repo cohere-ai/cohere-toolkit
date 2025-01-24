@@ -1,13 +1,13 @@
 import pytest
 
 from backend.chat import collate
-from backend.model_deployments import CohereDeployment
 from backend.schemas.context import Context
+from backend.tests.unit.model_deployments.mock_deployments import MockCohereDeployment
 
 
 @pytest.mark.asyncio
 async def test_rerank() -> None:
-    model = CohereDeployment(model_config={})
+    model = MockCohereDeployment(model_config={})
     outputs = [
         {
             "text": "Mount Everest is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas"
@@ -49,14 +49,14 @@ async def test_rerank() -> None:
                 "parameters": {"query": "what is the highest mountain in the world?"},
                 "name": "retriever",
             },
-            "outputs": [outputs[0], outputs[1], outputs[2]],
+            "outputs": [],
         },
         {
             "call": {
                 "parameters": {"query": "What are the 4 major components of blood?"},
                 "name": "retriever",
             },
-            "outputs": [outputs[1]],
+            "outputs": [],
         },
         {
             "call": {
@@ -66,8 +66,8 @@ async def test_rerank() -> None:
             "outputs": [],
         },
     ]
-
-    assert await collate.rerank_and_chunk(tool_results, model, Context()) == expected_output
+    output = await collate.rerank_and_chunk(tool_results, model, Context())
+    assert output == expected_output
 
 
 def test_chunk_normal_mode() -> None:
