@@ -59,6 +59,7 @@ llama-index-embeddings-cohere = "^0.2.1"
 google-cloud-texttospeech = "^2.18.0"
 slack-sdk = "^3.33.1"
 onnxruntime = "1.19.2"
+pygithub = "^2.5.0"
 
 [tool.poetry.group.dev]
 optional = true

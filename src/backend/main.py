@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
+from backend.config import settings
 from backend.config.auth import (
     get_auth_strategy_endpoints,
     is_authentication_enabled,
@@ -83,9 +84,10 @@ def create_app() -> FastAPI:
     # Dynamically set router dependencies
     # These values must be set in config/routers.py
     dependencies_type = "default"
+    settings = Settings()
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        auth_secret = Settings().get('auth.secret_key')
+        auth_secret = settings.get('auth.secret_key')
         app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:

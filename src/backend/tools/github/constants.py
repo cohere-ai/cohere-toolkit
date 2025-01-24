@@ -1,0 +1,2 @@
+SEARCH_LIMIT = 10
+GITHUB_TOOL_ID = "github"

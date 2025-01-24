@@ -18,6 +18,7 @@ from backend.tools import (
     TavilyWebSearch,
     WebScrapeTool,
 )
+from backend.tools.github.tool import GithubTool
 
 logger = LoggerFactory().get_logger()
 
@@ -38,6 +39,7 @@ class Tool(Enum):
     Hybrid_Web_Search = HybridWebSearch
     Slack = SlackTool
     Gmail = GmailTool
+    Github = GithubTool
 
 
 def get_available_tools() -> dict[str, ToolDefinition]:

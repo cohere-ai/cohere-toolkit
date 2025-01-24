@@ -199,6 +199,24 @@ class SlackSettings(BaseSettings, BaseModel):
     )
 
 
+class GithubSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    client_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("GITHUB_CLIENT_ID", "client_id"),
+    )
+    client_secret: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("GITHUB_CLIENT_SECRET", "client_secret"),
+    )
+    user_scopes: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "GITHUB_USER_SCOPES", "scopes"
+        ),
+    )
+
+
 class TavilyWebSearchSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     api_key: Optional[str] = Field(
@@ -271,6 +289,9 @@ class ToolSettings(BaseSettings, BaseModel):
     )
     slack: Optional[SlackSettings] = Field(
         default=SlackSettings()
+    )
+    github: Optional[GithubSettings] = Field(
+        default=GithubSettings()
     )
     gmail: Optional[GmailSettings] = Field(
         default=GmailSettings()
