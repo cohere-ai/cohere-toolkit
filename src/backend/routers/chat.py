@@ -174,6 +174,7 @@ async def chat(
         session,
         CustomChat().chat(
             chat_request,
+            session=session,
             stream=False,
             managed_tools=managed_tools,
             ctx=ctx,

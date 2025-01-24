@@ -1,6 +1,7 @@
 from typing import Any, AsyncGenerator, Dict, List
 
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from backend.chat.base import BaseChat
 from backend.chat.custom.tool_calls import async_call_tools
@@ -33,6 +34,7 @@ class CustomChat(BaseChat):
     async def chat(
         self,
         chat_request: CohereChatRequest,
+        session: Session,
         ctx: Context,
         **kwargs: Any,
     ) -> AsyncGenerator[Any, Any]:
@@ -41,6 +43,7 @@ class CustomChat(BaseChat):
 
         Args:
             chat_request (CohereChatRequest): Chat request.
+            session (Session): SQLAchemy db session for the request.
             ctx (Context): Context.
             **kwargs (Any): Keyword arguments.
 
@@ -49,7 +52,7 @@ class CustomChat(BaseChat):
         """
         logger = ctx.get_logger()
         deployment_name = ctx.get_deployment_name()
-        deployment_model = get_deployment(deployment_name, ctx)
+        deployment_model = get_deployment(deployment_name, session, ctx)
 
         # Bind the logger with the conversation ID
         logger.debug(
@@ -65,7 +68,7 @@ class CustomChat(BaseChat):
         self.is_first_start = True
 
         try:
-            stream = self.call_chat(self.chat_request, deployment_model, ctx, **kwargs)
+            stream = self.call_chat(self.chat_request, deployment_model, session, ctx, **kwargs)
 
             async for event in stream:
                 result = self.handle_event(event, chat_request, ctx)
@@ -149,13 +152,13 @@ class CustomChat(BaseChat):
         self,
         chat_request: CohereChatRequest,
         deployment_model: BaseDeployment,
+        session: Session,
         ctx: Context,
         **kwargs: Any,
     ):
         logger = ctx.get_logger()
         managed_tools = self.get_managed_tools(chat_request)
         managed_tools_full_schema = self.get_managed_tools(chat_request, full_schema=True)
-        session = kwargs.get("session")
         user_id = ctx.get_user_id()
         agent_id = ctx.get_agent_id()
 
