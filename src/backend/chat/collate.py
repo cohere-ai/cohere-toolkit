@@ -102,7 +102,12 @@ async def rerank_and_chunk(
     return list(reranked_results.values())
 
 
-def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
+def chunk(
+    content: str,
+    compact_mode: bool = False,
+    soft_word_cut_off: int = 100,
+    hard_word_cut_off: int = 300,
+) -> list[str]:
     if compact_mode:
         content = content.replace("\n", " ")
 

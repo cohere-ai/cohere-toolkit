@@ -1,17 +1,11 @@
-import os
-
 import pytest
 
 from backend.chat import collate
 from backend.model_deployments import CohereDeployment
-
-is_cohere_env_set = (
-    os.environ.get("COHERE_API_KEY") is not None
-    and os.environ.get("COHERE_API_KEY") != ""
-)
+from backend.schemas.context import Context
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+@pytest.mark.asyncio
 async def test_rerank() -> None:
     model = CohereDeployment(model_config={})
     outputs = [
@@ -73,19 +67,21 @@ async def test_rerank() -> None:
         },
     ]
 
-    assert await collate.rerank_and_chunk(tool_results, model) == expected_output
+    assert await collate.rerank_and_chunk(tool_results, model, Context()) == expected_output
 
 
 def test_chunk_normal_mode() -> None:
     content = "This is a test. We are testing the chunk function."
     expected_output = ["This is a test.", "We are testing the chunk function."]
-    collate.chunk(content, False, 4, 10) == expected_output
+    output = collate.chunk(content, False, 3, 10)
+    assert output == expected_output
 
 
 def test_chunk_compact_mode() -> None:
     content = "This is a test.\nWe are testing the chunk function."
     expected_output = ["This is a test.", "We are testing the chunk function."]
-    collate.chunk(content, True, 4, 10) == expected_output
+    output = collate.chunk(content, True, 3, 10)
+    assert output == expected_output
 
 
 def test_chunk_hard_cut_off() -> None:
@@ -94,19 +90,23 @@ def test_chunk_hard_cut_off() -> None:
         "This is a test. We are testing the chunk function.",
         "This sentence will exceed the hard cut off.",
     ]
-    collate.chunk(content, False, 4, 10) == expected_output
+    output = collate.chunk(content, False, 11, 10)
+    assert output == expected_output
 
 
 def test_chunk_soft_cut_off() -> None:
     content = "This is a test. We are testing the chunk function. This sentence will exceed the soft cut off."
     expected_output = [
         "This is a test.",
-        "We are testing the chunk function. This sentence will exceed the soft cut off.",
+        "We are testing the chunk function.",
+        "This sentence will exceed the soft cut off.",
     ]
-    collate.chunk(content, False, 4, 10) == expected_output
+    output = collate.chunk(content, False, 3, 10)
+    assert output == expected_output
 
 
 def test_chunk_empty_content() -> None:
     content = ""
     expected_output = []
-    collate.chunk(content, False, 4, 10) == expected_output
+    output = collate.chunk(content, False, 3, 10)
+    assert output == expected_output
