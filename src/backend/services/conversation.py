@@ -263,6 +263,7 @@ async def generate_conversation_title(
             session,
             CustomChat().chat(
                 chat_request,
+                session=session,
                 stream=False,
                 agent_id=agent_id,
                 ctx=ctx,
