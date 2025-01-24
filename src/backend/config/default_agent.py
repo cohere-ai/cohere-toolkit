@@ -23,6 +23,7 @@ def get_default_agent() -> AgentPublic:
             Tool.Search_File.value.ID,
             Tool.Python_Interpreter.value.ID,
             Tool.Hybrid_Web_Search.value.ID,
+            Tool.Github.value.ID,
         ],
         tools_metadata=[],
         deployment=DEFAULT_DEPLOYMENT,

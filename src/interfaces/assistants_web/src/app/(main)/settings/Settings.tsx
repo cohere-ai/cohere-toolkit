@@ -5,7 +5,7 @@ import { PropsWithChildren, useState } from 'react';
 import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { MobileHeader } from '@/components/Global';
 import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
-import { TOOL_GMAIL_ID, TOOL_SLACK_ID } from '@/constants';
+import {TOOL_GITHUB_ID, TOOL_GMAIL_ID, TOOL_SLACK_ID} from '@/constants';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
 
@@ -80,6 +80,7 @@ const Connections = () => (
       <GoogleDriveConnection />
       <SlackConnection />
       <GmailConnection />
+      <GithubConnection />
     </div>
   </Wrapper>
 );
@@ -318,6 +319,63 @@ const GmailConnection = () => {
           <Button
             label="Authenticate"
             href={getToolAuthUrl(gmailTool.auth_url)}
+            kind="secondary"
+            theme="default"
+            icon="arrow-up-right"
+          />
+        )}
+      </section>
+    </article>
+  );
+};
+
+const GithubConnection = () => {
+  const { data } = useListTools();
+  const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
+  const notify = useNotify();
+  const githubTool = data?.find((tool) => tool.name === TOOL_GITHUB_ID);
+
+  if (!githubTool) {
+    return null;
+  }
+
+  const handleDeleteAuthTool = async () => {
+    try {
+      await deleteAuthTool(githubTool.name!);
+    } catch (e) {
+      notify.error('Failed to delete Github connection');
+    }
+  };
+
+  const isGithubConnected = !(githubTool.is_auth_required ?? false);
+
+  return (
+    <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
+      <header className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon name="github" size="xl" />
+          <Text className="text-volcanic-400 dark:text-mushroom-950">Github</Text>
+        </div>
+        <StatusConnection connected={isGithubConnected} />
+      </header>
+      <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">Connect to Github</Text>
+      <section>
+        {isGithubConnected ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Button
+                label="Delete connection"
+                kind="secondary"
+                icon="trash"
+                theme="danger"
+                onClick={handleDeleteAuthTool}
+              />
+            </div>
+          </div>
+        ) : (
+          <Button
+            label="Authenticate"
+            href={getToolAuthUrl(githubTool.auth_url)}
             kind="secondary"
             theme="default"
             icon="arrow-up-right"
