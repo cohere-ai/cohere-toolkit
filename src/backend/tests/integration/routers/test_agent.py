@@ -283,7 +283,10 @@ def test_create_agent_invalid_deployment(
 
 
 def test_create_agent_deployment_not_in_db(
-    session_client: TestClient, session: Session, user: User,
+    session_client: TestClient,
+    session: Session,
+    user: User,
+    mock_available_model_deployments,
 ) -> None:
     request_json = {
         "name": "test agent",
