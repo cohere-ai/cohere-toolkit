@@ -70,7 +70,8 @@ class GithubAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         url_encoded_body = urllib.parse.urlencode(body)
         headers = {
-            "Content-Type": 'application/x-www-form-urlencoded',
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
         }
         response = requests.post(self.TOKEN_ENDPOINT, data=url_encoded_body, headers=headers)
 
