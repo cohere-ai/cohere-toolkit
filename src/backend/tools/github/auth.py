@@ -23,7 +23,7 @@ class GithubAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     TOOL_ID = GITHUB_TOOL_ID
     AUTH_ENDPOINT = "https://github.com/login/oauth/authorize"
     TOKEN_ENDPOINT = "https://github.com/login/oauth/access_token"
-    DEFAULT_USER_SCOPES = ['public_repo']
+    DEFAULT_USER_SCOPES = ['public_repo', 'read:org']
 
     def __init__(self):
         super().__init__()

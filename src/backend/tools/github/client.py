@@ -22,4 +22,10 @@ class GithubClient:
     def search_commits(self, query):
         return self.client.search_commits(query, sort="indexed", order="desc")
 
+    def get_user(self):
+        return self.client.get_user()
+
+    def get_user_repositories(self, user):
+        return user.get_repos()
+
 

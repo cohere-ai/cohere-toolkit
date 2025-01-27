@@ -14,6 +14,9 @@ class GithubService:
         self.user_id = user_id
         self.auth_token = auth_token
         self.client = GithubClient(auth_token=auth_token, search_limit=search_limit)
+        self.github_user = self.client.get_user()
+        self.repositories = self.client.get_user_repositories(self.github_user)
+        self.organizations = self.github_user.get_orgs()
 
     def search(self, query: str):
         return self.client.search_all(query=query)
