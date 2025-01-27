@@ -15,18 +15,16 @@ class GithubService:
         self.auth_token = auth_token
         self.client = GithubClient(auth_token=auth_token, search_limit=search_limit)
 
-    def search_code(self, query: str):
-        return self.client.search_code(query=query)
+    def search(self, query: str):
+        return self.client.search_all(query=query)
 
     def serialize_results(self, response):
         results = []
-        for match in response["messages"]["matches"]:
-            document = self.extract_message_data(match)
-            results.append(document)
-        for match in response["files"]["matches"]:
-            document = self.extract_files_data(match, response["query"])
-            results.append(document)
-
+        for item in response:
+            if "message" in item:
+                results.append(self.extract_message_data(item["message"]))
+            if "file" in item:
+                results.append(self.extract_files_data(item["file"], query=item["query"]))
         return results
 
     @staticmethod
