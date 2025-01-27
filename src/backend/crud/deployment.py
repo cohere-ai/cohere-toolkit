@@ -151,7 +151,6 @@ def create_deployment_by_config(db: Session, deployment_config: DeploymentDefini
 
     Args:
         db (Session): Database session.
-        deployment (str): Deployment data to be created.
         deployment_config (DeploymentDefinition): Deployment config.
 
     Returns:
