@@ -39,6 +39,7 @@ def get_agent_by_id(
     Args:
       db (Session): Database session.
       agent_id (str): Agent ID.
+      user_id (str): User ID.
       override_user_id (bool): Override user ID check. Should only be used for internal operations.
 
     Returns:
@@ -65,6 +66,7 @@ def get_agent_by_name(db: Session, agent_name: str, user_id: str) -> Agent:
     Args:
       db (Session): Database session.
       agent_name (str): Agent name.
+      user_id (str): User ID.
 
     Returns:
       Agent: Agent with the given name.
@@ -93,10 +95,11 @@ def get_agents(
 
     Args:
         db (Session): Database session.
+        user_id (str): User ID.
         offset (int): Offset of the results.
         limit (int): Limit of the results.
         organization_id (str): Organization ID.
-        user_id (str): User ID.
+        visibility (AgentVisibility): Visibility of the agents.
         override_user_id (bool): Override user ID check. Should only be used for internal operations.
 
     Returns:
@@ -133,6 +136,7 @@ def update_agent(
       db (Session): Database session.
       agent (Agent): Agent to be updated.
       new_agent (UpdateAgentRequest): New agent.
+      user_id (str): User ID.
 
     Returns:
       Agent: Updated agent.
@@ -158,6 +162,7 @@ def delete_agent(db: Session, agent_id: str, user_id: str) -> bool:
     Args:
         db (Session): Database session.
         agent_id (str): Agent ID.
+        user_id (str): User ID.
 
     Returns:
       bool: True if the Agent was deleted, False otherwise

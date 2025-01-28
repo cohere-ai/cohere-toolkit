@@ -376,7 +376,6 @@ async def update_or_create_tool_metadata(
         agent (Agent): Agent.
         new_tool_metadata (AgentToolMetadata): New tool metadata.
         session (DBSessionDep): Database session.
-        request (Request): Request object.
         ctx (Context): Context object.
     """
 
