@@ -248,7 +248,7 @@ class BaseToolAuthentication(ABC):
     @abstractmethod
     def retrieve_auth_token(
             self, request: Request, session: DBSessionDep, user_id: str
-    ) -> str:
+    ) -> str|None:
         ...
 
     def get_token(self, session: DBSessionDep, user_id: str) -> str:
