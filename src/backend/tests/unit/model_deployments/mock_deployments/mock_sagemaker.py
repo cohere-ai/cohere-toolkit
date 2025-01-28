@@ -45,7 +45,7 @@ class MockSageMakerDeployment(MockDeployment):
     async def invoke_chat_stream(
         self, chat_request: CohereChatRequest, ctx: Context, **kwargs: Any
     ) -> Generator[StreamedChatResponse, None, None]:
-        for event in self.event_steam:
+        for event in self.event_stream:
             yield event
 
     async def invoke_rerank(

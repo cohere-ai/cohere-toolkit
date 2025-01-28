@@ -2,4 +2,4 @@ from backend.model_deployments.base import BaseDeployment
 
 
 class MockDeployment(BaseDeployment):
-    event_steam = []
+    event_stream = []

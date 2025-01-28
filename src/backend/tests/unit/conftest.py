@@ -264,7 +264,7 @@ def mock_available_model_deployments(mock_event_stream: list[dict]):
         MockDeployment,
     )
 
-    MockDeployment.event_steam = mock_event_stream
+    MockDeployment.event_stream = mock_event_stream
     MOCKED_DEPLOYMENTS = { d.name(): d for d in MockDeployment.__subclasses__() }
 
     with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", MOCKED_DEPLOYMENTS) as mock:
