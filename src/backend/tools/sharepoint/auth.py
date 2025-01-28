@@ -58,7 +58,7 @@ class SharepointAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        code = request.query_params.get("code")
+        code = request.query_params.get("code", "")
         payload = {
             "grant_type": "authorization_code",
             "code": code,
@@ -98,8 +98,18 @@ class SharepointAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
     def try_refresh_token(
         self, session: DBSessionDep, user_id: str, tool_auth: ToolAuthModel
     ) -> bool:
-        request = Request("http")
-        request._query_params = { "code",tool_auth.refresh_token }
+        query_string = f"code={tool_auth.refresh_token}"
+        request = Request(
+            {
+                "type": "http",
+                "method": "GET",
+                "headers": [],
+                "path": "/path",
+                "query_string": query_string.encode(),
+                "server": ("example.com", 80),
+                "scheme": "http",
+            }
+        )
         tool_auth_crud.delete_tool_auth(session, user_id, self.TOOL_ID)
         error = self.retrieve_auth_token(request, session, user_id)
         return error is None
