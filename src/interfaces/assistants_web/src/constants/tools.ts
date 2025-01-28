@@ -15,6 +15,7 @@ export const TOOL_GOOGLE_DRIVE_ID = 'google_drive';
 export const TOOL_SLACK_ID = 'slack';
 export const TOOL_GMAIL_ID = 'gmail';
 export const TOOL_GITHUB_ID = 'github';
+export const TOOL_SHAREPOINT_ID = 'sharepoint';
 
 export const BACKGROUND_TOOLS = [TOOL_SEARCH_FILE_ID, TOOL_READ_DOCUMENT_ID];
 
@@ -32,4 +33,5 @@ export const TOOL_ID_TO_DISPLAY_INFO: { [id: string]: { icon: IconName } } = {
   [TOOL_SLACK_ID]: { icon: 'slack' },
   [TOOL_GMAIL_ID]: { icon: 'gmail' },
   [TOOL_GITHUB_ID]: { icon: 'github' },
+  [TOOL_SHAREPOINT_ID]: { icon: 'sharepoint' },
 };

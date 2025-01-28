@@ -60,3 +60,4 @@ export * from './Warning';
 export * from './Web';
 export * from './Slack';
 export * from './Gmail';
+export * from './Sharepoint';
