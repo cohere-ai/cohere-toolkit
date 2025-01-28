@@ -1,4 +1,3 @@
-
 from backend.database_models.database import get_session
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import ToolAuthException
@@ -16,10 +15,18 @@ class GithubService:
         self.client = GithubClient(auth_token=auth_token, search_limit=search_limit)
         self.github_user = self.client.get_user()
         self.repositories = self.client.get_user_repositories(self.github_user)
-        self.organizations = self.github_user.get_orgs()
+        # self.organizations = self.github_user.get_orgs()
+
+    def _prepare_repo_query(self, query: str, repo_name: str):
+        return f"{query} repo:{repo_name}"
 
     def search(self, query: str):
-        return self.client.search_all(query=query)
+        results = []
+        for repo in self.repositories:
+            prepared_query = self._prepare_repo_query(query, repo.full_name)
+            results.extend(self.client.search_all(query=prepared_query))
+        return results
+
 
     def serialize_results(self, response):
         results = []
