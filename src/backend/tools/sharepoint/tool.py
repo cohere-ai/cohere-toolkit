@@ -54,7 +54,7 @@ class SharepointTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Returns a list of relevant document snippets from the user's Sharepoint.",
-        )
+        ) # type: ignore
 
     def _prepare_auth(self, user_id: str) -> None:
         sharepoint_auth = SharepointAuth()

@@ -48,7 +48,7 @@ class ToolDefinition(Tool):
         title="Error Message",
         description="Error message",
     )
-    kwargs: Optional[dict] = Field(
+    kwargs: dict = Field(
         {},
         title="kwargs",
         description="kwags for the tool",
@@ -69,10 +69,10 @@ class ToolDefinition(Tool):
         description="Tool category",
     )
 
-    is_auth_required: Optional[bool] = Field(
+    is_auth_required: bool = Field(
         False,
         title="Is Auth Required",
-        description="Is re-auth required for the tool",
+        description="Is auth required for the tool",
     )  # Per user
     auth_url: Optional[str] = Field(
         "",
