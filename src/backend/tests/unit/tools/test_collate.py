@@ -13,7 +13,7 @@ async def test_rerank() -> None:
             "text": "Mount Everest is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas"
         },
         {
-            "text": "There are four components - or parts - of the blood: red blood cells, white blood cells, plasma and platelets."
+            "text": "There are four components of blood: red blood cells, white blood cells, plasma and platelets."
         },
         {
             "text": "'My Man Rocks Me (with One Steady Roll)' by Trixie Smith was issued in 1922, the first record to refer to 'rocking' and 'rolling' in a secular context"
@@ -22,14 +22,14 @@ async def test_rerank() -> None:
     tool_results = [
         {
             "call": {
-                "parameters": {"query": "what is the highest mountain in the world?"},
+                "parameters": {"query": "highest mountain"},
                 "name": "retriever",
             },
             "outputs": outputs,
         },
         {
             "call": {
-                "parameters": {"query": "What are the 4 major components of blood?"},
+                "parameters": {"query": "four components of blood"},
                 "name": "retriever",
             },
             "outputs": outputs,
@@ -46,17 +46,17 @@ async def test_rerank() -> None:
     expected_output = [
         {
             "call": {
-                "parameters": {"query": "what is the highest mountain in the world?"},
+                "parameters": {"query": "highest mountain"},
                 "name": "retriever",
             },
-            "outputs": [],
+            "outputs": [outputs[0]],
         },
         {
             "call": {
-                "parameters": {"query": "What are the 4 major components of blood?"},
+                "parameters": {"query": "four components of blood"},
                 "name": "retriever",
             },
-            "outputs": [],
+            "outputs": [outputs[1]],
         },
         {
             "call": {
