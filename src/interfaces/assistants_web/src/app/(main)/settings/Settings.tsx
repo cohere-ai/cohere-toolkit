@@ -4,7 +4,15 @@ import { PropsWithChildren, useState } from 'react';
 
 import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { MobileHeader } from '@/components/Global';
-import { Button, DarkModeToggle, Icon, ShowStepsToggle, Tabs, Text } from '@/components/UI';
+import {
+  Button,
+  DarkModeToggle,
+  Icon,
+  ShowCitationsToggle,
+  ShowStepsToggle,
+  Tabs,
+  Text,
+} from '@/components/UI';
 import { TOOL_GMAIL_ID, TOOL_SLACK_ID } from '@/constants';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
@@ -102,6 +110,7 @@ const Advanced = () => {
         Advanced
       </Text>
       <ShowStepsToggle />
+      <ShowCitationsToggle />
     </Wrapper>
   );
 };

@@ -9,7 +9,7 @@ export const ShowStepsToggle = () => {
   };
 
   return (
-    <section className="flex gap-6">
+    <section className="mb-4 flex gap-6">
       <Text styleAs="label" className="font-medium">
         Show thinking steps
       </Text>
