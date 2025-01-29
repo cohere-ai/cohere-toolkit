@@ -49,14 +49,14 @@ async def test_rerank() -> None:
                 "parameters": {"query": "highest mountain"},
                 "name": "retriever",
             },
-            "outputs": [outputs[0]],
+            "outputs": [outputs[0]["text"]],
         },
         {
             "call": {
                 "parameters": {"query": "four components of blood"},
                 "name": "retriever",
             },
-            "outputs": [outputs[1]],
+            "outputs": [outputs[1]["text"]],
         },
         {
             "call": {
