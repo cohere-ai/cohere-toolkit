@@ -10,7 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from backend.config import settings
 from backend.config.auth import (
     get_auth_strategy_endpoints,
     is_authentication_enabled,

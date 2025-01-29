@@ -10,6 +10,7 @@ from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models import ToolAuth
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth as ToolAuthModel
+from backend.schemas.tool_auth import UpdateToolAuth
 from backend.services.auth.crypto import encrypt
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseToolAuthentication
@@ -77,7 +78,7 @@ class GithubAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         response_body = response.json()
 
-        if response.status_code != 200 or response_body.get("ok") is False:
+        if response.status_code != 200:
             logger.error(
                 event=f"[Github Tool] Error retrieving auth token: {response_body}"
             )
@@ -85,6 +86,8 @@ class GithubAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
 
         token = response_body.get("access_token", None)
         token_type = response_body.get("token_type", None)
+        refresh_token = response_body.get("refresh_token", "")
+        expires_in = response_body.get("expires_in", 31536000)
 
         if token is None:
             logger.error(
@@ -99,13 +102,62 @@ class GithubAuth(BaseToolAuthentication, ToolAuthenticationCacheMixin):
                 tool_id=self.TOOL_ID,
                 token_type=token_type,
                 encrypted_access_token=encrypt(token),
-                encrypted_refresh_token=encrypt(""),
+                encrypted_refresh_token=encrypt(refresh_token),
                 expires_at=datetime.datetime.now()
-                + datetime.timedelta(days=365),
+                + datetime.timedelta(seconds=expires_in)
             ),
         )
 
         return ""
 
     def try_refresh_token(self, session: DBSessionDep, user_id: str, tool_auth: ToolAuth) -> bool:
-        return False
+        body = {
+            "client_id": self.GITHUB_CLIENT_ID,
+            "client_secret": self.GITHUB_CLIENT_SECRET,
+            "refresh_token": tool_auth.refresh_token,
+            "grant_type": "refresh_token",
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json",
+        }
+
+        url_encoded_body = urllib.parse.urlencode(body)
+        response = requests.post(self.TOKEN_ENDPOINT, data=url_encoded_body, headers=headers)
+        response_body = response.json()
+
+        if response.status_code != 200:
+            logger.error(
+                event=f"[GITHUB Tool] Error refreshing token: {response_body}"
+            )
+            return False
+
+        token = response_body.get("access_token", None)
+        token_type = response_body.get("token_type", None)
+        refresh_token = response_body.get("refresh_token", "")
+        expires_in = response_body.get("expires_in", 31536000)
+
+        if token is None:
+            logger.error(
+                event=f"[GITHUB Tool] Error retrieving auth token: {response_body}"
+            )
+            return False
+
+        existing_tool_auth = tool_auth_crud.get_tool_auth(
+            session, self.TOOL_ID, user_id
+        )
+        tool_auth_crud.update_tool_auth(
+            session,
+            existing_tool_auth,
+            UpdateToolAuth(
+                user_id=user_id,
+                tool_id=self.TOOL_ID,
+                token_type=token_type,
+                encrypted_access_token=encrypt(token),
+                encrypted_refresh_token=encrypt(refresh_token),
+                expires_at=datetime.datetime.now()
+                           + datetime.timedelta(seconds=expires_in),
+            ),
+        )
+
+        return True

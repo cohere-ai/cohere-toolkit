@@ -69,7 +69,7 @@ class GithubTool(BaseTool):
         github_service = get_github_service(user_id=user_id, search_limit=SEARCH_LIMIT)
         try:
             all_results = github_service.search(query=query)
-            results = github_service.serialize_results(all_results)
+            results = github_service.transform_response(all_results)
         except Exception as e:
             return self.get_tool_error(details=str(e))
 

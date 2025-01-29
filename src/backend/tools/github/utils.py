@@ -15,7 +15,7 @@ class GithubService:
         self.client = GithubClient(auth_token=auth_token, search_limit=search_limit)
         self.github_user = self.client.get_user()
         self.repositories = self.client.get_user_repositories(self.github_user)
-        self.repositories = [repo for repo in self.repositories if repo.full_name == "EugeneLightsOn/cohere-toolkit"]
+        self.repositories = [repo for repo in self.repositories if repo.full_name == "cohere-ai/cohere-toolkit"]
         # self.organizations = self.github_user.get_orgs()
 
     def _prepare_repo_query(self, query: str, repo_name: str):
@@ -33,35 +33,43 @@ class GithubService:
             results["pull_requests"].extend(repo_results["pull_requests"])
         return results
 
-
-    def serialize_results(self, results):
+    def transform_response(self, response):
         results = []
+        for code in response["code"]:
+            results.append(self._extract_code_data(code))
+        for commit in response["commits"]:
+            results.append(self._extract_commit_data(commit))
+        for pr in response["pull_requests"]:
+            results.append(self._extract_pull_request_data(pr))
         return results
 
     @staticmethod
-    def extract_message_data(message_json):
-        document = {}
-        document["type"] = "message"
-        if "text" in message_json:
-            document["text"] = str(message_json.pop("text"))
-        if "permalink" in message_json:
-            document["url"] = str(message_json.pop("permalink"))
-        if "channel" in message_json and "name" in message_json["channel"]:
-            document["title"] = str(message_json["channel"]["name"])
-
-        return document
+    def _extract_code_data(code):
+        return {
+            "title": code.path,
+            "text": code.decoded_content.decode("utf-8"),
+            "url": code.html_url,
+            "type": "code",
+        }
 
     @staticmethod
-    def extract_files_data(message_json, query=""):
-        document = {}
-        document["type"] = "file"
-        if "permalink" in message_json:
-            document["url"] = str(message_json.pop("permalink"))
-        if "title" in message_json:
-            document["title"] = str(message_json["title"])
-            document["text"] = f"{query} in {str(message_json['title'])}"
+    def _extract_commit_data(commit):
+        return {
+            "title": commit.commit.message,
+            "description": commit.commit.author.name,
+            "url": commit.html_url,
+            "type": "commit",
+        }
 
-        return document
+
+    @staticmethod
+    def _extract_pull_request_data(pr):
+        return {
+            "title": pr.title,
+            "description": pr.body,
+            "url": pr.html_url,
+            "type": "pull_request",
+        }
 
 
 def get_github_service(user_id: str, search_limit=SEARCH_LIMIT) -> GithubService:
