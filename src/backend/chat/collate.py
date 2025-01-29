@@ -60,7 +60,7 @@ async def rerank_and_chunk(
             reranked_results[tool_call_hashable] = tool_result
             continue
 
-        chunked_outputs: list[str] = []
+        chunked_outputs: list[dict[str, Any]] = []
         for output in tool_result["outputs"]:
             text = output.get("text")
 
@@ -70,7 +70,7 @@ async def rerank_and_chunk(
                 continue
 
             chunks = chunk(text)
-            chunked_outputs.extend([*chunks])
+            chunked_outputs.extend([dict(output, text=chunk) for chunk in chunks])
 
         # If no documents to rerank, continue to the next query
         if not chunked_outputs:
@@ -78,7 +78,7 @@ async def rerank_and_chunk(
 
         res = await model.invoke_rerank(
             query=query,
-            documents=chunked_outputs,
+            documents=[output["text"] for output in chunked_outputs],
             ctx=ctx,
         )
 
