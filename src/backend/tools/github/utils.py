@@ -15,26 +15,27 @@ class GithubService:
         self.client = GithubClient(auth_token=auth_token, search_limit=search_limit)
         self.github_user = self.client.get_user()
         self.repositories = self.client.get_user_repositories(self.github_user)
+        self.repositories = [repo for repo in self.repositories if repo.full_name == "EugeneLightsOn/cohere-toolkit"]
         # self.organizations = self.github_user.get_orgs()
 
     def _prepare_repo_query(self, query: str, repo_name: str):
         return f"{query} repo:{repo_name}"
 
     def search(self, query: str):
-        results = []
+        results = {"code": [], "commits": [], "pull_requests": []}
         for repo in self.repositories:
             prepared_query = self._prepare_repo_query(query, repo.full_name)
-            results.extend(self.client.search_all(query=prepared_query))
+            if repo.fork:
+                prepared_query += " fork:true"
+            repo_results = self.client.search_all(query=prepared_query)
+            results["code"].extend(repo_results["code"])
+            results["commits"].extend(repo_results["commits"])
+            results["pull_requests"].extend(repo_results["pull_requests"])
         return results
 
 
-    def serialize_results(self, response):
+    def serialize_results(self, results):
         results = []
-        for item in response:
-            if "message" in item:
-                results.append(self.extract_message_data(item["message"]))
-            if "file" in item:
-                results.append(self.extract_files_data(item["file"], query=item["query"]))
         return results
 
     @staticmethod

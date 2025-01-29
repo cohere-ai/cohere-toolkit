@@ -10,15 +10,12 @@ class GithubClient:
         code_results =  self.search_code(query)
         commits_results = self.search_commits(query)
         pr_results = self.search_pull_requests(query)
-        all_results = []
-        all_results.extend(code_results)
-        all_results.extend(commits_results)
-        all_results.extend(pr_results)
+        all_results = {"code": code_results, "commits": commits_results, "pull_requests": pr_results}
         return all_results
 
 
     def search_code(self, query: str):
-        return self.client.search_code(query, sort="indexed", order="desc")
+        return self.client.search_code(query)
 
     def search_repositories(self, query: str):
         return self.client.search_repositories(query)
