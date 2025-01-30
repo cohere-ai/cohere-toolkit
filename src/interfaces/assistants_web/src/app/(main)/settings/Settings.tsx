@@ -30,15 +30,23 @@ const Settings = () => {
 
   return (
     <div className="flex h-full w-full flex-grow flex-col overflow-y-auto rounded-lg border border-marble-950 bg-marble-980 dark:border-volcanic-100 dark:bg-volcanic-100 md:ml-0">
-      <header className={cn('border-b border-marble-950 bg-cover dark:border-volcanic-200', 'px-4 py-6 lg:px-10 lg:py-10', 'flex flex-col gap-y-3')}>
+      <header
+        className={cn(
+          'border-b border-marble-950 bg-cover dark:border-volcanic-200',
+          'px-4 py-6 lg:px-10 lg:py-10',
+          'flex flex-col gap-y-3'
+        )}
+      >
         <MobileHeader />
         <div className="flex items-center gap-2">
-          <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">Settings</Text>
+          <Text styleAs="h4" className="text-volcanic-400 dark:text-mushroom-950">
+            Settings
+          </Text>
         </div>
       </header>
       <section className="p-8">
         <Tabs
-          tabs={tabs.map(tab => (
+          tabs={tabs.map((tab) => (
             <div className="flex items-center gap-2" key={tab.key}>
               <Icon name={tab.icon} kind="outline" />
               <Text>{tab.label}</Text>
@@ -67,7 +75,9 @@ const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
 
 const Connections = () => (
   <Wrapper>
-    <Text styleAs="h5" className="mb-6">Connections your assistants can access</Text>
+    <Text styleAs="h5" className="mb-6">
+      Connections your assistants can access
+    </Text>
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <GoogleDriveConnection />
       <SlackConnection />
@@ -79,14 +89,18 @@ const Connections = () => (
 
 const Appearance = () => (
   <Wrapper>
-    <Text styleAs="h5" className="mb-6">Mode</Text>
+    <Text styleAs="h5" className="mb-6">
+      Mode
+    </Text>
     <DarkModeToggle />
   </Wrapper>
 );
 
 const Advanced = () => (
   <Wrapper>
-    <Text styleAs="h5" className="mb-6">Advanced</Text>
+    <Text styleAs="h5" className="mb-6">
+      Advanced
+    </Text>
     <ShowStepsToggle />
     <ShowCitationsToggle />
   </Wrapper>
@@ -94,16 +108,30 @@ const Advanced = () => (
 
 const Profile = () => (
   <Wrapper>
-    <Text styleAs="h5" className="mb-6">User Profile</Text>
+    <Text styleAs="h5" className="mb-6">
+      User Profile
+    </Text>
     <Button label="Log out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
   </Wrapper>
 );
 
-const ConnectionComponent = ({ toolId, toolName, iconName, description, showSyncButton }: { toolId: string; toolName: string; iconName: IconName; description: string; showSyncButton: boolean }) => {
+const ConnectionComponent = ({
+  toolId,
+  toolName,
+  iconName,
+  description,
+  showSyncButton,
+}: {
+  toolId: string;
+  toolName: string;
+  iconName: IconName;
+  description: string;
+  showSyncButton: boolean;
+}) => {
   const { data } = useListTools();
   const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
   const notify = useNotify();
-  const tool = data?.find(tool => tool.name === toolId);
+  const tool = data?.find((tool) => tool.name === toolId);
 
   if (!tool) return null;
 
@@ -134,16 +162,32 @@ const ConnectionComponent = ({ toolId, toolName, iconName, description, showSync
         {!isAvailable ? (
           <div className="justify-items-start space-y-6">
             <div className="flex items-center justify-between">
-              <p className="font-body text-p-sm uppercase text-danger-500">{error || `${toolName} connection is not available.`}</p>
+              <p className="font-body text-p-sm uppercase text-danger-500">
+                {error || `${toolName} connection is not available.`}
+              </p>
             </div>
           </div>
         ) : isConnected ? (
           <div className="space-y-6">
-            {showSyncButton && <Button label="Sync now" kind="secondary" icon="arrow-clockwise" href={authUrl} />}
-            <Button label="Delete connection" kind="secondary" icon="trash" theme="danger" onClick={handleDeleteAuthTool} />
+            {showSyncButton && (
+              <Button label="Sync now" kind="secondary" icon="arrow-clockwise" href={authUrl} />
+            )}
+            <Button
+              label="Delete connection"
+              kind="secondary"
+              icon="trash"
+              theme="danger"
+              onClick={handleDeleteAuthTool}
+            />
           </div>
         ) : (
-          <Button label="Authenticate" href={authUrl} kind="secondary" theme="default" icon="arrow-up-right" />
+          <Button
+            label="Authenticate"
+            href={authUrl}
+            kind="secondary"
+            theme="default"
+            icon="arrow-up-right"
+          />
         )}
       </section>
     </article>

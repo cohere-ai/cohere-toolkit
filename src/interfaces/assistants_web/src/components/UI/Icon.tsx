@@ -63,8 +63,8 @@ import {
   Warning,
   Web,
 } from '@/assets/icons';
+import { Github } from '@/assets/icons/Github';
 import { cn } from '@/utils';
-import {Github} from "@/assets/icons/Github";
 
 export const IconList = [
   'add',
