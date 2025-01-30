@@ -8,9 +8,7 @@ class GithubClient:
 
     def search_all(self, query: str):
         code_results =  self.search_code(query)
-        # commits_results = self.search_commits(query)
-        # pr_results = self.search_pull_requests(query)
-        all_results = {"code": code_results, "commits": [], "pull_requests": []}
+        all_results = {"code": code_results}
         return all_results
 
 

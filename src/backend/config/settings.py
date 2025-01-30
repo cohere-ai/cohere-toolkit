@@ -212,7 +212,13 @@ class GithubSettings(BaseSettings, BaseModel):
     user_scopes: Optional[str] = Field(
         default=None,
         validation_alias=AliasChoices(
-            "GITHUB_USER_SCOPES", "scopes"
+            "GITHUB_USER_SCOPES", "user_scopes"
+        ),
+    )
+    default_repo: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "GITHUB_DEFAULT_REPO", "default_repo"
         ),
     )
 
