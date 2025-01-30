@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
-from backend.tools.base import ToolError
 
 RELEVANCE_THRESHOLD = 0.1
 

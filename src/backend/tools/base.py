@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from enum import StrEnum
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 import requests
 from fastapi import Request
