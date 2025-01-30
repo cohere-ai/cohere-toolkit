@@ -72,7 +72,7 @@ async def test_wiki_retriever_no_docs() -> None:
     ):
         result = await retriever.call({"query": query}, ctx)
 
-    assert result == ToolError(type=ToolErrorCode.OTHER, success=False, text='No results found.', details='No results found for the given params.')
+    assert result == [ToolError(type=ToolErrorCode.OTHER, success=False, text='No results found.', details='No results found for the given params.').model_dump()]
 
 
 
@@ -156,4 +156,4 @@ async def test_vector_db_retriever_no_docs() -> None:
         mock_db.as_retriever().get_relevant_documents.return_value = mock_docs
         result = await retriever.call({"query": query}, ctx)
 
-    assert result == ToolError(type=ToolErrorCode.OTHER, success=False, text='No results found.', details='No results found for the given params.')
+    assert result == [ToolError(type=ToolErrorCode.OTHER, success=False, text='No results found.', details='No results found for the given params.').model_dump()]
