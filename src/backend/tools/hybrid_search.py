@@ -136,14 +136,16 @@ class HybridWebSearch(BaseTool):
         for batch_start in range(0, len(results), rerank_batch_size):
             results_batch = results[batch_start : batch_start + rerank_batch_size]
 
+            documents = [
+                f"{result.get('title', '')} {result.get('text')}"
+                for result in results_batch
+                if isinstance(result, dict)
+                and "text" in result
+            ]
+
             batch_output = await model.invoke_rerank(
                 query=query,
-                documents=[
-                    f"{result.get('title', '')} {result.get('text')}"
-                    for result in results_batch
-                    if isinstance(result, dict)
-                    and "text" in result
-                ],
+                documents=documents,
                 ctx=ctx,
             )
             for b in batch_output.get("results", []):

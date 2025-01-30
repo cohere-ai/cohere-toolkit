@@ -1,10 +1,13 @@
+from sqlalchemy.orm import Session
+
 from backend.crud import model as model_crud
+from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.schemas.model import ModelCreate, ModelUpdate
 from backend.tests.unit.factories import get_factory
 
 
-def test_create_model(session, deployment):
+def test_create_model(session: Session, deployment: Deployment) -> None:
     model_data = ModelCreate(
         name="Test Model",
         cohere_name="Test Cohere Model",
@@ -21,7 +24,7 @@ def test_create_model(session, deployment):
     assert model.name == model_data.name
 
 
-def test_get_model(session, deployment):
+def test_get_model(session: Session, deployment: Deployment) -> None:
     model = get_factory("Model", session).create(
         name="Test Model", deployment=deployment
     )
@@ -30,12 +33,12 @@ def test_get_model(session, deployment):
     assert retrieved_model.name == model.name
 
 
-def test_fail_get_nonexistent_model(session):
+def test_fail_get_nonexistent_model(session: Session) -> None:
     model = model_crud.get_model(session, "123")
     assert model is None
 
 
-def test_list_models(session, deployment):
+def test_list_models(session: Session, deployment: Deployment) -> None:
     # Delete default models
     session.query(Model).delete()
     _ = get_factory("Model", session).create(name="Test Model", deployment=deployment)
@@ -45,14 +48,14 @@ def test_list_models(session, deployment):
     assert models[0].name == "Test Model"
 
 
-def test_list_models_empty(session):
+def test_list_models_empty(session: Session) -> None:
     # Delete default models
     session.query(Model).delete()
     models = model_crud.get_models(session)
     assert len(models) == 0
 
 
-def test_list_models_with_pagination(session, deployment):
+def test_list_models_with_pagination(session: Session, deployment: Deployment) -> None:
     # Delete default models
     session.query(Model).delete()
     for i in range(10):
@@ -67,7 +70,7 @@ def test_list_models_with_pagination(session, deployment):
         assert model.name == f"Test Model {i + 5}"
 
 
-def test_get_models_by_deployment_id(session, deployment):
+def test_get_models_by_deployment_id(session: Session, deployment: Deployment) -> None:
     for i in range(10):
         model = get_factory("Model", session).create(
             name=f"Test Model {i}", deployment=deployment
@@ -80,12 +83,12 @@ def test_get_models_by_deployment_id(session, deployment):
         assert model.name == f"Test Model {i}"
 
 
-def test_get_models_by_deployment_id_empty(session, deployment):
+def test_get_models_by_deployment_id_empty(session: Session, deployment: Deployment) -> None:
     models = model_crud.get_models_by_deployment_id(session, deployment.id)
     assert len(models) == 0
 
 
-def test_get_models_by_deployment_id_with_pagination(session, deployment):
+def test_get_models_by_deployment_id_with_pagination(session: Session, deployment: Deployment) -> None:
     for i in range(10):
         model = get_factory("Model", session).create(
             name=f"Test Model {i}", deployment=deployment
@@ -100,7 +103,7 @@ def test_get_models_by_deployment_id_with_pagination(session, deployment):
         assert model.name == f"Test Model {i + 5}"
 
 
-def test_update_model(session, deployment):
+def test_update_model(session: Session, deployment: Deployment) -> None:
     model = get_factory("Model", session).create(
         name="Sagemaker model", deployment=deployment
     )
@@ -127,7 +130,7 @@ def test_update_model(session, deployment):
     assert model.deployment_id == new_model_data.deployment_id
 
 
-def test_update_model_partial(session, deployment):
+def test_update_model_partial(session: Session, deployment: Deployment) -> None:
     model = get_factory("Model", session).create(
         name="Test Model U", deployment=deployment
     )
@@ -148,7 +151,7 @@ def test_update_model_partial(session, deployment):
     assert model.deployment_id == model.deployment_id
 
 
-def test_do_not_update_model(session, deployment):
+def test_do_not_update_model(session: Session, deployment: Deployment) -> None:
     model = get_factory("Model", session).create(
         name="Test Model", deployment=deployment
     )
@@ -159,7 +162,7 @@ def test_do_not_update_model(session, deployment):
     assert updated_model.name == model.name
 
 
-def test_delete_model(session, deployment):
+def test_delete_model(session: Session, deployment: Deployment) -> None:
     model = get_factory("Model", session).create(deployment=deployment)
 
     model_crud.delete_model(session, model.id)
@@ -168,7 +171,7 @@ def test_delete_model(session, deployment):
     assert model is None
 
 
-def test_delete_nonexistent_model(session):
+def test_delete_nonexistent_model(session: Session) -> None:
     model_crud.delete_model(session, "123")  # no error
     model = model_crud.get_model(session, "123")
     assert model is None

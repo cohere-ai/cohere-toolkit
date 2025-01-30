@@ -1,5 +1,4 @@
 import json
-import os
 import uuid
 from typing import Any
 
@@ -18,11 +17,6 @@ from backend.tests.unit.model_deployments.mock_deployments.mock_cohere_platform 
     MockCohereDeployment,
 )
 
-is_cohere_env_set = (
-    os.environ.get("COHERE_API_KEY") is not None
-    and os.environ.get("COHERE_API_KEY") != ""
-)
-
 
 @pytest.fixture(scope="session")
 def user(session_chat: Session) -> User:
@@ -30,10 +24,12 @@ def user(session_chat: Session) -> User:
 
 
 # STREAMING CHAT TESTS
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_new_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -49,11 +45,12 @@ def test_streaming_new_chat(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-@pytest.mark.skip(reason="Failing due to error 405 calling API, but works in practice. Requires debugging")
 def test_streaming_new_chat_with_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     agent = get_factory("Agent", session_chat).create(user=user, tools=[], deployment_id=deployment.id,
@@ -74,11 +71,12 @@ def test_streaming_new_chat_with_agent(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-@pytest.mark.skip(reason="Failing due to error 405 calling API, but works in practice. Requires debugging")
 def test_streaming_new_chat_with_agent_existing_conversation(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     agent = get_factory("Agent", session_chat).create(user=user, tools=[], deployment_id=deployment.id,
@@ -126,10 +124,12 @@ def test_streaming_new_chat_with_agent_existing_conversation(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_existing_conversation_from_other_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     agent = get_factory("Agent", session_chat).create(user=user)
     _ = get_factory("Agent", session_chat).create(user=user, id="123")
     conversation = get_factory("Conversation", session_chat).create(
@@ -170,12 +170,21 @@ def test_streaming_chat_with_existing_conversation_from_other_agent(
         "detail": f"Conversation ID {conversation.id} not found for specified agent."
     }
 
+_TOOL_EVENTS = [{
+    "event_type": StreamEvent.TOOL_CALLS_GENERATION,
+    "text": "",
+    "tool_calls": [
+        { "name": "tavily_web_search", "parameters": {} },
+    ],
+}]
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-@pytest.mark.skip(reason="Failing due to error 405 calling API, but works in practice. Requires debugging")
+@pytest.mark.parametrize("inject_events", [_TOOL_EVENTS])
 def test_streaming_chat_with_tools_not_in_agent_tools(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     agent = get_factory("Agent", session_chat).create(user=user, tools=["wikipedia"], deployment_id=deployment.id,
@@ -198,10 +207,21 @@ def test_streaming_chat_with_tools_not_in_agent_tools(
     validate_chat_streaming_tool_cals_response(response, ["tavily_web_search"])
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+_TOOL_EVENTS = [{
+    "event_type": StreamEvent.TOOL_CALLS_GENERATION,
+    "text": "",
+    "tool_calls": [
+        { "name": "tavily_web_search", "parameters": {} },
+    ],
+}]
+
+@pytest.mark.parametrize("inject_events", [_TOOL_EVENTS])
 def test_streaming_chat_with_agent_tools_and_empty_request_tools(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat:
+    Session, user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     deployment = get_factory("Deployment", session_chat).create()
     model = get_factory("Model", session_chat).create(deployment=deployment)
     agent = get_factory("Agent", session_chat).create(user=user, tools=["tavily_web_search"],
@@ -224,10 +244,12 @@ def test_streaming_chat_with_agent_tools_and_empty_request_tools(
     validate_chat_streaming_tool_cals_response(response, ["tavily_web_search"])
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
 
     _ = get_factory("Message", session_chat).create(
@@ -269,10 +291,12 @@ def test_streaming_existing_chat(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_fail_chat_missing_user_id(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello"},
@@ -283,10 +307,12 @@ def test_fail_chat_missing_user_id(
     assert response.json() == {"detail": "User-Id required in request headers."}
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_default_chat_missing_deployment_name(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello"},
@@ -296,10 +322,12 @@ def test_default_chat_missing_deployment_name(
     assert response.status_code == 200
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_fail_chat_missing_message(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat-stream",
         headers={
@@ -322,8 +350,12 @@ def test_streaming_fail_chat_missing_message(
     }
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
+def test_streaming_chat_with_managed_tools(
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
@@ -345,10 +377,12 @@ def test_streaming_chat_with_managed_tools(session_client_chat, session_chat, us
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_invalid_tool(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat-stream",
         json={"message": "Hello", "tools": [{"name": "invalid_tool"}]},
@@ -362,10 +396,12 @@ def test_streaming_chat_with_invalid_tool(
     assert response.json() == {"detail": "Custom tools must have a description"}
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_managed_and_custom_tools(
-    session_client_chat, session_chat, user
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
@@ -394,10 +430,21 @@ def test_streaming_chat_with_managed_and_custom_tools(
     assert response.json() == {"detail": "Cannot mix both managed and custom tools"}
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
+_SEARCH_EVENTS = [{
+    "event_type": StreamEvent.SEARCH_QUERIES_GENERATION,
+    "text": "",
+    "search_queries": [
+        { "text": "", "generation_id": "" },
+    ],
+}]
+
+@pytest.mark.parametrize("inject_events", [_SEARCH_EVENTS])
 def test_streaming_chat_with_search_queries_only(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat-stream",
         json={
@@ -421,9 +468,11 @@ def test_streaming_chat_with_search_queries_only(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_chat_history(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
 ) -> None:
     response = session_client_chat.post(
         "/v1/chat-stream",
@@ -451,10 +500,12 @@ def test_streaming_chat_with_chat_history(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat_with_files_attaches_to_user_message(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
     file1 = get_factory("File", session_chat).create(user_id=user.id)
     file2 = get_factory("File", session_chat).create(user_id=user.id)
@@ -487,10 +538,12 @@ def test_streaming_existing_chat_with_files_attaches_to_user_message(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_existing_chat_with_attached_files_does_not_attach(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     file1 = get_factory("File", session_chat).create(
         user_id=user.id,
     )
@@ -544,10 +597,12 @@ def test_streaming_existing_chat_with_attached_files_does_not_attach(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_private_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     agent = get_factory("Agent", session_chat).create(
         user=user, is_private=True, tools=[]
     )
@@ -567,10 +622,12 @@ def test_streaming_chat_private_agent(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_public_agent(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     agent = get_factory("Agent", session_chat).create(
         user_id=user.id, is_private=False, tools=[]
     )
@@ -611,10 +668,12 @@ def test_streaming_chat_private_agent_by_another_user(
     assert response.json() == {"detail": f"Agent with ID {agent.id} not found."}
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_stream_regenerate_existing_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
 
     _ = get_factory("Message", session_chat).create(
@@ -656,10 +715,12 @@ def test_stream_regenerate_existing_chat(
     )
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_stream_regenerate_not_existing_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation_id = "test_conversation_id"
 
     response = session_client_chat.post(
@@ -679,10 +740,12 @@ def test_stream_regenerate_not_existing_chat(
     assert response.json() == {"detail": f"Conversation with ID: {conversation_id} not found."}
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_stream_regenerate_existing_chat_not_existing_user_messages(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
 
     session_chat.refresh(conversation)
@@ -705,10 +768,12 @@ def test_stream_regenerate_existing_chat_not_existing_user_messages(
 
 
 # NON-STREAMING CHAT TESTS
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat",
         json={"message": "Hello", "max_tokens": 10},
@@ -724,8 +789,12 @@ def test_non_streaming_chat(
     validate_conversation(session_chat, user, conversation_id, 2)
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
-def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat, user):
+def test_non_streaming_chat_with_managed_tools(
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
@@ -747,10 +816,12 @@ def test_non_streaming_chat_with_managed_tools(session_client_chat, session_chat
     validate_conversation(session_chat, user, conversation_id, 2)
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_managed_and_custom_tools(
-    session_client_chat, session_chat, user
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     tools = session_client_chat.get("/v1/tools", headers={"User-Id": user.id}).json()
     assert len(tools) > 0
     tool = [t for t in tools if t["is_visible"] and t["category"] != ToolCategory.Function][
@@ -779,10 +850,12 @@ def test_non_streaming_chat_with_managed_and_custom_tools(
     assert response.json() == {"detail": "Cannot mix both managed and custom tools"}
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_search_queries_only(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     response = session_client_chat.post(
         "/v1/chat",
         json={
@@ -801,9 +874,11 @@ def test_non_streaming_chat_with_search_queries_only(
     validate_conversation(session_chat, user, conversation_id, 2)
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_chat_with_chat_history(
-    session_client_chat: TestClient, session_chat: Session, user: User
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
 ) -> None:
     response = session_client_chat.post(
         "/v1/chat",
@@ -826,10 +901,12 @@ def test_non_streaming_chat_with_chat_history(
     validate_conversation(session_chat, user, conversation_id, 0)
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
     file1 = get_factory("File", session_chat).create(user_id=user.id)
     file2 = get_factory("File", session_chat).create(user_id=user.id)
@@ -861,10 +938,12 @@ def test_non_streaming_existing_chat_with_files_attaches_to_user_message(
     assert file2.id in message.file_ids
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_non_streaming_existing_chat_with_attached_files_does_not_attach(
-    session_client_chat: TestClient, session_chat: Session, user: User
-):
+    session_client_chat: TestClient,
+    session_chat: Session,
+    user: User,
+    mock_available_model_deployments: list[dict],
+) -> None:
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
     existing_message = get_factory("Message", session_chat).create(
         conversation_id=conversation.id, user_id=user.id, position=0, is_active=True
@@ -948,12 +1027,12 @@ def validate_chat_streaming_response(
     validate_conversation(session, user, conversation_id, expected_num_messages)
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 def test_streaming_chat_with_files(
     session_client_chat: TestClient,
     session_chat: Session,
     user: User,
-):
+    mock_available_model_deployments: list[dict],
+) -> None:
     # Create convo
     conversation = get_factory("Conversation", session_chat).create(user_id=user.id)
 
@@ -1011,10 +1090,10 @@ def validate_conversation(
     assert conversation.user_id == user.id
     assert len(conversation.messages) == expected_num_messages
     # Also test DB object
-    conversation = session.get(Conversation, (conversation_id, user.id))
-    assert conversation is not None
-    assert conversation.user_id == user.id
-    assert len(conversation.messages) == expected_num_messages
+    conversation_db = session.get(Conversation, (conversation_id, user.id))
+    assert conversation_db is not None
+    assert conversation_db.user_id == user.id
+    assert len(conversation_db.messages) == expected_num_messages
 
 
 def validate_stream_end_event(

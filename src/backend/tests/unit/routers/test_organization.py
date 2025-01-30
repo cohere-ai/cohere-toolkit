@@ -8,7 +8,7 @@ from backend.tests.unit.factories import get_factory
 
 def test_create_organization(session_client: TestClient, session: Session) -> None:
     organization = CreateOrganization(name="test organization")
-    response = session_client.post("/v1/organizations", json=organization.dict())
+    response = session_client.post("/v1/organizations", json=organization.model_dump())
     assert response.status_code == 200
     assert response.json()["name"] == organization.name
 
@@ -18,7 +18,7 @@ def test_create_organization_with_existing_name(
 ) -> None:
     get_factory("Organization", session).create(name="test organization")
     new_organization = CreateOrganization(name="test organization")
-    response = session_client.post("/v1/organizations", json=new_organization.dict())
+    response = session_client.post("/v1/organizations", json=new_organization.model_dump())
     assert response.status_code == 400
     assert response.json() == {
         "detail": "Organization with name: test organization already exists."
@@ -29,7 +29,7 @@ def test_update_organization(session_client: TestClient, session: Session) -> No
     organization = get_factory("Organization", session).create(name="test organization")
     new_organization = UpdateOrganization(name="new organization")
     response = session_client.put(
-        f"/v1/organizations/{organization.id}", json=new_organization.dict()
+        f"/v1/organizations/{organization.id}", json=new_organization.model_dump()
     )
     assert response.status_code == 200
     assert response.json()["name"] == new_organization.name
@@ -39,7 +39,7 @@ def test_update_not_existing_organization(
     session_client: TestClient, session: Session
 ) -> None:
     new_organization = UpdateOrganization(name="new organization")
-    response = session_client.put("/v1/organizations/123", json=new_organization.dict())
+    response = session_client.put("/v1/organizations/123", json=new_organization.model_dump())
     assert response.status_code == 404
     assert response.json() == {"detail": "Organization with ID: 123 not found."}
 

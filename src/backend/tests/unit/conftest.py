@@ -17,6 +17,7 @@ from backend.database_models import get_session
 from backend.database_models.base import CustomFilterQuery
 from backend.database_models.deployment import Deployment
 from backend.main import app, create_app
+from backend.schemas.chat import StreamEvent
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -222,22 +223,49 @@ def deployment(session: Session) -> Deployment:
     )
 
 @pytest.fixture
-def mock_available_model_deployments(request):
-    from backend.tests.unit.model_deployments.mock_deployments import (
-        MockAzureDeployment,
-        MockBedrockDeployment,
-        MockCohereDeployment,
-        MockSageMakerDeployment,
-        MockSingleContainerDeployment,
+def inject_events() -> list[dict]:
+    return []
+
+
+@pytest.fixture
+def mock_event_stream(inject_events: list[dict]) -> list[dict]:
+    events = [
+        {
+            "event_type": StreamEvent.STREAM_START,
+            "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
+        },
+    ]
+    if inject_events:
+        events.extend(inject_events)
+
+    events.extend([
+        {
+            "event_type": StreamEvent.TEXT_GENERATION,
+            "text": "This is a test.",
+        },
+        {
+            "event_type": StreamEvent.STREAM_END,
+            "response": {
+                "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
+                "citations": [],
+                "documents": [],
+                "search_results": [],
+                "search_queries": [],
+            },
+            "finish_reason": "COMPLETE",
+        }
+    ])
+    return events
+
+
+@pytest.fixture
+def mock_available_model_deployments(mock_event_stream: list[dict]):
+    from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
+        MockDeployment,
     )
 
-    MOCKED_DEPLOYMENTS = {
-        MockCohereDeployment.name(): MockCohereDeployment,
-        MockAzureDeployment.name(): MockAzureDeployment,
-        MockSageMakerDeployment.name(): MockSageMakerDeployment,
-        MockBedrockDeployment.name(): MockBedrockDeployment,
-        MockSingleContainerDeployment.name(): MockSingleContainerDeployment,
-    }
+    MockDeployment.event_stream = mock_event_stream
+    MOCKED_DEPLOYMENTS = { d.name(): d for d in MockDeployment.__subclasses__() }
 
     with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", MOCKED_DEPLOYMENTS) as mock:
         yield mock
