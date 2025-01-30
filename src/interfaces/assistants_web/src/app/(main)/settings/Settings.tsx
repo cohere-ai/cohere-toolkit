@@ -1,9 +1,19 @@
 'use client';
 
 import { PropsWithChildren, useState } from 'react';
+
 import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { MobileHeader } from '@/components/Global';
-import {Button, DarkModeToggle, Icon, IconName, ShowStepsToggle, Tabs, Text} from '@/components/UI';
+import {
+  Button,
+  DarkModeToggle,
+  Icon,
+  IconName,
+  ShowCitationsToggle,
+  ShowStepsToggle,
+  Tabs,
+  Text,
+} from '@/components/UI';
 import { TOOL_GITHUB_ID, TOOL_GMAIL_ID, TOOL_SLACK_ID } from '@/constants';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
@@ -78,6 +88,7 @@ const Advanced = () => (
   <Wrapper>
     <Text styleAs="h5" className="mb-6">Advanced</Text>
     <ShowStepsToggle />
+    <ShowCitationsToggle />
   </Wrapper>
 );
 
