@@ -15,6 +15,7 @@ Toolkit is a deployable all-in-one RAG application that enables users to quickly
   - [How to setup Google Drive](/docs/custom_tool_guides/google_drive.md)
   - [How to setup Gmail](/docs/custom_tool_guides/gmail.md)
   - [How to setup Slack Tool](/docs/custom_tool_guides/slack.md)
+  - [How to setup Github Tool](/docs/custom_tool_guides/github.md)
   - [How to setup Google Text-to-Speech](/docs/text_to_speech.md)
   - [How to add authentication](/docs/auth_guide.md)
   - [How to deploy toolkit services](/docs/service_deployments.md)

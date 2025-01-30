@@ -9,14 +9,14 @@ logger = LoggerFactory().get_logger()
 
 
 class GithubService:
-    def __init__(self, user_id: str, auth_token: str, default_repo: str, search_limit=SEARCH_LIMIT):
+    def __init__(self, user_id: str, auth_token: str, default_repos: list[str], search_limit=SEARCH_LIMIT):
         self.user_id = user_id
         self.auth_token = auth_token
         self.client = GithubClient(auth_token=auth_token, search_limit=search_limit)
         self.github_user = self.client.get_user()
         self.repositories = self.client.get_user_repositories(self.github_user)
-        if default_repo:
-            self.repositories = [repo for repo in self.repositories if repo.full_name == default_repo]
+        if default_repos:
+            self.repositories = [repo for repo in self.repositories if repo.full_name in default_repos]
 
 
     @staticmethod
@@ -49,7 +49,7 @@ class GithubService:
         return results
 
 
-def get_github_service(user_id: str, default_repo: str, search_limit=SEARCH_LIMIT) -> GithubService:
+def get_github_service(user_id: str, default_repos: list[str], search_limit=SEARCH_LIMIT) -> GithubService:
     github_auth = GithubAuth()
     session = next(get_session())
     if github_auth.is_auth_required(session, user_id=user_id):
@@ -64,7 +64,7 @@ def get_github_service(user_id: str, default_repo: str, search_limit=SEARCH_LIMI
         session.close()
         raise Exception("Github Tool Error: No credentials found")
 
-    service = GithubService(user_id=user_id, auth_token=auth_token, default_repo=default_repo, search_limit=search_limit)
+    service = GithubService(user_id=user_id, auth_token=auth_token, default_repos=default_repos, search_limit=search_limit)
     session.close()
     return service
 

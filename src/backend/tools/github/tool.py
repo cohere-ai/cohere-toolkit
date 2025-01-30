@@ -19,7 +19,7 @@ class GithubTool(BaseTool):
     ID = GITHUB_TOOL_ID
     CLIENT_ID = Settings().get('tools.github.client_id')
     CLIENT_SECRET = Settings().get('tools.github.client_secret')
-    DEFAULT_REPO = Settings().get('tools.github.default_repo')
+    DEFAULT_REPOS = Settings().get('tools.github.default_repos')
 
     @classmethod
     def is_available(cls) -> bool:
@@ -67,7 +67,7 @@ class GithubTool(BaseTool):
         query = parameters.get("query", "")
 
         # Search Slack
-        github_service = get_github_service(user_id=user_id, default_repo=self.DEFAULT_REPO, search_limit=SEARCH_LIMIT)
+        github_service = get_github_service(user_id=user_id, default_repos=self.DEFAULT_REPOS, search_limit=SEARCH_LIMIT)
         try:
             all_results = github_service.search(query=query)
             results = github_service.transform_response(all_results)

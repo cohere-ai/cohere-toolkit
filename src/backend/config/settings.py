@@ -191,7 +191,7 @@ class SlackSettings(BaseSettings, BaseModel):
         default=None,
         validation_alias=AliasChoices("SLACK_CLIENT_SECRET", "client_secret"),
     )
-    user_scopes: Optional[str] = Field(
+    user_scopes: Optional[List[str]] = Field(
         default=None,
         validation_alias=AliasChoices(
             "SLACK_USER_SCOPES", "scopes"
@@ -209,16 +209,16 @@ class GithubSettings(BaseSettings, BaseModel):
         default=None,
         validation_alias=AliasChoices("GITHUB_CLIENT_SECRET", "client_secret"),
     )
-    user_scopes: Optional[str] = Field(
+    user_scopes: Optional[List[str]] = Field(
         default=None,
         validation_alias=AliasChoices(
             "GITHUB_USER_SCOPES", "user_scopes"
         ),
     )
-    default_repo: Optional[str] = Field(
+    default_repos: Optional[List[str]] = Field(
         default=None,
         validation_alias=AliasChoices(
-            "GITHUB_DEFAULT_REPO", "default_repo"
+            "GITHUB_DEFAULT_REPOS", "default_repos"
         ),
     )
 
