@@ -7,7 +7,7 @@ To set up the Github tool you will need a Github application. Follow the steps b
 Head to the [Github Settings](https://github.com/settings/apps) and create a new app.
 Specify App [permissions](https://docs.github.com/rest/overview/permissions-required-for-github-apps), Callback URL (for local setup - http://localhost:8000/v1/tool/auth).
 Uncheck the `Webhook->Active` option. After creating the app, you will see the `General` section. Copy the `Client ID`, generate and copy `Client Secret` values.
-That will be used for the environment variables specified above.
+That will be used for the environment variables specified below.
 This tool also support OAuth Apps. See the [documentation](https://docs.github.com/en/apps/oauth-apps) for more information.
 
 ## 2. Set Up Environment Variables
