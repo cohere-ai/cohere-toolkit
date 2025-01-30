@@ -99,7 +99,10 @@ class SharepointTool(BaseTool):
             logger.error(event=f"[Sharepoint] Search error: {error_message}")
             raise  Exception(error_message)
 
-        return body["value"][0]["hitsContainers"]
+        if not body.get("value"):
+            return []
+
+        return body["value"][0].get("hitsContainers", [])
 
     def get_drive_item_content(self, parent_drive_id: str, resource_id: str) -> bytes|None:
         response = requests.get(
@@ -130,7 +133,9 @@ class SharepointTool(BaseTool):
         return drive_items
 
 
-    async def call(self, parameters: dict, ctx: Context, **kwargs: Any) -> list[dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         user_id = str(kwargs.get("user_id"))
         self._prepare_auth(user_id)
         query = parameters.get("query", "").replace("'", "\\'")
@@ -154,5 +159,9 @@ class SharepointTool(BaseTool):
                 "text": content,
             })
             results.append(result)
+
+        if not results:
+            logger.info(event="[Sharepoint] No documents found.")
+            return self.get_no_results_error()
 
         return results

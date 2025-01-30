@@ -1,7 +1,8 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
@@ -44,7 +45,7 @@ class GmailTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Returns a list of relevant email snippets from Gmail.",
-        )
+        ) # type: ignore
 
     @classmethod
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
@@ -62,7 +63,9 @@ class GmailTool(BaseTool):
         )
         raise Exception(message)
 
-    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         user_id = kwargs.get("user_id", "")
         query = parameters.get("query", "")
 
@@ -70,4 +73,8 @@ class GmailTool(BaseTool):
         results = gmail_service.search_all(query=query)
         message_ids = [message["id"] for message in results["messages"]] if "messages" in results else []
         messages = gmail_service.retrieve_messages(message_ids)
+
+        if not messages:
+            return self.get_no_results_error()
+
         return gmail_service.serialize_results(messages)

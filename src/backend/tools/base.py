@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from enum import StrEnum
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 from fastapi import Request
@@ -11,6 +11,7 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.utils.tools_checkers import check_tool_parameters
@@ -157,20 +158,22 @@ class BaseTool(metaclass=ParametersValidationMeta):
         ...
 
     @classmethod
-    def get_tool_error(cls, details: str, text: str = "Error calling tool", error_type: ToolErrorCode = ToolErrorCode.OTHER):
+    def get_tool_error(
+        cls, details: str, text: str = "Error calling tool", error_type: ToolErrorCode = ToolErrorCode.OTHER,
+    ) -> list[dict[str, str]]:
         tool_error = ToolError(text=f"{text} {cls.ID}.", details=details, type=error_type).model_dump()
         logger.error(event=f"Error calling tool {cls.ID}", error=tool_error)
         return [tool_error]
 
     @classmethod
-    def get_no_results_error(cls):
+    def get_no_results_error(cls) -> list[dict[str, str]]:
         tool_error = ToolError(text="No results found.", details="No results found for the given params.").model_dump()
         return [tool_error]
 
     @abstractmethod
     async def call(
-            self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         ...
 
     @classmethod
