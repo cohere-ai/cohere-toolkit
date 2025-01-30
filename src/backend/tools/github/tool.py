@@ -1,10 +1,10 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseTool
+from backend.tools.base import BaseTool, ToolError
 from backend.tools.github.auth import GithubAuth
 from backend.tools.github.constants import GITHUB_TOOL_ID, SEARCH_LIMIT
 from backend.tools.github.utils import get_github_service
@@ -45,7 +45,7 @@ class GithubTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Returns a list of relevant document snippets from Github.",
-        )
+        ) # type: ignore
 
     @classmethod
     def _handle_tool_specific_errors(cls, error: Exception, **kwargs: Any) -> None:
@@ -63,12 +63,13 @@ class GithubTool(BaseTool):
         )
         raise Exception(message)
 
-    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> Union[List[Dict[str, Any]], ToolError]:
         user_id = kwargs.get("user_id", "")
         query = parameters.get("query", "")
 
         # Search Slack
-        github_service = get_github_service(user_id=user_id, default_repos=self.DEFAULT_REPOS, search_limit=SEARCH_LIMIT)
+        github_service = get_github_service(user_id=user_id, default_repos=self.DEFAULT_REPOS,
+                                            search_limit=SEARCH_LIMIT)
         try:
             all_results = github_service.search(query=query)
             results = github_service.transform_response(all_results)
@@ -79,4 +80,3 @@ class GithubTool(BaseTool):
             return self.get_no_results_error()
 
         return results
-

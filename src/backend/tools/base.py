@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from enum import StrEnum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import requests
 from fastapi import Request
@@ -169,7 +169,7 @@ class BaseTool(metaclass=ParametersValidationMeta):
     @abstractmethod
     async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+    ) -> Union[List[Dict[str, Any]], ToolError]:
         ...
 
     @classmethod
