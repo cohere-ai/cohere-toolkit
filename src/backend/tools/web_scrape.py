@@ -1,8 +1,9 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import aiohttp
 from bs4 import BeautifulSoup
 
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.services.utils import read_pdf
@@ -42,12 +43,12 @@ class WebScrapeTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Scrape and returns the textual contents of a webpage as a list of passages for a given url.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
-        url = parameters.get("url")
+        self, parameters: dict, ctx: Context, **kwargs: Any
+    ) -> list[dict[str, Any]]:
+        url = parameters.get("url", "")
 
         async with aiohttp.ClientSession(timeout=ASYNC_TIMEOUT) as session:
             try:
@@ -75,7 +76,7 @@ class WebScrapeTool(BaseTool):
                 }]
 
     async def handle_response(self, response: aiohttp.ClientResponse, url: str):
-        content_type = response.headers.get("content-type")
+        content_type = response.headers.get("content-type", "")
         results = []
 
         # If URL is a PDF, read contents using helper function

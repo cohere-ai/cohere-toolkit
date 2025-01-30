@@ -1,10 +1,11 @@
 import json
-from typing import Any, Dict, Mapping
+from typing import Any, Mapping
 
 import requests
 from dotenv import load_dotenv
 
 from backend.config.settings import Settings
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
@@ -50,9 +51,11 @@ class PythonInterpreter(BaseTool):
                 "in a static sandbox without internet access and without interactive mode, "
                 "so print output or save output to a file."
             ),
-        )
+        ) # type: ignore
 
-    async def call(self, parameters: dict, ctx: Any, **kwargs: Any):
+    async def call(
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         if not self.INTERPRETER_URL:
             raise Exception("Python Interpreter tool called while URL not set")
 
@@ -68,7 +71,7 @@ class PythonInterpreter(BaseTool):
 
         return clean_res
 
-    def _clean_response(self, result: Any) -> Dict[str, str]:
+    def _clean_response(self, result: Any) -> list[dict[str, str]]:
         if "final_expression" in result:
             result["final_expression"] = str(result["final_expression"])
 

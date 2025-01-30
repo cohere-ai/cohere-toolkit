@@ -1,9 +1,10 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from google.auth.exceptions import RefreshError
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
@@ -53,7 +54,7 @@ class GoogleDrive(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Returns a list of relevant document snippets from the user's Google drive.",
-        )
+        ) # type: ignore
 
     def _handle_tool_specific_errors(self, error: Exception, **kwargs: Any):
         message = "[Google Drive] Tool Error: {}".format(str(error))
@@ -70,8 +71,10 @@ class GoogleDrive(BaseTool):
         )
         raise Exception(message)
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
-        user_id = kwargs.get("user_id")
+    async def call(
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
+        user_id = kwargs.get("user_id", "")
         query = parameters.get("query", "").replace("'", "\\'")
 
         # Search Google Drive
@@ -92,7 +95,7 @@ class GoogleDrive(BaseTool):
 
 
 async def _default_gdrive_list_files(
-    user_id: str, query: str, agent_tool_metadata: Dict[str, str]
+    user_id: str, query: str, agent_tool_metadata: dict[str, str]
 ):
     from backend.tools.google_drive.constants import (
         DOC_FIELDS,

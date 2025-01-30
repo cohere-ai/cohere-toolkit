@@ -1,9 +1,9 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from tavily import TavilyClient
 
 from backend.config.settings import Settings
-from backend.database_models.database import DBSessionDep
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool, ToolArgument
 
@@ -37,11 +37,11 @@ class TavilyWebSearch(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.WebSearch,
             description="Returns a list of relevant document snippets for a textual query retrieved from the internet.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         logger = ctx.get_logger()
         # Gather search parameters
         query = parameters.get("query", "")

@@ -1,7 +1,8 @@
 from enum import StrEnum
-from typing import Any, Dict, List
+from typing import Any
 
 import backend.crud.file as file_crud
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
@@ -43,16 +44,19 @@ class ReadFileTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.FileLoader,
             description="Returns the chunked textual contents of an uploaded file.",
-        )
+        ) # type: ignore
 
+    @classmethod
     def get_info(cls) -> ToolDefinition:
         return ToolDefinition(
             display_name="Calculator",
             description="A powerful multi-purpose calculator capable of a wide array of math calculations.",
             error_message=cls.generate_error_message(),
-        )
+        ) # type: ignore
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         file = parameters.get("file")
 
         session = kwargs.get("session")
@@ -113,11 +117,11 @@ class SearchFileTool(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.FileLoader,
             description="Searches across one or more attached files based on a textual search query.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         query = parameters.get("search_query")
         files = parameters.get("files")
 

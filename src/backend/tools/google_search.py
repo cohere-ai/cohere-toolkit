@@ -1,9 +1,9 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from googleapiclient.discovery import build
 
 from backend.config.settings import Settings
-from backend.database_models.database import DBSessionDep
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool, ToolArgument
 
@@ -38,11 +38,11 @@ class GoogleWebSearch(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.WebSearch,
             description="Returns relevant results by performing a Google web search.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         query = parameters.get("query", "")
         cse = self.client.cse()
 

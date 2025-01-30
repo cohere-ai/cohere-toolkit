@@ -1,7 +1,8 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from py_expression_eval import Parser
 
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
@@ -35,11 +36,11 @@ class Calculator(BaseTool):
             category=ToolCategory.Function,
             error_message=cls.generate_error_message(),
             description="A powerful multi-purpose calculator capable of a wide array of math calculations.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any
+    ) -> list[dict[str, Any]]:
         logger = ctx.get_logger()
 
         math_parser = Parser()

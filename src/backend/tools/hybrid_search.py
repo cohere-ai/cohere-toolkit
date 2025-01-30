@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List
 from backend.config.settings import Settings
 from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool, ToolArgument
 from backend.tools.brave_search.tool import BraveWebSearch
@@ -60,7 +61,7 @@ class HybridWebSearch(BaseTool):
                 "Returns a list of relevant document snippets for a textual query "
                 "retrieved from the internet using a mix of any existing Web Search tools."
             )
-        )
+        ) # type: ignore
 
     @classmethod
     def get_available_search_tools(cls):
@@ -90,8 +91,8 @@ class HybridWebSearch(BaseTool):
         return tasks
 
     async def call(
-        self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, session: DBSessionDep, **kwargs: Any
+    ) -> list[dict[str, Any]]:
         # Retrieve query for reranking
         query = parameters.get("query", "")
 
