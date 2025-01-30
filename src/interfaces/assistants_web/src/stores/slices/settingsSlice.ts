@@ -5,6 +5,7 @@ const INITIAL_STATE = {
   isLeftPanelOpen: true,
   isRightPanelOpen: false,
   showSteps: true,
+  showCitations: true,
   isHotKeysDialogOpen: false,
 };
 
@@ -13,6 +14,7 @@ type State = {
   isLeftPanelOpen: boolean;
   isRightPanelOpen: boolean;
   showSteps: boolean;
+  showCitations: boolean;
   isHotKeysDialogOpen: boolean;
 };
 
@@ -21,6 +23,7 @@ type Actions = {
   setLeftPanelOpen: (isOpen: boolean) => void;
   setRightPanelOpen: (isOpen: boolean) => void;
   setShowSteps: (showSteps: boolean) => void;
+  setShowCitations: (showCitations: boolean) => void;
   setIsHotKeysDialogOpen: (isOpen: boolean) => void;
 };
 
@@ -51,6 +54,12 @@ export const createSettingsSlice: StateCreator<SettingsStore, [], [], SettingsSt
     set((state) => ({
       ...state,
       showSteps: showSteps,
+    }));
+  },
+  setShowCitations(showCitations: boolean) {
+    set((state) => ({
+      ...state,
+      showCitations: showCitations,
     }));
   },
   setIsHotKeysDialogOpen(isOpen: boolean) {
