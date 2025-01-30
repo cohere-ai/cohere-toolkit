@@ -164,12 +164,13 @@ class BaseTool(metaclass=ParametersValidationMeta):
 
     @classmethod
     def get_no_results_error(cls):
-        return ToolError(text="No results found.", details="No results found for the given params.")
+        tool_error = ToolError(text="No results found.", details="No results found for the given params.").model_dump()
+        return [tool_error]
 
     @abstractmethod
     async def call(
             self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> Union[List[Dict[str, Any]], ToolError]:
+    ) -> List[Dict[str, Any]]:
         ...
 
     @classmethod

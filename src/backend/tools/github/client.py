@@ -1,8 +1,10 @@
 from github import Auth, Github
 
+from backend.tools.github.constants import SEARCH_LIMIT
+
 
 class GithubClient:
-    def __init__(self, auth_token, search_limit=20):
+    def __init__(self, auth_token, search_limit=SEARCH_LIMIT):
         auth = Auth.Token(auth_token)
         self.client = Github(auth=auth, per_page=search_limit)
 

@@ -63,10 +63,6 @@ async def rerank_and_chunk(
 
         chunked_outputs = []
         for output in tool_result["outputs"]:
-            if isinstance(output, ToolError):
-                reranked_results[tool_call_hashable] = tool_result
-                continue
-
             text = output.get("text")
 
             if not text:
