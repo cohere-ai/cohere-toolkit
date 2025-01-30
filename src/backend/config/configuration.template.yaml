@@ -37,6 +37,12 @@ tools:
   slack:
     user_scopes:
       - search:read
+  github:
+    user_scopes:
+      - public_repo
+    default_repos:
+      - cohere-ai/cohere-toolkit
+      - EugeneLightsOn/cohere-toolkit
   # To disable the use of the tools preamble, set it to false
   use_tools_preamble: true
 feature_flags:

@@ -63,6 +63,7 @@ import {
   Warning,
   Web,
 } from '@/assets/icons';
+import { Github } from '@/assets/icons/Github';
 import { cn } from '@/utils';
 
 export const IconList = [
@@ -128,6 +129,7 @@ export const IconList = [
   'web',
   'slack',
   'gmail',
+  'github',
 ] as const;
 
 export type IconName = (typeof IconList)[number];
@@ -480,6 +482,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
     ['gmail']: (
       <AccessibleIcon label="Gmail">
         <Gmail />
+      </AccessibleIcon>
+    ),
+    ['github']: (
+      <AccessibleIcon label="Github">
+        <Github />
       </AccessibleIcon>
     ),
     ['hot-keys']: (

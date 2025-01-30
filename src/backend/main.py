@@ -83,9 +83,10 @@ def create_app() -> FastAPI:
     # Dynamically set router dependencies
     # These values must be set in config/routers.py
     dependencies_type = "default"
+    settings = Settings()
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
-        auth_secret = Settings().get('auth.secret_key')
+        auth_secret = settings.get('auth.secret_key')
         app.add_middleware(SessionMiddleware, secret_key=auth_secret)
         dependencies_type = "auth"
     for router in routers:
