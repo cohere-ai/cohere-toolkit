@@ -41,6 +41,7 @@ class GithubTool(BaseTool):
             is_visible=True,
             is_available=cls.is_available(),
             auth_implementation=GithubAuth,
+            should_return_token=False,
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Returns a list of relevant document snippets from Github.",
