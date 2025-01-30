@@ -1,4 +1,3 @@
-import os
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -7,11 +6,6 @@ from langchain_core.documents.base import Document
 from backend.services.context import Context
 from backend.tools import LangChainVectorDBRetriever, LangChainWikiRetriever
 from backend.tools.base import ToolError, ToolErrorCode
-
-is_cohere_env_set = (
-    os.environ.get("COHERE_API_KEY") is not None
-    and os.environ.get("COHERE_API_KEY") != ""
-)
 
 
 @pytest.mark.asyncio
@@ -62,7 +56,6 @@ async def test_wiki_retriever() -> None:
     assert result == expected_docs
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_wiki_retriever_no_docs() -> None:
     ctx = Context()
@@ -83,7 +76,6 @@ async def test_wiki_retriever_no_docs() -> None:
 
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_vector_db_retriever() -> None:
     ctx = Context()
@@ -145,7 +137,6 @@ async def test_vector_db_retriever() -> None:
     assert result == expected_docs
 
 
-@pytest.mark.skipif(not is_cohere_env_set, reason="Cohere API key not set")
 @pytest.mark.asyncio
 async def test_vector_db_retriever_no_docs() -> None:
     ctx = Context()

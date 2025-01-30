@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator
 
 import cohere
 
@@ -42,12 +42,12 @@ class BedrockDeployment(BaseDeployment):
             ),
         )
 
-    @classmethod
-    def name(cls) -> str:
+    @staticmethod
+    def name() -> str:
         return "Bedrock"
 
-    @classmethod
-    def env_vars(cls) -> List[str]:
+    @staticmethod
+    def env_vars() -> list[str]:
         return [
             BEDROCK_ACCESS_KEY_ENV_VAR,
             BEDROCK_SECRET_KEY_ENV_VAR,
@@ -55,19 +55,19 @@ class BedrockDeployment(BaseDeployment):
             BEDROCK_REGION_NAME_ENV_VAR,
         ]
 
-    @classmethod
-    def rerank_enabled(cls) -> bool:
+    @staticmethod
+    def rerank_enabled() -> bool:
         return False
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         if not cls.is_available():
             return []
 
         return cls.DEFAULT_MODELS
 
-    @classmethod
-    def is_available(cls) -> bool:
+    @staticmethod
+    def is_available() -> bool:
         return (
             BedrockDeployment.access_key is not None
             and BedrockDeployment.secret_access_key is not None
@@ -75,7 +75,7 @@ class BedrockDeployment(BaseDeployment):
             and BedrockDeployment.region_name is not None
         )
 
-    async def invoke_chat(self, chat_request: CohereChatRequest) -> Any:
+    async def invoke_chat(self, chat_request: CohereChatRequest, **kwargs: Any) -> Any:
         # bedrock accepts a subset of the chat request fields
         bedrock_chat_req = chat_request.model_dump(
             exclude={"tools", "conversation_id", "model", "stream"}, exclude_none=True
@@ -101,6 +101,6 @@ class BedrockDeployment(BaseDeployment):
             yield to_dict(event)
 
     async def invoke_rerank(
-        self, query: str, documents: List[Dict[str, Any]], ctx: Context
+        self, query: str, documents: list[str], ctx: Context, **kwargs: Any
     ) -> Any:
         return None

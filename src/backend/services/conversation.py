@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import HTTPException
 
@@ -142,7 +142,7 @@ def get_messages_with_files(
     return messages_with_file
 
 
-def get_documents_to_rerank(conversations: List[Conversation]) -> List[str]:
+def get_documents_to_rerank(conversations: list[Conversation]) -> list[str]:
     """Get documents (strings) to rerank from a list of conversations
 
     Args:
@@ -166,22 +166,22 @@ def get_documents_to_rerank(conversations: List[Conversation]) -> List[str]:
 
 async def filter_conversations(
     query: str,
-    conversations: List[Conversation],
-    rerank_documents: List[str],
+    conversations: list[Conversation],
+    rerank_documents: list[str],
     model_deployment: BaseDeployment,
     ctx: Context,
-) -> List[Conversation]:
+) -> list[Conversation]:
     """Filter conversations based on the rerank score
 
     Args:
         query (str): The query to filter conversations
-        conversations (List[Conversation]): List of conversations
-        rerank_documents (List[str]): List of documents to rerank
+        conversations (list[Conversation]): List of conversations
+        rerank_documents (list[str]): List of documents to rerank
         model_deployment: Model deployment object
         ctx (Context): Context object
 
     Returns:
-        List[Conversation]: List of filtered conversations
+        list[Conversation]: List of filtered conversations
     """
     # if rerank is not enabled, filter out conversations that don't contain the query
     if not model_deployment.rerank_enabled():

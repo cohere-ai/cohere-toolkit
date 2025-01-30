@@ -14,6 +14,7 @@ from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
 from backend.database_models.model import Model
 from backend.main import app, create_app
+from backend.schemas.chat import StreamEvent
 from backend.schemas.organization import Organization
 from backend.schemas.user import User
 from backend.tests.unit.factories import get_factory
@@ -22,7 +23,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@lo
 
 
 @pytest.fixture
-def client():
+def client() -> Generator[TestClient, None, None]:
     yield TestClient(app)
 
 
@@ -172,26 +173,59 @@ def agent(session: Session) -> Agent:
     return get_factory("Agent", session).create()
 
 
+
 @pytest.fixture
-def mock_available_model_deployments(request):
-    from backend.tests.unit.model_deployments.mock_deployments import (
-        MockAzureDeployment,
-        MockBedrockDeployment,
-        MockCohereDeployment,
-        MockSageMakerDeployment,
+def inject_events() -> list[dict]:
+    return []
+
+
+@pytest.fixture
+def mock_event_stream(inject_events: list[dict]) -> list[dict]:
+    events = [
+        {
+            "event_type": StreamEvent.STREAM_START,
+            "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
+        },
+    ]
+    if inject_events:
+        events.extend(inject_events)
+
+    events.extend([
+        {
+            "event_type": StreamEvent.TEXT_GENERATION,
+            "text": "This is a test.",
+        },
+        {
+            "event_type": StreamEvent.STREAM_END,
+            "response": {
+                "generation_id": "ca0f398e-f8c8-48f0-b093-12d1754d00ed",
+                "citations": [],
+                "documents": [],
+                "search_results": [],
+                "search_queries": [],
+            },
+            "finish_reason": "COMPLETE",
+        }
+    ])
+    return events
+
+
+@pytest.fixture
+def mock_available_model_deployments(mock_event_stream: list[dict]):
+    from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
+        MockDeployment,
     )
 
-    MOCKED_DEPLOYMENTS = {
-        MockCohereDeployment.name(): MockCohereDeployment,
-        MockAzureDeployment.name(): MockAzureDeployment,
-        MockSageMakerDeployment.name(): MockSageMakerDeployment,
-        MockBedrockDeployment.name(): MockBedrockDeployment,
-    }
+    MockDeployment.event_stream = mock_event_stream
+    MOCKED_DEPLOYMENTS = { d.name(): d for d in MockDeployment.__subclasses__() }
 
     with patch("backend.services.deployment.AVAILABLE_MODEL_DEPLOYMENTS", MOCKED_DEPLOYMENTS) as mock:
         yield mock
 
 @pytest.fixture
 def mock_cohere_list_models():
-    with patch("backend.model_deployments.cohere_platform.CohereDeployment.list_models", return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]) as mock:
+    with patch(
+        "backend.model_deployments.cohere_platform.CohereDeployment.list_models",
+        return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]
+    ) as mock:
         yield mock

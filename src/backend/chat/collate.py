@@ -60,7 +60,7 @@ async def rerank_and_chunk(
             reranked_results[tool_call_hashable] = tool_result
             continue
 
-        chunked_outputs = []
+        chunked_outputs: list[dict[str, Any]] = []
         for output in tool_result["outputs"]:
             text = output.get("text")
 
@@ -78,7 +78,7 @@ async def rerank_and_chunk(
 
         res = await model.invoke_rerank(
             query=query,
-            documents=chunked_outputs,
+            documents=[output["text"] for output in chunked_outputs],
             ctx=ctx,
         )
 
@@ -102,7 +102,12 @@ async def rerank_and_chunk(
     return list(reranked_results.values())
 
 
-def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=300):
+def chunk(
+    content: str,
+    compact_mode: bool = False,
+    soft_word_cut_off: int = 100,
+    hard_word_cut_off: int = 300,
+) -> list[str]:
     if compact_mode:
         content = content.replace("\n", " ")
 
@@ -139,7 +144,7 @@ def chunk(content, compact_mode=False, soft_word_cut_off=100, hard_word_cut_off=
     return chunks
 
 
-def to_dict(obj):
+def to_dict(obj) -> dict:
     return json.loads(
         json.dumps(
             obj, default=lambda o: o.__dict__ if hasattr(o, "__dict__") else str(o)

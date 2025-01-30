@@ -1,5 +1,6 @@
 import inquirer
 
+from backend.model_deployments.base import BaseDeployment
 from backend.scripts.cli.constants import (
     DATABASE_URL_DEFAULT,
     FRONTEND_HOSTNAME_DEFAULT,
@@ -144,7 +145,7 @@ def update_variable_prompt(_, variables_to_update):
         )
 
 
-def select_deployments_prompt(deployments, _):
+def select_deployments_prompt(deployments: dict[str, type[BaseDeployment]], _):
     print_styled("🚀 Let's set up your model deployments.", bcolors.MAGENTA)
 
     deployments = inquirer.checkbox(
