@@ -126,7 +126,7 @@ class SearchFileTool(BaseTool):
         files = parameters.get("files")
 
         session = kwargs.get("session")
-        user_id = kwargs.get("user_id")
+        user_id = kwargs.get("user_id", "")
 
         if not query or not files:
             return self.get_tool_error(

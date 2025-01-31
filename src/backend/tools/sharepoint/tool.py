@@ -136,7 +136,7 @@ class SharepointTool(BaseTool):
     async def call(
         self, parameters: dict, ctx: Context, **kwargs: Any,
     ) -> list[dict[str, Any]]:
-        user_id = str(kwargs.get("user_id"))
+        user_id = str(kwargs.get("user_id", ""))
         self._prepare_auth(user_id)
         query = parameters.get("query", "").replace("'", "\\'")
         search_response = self.search(query)

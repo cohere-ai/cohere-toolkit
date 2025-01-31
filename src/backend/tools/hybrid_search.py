@@ -3,7 +3,6 @@ import itertools
 from typing import Any, Callable, Dict, List
 
 from backend.config.settings import Settings
-from backend.database_models.database import DBSessionDep
 from backend.model_deployments.base import BaseDeployment
 from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
@@ -75,13 +74,13 @@ class HybridWebSearch(BaseTool):
         return available_search_tools
 
     def _gather_search_tasks(
-        self, parameters: dict, ctx: Any, session: DBSessionDep, **kwargs: Any
+        self, parameters: dict, ctx: Any, **kwargs: Any
     ) -> List[Callable]:
         tasks = []
 
         # Add search tool calls
         for search_tool in self.search_tools:
-            tasks.append(search_tool.call(parameters, ctx, session, **kwargs))
+            tasks.append(search_tool.call(parameters, ctx, **kwargs))
 
         # Add web scrape tool calls
         filtered_sites = kwargs.get(ToolArgument.SITE_FILTER, [])
@@ -91,7 +90,7 @@ class HybridWebSearch(BaseTool):
         return tasks
 
     async def call(
-        self, parameters: dict, ctx: Context, session: DBSessionDep, **kwargs: Any
+        self, parameters: dict, ctx: Context, **kwargs: Any
     ) -> list[dict[str, Any]]:
         # Retrieve query for reranking
         query = parameters.get("query", "")
@@ -101,7 +100,7 @@ class HybridWebSearch(BaseTool):
         # Handle site filtering -> perform web scraping on sites
         kwargs[ToolArgument.SITE_FILTER] = self.SITE_FILTER
 
-        tasks = self._gather_search_tasks(parameters, ctx, session, **kwargs)
+        tasks = self._gather_search_tasks(parameters, ctx, **kwargs)
 
         # Gather and run searches
         results = await asyncio.gather(*tasks)
