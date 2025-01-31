@@ -1,6 +1,7 @@
 from backend.tools.brave_search import BraveWebSearch
 from backend.tools.calculator import Calculator
 from backend.tools.files import ReadFileTool, SearchFileTool
+from backend.tools.github import GithubAuth, GithubTool
 from backend.tools.gmail import GmailAuth, GmailTool
 from backend.tools.google_drive import GoogleDrive, GoogleDriveAuth
 from backend.tools.google_search import GoogleWebSearch
@@ -32,4 +33,6 @@ __all__ = [
     "GmailAuth",
     "SharepointTool",
     "SharepointAuth",
+    "GithubTool",
+    "GithubAuth",
 ]
