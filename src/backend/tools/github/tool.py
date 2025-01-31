@@ -1,10 +1,10 @@
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
-from backend.tools.base import BaseTool, ToolError
+from backend.tools.base import BaseTool
 from backend.tools.github.auth import GithubAuth
 from backend.tools.github.constants import GITHUB_TOOL_ID, SEARCH_LIMIT
 from backend.tools.github.utils import get_github_service
@@ -63,7 +63,7 @@ class GithubTool(BaseTool):
         )
         raise Exception(message)
 
-    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> Union[List[Dict[str, Any]], ToolError]:
+    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> list[dict[str, Any]]:
         user_id = kwargs.get("user_id", "")
         query = parameters.get("query", "")
 
