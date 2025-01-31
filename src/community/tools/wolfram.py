@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 
@@ -39,7 +39,7 @@ class WolframAlpha(BaseTool):
             description="Evaluate arithmetic expressions using Wolfram Alpha.",
         )
 
-    async def call(self, parameters: dict, **kwargs: Any) -> List[Dict[str, Any]]:
+    async def call(self, parameters: dict, **kwargs: Any) -> list[dict[str, Any]]:
         to_evaluate = parameters.get("expression", "")
         try:
             result = self.tool.run(to_evaluate)
@@ -49,4 +49,4 @@ class WolframAlpha(BaseTool):
         if not result:
             return self.get_no_results_error()
 
-        return {"result": result, "text": result}
+        return [{"result": result, "text": result}]

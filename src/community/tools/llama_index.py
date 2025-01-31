@@ -7,6 +7,7 @@ from llama_index.embeddings.cohere import CohereEmbedding
 
 import backend.crud.file as file_crud
 from backend.config import Settings
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
@@ -74,7 +75,7 @@ class LlamaIndexUploadPDFRetriever(BaseTool):
         )
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
+        self, parameters: dict, ctx: Context, **kwargs: Any
     ) -> List[Dict[str, Any]]:
         query = parameters.get("query")
         files = parameters.get("files")
