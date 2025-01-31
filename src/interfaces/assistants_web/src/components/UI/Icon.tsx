@@ -47,6 +47,7 @@ import {
   Search,
   Setttings,
   Share,
+  Sharepoint,
   Show,
   SignOut,
   Slack,
@@ -130,6 +131,7 @@ export const IconList = [
   'slack',
   'gmail',
   'github',
+  'sharepoint',
 ] as const;
 
 export type IconName = (typeof IconList)[number];
@@ -487,6 +489,11 @@ const getIcon = (name: IconName, kind: IconKind): React.ReactNode => {
     ['github']: (
       <AccessibleIcon label="Github">
         <Github />
+      </AccessibleIcon>
+    ),
+    ['sharepoint']: (
+      <AccessibleIcon label="Sharepoint">
+        <Sharepoint />
       </AccessibleIcon>
     ),
     ['hot-keys']: (

@@ -14,7 +14,7 @@ import {
   Tabs,
   Text,
 } from '@/components/UI';
-import { TOOL_GITHUB_ID, TOOL_GMAIL_ID, TOOL_SLACK_ID } from '@/constants';
+import { TOOL_GITHUB_ID, TOOL_GMAIL_ID, TOOL_SHAREPOINT_ID, TOOL_SLACK_ID } from '@/constants';
 import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
 import { cn, getToolAuthUrl } from '@/utils';
 
@@ -25,7 +25,7 @@ const tabs: { key: string; icon: IconName; label: string }[] = [
   { key: 'profile', icon: 'profile', label: 'Profile' },
 ];
 
-const Settings = () => {
+export const Settings: React.FC = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -83,6 +83,7 @@ const Connections = () => (
       <SlackConnection />
       <GmailConnection />
       <GithubConnection />
+      <SharepointConnection />
     </div>
   </Wrapper>
 );
@@ -234,4 +235,12 @@ const GithubConnection = () => (
   />
 );
 
-export { Settings };
+const SharepointConnection = () => (
+  <ConnectionComponent
+    toolId={TOOL_SHAREPOINT_ID}
+    toolName="Sharepoint"
+    iconName="sharepoint"
+    description="Connect to Sharepoint"
+    showSyncButton={false}
+  />
+);

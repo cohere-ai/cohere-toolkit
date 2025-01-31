@@ -14,6 +14,7 @@ from backend.tools import (
     PythonInterpreter,
     ReadFileTool,
     SearchFileTool,
+    SharepointTool,
     SlackTool,
     TavilyWebSearch,
     WebScrapeTool,
@@ -40,6 +41,7 @@ class Tool(Enum):
     Slack = SlackTool
     Gmail = GmailTool
     Github = GithubTool
+    Sharepoint = SharepointTool
 
 
 def get_available_tools() -> dict[str, ToolDefinition]:

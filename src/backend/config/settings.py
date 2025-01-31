@@ -271,6 +271,22 @@ class HybridWebSearchSettings(BaseSettings, BaseModel):
     site_filters: Optional[List[str]] = []
 
 
+class SharepointSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    tenant_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("SHAREPOINT_TENANT_ID", "tenant_id"),
+    )
+    client_id: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("SHAREPOINT_CLIENT_ID", "client_id"),
+    )
+    client_secret: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("SHAREPOINT_CLIENT_SECRET", "client_secret"),
+    )
+
+
 class ToolSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
 
@@ -301,6 +317,9 @@ class ToolSettings(BaseSettings, BaseModel):
     )
     gmail: Optional[GmailSettings] = Field(
         default=GmailSettings()
+    )
+    sharepoint: Optional[SharepointSettings] = Field(
+        default=SharepointSettings()
     )
     use_tools_preamble: Optional[bool] = Field(
         default=False,

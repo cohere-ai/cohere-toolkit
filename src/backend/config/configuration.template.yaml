@@ -42,7 +42,8 @@ tools:
       - public_repo
     default_repos:
       - cohere-ai/cohere-toolkit
-      - EugeneLightsOn/cohere-toolkit
+  sharepoint:
+    tenant_id:
   # To disable the use of the tools preamble, set it to false
   use_tools_preamble: true
 feature_flags:

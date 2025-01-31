@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 
@@ -58,8 +58,8 @@ class ClinicalTrials(BaseTool):
         )
 
     async def call(
-        self, parameters: Dict[str, Any], n_max_studies: int = 10, **kwargs
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict[str, Any], **kwargs,
+    ) -> list[dict[str, Any]]:
         query_params = {"sort": "LastUpdatePostDate"}
         if condition := parameters.get("condition", ""):
             query_params["query.cond"] = condition
@@ -69,7 +69,7 @@ class ClinicalTrials(BaseTool):
             query_params["query.intr"] = intervention
         if parameters.get("is_recruiting"):
             query_params["filter.overallStatus"] = "RECRUITING"
-        query_params["pageSize"] = n_max_studies
+        query_params["pageSize"] = kwargs.get("n_max_studies", 10)
 
         try:
             response = requests.get(self._url, params=query_params)
@@ -85,7 +85,7 @@ class ClinicalTrials(BaseTool):
 
     def _parse_response(
         self, response: requests.Response, location: str, intervention: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         data = response.json()
         return [
             self._parse_study(study, location, intervention)
@@ -93,8 +93,8 @@ class ClinicalTrials(BaseTool):
         ]
 
     def _parse_study(
-        self, study: Dict[str, Any], location: str, intervention: str
-    ) -> Dict[str, Any]:
+        self, study: dict[str, Any], location: str, intervention: str
+    ) -> dict[str, Any]:
         """Parse individual study data."""
         id_module = study["protocolSection"].get("identificationModule", {})
         description_module = study["protocolSection"].get("descriptionModule", {})
@@ -126,8 +126,8 @@ class ClinicalTrials(BaseTool):
         }
 
     def _filter_results(
-        self, results: List[Dict[str, Any]], target: str, fields: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, results: list[dict[str, Any]], target: str, fields: list[str]
+    ) -> list[dict[str, Any]]:
         """Keeps a result if any of the specified fields contain the target value. Only
         the specified fields are returned in the result. If the query does not specify a
         target value, all results are retained.

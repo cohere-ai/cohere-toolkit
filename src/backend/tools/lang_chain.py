@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_cohere import CohereEmbeddings
@@ -7,6 +7,7 @@ from langchain_community.retrievers import WikipediaRetriever
 from langchain_community.vectorstores import Chroma
 
 from backend.config.settings import Settings
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.tools.base import BaseTool
 
@@ -52,11 +53,11 @@ class LangChainWikiRetriever(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Retrieves documents from Wikipedia.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         wiki_retriever = WikipediaRetriever()
         query = parameters.get("query", "")
         try:
@@ -113,11 +114,11 @@ class LangChainVectorDBRetriever(BaseTool):
             error_message=cls.generate_error_message(),
             category=ToolCategory.DataLoader,
             description="Retrieves documents from Wikipedia.",
-        )
+        ) # type: ignore
 
     async def call(
-        self, parameters: dict, ctx: Any, **kwargs: Any
-    ) -> List[Dict[str, Any]]:
+        self, parameters: dict, ctx: Context, **kwargs: Any,
+    ) -> list[dict[str, Any]]:
         cohere_embeddings = CohereEmbeddings(cohere_api_key=self.COHERE_API_KEY)
 
         # Load text files and split into chunks
