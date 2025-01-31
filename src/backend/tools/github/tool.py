@@ -2,6 +2,7 @@ from typing import Any
 
 from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
+from backend.schemas.context import Context
 from backend.schemas.tool import ToolCategory, ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.base import BaseTool
@@ -63,7 +64,7 @@ class GithubTool(BaseTool):
         )
         raise Exception(message)
 
-    async def call(self, parameters: dict, ctx: Any, **kwargs: Any) -> list[dict[str, Any]]:
+    async def call(self, parameters: dict, ctx: Context, **kwargs: Any) -> list[dict[str, Any]]:
         user_id = kwargs.get("user_id", "")
         query = parameters.get("query", "")
 
