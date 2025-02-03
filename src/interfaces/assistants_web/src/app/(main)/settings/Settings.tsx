@@ -2,7 +2,6 @@
 
 import { PropsWithChildren, useState } from 'react';
 
-import { StatusConnection } from '@/components/AgentSettingsForm/StatusConnection';
 import { MobileHeader } from '@/components/Global';
 import {
   Button,
@@ -15,8 +14,9 @@ import {
   Text,
 } from '@/components/UI';
 import { TOOL_GITHUB_ID, TOOL_GMAIL_ID, TOOL_SHAREPOINT_ID, TOOL_SLACK_ID } from '@/constants';
-import { useDeleteAuthTool, useListTools, useNotify } from '@/hooks';
-import { cn, getToolAuthUrl } from '@/utils';
+import { cn } from '@/utils';
+
+import { Connection } from './Connection';
 
 const tabs: { key: string; icon: IconName; label: string }[] = [
   { key: 'connections', icon: 'users-three', label: 'Connections' },
@@ -73,7 +73,35 @@ const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
   <div className="max-w-screen-xl flex-grow overflow-y-auto">{children}</div>
 );
 
-const Connections = () => (
+const Appearance: React.FC = () => (
+  <Wrapper>
+    <Text styleAs="h5" className="mb-6">
+      Mode
+    </Text>
+    <DarkModeToggle />
+  </Wrapper>
+);
+
+const Advanced: React.FC = () => (
+  <Wrapper>
+    <Text styleAs="h5" className="mb-6">
+      Advanced
+    </Text>
+    <ShowStepsToggle />
+    <ShowCitationsToggle />
+  </Wrapper>
+);
+
+const Profile: React.FC = () => (
+  <Wrapper>
+    <Text styleAs="h5" className="mb-6">
+      User Profile
+    </Text>
+    <Button label="Log out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
+  </Wrapper>
+);
+
+const Connections: React.FC = () => (
   <Wrapper>
     <Text styleAs="h5" className="mb-6">
       Connections your assistants can access
@@ -88,115 +116,8 @@ const Connections = () => (
   </Wrapper>
 );
 
-const Appearance = () => (
-  <Wrapper>
-    <Text styleAs="h5" className="mb-6">
-      Mode
-    </Text>
-    <DarkModeToggle />
-  </Wrapper>
-);
-
-const Advanced = () => (
-  <Wrapper>
-    <Text styleAs="h5" className="mb-6">
-      Advanced
-    </Text>
-    <ShowStepsToggle />
-    <ShowCitationsToggle />
-  </Wrapper>
-);
-
-const Profile = () => (
-  <Wrapper>
-    <Text styleAs="h5" className="mb-6">
-      User Profile
-    </Text>
-    <Button label="Log out" href="/logout" kind="secondary" icon="sign-out" theme="default" />
-  </Wrapper>
-);
-
-const ConnectionComponent = ({
-  toolId,
-  toolName,
-  iconName,
-  description,
-  showSyncButton,
-}: {
-  toolId: string;
-  toolName: string;
-  iconName: IconName;
-  description: string;
-  showSyncButton: boolean;
-}) => {
-  const { data } = useListTools();
-  const { mutateAsync: deleteAuthTool } = useDeleteAuthTool();
-  const notify = useNotify();
-  const tool = data?.find((tool) => tool.name === toolId);
-
-  if (!tool) return null;
-
-  const handleDeleteAuthTool = async () => {
-    try {
-      await deleteAuthTool(tool.name!);
-    } catch {
-      notify.error(`Failed to delete ${toolName} connection`);
-    }
-  };
-
-  const isConnected = !(tool.is_auth_required ?? false);
-  const isAvailable = tool.is_available ?? false;
-  const error = tool.error_message ?? '';
-  const authUrl = getToolAuthUrl(tool.auth_url);
-
-  return (
-    <article className="rounded-md border border-marble-800 p-4 dark:border-volcanic-500">
-      <header className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon name={iconName} size="xl" />
-          <Text className="text-volcanic-400 dark:text-mushroom-950">{toolName}</Text>
-        </div>
-        <StatusConnection connected={isConnected} />
-      </header>
-      <Text className="mb-6 text-volcanic-400 dark:text-mushroom-800">{description}</Text>
-      <section>
-        {!isAvailable ? (
-          <div className="justify-items-start space-y-6">
-            <div className="flex items-center justify-between">
-              <p className="font-body text-p-sm uppercase text-danger-500">
-                {error || `${toolName} connection is not available.`}
-              </p>
-            </div>
-          </div>
-        ) : isConnected ? (
-          <div className="space-y-6">
-            {showSyncButton && (
-              <Button label="Sync now" kind="secondary" icon="arrow-clockwise" href={authUrl} />
-            )}
-            <Button
-              label="Delete connection"
-              kind="secondary"
-              icon="trash"
-              theme="danger"
-              onClick={handleDeleteAuthTool}
-            />
-          </div>
-        ) : (
-          <Button
-            label="Authenticate"
-            href={authUrl}
-            kind="secondary"
-            theme="default"
-            icon="arrow-up-right"
-          />
-        )}
-      </section>
-    </article>
-  );
-};
-
-const GoogleDriveConnection = () => (
-  <ConnectionComponent
+const GoogleDriveConnection: React.FC = () => (
+  <Connection
     toolId="google_drive"
     toolName="Google Drive"
     iconName="google-drive"
@@ -205,8 +126,8 @@ const GoogleDriveConnection = () => (
   />
 );
 
-const SlackConnection = () => (
-  <ConnectionComponent
+const SlackConnection: React.FC = () => (
+  <Connection
     toolId={TOOL_SLACK_ID}
     toolName="Slack"
     iconName="slack"
@@ -215,8 +136,8 @@ const SlackConnection = () => (
   />
 );
 
-const GmailConnection = () => (
-  <ConnectionComponent
+const GmailConnection: React.FC = () => (
+  <Connection
     toolId={TOOL_GMAIL_ID}
     toolName="Gmail"
     iconName="gmail"
@@ -225,8 +146,8 @@ const GmailConnection = () => (
   />
 );
 
-const GithubConnection = () => (
-  <ConnectionComponent
+const GithubConnection: React.FC = () => (
+  <Connection
     toolId={TOOL_GITHUB_ID}
     toolName="Github"
     iconName="github"
@@ -235,8 +156,8 @@ const GithubConnection = () => (
   />
 );
 
-const SharepointConnection = () => (
-  <ConnectionComponent
+const SharepointConnection: React.FC = () => (
+  <Connection
     toolId={TOOL_SHAREPOINT_ID}
     toolName="Sharepoint"
     iconName="sharepoint"
