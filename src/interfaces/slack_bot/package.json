@@ -30,7 +30,7 @@
     "@types/node": "20.12.11",
     "@types/offscreencanvas": "^2019.7.3",
     "@types/word-extractor": "^1.0.2",
-    "@vitest/ui": "^1.6.0",
+    "@vitest/ui": "^1.6.1",
     "axios": "^1.7.4",
     "dotenv": "^16.0.3",
     "eslint": "^9.3.0",
@@ -45,12 +45,12 @@
     "typescript": "^5.4.5",
     "vite": "^5.4.14",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^1.6.0",
+    "vitest": "^1.6.1",
     "word-extractor": "^1.0.4"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3"
   }
