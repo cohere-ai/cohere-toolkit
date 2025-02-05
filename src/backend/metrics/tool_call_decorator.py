@@ -1,5 +1,4 @@
 import time
-from functools import wraps
 from typing import Any, Callable
 
 from backend.metrics import collector
