@@ -33,8 +33,8 @@ class MetricsCollector:
             latency: float,
             class_name: str = "",
             method_name: str = "",
-            method_params: Dict[str, Any] = None,
-            timestamp: float = None
+            method_params: Dict[str, Any] = {},
+            timestamp: float = time.time()
     ):
         self.metrics.append({
             "timestamp": timestamp or time.time(),
