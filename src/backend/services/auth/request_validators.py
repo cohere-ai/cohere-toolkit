@@ -1,19 +1,20 @@
 import secrets
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Header, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from sqlalchemy.orm import Session
 from starlette import status
 
 from backend.config import Settings
 from backend.config.settings import SCIMAuth
-from backend.database_models import Blacklist, get_session
+from backend.database_models import Blacklist
+from backend.database_models.database import DBSessionDep
 from backend.services.auth.jwt import JWTService
 
 
 def validate_authorization(
-    request: Request, session: Session = Depends(get_session)
+    authorization: Annotated[str, Header()],
+    session: DBSessionDep,
 ) -> dict:
     """
     Validate that the request has the `Authorization` header, used for requests
@@ -29,7 +30,6 @@ def validate_authorization(
         dict: Decoded payload.
     """
 
-    authorization = request.headers.get("Authorization")
     if not authorization:
         raise HTTPException(
             status_code=401,

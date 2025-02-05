@@ -1,6 +1,7 @@
+from typing import Annotated
 from urllib.parse import unquote_plus
 
-from fastapi import HTTPException, Request
+from fastapi import Header, HTTPException, Request
 
 import backend.crud.user as user_crud
 from backend.config.deployments import AVAILABLE_MODEL_DEPLOYMENTS
@@ -11,6 +12,7 @@ from backend.crud import deployment as deployment_crud
 from backend.crud import model as model_crud
 from backend.crud import organization as organization_crud
 from backend.database_models.database import DBSessionDep
+from backend.database_models.deployment import Deployment
 from backend.exceptions import DeploymentNotFoundError
 from backend.model_deployments.utils import class_name_validator
 from backend.services import deployment as deployment_service
@@ -67,7 +69,7 @@ def validate_deployment_model(deployment: str, model: str, session: DBSessionDep
     return found, deployment_model
 
 
-def validate_deployment_config(deployment_config, deployment_db):
+def validate_deployment_config(deployment_config: dict, deployment_db: Deployment) -> None:
     """
     Validate that the deployment config is valid for the deployment.
 
@@ -90,20 +92,17 @@ def validate_deployment_config(deployment_config, deployment_db):
             )
 
 
-def validate_user_header(session: DBSessionDep, request: Request):
+def validate_user_header(
+    session: DBSessionDep,
+    user_id: Annotated[str, Header()],
+) -> None:
     """
     Validate that the request has the `User-Id` header, used for requests
     that require a User.
 
-    Args:
-        request (Request): The request to validate
-
     Raises:
         HTTPException: If no `User-Id` header.
-
     """
-
-    user_id = get_header_user_id(request)
     if not user_id:
         logger.error(event="User-Id required in request headers.")
         raise HTTPException(
@@ -116,45 +115,40 @@ def validate_user_header(session: DBSessionDep, request: Request):
         raise HTTPException(status_code=401, detail="User not found.")
 
 
-def validate_organization_header(session: DBSessionDep, request: Request):
+def validate_organization_header(
+    session: DBSessionDep,
+    Organization_Id: Annotated[str|None, Header()] = None, # Not following snake_case so FastAPI parses dependencies properly
+) -> None:
     """
     Validate that the request has the `Organization-Id` header, used for requests
     that require an Organization.
 
-    Args:
-        request (Request): The request to validate
-
     Raises:
         HTTPException: If no `Organization-Id` header.
-
     """
-
-    organization_id = request.headers.get("Organization-Id", None)
-    if organization_id:
-        organization = organization_crud.get_organization(session, organization_id)
+    if Organization_Id:
+        organization = organization_crud.get_organization(session, Organization_Id)
         if not organization:
-            raise HTTPException(status_code=404, detail=f"Organization ID {organization_id} not found.")
+            raise HTTPException(status_code=404, detail=f"Organization ID {Organization_Id} not found.")
 
 
-def validate_deployment_header(request: Request, session: DBSessionDep):
+def validate_deployment_header(
+    session: DBSessionDep,
+    deployment_name: Annotated[str|None, Header()] = None,
+) -> None:
     """
     Validate that the request has the `Deployment-Name` header, used for chat requests
     that require a deployment (e.g: Cohere Platform, SageMaker).
 
-    Args:
-        request (Request): The request to validate
-
     Raises:
         HTTPException: If no `Deployment-Name` header.
-
     """
     # TODO Eugene: Discuss with Scott
-    deployment_name = request.headers.get("Deployment-Name")
     if deployment_name:
         _ = deployment_service.get_deployment_definition_by_name(session, deployment_name)
 
 
-async def validate_chat_request(session: DBSessionDep, request: Request):
+async def validate_chat_request(request: Request, session: DBSessionDep):
     """
     Validate that the request has the appropriate values in the body
 
@@ -217,7 +211,7 @@ async def validate_env_vars(session: DBSessionDep, request: Request):
     env_vars = body.get("env_vars")
     invalid_keys = []
 
-    deployment_id = unquote_plus(request.path_params.get("deployment_id"))
+    deployment_id = unquote_plus(request.path_params.get("deployment_id", ""))
     try:
         deployment = deployment_service.get_deployment_instance_by_id(session, deployment_id)
     except DeploymentNotFoundError:
