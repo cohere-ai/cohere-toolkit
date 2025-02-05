@@ -15,7 +15,7 @@ from backend.config.auth import (
     is_authentication_enabled,
     verify_migrate_token,
 )
-from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
+from backend.config.routers import ROUTER_DEPENDENCIES, DependencyType, RouterName
 from backend.config.settings import Settings
 from backend.exceptions import DeploymentNotFoundError
 from backend.routers.agent import router as agent_router
@@ -82,13 +82,13 @@ def create_app() -> FastAPI:
 
     # Dynamically set router dependencies
     # These values must be set in config/routers.py
-    dependencies_type = "default"
+    dependencies_type = DependencyType.DEFAULT
     settings = Settings()
     if is_authentication_enabled():
         # Required to save temporary OAuth state in session
         auth_secret = settings.get('auth.secret_key')
         app.add_middleware(SessionMiddleware, secret_key=auth_secret)
-        dependencies_type = "auth"
+        dependencies_type = DependencyType.AUTH
     for router in routers:
         if getattr(router, "name", "") in ROUTER_DEPENDENCIES.keys():
             router_name = RouterName(getattr(router, "name"))

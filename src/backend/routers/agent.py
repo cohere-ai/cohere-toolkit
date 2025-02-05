@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.config.auth import is_authentication_enabled
 from backend.config.default_agent import DEFAULT_AGENT_ID, get_default_agent
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
@@ -70,12 +71,14 @@ router = APIRouter(
 )
 router.name = RouterName.AGENT
 
+auth_dependencies = [] if is_authentication_enabled() else [Depends(validate_user_header)]
+
 
 @router.post(
     "",
     response_model=AgentPublic,
     dependencies=[
-        Depends(validate_user_header),
+        *auth_dependencies,
         Depends(validate_create_agent_request),
     ],
 )
@@ -245,7 +248,7 @@ async def get_agent_deployment(
     "/{agent_id}",
     response_model=AgentPublic,
     dependencies=[
-        Depends(validate_user_header),
+        *auth_dependencies,
         Depends(validate_update_agent_request),
     ],
 )
