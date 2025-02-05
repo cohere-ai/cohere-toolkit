@@ -20,9 +20,6 @@ def validate_authorization(
     Validate that the request has the `Authorization` header, used for requests
     that require authentication.
 
-    Args:
-        request (Request): The request to validate
-
     Raises:
         HTTPException: If no `Authorization` header.
 

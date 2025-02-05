@@ -303,8 +303,17 @@ def test_fail_chat_missing_user_id(
         headers={"Deployment-Name": CohereDeployment.name()},
     )
 
-    assert response.status_code == 401
-    assert response.json() == {"detail": "User-Id required in request headers."}
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "type": "missing",
+                "loc": ["header", "user-id"],
+                "msg": "Field required",
+                "input": None,
+            }
+        ]
+    }
 
 
 def test_default_chat_missing_deployment_name(
