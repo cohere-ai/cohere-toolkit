@@ -11,13 +11,13 @@ from backend.config.settings import Settings
 from backend.crud import tool_auth as tool_auth_crud
 from backend.database_models.database import DBSessionDep
 from backend.database_models.tool_auth import ToolAuth
+from backend.metrics import track_tool_call_time
 from backend.schemas.context import Context
 from backend.schemas.tool import ToolDefinition
 from backend.services.logger.utils import LoggerFactory
 from backend.tools.utils.tools_checkers import check_tool_parameters
 
 logger = LoggerFactory().get_logger()
-
 
 class ToolErrorCode(StrEnum):
     HTTP_ERROR = "http_error"
@@ -47,10 +47,14 @@ class ParametersValidationMeta(type):
     def __new__(cls, name, bases, class_dict):
         for attr_name, attr_value in class_dict.items():
             if callable(attr_value) and attr_name == "call":
-                # Decorate methods with the parameter checker
-                class_dict[attr_name] = check_tool_parameters(
-                    lambda self: self.__class__.get_tool_definition()
-                )(attr_value)
+                metrics_enabled = Settings().get('metrics.enabled')
+                if metrics_enabled:
+                    # Decorate methods with the metrics collector and parameter checker
+                    class_dict[attr_name] = track_tool_call_time()(
+                        check_tool_parameters(lambda self: self.__class__.get_tool_definition())(attr_value))
+                else:
+                    # Decorate methods with the parameter checker
+                    class_dict[attr_name] = check_tool_parameters(lambda self: self.__class__.get_tool_definition())(attr_value)
         return super().__new__(cls, name, bases, class_dict)
 
 

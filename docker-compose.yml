@@ -79,6 +79,7 @@ services:
       # Mount configurations
       - ./src/backend/config/secrets.yaml:/workspace/src/backend/config/secrets.yaml
       - ./src/backend/config/configuration.yaml:/workspace/src/backend/config/configuration.yaml
+      - ./metrics:/workspace/metrics
     # network_mode: host
     networks:
       - proxynet
