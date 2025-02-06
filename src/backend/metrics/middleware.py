@@ -45,6 +45,7 @@ class MetricsCollector:
             "method_params": method_params,
             "latency": latency
         })
+        self.save_to_csv()
 
     def save_to_csv(self, filename: str = "./metrics/metrics.csv"):
         if not self.metrics:

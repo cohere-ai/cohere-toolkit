@@ -57,10 +57,6 @@ async def lifespan(app: FastAPI):
         await get_auth_strategy_endpoints()
     yield
     # Shutdown logic
-    if Settings().get("metrics.enabled"):
-        logger = LoggerFactory().get_logger()
-        logger.info(event="Exporting metrics")
-        collector.save_to_csv()
 
 
 def create_app() -> FastAPI:

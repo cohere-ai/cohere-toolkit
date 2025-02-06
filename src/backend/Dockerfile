@@ -46,4 +46,4 @@ COPY .en[v] .env
 
 EXPOSE ${PORT}
 
-CMD ["uvicorn", "backend.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "300"]
+CMD uvicorn backend.main:app --reload --host 0.0.0.0 --port ${PORT} --timeout-keep-alive 300
