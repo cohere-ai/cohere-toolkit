@@ -260,17 +260,8 @@ def test_create_agent_missing_user_id_header(
         "deployment": CohereDeployment.name(),
     }
     response = session_client.post("/v1/agents", json=request_json)
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_create_agent_invalid_deployment(

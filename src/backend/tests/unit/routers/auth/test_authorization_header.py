@@ -28,7 +28,7 @@ def test_validate_authorization_valid_token(
 
 def test_validate_authorization_no_authorization(session: Session):
     with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization("", session)
+        _ = validate_authorization(session, "")
 
     exception = exc.value
     assert exception.status_code == 401
@@ -39,7 +39,7 @@ def test_validate_authorization_no_authorization(session: Session):
 
 def test_validate_authorization_no_bearer(session: Session):
     with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization("test invalid_token", session)
+        _ = validate_authorization(session, "test invalid_token")
 
     exception = exc.value
     assert exception.status_code == 401
@@ -50,7 +50,7 @@ def test_validate_authorization_no_bearer(session: Session):
 
 def test_validate_authorization_invalid_token(session: Session):
     with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization("Bearer invalid_token", session)
+        _ = validate_authorization(session, "Bearer invalid_token")
 
     exception = exc.value
     assert exception.status_code == 401
@@ -64,7 +64,7 @@ def test_validate_authorization_expired_token(session: Session):
 
     with freezegun.freeze_time("2024-05-01 00:00:00"):
         with pytest.raises(HTTPException) as exc:
-            _ = validate_authorization(f"Bearer {token}", session)
+            _ = validate_authorization(session, f"Bearer {token}")
 
     exception = exc.value
     assert exception.status_code == 401

@@ -21,19 +21,19 @@ def test_validate_authorization_with_valid_request(session: Session):
             "backend.crud.user.get_user",
             return_value=mock_user,
         ):
-            result = validate_authorization("Bearer fake_token", session=session)
+            result = validate_authorization(session, "Bearer fake_token")
         assert isinstance(result, dict)
 
 
 def test_validate_authorization_no_auth_header(session: Session):
     with pytest.raises(HTTPException) as exc:
-        validate_authorization(None, session=session)
+        validate_authorization(session, None)
     assert exc.value.status_code == 401
 
 
 def test_validate_authorization_invalid_auth_header(session: Session):
     with pytest.raises(HTTPException) as exc:
-        validate_authorization("fake_token", session=session)
+        validate_authorization(session, "fake_token")
     assert exc.value.status_code == 401
 
 
@@ -43,7 +43,7 @@ def test_validate_invalid_jwt(session: Session):
         return_value=None,
     ):
         with pytest.raises(HTTPException) as exc:
-            validate_authorization("Bearer fake_token", session=session)
+            validate_authorization(session, "Bearer fake_token")
         assert exc.value.status_code == 401
 
 
@@ -56,5 +56,5 @@ def test_validate_blacklisted_token():
         return_value={"context": "test_context", "jti": "test_jti"},
     ):
         with pytest.raises(HTTPException) as exc:
-            validate_authorization("Bearer fake_token", session=session)
+            validate_authorization(session, "Bearer fake_token")
         assert exc.value.status_code == 401

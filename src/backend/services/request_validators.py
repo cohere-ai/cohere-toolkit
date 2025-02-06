@@ -94,7 +94,7 @@ def validate_deployment_config(deployment_config: dict, deployment_db: Deploymen
 
 def validate_user_header(
     session: DBSessionDep,
-    user_id: Annotated[str, Header()],
+    user_id: Annotated[str|None, Header()] = None,
 ) -> None:
     """
     Validate that the request has the `User-Id` header, used for requests

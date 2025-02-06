@@ -13,8 +13,8 @@ from backend.services.auth.jwt import JWTService
 
 
 def validate_authorization(
-    authorization: Annotated[str, Header()],
     session: DBSessionDep,
+    authorization: Annotated[str|None, Header()] = None,
 ) -> dict:
     """
     Validate that the request has the `Authorization` header, used for requests

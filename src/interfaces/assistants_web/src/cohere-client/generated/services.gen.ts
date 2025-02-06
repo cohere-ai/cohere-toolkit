@@ -243,13 +243,13 @@ export class AuthService {
    * Logout
    * Logs out the current user, adding the given JWT token to the blacklist.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.organizationId
+   * @param data.authorization
    * @returns Logout Successful Response
    * @throws ApiError
    */
   public logoutV1LogoutGet(
-    data: LogoutV1LogoutGetData
+    data: LogoutV1LogoutGetData = {}
   ): CancelablePromise<LogoutV1LogoutGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
@@ -338,8 +338,8 @@ export class ChatService {
    * Chat Stream
    * Stream chat endpoint to handle user messages and return chatbot responses.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
+   * @param data.userId
    * @param data.organizationId
    * @param data.deploymentName
    * @returns ChatResponseEvent Successful Response
@@ -352,7 +352,7 @@ export class ChatService {
       method: 'POST',
       url: '/v1/chat-stream',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
         'deployment-name': data.deploymentName,
       },
@@ -368,8 +368,8 @@ export class ChatService {
    * Regenerate Chat Stream
    * Endpoint to regenerate stream chat response for the last user message.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
+   * @param data.userId
    * @param data.organizationId
    * @param data.deploymentName
    * @returns unknown Successful Response
@@ -382,7 +382,7 @@ export class ChatService {
       method: 'POST',
       url: '/v1/chat-stream/regenerate',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
         'deployment-name': data.deploymentName,
       },
@@ -398,8 +398,8 @@ export class ChatService {
    * Chat
    * Chat endpoint to handle user messages and return chatbot responses.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
+   * @param data.userId
    * @param data.organizationId
    * @param data.deploymentName
    * @returns NonStreamedChatResponse Successful Response
@@ -410,7 +410,7 @@ export class ChatService {
       method: 'POST',
       url: '/v1/chat',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
         'deployment-name': data.deploymentName,
       },
@@ -456,7 +456,6 @@ export class UserService {
    * List Users
    * List all users.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
    * @param data.organizationId
@@ -464,14 +463,13 @@ export class UserService {
    * @throws ApiError
    */
   public listUsersV1UsersGet(
-    data: ListUsersV1UsersGetData
+    data: ListUsersV1UsersGetData = {}
   ): CancelablePromise<ListUsersV1UsersGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/users',
       headers: {
         'Organization-Id': data.organizationId,
-        authorization: data.authorization,
       },
       query: {
         offset: data.offset,
@@ -491,7 +489,6 @@ export class UserService {
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
    * @param data.userId User ID for the user in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
@@ -507,7 +504,6 @@ export class UserService {
       },
       headers: {
         'Organization-Id': data.organizationId,
-        authorization: data.authorization,
       },
       errors: {
         422: 'Validation Error',
@@ -523,7 +519,6 @@ export class UserService {
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
    * @param data.userId User ID for the user in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns backend__schemas__user__User Successful Response
@@ -540,7 +535,6 @@ export class UserService {
       },
       headers: {
         'Organization-Id': data.organizationId,
-        authorization: data.authorization,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -558,7 +552,6 @@ export class UserService {
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
    * @param data.userId User ID for the user in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteUser Successful Response
    * @throws ApiError
@@ -574,7 +567,6 @@ export class UserService {
       },
       headers: {
         'Organization-Id': data.organizationId,
-        authorization: data.authorization,
       },
       errors: {
         422: 'Validation Error',
@@ -594,7 +586,7 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns ConversationPublic Successful Response
    * @throws ApiError
@@ -609,7 +601,7 @@ export class ConversationService {
         conversation_id: data.conversationId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -626,8 +618,8 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
-   * @param data.authorization
    * @param data.requestBody
+   * @param data.userId
    * @param data.organizationId
    * @returns ConversationPublic Successful Response
    * @throws ApiError
@@ -642,7 +634,7 @@ export class ConversationService {
         conversation_id: data.conversationId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -661,7 +653,7 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns DeleteConversationResponse Successful Response
    * @throws ApiError
@@ -676,7 +668,7 @@ export class ConversationService {
         conversation_id: data.conversationId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -689,23 +681,23 @@ export class ConversationService {
    * List Conversations
    * List all conversations.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.orderBy Field to sorts results by
    * @param data.agentId Agent ID to filter results by
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.userId
    * @param data.organizationId
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
   public listConversationsV1ConversationsGet(
-    data: ListConversationsV1ConversationsGetData
+    data: ListConversationsV1ConversationsGetData = {}
   ): CancelablePromise<ListConversationsV1ConversationsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -725,8 +717,8 @@ export class ConversationService {
    * Toggle whether a conversation is pinned or not
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
-   * @param data.authorization
    * @param data.requestBody
+   * @param data.userId
    * @param data.organizationId
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
@@ -741,7 +733,7 @@ export class ConversationService {
         conversation_id: data.conversationId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -757,11 +749,11 @@ export class ConversationService {
    * Search conversations by title.
    * @param data The data for the request.
    * @param data.query Query string to search for in a conversation title
-   * @param data.authorization
    * @param data.orderBy Field to sorts results by
    * @param data.agentId Agent ID to filter results by
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.userId
    * @param data.organizationId
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
@@ -773,7 +765,7 @@ export class ConversationService {
       method: 'GET',
       url: '/v1/conversations:search',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -798,8 +790,8 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found. Status code 404.
    * HTTPException: If the file wasn't uploaded correctly. Status code 500.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.formData
+   * @param data.userId
    * @param data.organizationId
    * @returns UploadConversationFileResponse Successful Response
    * @throws ApiError
@@ -811,7 +803,7 @@ export class ConversationService {
       method: 'POST',
       url: '/v1/conversations/batch_upload_file',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       formData: data.formData,
@@ -830,7 +822,7 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns ListConversationFile Successful Response
    * @throws ApiError
@@ -845,7 +837,7 @@ export class ConversationService {
         conversation_id: data.conversationId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -863,7 +855,7 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.fileId File ID for file in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns FileMetadata Successful Response
    * @throws ApiError
@@ -879,7 +871,7 @@ export class ConversationService {
         file_id: data.fileId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -897,7 +889,7 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.fileId File ID for file in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns DeleteConversationFileResponse Successful Response
    * @throws ApiError
@@ -913,7 +905,7 @@ export class ConversationService {
         file_id: data.fileId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -930,8 +922,8 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
-   * @param data.authorization
    * @param data.model Model to filter results by
+   * @param data.userId
    * @param data.organizationId
    * @returns GenerateTitleResponse Successful Response
    * @throws ApiError
@@ -946,7 +938,7 @@ export class ConversationService {
         conversation_id: data.conversationId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -967,7 +959,7 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.messageId Message ID for message in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns unknown Successful Response
    * @throws ApiError
@@ -983,7 +975,7 @@ export class ConversationService {
         message_id: data.messageId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1000,20 +992,18 @@ export class ToolService {
    * List Tools
    * List all available tools.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.agentId Agent ID to filter results by
    * @param data.organizationId
    * @returns ToolDefinition Successful Response
    * @throws ApiError
    */
   public listToolsV1ToolsGet(
-    data: ListToolsV1ToolsGetData
+    data: ListToolsV1ToolsGetData = {}
   ): CancelablePromise<ListToolsV1ToolsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tools',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -1033,7 +1023,6 @@ export class DeploymentService {
    * Create Deployment
    * Create a new deployment.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns DeploymentDefinition Successful Response
@@ -1046,7 +1035,6 @@ export class DeploymentService {
       method: 'POST',
       url: '/v1/deployments',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1061,20 +1049,18 @@ export class DeploymentService {
    * List Deployments
    * List all available deployments and their models.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.all Include all deployments, regardless of availability.
    * @param data.organizationId
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
   public listDeploymentsV1DeploymentsGet(
-    data: ListDeploymentsV1DeploymentsGetData
+    data: ListDeploymentsV1DeploymentsGetData = {}
   ): CancelablePromise<ListDeploymentsV1DeploymentsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/deployments',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -1094,7 +1080,6 @@ export class DeploymentService {
    * HTTPException: If deployment not found.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns DeploymentDefinition Successful Response
@@ -1110,7 +1095,6 @@ export class DeploymentService {
         deployment_id: data.deploymentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1126,7 +1110,6 @@ export class DeploymentService {
    * Get a deployment by ID.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
@@ -1141,7 +1124,6 @@ export class DeploymentService {
         deployment_id: data.deploymentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1158,7 +1140,6 @@ export class DeploymentService {
    * HTTPException: If the deployment with the given ID is not found.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteDeployment Successful Response
    * @throws ApiError
@@ -1173,7 +1154,6 @@ export class DeploymentService {
         deployment_id: data.deploymentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1187,7 +1167,6 @@ export class DeploymentService {
    * Set environment variables for the deployment.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns DeploymentDefinition Successful Response
@@ -1203,7 +1182,6 @@ export class DeploymentService {
         deployment_id: data.deploymentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1222,19 +1200,17 @@ export class ExperimentalFeaturesService {
    * List Experimental Features
    * List all experimental features and if they are enabled
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.organizationId
    * @returns boolean Successful Response
    * @throws ApiError
    */
   public listExperimentalFeaturesV1ExperimentalFeaturesGet(
-    data: ListExperimentalFeaturesV1ExperimentalFeaturesGetData
+    data: ListExperimentalFeaturesV1ExperimentalFeaturesGetData = {}
   ): CancelablePromise<ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/experimental_features/',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1254,9 +1230,9 @@ export class AgentService {
    * Raises:
    * HTTPException: If the agent creation fails.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
+   * @param data.userId
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1267,8 +1243,8 @@ export class AgentService {
       method: 'POST',
       url: '/v1/agents',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
+        'user-id': data.userId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1282,7 +1258,6 @@ export class AgentService {
    * List Agents
    * List all agents.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.visibility Agent visibility
    * @param data.organizationId Organization ID to filter results by
    * @param data.offset Offset for where request should start returning records from
@@ -1292,13 +1267,12 @@ export class AgentService {
    * @throws ApiError
    */
   public listAgentsV1AgentsGet(
-    data: ListAgentsV1AgentsGetData
+    data: ListAgentsV1AgentsGetData = {}
   ): CancelablePromise<ListAgentsV1AgentsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -1321,7 +1295,6 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns AgentPublic Successful Response
    * @throws ApiError
@@ -1336,7 +1309,6 @@ export class AgentService {
         agent_id: data.agentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1353,9 +1325,9 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
+   * @param data.userId
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1369,8 +1341,8 @@ export class AgentService {
         agent_id: data.agentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
+        'user-id': data.userId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1388,7 +1360,6 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteAgent Successful Response
    * @throws ApiError
@@ -1403,7 +1374,6 @@ export class AgentService {
         agent_id: data.agentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1420,7 +1390,6 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
@@ -1435,7 +1404,6 @@ export class AgentService {
         agent_id: data.agentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1452,7 +1420,6 @@ export class AgentService {
    * HTTPException: If the agent tool metadata retrieval fails.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
@@ -1467,7 +1434,6 @@ export class AgentService {
         agent_id: data.agentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1484,7 +1450,6 @@ export class AgentService {
    * HTTPException: If the agent tool metadata creation fails.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns AgentToolMetadataPublic Successful Response
@@ -1500,7 +1465,6 @@ export class AgentService {
         agent_id: data.agentId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1521,7 +1485,6 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.agentToolMetadataId Agent Tool Metadata ID for tool metadata in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns AgentToolMetadata Successful Response
@@ -1538,7 +1501,6 @@ export class AgentService {
         agent_tool_metadata_id: data.agentToolMetadataId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1559,7 +1521,6 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.agentToolMetadataId Agent Tool Metadata ID for tool metadata in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteAgentToolMetadata Successful Response
    * @throws ApiError
@@ -1575,7 +1536,6 @@ export class AgentService {
         agent_tool_metadata_id: data.agentToolMetadataId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1588,7 +1548,6 @@ export class AgentService {
    * Batch Upload File
    * Upload a batch of files
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.formData
    * @param data.organizationId
    * @returns UploadAgentFileResponse Successful Response
@@ -1601,7 +1560,6 @@ export class AgentService {
       method: 'POST',
       url: '/v1/agents/batch_upload_file',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       formData: data.formData,
@@ -1621,7 +1579,6 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.fileId File ID for file in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns FileMetadata Successful Response
    * @throws ApiError
@@ -1637,7 +1594,6 @@ export class AgentService {
         file_id: data.fileId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1655,7 +1611,6 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.fileId File ID for file in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteAgentFileResponse Successful Response
    * @throws ApiError
@@ -1671,7 +1626,6 @@ export class AgentService {
         file_id: data.fileId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1688,8 +1642,8 @@ export class SnapshotService {
    * Create Snapshot
    * Create a new snapshot and snapshot link to share the conversation.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
+   * @param data.userId
    * @param data.organizationId
    * @returns CreateSnapshotResponse Successful Response
    * @throws ApiError
@@ -1701,7 +1655,7 @@ export class SnapshotService {
       method: 'POST',
       url: '/v1/snapshots',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1716,19 +1670,19 @@ export class SnapshotService {
    * List Snapshots
    * List all snapshots.
    * @param data The data for the request.
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns SnapshotWithLinks Successful Response
    * @throws ApiError
    */
   public listSnapshotsV1SnapshotsGet(
-    data: ListSnapshotsV1SnapshotsGetData
+    data: ListSnapshotsV1SnapshotsGetData = {}
   ): CancelablePromise<ListSnapshotsV1SnapshotsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/snapshots',
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1742,7 +1696,7 @@ export class SnapshotService {
    * Get a snapshot by link ID.
    * @param data The data for the request.
    * @param data.linkId Link ID for the snapshot link in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns SnapshotPublic Successful Response
    * @throws ApiError
@@ -1757,7 +1711,7 @@ export class SnapshotService {
         link_id: data.linkId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1771,7 +1725,7 @@ export class SnapshotService {
    * Delete a snapshot link by ID.
    * @param data The data for the request.
    * @param data.linkId Link ID for the snapshot link in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns DeleteSnapshotLinkResponse Successful Response
    * @throws ApiError
@@ -1786,7 +1740,7 @@ export class SnapshotService {
         link_id: data.linkId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1800,7 +1754,7 @@ export class SnapshotService {
    * Delete a snapshot by ID.
    * @param data The data for the request.
    * @param data.snapshotId Snapshot ID for the snapshot in question
-   * @param data.authorization
+   * @param data.userId
    * @param data.organizationId
    * @returns DeleteSnapshotResponse Successful Response
    * @throws ApiError
@@ -1815,7 +1769,7 @@ export class SnapshotService {
         snapshot_id: data.snapshotId,
       },
       headers: {
-        authorization: data.authorization,
+        'user-id': data.userId,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1832,7 +1786,6 @@ export class OrganizationService {
    * Create Organization
    * Create a new organization.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns Organization Successful Response
@@ -1845,7 +1798,6 @@ export class OrganizationService {
       method: 'POST',
       url: '/v1/organizations',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1860,19 +1812,17 @@ export class OrganizationService {
    * List Organizations
    * List all available organizations.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.organizationId
    * @returns Organization Successful Response
    * @throws ApiError
    */
   public listOrganizationsV1OrganizationsGet(
-    data: ListOrganizationsV1OrganizationsGetData
+    data: ListOrganizationsV1OrganizationsGetData = {}
   ): CancelablePromise<ListOrganizationsV1OrganizationsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/organizations',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1886,7 +1836,6 @@ export class OrganizationService {
    * Update organization by ID.
    * @param data The data for the request.
    * @param data.organizationId Organization ID for the organization in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns Organization Successful Response
@@ -1902,7 +1851,6 @@ export class OrganizationService {
         organization_id: data.organizationId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -1918,7 +1866,6 @@ export class OrganizationService {
    * Get a organization by ID.
    * @param data The data for the request.
    * @param data.organizationId Organization ID for the organization in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns Organization Successful Response
    * @throws ApiError
@@ -1933,7 +1880,6 @@ export class OrganizationService {
         organization_id: data.organizationId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1947,7 +1893,6 @@ export class OrganizationService {
    * Delete a organization by ID.
    * @param data The data for the request.
    * @param data.organizationId Organization ID for the organization in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteOrganization Successful Response
    * @throws ApiError
@@ -1962,7 +1907,6 @@ export class OrganizationService {
         organization_id: data.organizationId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -1976,7 +1920,6 @@ export class OrganizationService {
    * Get organization users by ID.
    * @param data The data for the request.
    * @param data.organizationId Organization ID for the organization in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
@@ -1991,7 +1934,6 @@ export class OrganizationService {
         organization_id: data.organizationId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -2008,7 +1950,6 @@ export class ModelService {
    * Create Model
    * Create a new model.
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns Model Successful Response
@@ -2021,7 +1962,6 @@ export class ModelService {
       method: 'POST',
       url: '/v1/models',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -2036,7 +1976,6 @@ export class ModelService {
    * List Models
    * List all available models
    * @param data The data for the request.
-   * @param data.authorization
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
    * @param data.organizationId
@@ -2044,13 +1983,12 @@ export class ModelService {
    * @throws ApiError
    */
   public listModelsV1ModelsGet(
-    data: ListModelsV1ModelsGetData
+    data: ListModelsV1ModelsGetData = {}
   ): CancelablePromise<ListModelsV1ModelsGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/models',
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       query: {
@@ -2071,7 +2009,6 @@ export class ModelService {
    * HTTPException: If the model with the given ID is not found.
    * @param data The data for the request.
    * @param data.modelId Model ID for the model in question
-   * @param data.authorization
    * @param data.requestBody
    * @param data.organizationId
    * @returns Model Successful Response
@@ -2087,7 +2024,6 @@ export class ModelService {
         model_id: data.modelId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
@@ -2103,7 +2039,6 @@ export class ModelService {
    * Get a model by ID.
    * @param data The data for the request.
    * @param data.modelId Model ID for the model in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns Model Successful Response
    * @throws ApiError
@@ -2118,7 +2053,6 @@ export class ModelService {
         model_id: data.modelId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {
@@ -2135,7 +2069,6 @@ export class ModelService {
    * HTTPException: If the model with the given ID is not found.
    * @param data The data for the request.
    * @param data.modelId Model ID for the model in question
-   * @param data.authorization
    * @param data.organizationId
    * @returns DeleteModel Successful Response
    * @throws ApiError
@@ -2150,7 +2083,6 @@ export class ModelService {
         model_id: data.modelId,
       },
       headers: {
-        authorization: data.authorization,
         'Organization-Id': data.organizationId,
       },
       errors: {

@@ -99,17 +99,8 @@ def test_list_conversations_missing_user_id(
     _ = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get("/v1/conversations")
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_get_conversation(
@@ -288,17 +279,8 @@ def test_update_conversations_missing_user_id(
     get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get("/v1/conversations")
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_toggle_conversation_pin(
@@ -522,17 +504,8 @@ def test_delete_conversation_missing_user_id(
     )
     response = session_client.delete(f"/v1/conversations/{conversation.id}")
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_search_conversations_missing_user_id(
@@ -543,17 +516,8 @@ def test_search_conversations_missing_user_id(
     get_factory("Conversation", session).create(title="test title", user_id=user.id)
     response = session_client.get("/v1/conversations:search", params={"query": "test"})
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 # FILES
@@ -612,17 +576,8 @@ def test_list_files_missing_user_id(
     conversation = get_factory("Conversation", session).create(user_id=user.id)
     response = session_client.get(f"/v1/conversations/{conversation.id}/files")
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_get_file(
@@ -787,17 +742,8 @@ def test_batch_upload_file_nonexistent_conversation_fails_if_user_id_not_provide
 
     response = session_client.post("/v1/conversations/batch_upload_file", files=files)
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_delete_file(
@@ -878,14 +824,5 @@ def test_fail_delete_file_missing_user_id(
         f"/v1/conversations/{conversation.id}/files/{file.id}"
     )
 
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }

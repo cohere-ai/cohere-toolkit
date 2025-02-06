@@ -115,17 +115,8 @@ def test_fail_generate_title_missing_user_id(
     response = session_client.post(
         f"/v1/conversations/{conversation.id}/generate-title"
     )
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": ["header", "user-id"],
-                "msg": "Field required",
-                "input": None,
-            }
-        ]
-    }
+    assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_fail_generate_title_nonexistent_conversation(
