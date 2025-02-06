@@ -450,6 +450,13 @@ class LoggerSettings(BaseSettings, BaseModel):
     )
 
 
+class MetricsSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    enabled: Optional[bool] = Field(
+        default=False, validation_alias=AliasChoices("METRICS_ENABLED", "enabled")
+    )
+
+
 class Settings(BaseSettings):
     """
     Settings class used to grab environment variables from configuration.yaml
@@ -467,6 +474,7 @@ class Settings(BaseSettings):
     google_cloud: Optional[GoogleCloudSettings] = Field(default=GoogleCloudSettings())
     deployments: Optional[DeploymentSettings] = Field(default=DeploymentSettings())
     logger: Optional[LoggerSettings] = Field(default=LoggerSettings())
+    metrics: Optional[MetricsSettings] = Field(default=MetricsSettings())
 
     def get(self, path: str) -> Any:
         keys = path.split('.')
