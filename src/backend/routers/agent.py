@@ -151,7 +151,7 @@ async def list_agents(
     *,
     page_params: PaginationQueryParams,
     visibility: VisibilityQueryParam = AgentVisibility.ALL,
-    organization_id: OrganizationIdQueryParam = None,
+    org_id: OrganizationIdQueryParam = None,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
@@ -163,8 +163,8 @@ async def list_agents(
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
     # request organization_id is used for filtering agents instead of header Organization-Id if enabled
-    if organization_id:
-        logger.debug(event="Request limited to organization", organization_id=organization_id)
+    if org_id:
+        logger.debug(event="Request limited to organization", organization_id=org_id)
         ctx.without_global_filtering()
 
     try:
@@ -174,7 +174,7 @@ async def list_agents(
             offset=page_params.offset,
             limit=page_params.limit,
             visibility=visibility,
-            organization_id=organization_id,
+            organization_id=org_id,
         )
         # Tradeoff: This appends the default Agent regardless of pagination
         agents.append(get_default_agent())

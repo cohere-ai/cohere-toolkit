@@ -14,7 +14,10 @@ from backend.services.auth.jwt import JWTService
 
 def validate_authorization(
     session: DBSessionDep,
-    authorization: Annotated[str|None, Header()] = None,
+    authorization: Annotated[str|None, Header(
+        title="Authorization",
+        description="Authorization header containing Bearer token",
+    )] = None,
 ) -> dict:
     """
     Validate that the request has the `Authorization` header, used for requests

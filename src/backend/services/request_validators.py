@@ -94,7 +94,10 @@ def validate_deployment_config(deployment_config: dict, deployment_db: Deploymen
 
 def validate_user_header(
     session: DBSessionDep,
-    user_id: Annotated[str|None, Header()] = None,
+    user_id: Annotated[str|None, Header(
+        title="User ID",
+        description="Unique identifier of User making the request",
+    )] = None,
 ) -> None:
     """
     Validate that the request has the `User-Id` header, used for requests
@@ -117,7 +120,10 @@ def validate_user_header(
 
 def validate_organization_header(
     session: DBSessionDep,
-    Organization_Id: Annotated[str|None, Header()] = None, # Not following snake_case so FastAPI parses dependencies properly
+    Organization_Id: Annotated[str|None, Header( # Not following snake_case so FastAPI parses dependencies properly
+        title="Organization ID",
+        description="Unique Identifier for the Organization making the request",
+    )] = None,
 ) -> None:
     """
     Validate that the request has the `Organization-Id` header, used for requests
@@ -134,7 +140,10 @@ def validate_organization_header(
 
 def validate_deployment_header(
     session: DBSessionDep,
-    deployment_name: Annotated[str|None, Header()] = None,
+    deployment_name: Annotated[str|None, Header(
+        title="Deployment Name",
+        description="Name of the Deployment to use for the request",
+    )] = None,
 ) -> None:
     """
     Validate that the request has the `Deployment-Name` header, used for chat requests
@@ -400,7 +409,7 @@ async def validate_organization_request(session: DBSessionDep, request: Request)
         HTTPException: If the request does not have the appropriate values in the body
     """
 
-    organization_id = request.path_params.get("organization_id")
+    organization_id = request.path_params.get("org_id")
     # Organization ID is required for PUT requests
     if request.method == "PUT":
         if not organization_id:

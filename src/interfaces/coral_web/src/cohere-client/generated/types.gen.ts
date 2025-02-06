@@ -2128,12 +2128,18 @@ export type backend__schemas__user__User = {
 };
 
 export type GetStrategiesV1AuthStrategiesGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type GetStrategiesV1AuthStrategiesGetResponse = Array<ListAuthStrategy>;
 
 export type LoginV1LoginPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: Login;
 };
@@ -2145,6 +2151,9 @@ export type AuthorizeV1StrategyAuthPostData = {
    * OAuth Code
    */
   code?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   /**
    * Name of strategy in question
@@ -2155,19 +2164,31 @@ export type AuthorizeV1StrategyAuthPostData = {
 export type AuthorizeV1StrategyAuthPostResponse = JWTResponse;
 
 export type LogoutV1LogoutGetData = {
+  /**
+   * Authorization header containing Bearer token
+   */
   authorization?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type LogoutV1LogoutGetResponse = Logout;
 
 export type ToolAuthV1ToolAuthGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type ToolAuthV1ToolAuthGetResponse = unknown;
 
 export type DeleteToolAuthV1ToolAuthToolIdDeleteData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   /**
    * Tool ID for tool in question
@@ -2178,33 +2199,63 @@ export type DeleteToolAuthV1ToolAuthToolIdDeleteData = {
 export type DeleteToolAuthV1ToolAuthToolIdDeleteResponse = DeleteToolAuth;
 
 export type ChatStreamV1ChatStreamPostData = {
+  /**
+   * Name of the Deployment to use for the request
+   */
   deploymentName?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CohereChatRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
 export type ChatStreamV1ChatStreamPostResponse = Array<ChatResponseEvent>;
 
 export type RegenerateChatStreamV1ChatStreamRegeneratePostData = {
+  /**
+   * Name of the Deployment to use for the request
+   */
   deploymentName?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CohereChatRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
 export type RegenerateChatStreamV1ChatStreamRegeneratePostResponse = unknown;
 
 export type ChatV1ChatPostData = {
+  /**
+   * Name of the Deployment to use for the request
+   */
   deploymentName?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CohereChatRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
 export type ChatV1ChatPostResponse = NonStreamedChatResponse;
 
 export type CreateUserV1UsersPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: backend__schemas__user__CreateUser;
 };
@@ -2220,12 +2271,18 @@ export type ListUsersV1UsersGetData = {
    * Offset for where request should start returning records from
    */
   offset?: number;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type ListUsersV1UsersGetResponse = Array<backend__schemas__user__User>;
 
 export type GetUserV1UsersUserIdGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   /**
    * User ID for the user in question
@@ -2236,6 +2293,9 @@ export type GetUserV1UsersUserIdGetData = {
 export type GetUserV1UsersUserIdGetResponse = backend__schemas__user__User;
 
 export type UpdateUserV1UsersUserIdPutData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: backend__schemas__user__UpdateUser;
   /**
@@ -2247,6 +2307,9 @@ export type UpdateUserV1UsersUserIdPutData = {
 export type UpdateUserV1UsersUserIdPutResponse = backend__schemas__user__User;
 
 export type DeleteUserV1UsersUserIdDeleteData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   /**
    * User ID for the user in question
@@ -2261,7 +2324,13 @@ export type GetConversationV1ConversationsConversationIdGetData = {
    * Conversation ID for conversation in question
    */
   conversationId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2272,8 +2341,14 @@ export type UpdateConversationV1ConversationsConversationIdPutData = {
    * Conversation ID for conversation in question
    */
   conversationId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: UpdateConversationRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2284,7 +2359,13 @@ export type DeleteConversationV1ConversationsConversationIdDeleteData = {
    * Conversation ID for conversation in question
    */
   conversationId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2308,7 +2389,13 @@ export type ListConversationsV1ConversationsGetData = {
    * Field to sorts results by
    */
   orderBy?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2319,8 +2406,14 @@ export type ToggleConversationPinV1ConversationsConversationIdTogglePinPutData =
    * Conversation ID for conversation in question
    */
   conversationId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: ToggleConversationPinRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2344,11 +2437,17 @@ export type SearchConversationsV1ConversationsSearchGetData = {
    * Field to sorts results by
    */
   orderBy?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   /**
    * Query string to search for in a conversation title
    */
   query: string;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2357,7 +2456,13 @@ export type SearchConversationsV1ConversationsSearchGetResponse =
 
 export type BatchUploadFileV1ConversationsBatchUploadFilePostData = {
   formData: Body_batch_upload_file_v1_conversations_batch_upload_file_post;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2369,7 +2474,13 @@ export type ListFilesV1ConversationsConversationIdFilesGetData = {
    * Conversation ID for conversation in question
    */
   conversationId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2384,7 +2495,13 @@ export type GetFileV1ConversationsConversationIdFilesFileIdGetData = {
    * File ID for file in question
    */
   fileId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2399,7 +2516,13 @@ export type DeleteFileV1ConversationsConversationIdFilesFileIdDeleteData = {
    * File ID for file in question
    */
   fileId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2415,7 +2538,13 @@ export type GenerateTitleV1ConversationsConversationIdGenerateTitlePostData = {
    * Model to filter results by
    */
   model?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2431,7 +2560,13 @@ export type SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGet
    * Message ID for message in question
    */
   messageId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2442,12 +2577,18 @@ export type ListToolsV1ToolsGetData = {
    * Agent ID to filter results by
    */
   agentId?: string | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type ListToolsV1ToolsGetResponse = Array<ToolDefinition>;
 
 export type CreateDeploymentV1DeploymentsPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: DeploymentCreate;
 };
@@ -2459,6 +2600,9 @@ export type ListDeploymentsV1DeploymentsGetData = {
    * Include all deployments, regardless of availability.
    */
   all?: boolean | null;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2469,6 +2613,9 @@ export type UpdateDeploymentV1DeploymentsDeploymentIdPutData = {
    * Deployment ID for deployment in question
    */
   deploymentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: DeploymentUpdate;
 };
@@ -2480,6 +2627,9 @@ export type GetDeploymentV1DeploymentsDeploymentIdGetData = {
    * Deployment ID for deployment in question
    */
   deploymentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2490,6 +2640,9 @@ export type DeleteDeploymentV1DeploymentsDeploymentIdDeleteData = {
    * Deployment ID for deployment in question
    */
   deploymentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2500,6 +2653,9 @@ export type UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData = {
    * Deployment ID for deployment in question
    */
   deploymentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: UpdateDeploymentEnv;
 };
@@ -2507,6 +2663,9 @@ export type UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostData = {
 export type UpdateConfigV1DeploymentsDeploymentIdUpdateConfigPostResponse = DeploymentDefinition;
 
 export type ListExperimentalFeaturesV1ExperimentalFeaturesGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2515,8 +2674,14 @@ export type ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse = {
 };
 
 export type CreateAgentV1AgentsPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CreateAgentRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2532,10 +2697,13 @@ export type ListAgentsV1AgentsGetData = {
    */
   offset?: number;
   /**
-   * Organization ID to filter results by
+   * Unique Identifier for the Organization making the request
    */
   organizationId?: string | null;
-  organizationId?: string | null;
+  /**
+   * Organization ID to filter results by
+   */
+  orgId?: string | null;
   /**
    * Agent visibility
    */
@@ -2549,6 +2717,9 @@ export type GetAgentByIdV1AgentsAgentIdGetData = {
    * Agent ID for agent in question
    */
   agentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2559,8 +2730,14 @@ export type UpdateAgentV1AgentsAgentIdPutData = {
    * Agent ID for agent in question
    */
   agentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: UpdateAgentRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2571,6 +2748,9 @@ export type DeleteAgentV1AgentsAgentIdDeleteData = {
    * Agent ID for agent in question
    */
   agentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2581,6 +2761,9 @@ export type GetAgentDeploymentV1AgentsAgentIdDeploymentsGetData = {
    * Agent ID for agent in question
    */
   agentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2591,6 +2774,9 @@ export type ListAgentToolMetadataV1AgentsAgentIdToolMetadataGetData = {
    * Agent ID for agent in question
    */
   agentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2602,6 +2788,9 @@ export type CreateAgentToolMetadataV1AgentsAgentIdToolMetadataPostData = {
    * Agent ID for agent in question
    */
   agentId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CreateAgentToolMetadataRequest;
 };
@@ -2618,6 +2807,9 @@ export type UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataI
    * Agent Tool Metadata ID for tool metadata in question
    */
   agentToolMetadataId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: UpdateAgentToolMetadataRequest;
 };
@@ -2634,6 +2826,9 @@ export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataI
    * Agent Tool Metadata ID for tool metadata in question
    */
   agentToolMetadataId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2642,6 +2837,9 @@ export type DeleteAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataI
 
 export type BatchUploadFileV1AgentsBatchUploadFilePostData = {
   formData: Body_batch_upload_file_v1_agents_batch_upload_file_post;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2656,6 +2854,9 @@ export type GetAgentFileV1AgentsAgentIdFilesFileIdGetData = {
    * File ID for file in question
    */
   fileId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2670,21 +2871,36 @@ export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteData = {
    * File ID for file in question
    */
   fileId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type DeleteAgentFileV1AgentsAgentIdFilesFileIdDeleteResponse = DeleteAgentFileResponse;
 
 export type CreateSnapshotV1SnapshotsPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CreateSnapshotRequest;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
 export type CreateSnapshotV1SnapshotsPostResponse = CreateSnapshotResponse;
 
 export type ListSnapshotsV1SnapshotsGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2695,7 +2911,13 @@ export type GetSnapshotV1SnapshotsLinkLinkIdGetData = {
    * Link ID for the snapshot link in question
    */
   linkId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
@@ -2706,24 +2928,39 @@ export type DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteData = {
    * Link ID for the snapshot link in question
    */
   linkId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
 export type DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse = DeleteSnapshotLinkResponse;
 
 export type DeleteSnapshotV1SnapshotsSnapshotIdDeleteData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   /**
    * Snapshot ID for the snapshot in question
    */
   snapshotId: string;
+  /**
+   * Unique identifier of User making the request
+   */
   userId?: string | null;
 };
 
 export type DeleteSnapshotV1SnapshotsSnapshotIdDeleteResponse = DeleteSnapshotResponse;
 
 export type CreateOrganizationV1OrganizationsPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: CreateOrganization;
 };
@@ -2731,54 +2968,72 @@ export type CreateOrganizationV1OrganizationsPostData = {
 export type CreateOrganizationV1OrganizationsPostResponse = Organization;
 
 export type ListOrganizationsV1OrganizationsGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
 export type ListOrganizationsV1OrganizationsGetResponse = Array<Organization>;
 
-export type UpdateOrganizationV1OrganizationsOrganizationIdPutData = {
+export type UpdateOrganizationV1OrganizationsOrgIdPutData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
+  organizationId?: string | null;
   /**
    * Organization ID for the organization in question
    */
-  organizationId: string;
-  organizationId?: string | null;
+  orgId: string;
   requestBody: UpdateOrganization;
 };
 
-export type UpdateOrganizationV1OrganizationsOrganizationIdPutResponse = Organization;
+export type UpdateOrganizationV1OrganizationsOrgIdPutResponse = Organization;
 
-export type GetOrganizationV1OrganizationsOrganizationIdGetData = {
+export type GetOrganizationV1OrganizationsOrgIdGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
+  organizationId?: string | null;
   /**
    * Organization ID for the organization in question
    */
-  organizationId: string;
-  organizationId?: string | null;
+  orgId: string;
 };
 
-export type GetOrganizationV1OrganizationsOrganizationIdGetResponse = Organization;
+export type GetOrganizationV1OrganizationsOrgIdGetResponse = Organization;
 
-export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteData = {
+export type DeleteOrganizationV1OrganizationsOrgIdDeleteData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
+  organizationId?: string | null;
   /**
    * Organization ID for the organization in question
    */
-  organizationId: string;
-  organizationId?: string | null;
+  orgId: string;
 };
 
-export type DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse = DeleteOrganization;
+export type DeleteOrganizationV1OrganizationsOrgIdDeleteResponse = DeleteOrganization;
 
-export type GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData = {
+export type GetOrganizationUsersV1OrganizationsOrgIdUsersGetData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
+  organizationId?: string | null;
   /**
    * Organization ID for the organization in question
    */
-  organizationId: string;
-  organizationId?: string | null;
+  orgId: string;
 };
 
-export type GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetResponse =
+export type GetOrganizationUsersV1OrganizationsOrgIdUsersGetResponse =
   Array<backend__schemas__user__User>;
 
 export type CreateModelV1ModelsPostData = {
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: ModelCreate;
 };
@@ -2794,6 +3049,9 @@ export type ListModelsV1ModelsGetData = {
    * Offset for where request should start returning records from
    */
   offset?: number;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2804,6 +3062,9 @@ export type UpdateModelV1ModelsModelIdPutData = {
    * Model ID for the model in question
    */
   modelId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
   requestBody: ModelUpdate;
 };
@@ -2815,6 +3076,9 @@ export type GetModelV1ModelsModelIdGetData = {
    * Model ID for the model in question
    */
   modelId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -2825,6 +3089,9 @@ export type DeleteModelV1ModelsModelIdDeleteData = {
    * Model ID for the model in question
    */
   modelId: string;
+  /**
+   * Unique Identifier for the Organization making the request
+   */
   organizationId?: string | null;
 };
 
@@ -3712,9 +3979,9 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/organizations/{organization_id}': {
+  '/v1/organizations/{org_id}': {
     put: {
-      req: UpdateOrganizationV1OrganizationsOrganizationIdPutData;
+      req: UpdateOrganizationV1OrganizationsOrgIdPutData;
       res: {
         /**
          * Successful Response
@@ -3727,7 +3994,7 @@ export type $OpenApiTs = {
       };
     };
     get: {
-      req: GetOrganizationV1OrganizationsOrganizationIdGetData;
+      req: GetOrganizationV1OrganizationsOrgIdGetData;
       res: {
         /**
          * Successful Response
@@ -3740,7 +4007,7 @@ export type $OpenApiTs = {
       };
     };
     delete: {
-      req: DeleteOrganizationV1OrganizationsOrganizationIdDeleteData;
+      req: DeleteOrganizationV1OrganizationsOrgIdDeleteData;
       res: {
         /**
          * Successful Response
@@ -3753,9 +4020,9 @@ export type $OpenApiTs = {
       };
     };
   };
-  '/v1/organizations/{organization_id}/users': {
+  '/v1/organizations/{org_id}/users': {
     get: {
-      req: GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData;
+      req: GetOrganizationUsersV1OrganizationsOrgIdUsersGetData;
       res: {
         /**
          * Successful Response
