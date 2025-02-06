@@ -18,6 +18,7 @@ from backend.config.auth import (
 from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
 from backend.config.settings import Settings
 from backend.exceptions import DeploymentNotFoundError
+from backend.metrics import RequestMetricsMiddleware
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
@@ -33,6 +34,7 @@ from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.context import ContextMiddleware, get_context
 from backend.services.logger.middleware import LoggingMiddleware
+from backend.services.logger.utils import LoggerFactory
 
 # Only show errors for Pydantic
 logging.getLogger('pydantic').setLevel(logging.ERROR)
@@ -106,6 +108,10 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.add_middleware(LoggingMiddleware)
+    if settings.get("metrics.enabled"):
+        logger = LoggerFactory().get_logger()
+        logger.info(event="Metrics enabled")
+        app.add_middleware(RequestMetricsMiddleware)
     app.add_middleware(ContextMiddleware)  # This should be the first middleware
     app.add_exception_handler(SCIMException, scim_exception_handler)  # pyright: ignore
 
@@ -113,6 +119,7 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
 
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
