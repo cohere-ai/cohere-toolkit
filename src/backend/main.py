@@ -18,7 +18,7 @@ from backend.config.auth import (
 from backend.config.routers import ROUTER_DEPENDENCIES, RouterName
 from backend.config.settings import Settings
 from backend.exceptions import DeploymentNotFoundError
-from backend.metrics import RequestMetricsMiddleware, collector
+from backend.metrics import RequestMetricsMiddleware
 from backend.routers.agent import router as agent_router
 from backend.routers.auth import router as auth_router
 from backend.routers.chat import router as chat_router
