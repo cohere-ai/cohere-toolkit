@@ -158,3 +158,4 @@ logs/
 credentials.json
 token.json
 src/interfaces/assistants_web/bun.lockb
+/metrics/
