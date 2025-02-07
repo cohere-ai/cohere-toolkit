@@ -144,7 +144,7 @@ async def delete_deployment(
 
 
 @router.post("/{deployment_id}/update_config", response_model=DeploymentDefinition)
-async def update_config(
+async def update_db_config(
     *,
     deployment_id: DeploymentIdPathParam,
     env_vars: UpdateDeploymentEnv,
@@ -155,7 +155,7 @@ async def update_config(
     Set environment variables for the deployment.
     """
     return mask_deployment_secrets(
-        deployment_service.update_config(session, deployment_id, valid_env_vars)
+        deployment_service.update_db_config(session, deployment_id, valid_env_vars)
     )
 
 
