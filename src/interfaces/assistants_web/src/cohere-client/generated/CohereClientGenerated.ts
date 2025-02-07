@@ -41,7 +41,7 @@ export class CohereClientGenerated {
   ) {
     this.request = new HttpRequest({
       BASE: config?.BASE ?? '',
-      VERSION: config?.VERSION ?? '1.1.6',
+      VERSION: config?.VERSION ?? '1.1.7',
       WITH_CREDENTIALS: config?.WITH_CREDENTIALS ?? false,
       CREDENTIALS: config?.CREDENTIALS ?? 'include',
       TOKEN: config?.TOKEN,

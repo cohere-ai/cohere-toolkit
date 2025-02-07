@@ -47,7 +47,7 @@ load_dotenv()
 ORIGINS = ["*"]
 
 
-_RELEASE_VERSION = "v1.1.6"
+_RELEASE_VERSION = "v1.1.7"
 
 
 @asynccontextmanager
