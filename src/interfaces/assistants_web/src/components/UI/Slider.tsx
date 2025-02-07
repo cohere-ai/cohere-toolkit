@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 
 import { InputLabel, Text } from '@/components/UI';
 import { cn } from '@/utils';
@@ -50,12 +50,6 @@ export const Slider: React.FC<Props> = ({
 
     onChange(value);
   };
-
-  const ticks = useMemo(() => {
-    return Array.from({ length: (max - min) / step + 1 }, (_, i) => {
-      return i * step + min;
-    });
-  }, [max, min, step]);
 
   return (
     <div className={cn('flex flex-col space-y-4', className)}>

@@ -261,6 +261,7 @@ def test_create_agent_missing_user_id_header(
     }
     response = session_client.post("/v1/agents", json=request_json)
     assert response.status_code == 401
+    assert response.json() == { "detail": "User-Id required in request headers." }
 
 
 def test_create_agent_invalid_deployment(
@@ -412,7 +413,7 @@ def test_list_organization_agents_query_param(
         )
 
     response = session_client.get(
-        f"/v1/agents?organization_id={organization1.id}",
+        f"/v1/agents?org_id={organization1.id}",
         headers={"User-Id": user.id, "Organization-Id": organization.id},
     )
     assert response.status_code == 200

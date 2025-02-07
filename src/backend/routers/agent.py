@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File as RequestFile
 from fastapi import UploadFile as FastAPIUploadFile
 
+from backend.config.auth import is_authentication_enabled
 from backend.config.default_agent import DEFAULT_AGENT_ID, get_default_agent
 from backend.config.routers import RouterName
 from backend.crud import agent as agent_crud
@@ -70,12 +71,14 @@ router = APIRouter(
 )
 router.name = RouterName.AGENT
 
+auth_dependencies = [] if is_authentication_enabled() else [Depends(validate_user_header)]
+
 
 @router.post(
     "",
     response_model=AgentPublic,
     dependencies=[
-        Depends(validate_user_header),
+        *auth_dependencies,
         Depends(validate_create_agent_request),
     ],
 )
@@ -148,7 +151,7 @@ async def list_agents(
     *,
     page_params: PaginationQueryParams,
     visibility: VisibilityQueryParam = AgentVisibility.ALL,
-    organization_id: OrganizationIdQueryParam = None,
+    org_id: OrganizationIdQueryParam = None,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> list[AgentPublic]:
@@ -160,8 +163,8 @@ async def list_agents(
     user_id = ctx.get_user_id()
     logger = ctx.get_logger()
     # request organization_id is used for filtering agents instead of header Organization-Id if enabled
-    if organization_id:
-        logger.debug(event="Request limited to organization", organization_id=organization_id)
+    if org_id:
+        logger.debug(event="Request limited to organization", organization_id=org_id)
         ctx.without_global_filtering()
 
     try:
@@ -171,7 +174,7 @@ async def list_agents(
             offset=page_params.offset,
             limit=page_params.limit,
             visibility=visibility,
-            organization_id=organization_id,
+            organization_id=org_id,
         )
         # Tradeoff: This appends the default Agent regardless of pagination
         agents.append(get_default_agent())
@@ -245,7 +248,7 @@ async def get_agent_deployment(
     "/{agent_id}",
     response_model=AgentPublic,
     dependencies=[
-        Depends(validate_user_header),
+        *auth_dependencies,
         Depends(validate_update_agent_request),
     ],
 )

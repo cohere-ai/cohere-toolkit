@@ -44,14 +44,14 @@ def create_organization(
 
 
 @router.put(
-    "/{organization_id}",
+    "/{org_id}",
     response_model=Organization,
     dependencies=[
         Depends(validate_organization_request),
     ],
 )
 def update_organization(
-    organization_id: OrganizationIdPathParam,
+    org_id: OrganizationIdPathParam,
     new_organization: UpdateOrganization,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
@@ -59,40 +59,40 @@ def update_organization(
     """
     Update organization by ID.
     """
-    organization = organization_crud.get_organization(session, organization_id)
+    organization = organization_crud.get_organization(session, org_id)
     return organization_crud.update_organization(
         session, organization, new_organization
     )
 
 
-@router.get("/{organization_id}", response_model=Organization)
+@router.get("/{org_id}", response_model=Organization)
 def get_organization(
-    organization_id: OrganizationIdPathParam,
+    org_id: OrganizationIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> Organization:
     """
     Get a organization by ID.
     """
-    organization = organization_crud.get_organization(session, organization_id)
+    organization = organization_crud.get_organization(session, org_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
     return organization
 
 
-@router.delete("/{organization_id}", response_model=DeleteOrganization)
+@router.delete("/{org_id}", response_model=DeleteOrganization)
 def delete_organization(
-    organization_id: OrganizationIdPathParam,
+    org_id: OrganizationIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> DeleteOrganization:
     """
     Delete a organization by ID.
     """
-    organization = organization_crud.get_organization(session, organization_id)
+    organization = organization_crud.get_organization(session, org_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
-    organization_crud.delete_organization(session, organization_id)
+    organization_crud.delete_organization(session, org_id)
 
     return DeleteOrganization()
 
@@ -109,16 +109,16 @@ def list_organizations(
     return all_organizations
 
 
-@router.get("/{organization_id}/users", response_model=list[User])
+@router.get("/{org_id}/users", response_model=list[User])
 def get_organization_users(
-    organization_id: OrganizationIdPathParam,
+    org_id: OrganizationIdPathParam,
     session: DBSessionDep,
     ctx: Context = Depends(get_context),
 ) -> list[User]:
     """
     Get organization users by ID.
     """
-    organization = organization_crud.get_organization(session, organization_id)
+    organization = organization_crud.get_organization(session, org_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
 

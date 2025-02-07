@@ -31,26 +31,31 @@ class RouterName(StrEnum):
     SCIM = "scim"
 
 
+class DependencyType(StrEnum):
+    DEFAULT = "default"
+    AUTH = "auth"
+
+
 # Router dependency mappings
 ROUTER_DEPENDENCIES = {
     RouterName.AUTH: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
     },
     RouterName.CHAT: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_user_header),
             Depends(validate_chat_request),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_chat_request),
             Depends(validate_authorization),
@@ -58,112 +63,111 @@ ROUTER_DEPENDENCIES = {
         ],
     },
     RouterName.CONVERSATION: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_user_header),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.DEPLOYMENT: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.EXPERIMENTAL_FEATURES: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.ORGANIZATION: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.TOOL: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.USER: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
-            # TODO: Remove auth only for create user endpoint
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
     },
     RouterName.AGENT: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.SNAPSHOT: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_user_header),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.MODEL: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(validate_organization_header),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(get_session),
             Depends(validate_authorization),
             Depends(validate_organization_header),
         ],
     },
     RouterName.SCIM: {
-        "default": [
+        DependencyType.DEFAULT: [
             Depends(get_session),
             Depends(ScimAuthValidation()),
         ],
-        "auth": [
+        DependencyType.AUTH: [
             Depends(ScimAuthValidation()),
         ],
     },

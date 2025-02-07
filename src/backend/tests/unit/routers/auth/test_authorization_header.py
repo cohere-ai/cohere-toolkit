@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import freezegun
 import pytest
 from fastapi import HTTPException
@@ -28,11 +26,9 @@ def test_validate_authorization_valid_token(
     assert response.status_code == 200
 
 
-def test_validate_authorization_no_authorization():
-    request_mock = MagicMock(headers={})
-
+def test_validate_authorization_no_authorization(session: Session):
     with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization(request_mock)
+        _ = validate_authorization(session, "")
 
     exception = exc.value
     assert exception.status_code == 401
@@ -41,11 +37,9 @@ def test_validate_authorization_no_authorization():
     )
 
 
-def test_validate_authorization_no_bearer():
-    request_mock = MagicMock(headers={"Authorization": "test invalid_token"})
-
+def test_validate_authorization_no_bearer(session: Session):
     with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization(request_mock)
+        _ = validate_authorization(session, "test invalid_token")
 
     exception = exc.value
     assert exception.status_code == 401
@@ -54,27 +48,23 @@ def test_validate_authorization_no_bearer():
     )
 
 
-def test_validate_authorization_invalid_token():
-    request_mock = MagicMock(headers={"Authorization": "Bearer invalid_token"})
-
+def test_validate_authorization_invalid_token(session: Session):
     with pytest.raises(HTTPException) as exc:
-        _ = validate_authorization(request_mock)
+        _ = validate_authorization(session, "Bearer invalid_token")
 
     exception = exc.value
     assert exception.status_code == 401
     assert exception.detail == "Bearer token is invalid or expired."
 
 
-def test_validate_authorization_expired_token(session):
+def test_validate_authorization_expired_token(session: Session):
     user = {"user_id": "test"}
     with freezegun.freeze_time("2023-01-01 00:00:00"):
         token = JWTService().create_and_encode_jwt(user)
 
-    request_mock = MagicMock(headers={"Authorization": f"Bearer {token}"})
-
     with freezegun.freeze_time("2024-05-01 00:00:00"):
         with pytest.raises(HTTPException) as exc:
-            _ = validate_authorization(request_mock, session)
+            _ = validate_authorization(session, f"Bearer {token}")
 
     exception = exc.value
     assert exception.status_code == 401

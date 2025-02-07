@@ -46,8 +46,8 @@ import type {
   DeleteGroupScimV2GroupsGroupIdDeleteResponse,
   DeleteModelV1ModelsModelIdDeleteData,
   DeleteModelV1ModelsModelIdDeleteResponse,
-  DeleteOrganizationV1OrganizationsOrganizationIdDeleteData,
-  DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse,
+  DeleteOrganizationV1OrganizationsOrgIdDeleteData,
+  DeleteOrganizationV1OrganizationsOrgIdDeleteResponse,
   DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteData,
   DeleteSnapshotLinkV1SnapshotsLinkLinkIdDeleteResponse,
   DeleteSnapshotV1SnapshotsSnapshotIdDeleteData,
@@ -76,12 +76,13 @@ import type {
   GetGroupsScimV2GroupsGetResponse,
   GetModelV1ModelsModelIdGetData,
   GetModelV1ModelsModelIdGetResponse,
-  GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData,
-  GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetResponse,
-  GetOrganizationV1OrganizationsOrganizationIdGetData,
-  GetOrganizationV1OrganizationsOrganizationIdGetResponse,
+  GetOrganizationUsersV1OrganizationsOrgIdUsersGetData,
+  GetOrganizationUsersV1OrganizationsOrgIdUsersGetResponse,
+  GetOrganizationV1OrganizationsOrgIdGetData,
+  GetOrganizationV1OrganizationsOrgIdGetResponse,
   GetSnapshotV1SnapshotsLinkLinkIdGetData,
   GetSnapshotV1SnapshotsLinkLinkIdGetResponse,
+  GetStrategiesV1AuthStrategiesGetData,
   GetStrategiesV1AuthStrategiesGetResponse,
   GetUserScimV2UsersUserIdGetData,
   GetUserScimV2UsersUserIdGetResponse,
@@ -98,12 +99,15 @@ import type {
   ListConversationsV1ConversationsGetResponse,
   ListDeploymentsV1DeploymentsGetData,
   ListDeploymentsV1DeploymentsGetResponse,
+  ListExperimentalFeaturesV1ExperimentalFeaturesGetData,
   ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse,
   ListFilesV1ConversationsConversationIdFilesGetData,
   ListFilesV1ConversationsConversationIdFilesGetResponse,
   ListModelsV1ModelsGetData,
   ListModelsV1ModelsGetResponse,
+  ListOrganizationsV1OrganizationsGetData,
   ListOrganizationsV1OrganizationsGetResponse,
+  ListSnapshotsV1SnapshotsGetData,
   ListSnapshotsV1SnapshotsGetResponse,
   ListToolsV1ToolsGetData,
   ListToolsV1ToolsGetResponse,
@@ -111,6 +115,7 @@ import type {
   ListUsersV1UsersGetResponse,
   LoginV1LoginPostData,
   LoginV1LoginPostResponse,
+  LogoutV1LogoutGetData,
   LogoutV1LogoutGetResponse,
   PatchGroupScimV2GroupsGroupIdPatchData,
   PatchGroupScimV2GroupsGroupIdPatchResponse,
@@ -124,6 +129,7 @@ import type {
   SynthesizeMessageV1ConversationsConversationIdSynthesizeMessageIdGetResponse,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutData,
   ToggleConversationPinV1ConversationsConversationIdTogglePinPutResponse,
+  ToolAuthV1ToolAuthGetData,
   ToolAuthV1ToolAuthGetResponse,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutData,
   UpdateAgentToolMetadataV1AgentsAgentIdToolMetadataAgentToolMetadataIdPutResponse,
@@ -137,8 +143,8 @@ import type {
   UpdateDeploymentV1DeploymentsDeploymentIdPutResponse,
   UpdateModelV1ModelsModelIdPutData,
   UpdateModelV1ModelsModelIdPutResponse,
-  UpdateOrganizationV1OrganizationsOrganizationIdPutData,
-  UpdateOrganizationV1OrganizationsOrganizationIdPutResponse,
+  UpdateOrganizationV1OrganizationsOrgIdPutData,
+  UpdateOrganizationV1OrganizationsOrgIdPutResponse,
   UpdateUserScimV2UsersUserIdPutData,
   UpdateUserScimV2UsersUserIdPutResponse,
   UpdateUserV1UsersUserIdPutData,
@@ -151,13 +157,23 @@ export class AuthService {
   /**
    * Get Strategies
    * Retrieves the currently enabled list of Authentication strategies.
+   * @param data The data for the request.
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ListAuthStrategy Successful Response
    * @throws ApiError
    */
-  public getStrategiesV1AuthStrategiesGet(): CancelablePromise<GetStrategiesV1AuthStrategiesGetResponse> {
+  public getStrategiesV1AuthStrategiesGet(
+    data: GetStrategiesV1AuthStrategiesGetData = {}
+  ): CancelablePromise<GetStrategiesV1AuthStrategiesGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/auth_strategies',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 
@@ -170,6 +186,7 @@ export class AuthService {
    * HTTPException: If the strategy or payload are invalid, or if the login fails.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -177,6 +194,9 @@ export class AuthService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/login',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -194,6 +214,7 @@ export class AuthService {
    * @param data The data for the request.
    * @param data.strategy Name of strategy in question
    * @param data.code OAuth Code
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns JWTResponse Successful Response
    * @throws ApiError
    */
@@ -205,6 +226,9 @@ export class AuthService {
       url: '/v1/{strategy}/auth',
       path: {
         strategy: data.strategy,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       query: {
         code: data.code,
@@ -218,13 +242,25 @@ export class AuthService {
   /**
    * Logout
    * Logs out the current user, adding the given JWT token to the blacklist.
+   * @param data The data for the request.
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @param data.authorization Authorization header containing Bearer token
    * @returns Logout Successful Response
    * @throws ApiError
    */
-  public logoutV1LogoutGet(): CancelablePromise<LogoutV1LogoutGetResponse> {
+  public logoutV1LogoutGet(
+    data: LogoutV1LogoutGetData = {}
+  ): CancelablePromise<LogoutV1LogoutGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/logout',
+      headers: {
+        'Organization-Id': data.organizationId,
+        authorization: data.authorization,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 
@@ -242,13 +278,23 @@ export class AuthService {
    *
    * Raises:
    * HTTPException: If no redirect_uri set.
+   * @param data The data for the request.
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns unknown Successful Response
    * @throws ApiError
    */
-  public toolAuthV1ToolAuthGet(): CancelablePromise<ToolAuthV1ToolAuthGetResponse> {
+  public toolAuthV1ToolAuthGet(
+    data: ToolAuthV1ToolAuthGetData = {}
+  ): CancelablePromise<ToolAuthV1ToolAuthGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tool/auth',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 
@@ -262,6 +308,7 @@ export class AuthService {
    * HTTPException: If there was an error deleting the tool auth.
    * @param data The data for the request.
    * @param data.toolId Tool ID for tool in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteToolAuth Successful Response
    * @throws ApiError
    */
@@ -273,6 +320,9 @@ export class AuthService {
       url: '/v1/tool/auth/{tool_id}',
       path: {
         tool_id: data.toolId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -289,6 +339,9 @@ export class ChatService {
    * Stream chat endpoint to handle user messages and return chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @param data.deploymentName Name of the Deployment to use for the request
    * @returns ChatResponseEvent Successful Response
    * @throws ApiError
    */
@@ -298,6 +351,11 @@ export class ChatService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+        'deployment-name': data.deploymentName,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -311,6 +369,9 @@ export class ChatService {
    * Endpoint to regenerate stream chat response for the last user message.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @param data.deploymentName Name of the Deployment to use for the request
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -320,6 +381,11 @@ export class ChatService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat-stream/regenerate',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+        'deployment-name': data.deploymentName,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -333,6 +399,9 @@ export class ChatService {
    * Chat endpoint to handle user messages and return chatbot responses.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @param data.deploymentName Name of the Deployment to use for the request
    * @returns NonStreamedChatResponse Successful Response
    * @throws ApiError
    */
@@ -340,6 +409,11 @@ export class ChatService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/chat',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+        'deployment-name': data.deploymentName,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -357,6 +431,7 @@ export class UserService {
    * Create a new user.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -366,6 +441,9 @@ export class UserService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/users',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -380,6 +458,7 @@ export class UserService {
    * @param data The data for the request.
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -389,6 +468,9 @@ export class UserService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/users',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       query: {
         offset: data.offset,
         limit: data.limit,
@@ -407,6 +489,7 @@ export class UserService {
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
    * @param data.userId User ID for the user in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -418,6 +501,9 @@ export class UserService {
       url: '/v1/users/{user_id}',
       path: {
         user_id: data.userId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -434,6 +520,7 @@ export class UserService {
    * @param data The data for the request.
    * @param data.userId User ID for the user in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
@@ -445,6 +532,9 @@ export class UserService {
       url: '/v1/users/{user_id}',
       path: {
         user_id: data.userId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -462,6 +552,7 @@ export class UserService {
    * HTTPException: If the user with the given ID is not found.
    * @param data The data for the request.
    * @param data.userId User ID for the user in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteUser Successful Response
    * @throws ApiError
    */
@@ -473,6 +564,9 @@ export class UserService {
       url: '/v1/users/{user_id}',
       path: {
         user_id: data.userId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -492,6 +586,8 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ConversationPublic Successful Response
    * @throws ApiError
    */
@@ -503,6 +599,10 @@ export class ConversationService {
       url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: data.conversationId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -519,6 +619,8 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.requestBody
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ConversationPublic Successful Response
    * @throws ApiError
    */
@@ -530,6 +632,10 @@ export class ConversationService {
       url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: data.conversationId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -547,6 +653,8 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteConversationResponse Successful Response
    * @throws ApiError
    */
@@ -558,6 +666,10 @@ export class ConversationService {
       url: '/v1/conversations/{conversation_id}',
       path: {
         conversation_id: data.conversationId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -573,6 +685,8 @@ export class ConversationService {
    * @param data.agentId Agent ID to filter results by
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
@@ -582,6 +696,10 @@ export class ConversationService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       query: {
         order_by: data.orderBy,
         agent_id: data.agentId,
@@ -600,6 +718,8 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.requestBody
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
@@ -611,6 +731,10 @@ export class ConversationService {
       url: '/v1/conversations/{conversation_id}/toggle-pin',
       path: {
         conversation_id: data.conversationId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -629,6 +753,8 @@ export class ConversationService {
    * @param data.agentId Agent ID to filter results by
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ConversationWithoutMessages Successful Response
    * @throws ApiError
    */
@@ -638,6 +764,10 @@ export class ConversationService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/conversations:search',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       query: {
         query: data.query,
         order_by: data.orderBy,
@@ -661,6 +791,8 @@ export class ConversationService {
    * HTTPException: If the file wasn't uploaded correctly. Status code 500.
    * @param data The data for the request.
    * @param data.formData
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns UploadConversationFileResponse Successful Response
    * @throws ApiError
    */
@@ -670,6 +802,10 @@ export class ConversationService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/conversations/batch_upload_file',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       formData: data.formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -686,6 +822,8 @@ export class ConversationService {
    * HTTPException: If the conversation with the given ID is not found.
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ListConversationFile Successful Response
    * @throws ApiError
    */
@@ -697,6 +835,10 @@ export class ConversationService {
       url: '/v1/conversations/{conversation_id}/files',
       path: {
         conversation_id: data.conversationId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -713,6 +855,8 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.fileId File ID for file in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns FileMetadata Successful Response
    * @throws ApiError
    */
@@ -725,6 +869,10 @@ export class ConversationService {
       path: {
         conversation_id: data.conversationId,
         file_id: data.fileId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -741,6 +889,8 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.fileId File ID for file in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteConversationFileResponse Successful Response
    * @throws ApiError
    */
@@ -753,6 +903,10 @@ export class ConversationService {
       path: {
         conversation_id: data.conversationId,
         file_id: data.fileId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -769,6 +923,8 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.model Model to filter results by
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns GenerateTitleResponse Successful Response
    * @throws ApiError
    */
@@ -780,6 +936,10 @@ export class ConversationService {
       url: '/v1/conversations/{conversation_id}/generate-title',
       path: {
         conversation_id: data.conversationId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       query: {
         model: data.model,
@@ -799,6 +959,8 @@ export class ConversationService {
    * @param data The data for the request.
    * @param data.conversationId Conversation ID for conversation in question
    * @param data.messageId Message ID for message in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns unknown Successful Response
    * @throws ApiError
    */
@@ -811,6 +973,10 @@ export class ConversationService {
       path: {
         conversation_id: data.conversationId,
         message_id: data.messageId,
+      },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -827,6 +993,7 @@ export class ToolService {
    * List all available tools.
    * @param data The data for the request.
    * @param data.agentId Agent ID to filter results by
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns ToolDefinition Successful Response
    * @throws ApiError
    */
@@ -836,6 +1003,9 @@ export class ToolService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/tools',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       query: {
         agent_id: data.agentId,
       },
@@ -854,6 +1024,7 @@ export class DeploymentService {
    * Create a new deployment.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
@@ -863,6 +1034,9 @@ export class DeploymentService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/deployments',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -876,6 +1050,7 @@ export class DeploymentService {
    * List all available deployments and their models.
    * @param data The data for the request.
    * @param data.all Include all deployments, regardless of availability.
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
@@ -885,6 +1060,9 @@ export class DeploymentService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/deployments',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       query: {
         all: data.all,
       },
@@ -903,6 +1081,7 @@ export class DeploymentService {
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
@@ -914,6 +1093,9 @@ export class DeploymentService {
       url: '/v1/deployments/{deployment_id}',
       path: {
         deployment_id: data.deploymentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -928,6 +1110,7 @@ export class DeploymentService {
    * Get a deployment by ID.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
@@ -939,6 +1122,9 @@ export class DeploymentService {
       url: '/v1/deployments/{deployment_id}',
       path: {
         deployment_id: data.deploymentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -954,6 +1140,7 @@ export class DeploymentService {
    * HTTPException: If the deployment with the given ID is not found.
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteDeployment Successful Response
    * @throws ApiError
    */
@@ -965,6 +1152,9 @@ export class DeploymentService {
       url: '/v1/deployments/{deployment_id}',
       path: {
         deployment_id: data.deploymentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -978,6 +1168,7 @@ export class DeploymentService {
    * @param data The data for the request.
    * @param data.deploymentId Deployment ID for deployment in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
@@ -989,6 +1180,9 @@ export class DeploymentService {
       url: '/v1/deployments/{deployment_id}/update_config',
       path: {
         deployment_id: data.deploymentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1005,13 +1199,23 @@ export class ExperimentalFeaturesService {
   /**
    * List Experimental Features
    * List all experimental features and if they are enabled
+   * @param data The data for the request.
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns boolean Successful Response
    * @throws ApiError
    */
-  public listExperimentalFeaturesV1ExperimentalFeaturesGet(): CancelablePromise<ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse> {
+  public listExperimentalFeaturesV1ExperimentalFeaturesGet(
+    data: ListExperimentalFeaturesV1ExperimentalFeaturesGetData = {}
+  ): CancelablePromise<ListExperimentalFeaturesV1ExperimentalFeaturesGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/experimental_features/',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
+      errors: {
+        422: 'Validation Error',
+      },
     });
   }
 }
@@ -1027,6 +1231,8 @@ export class AgentService {
    * HTTPException: If the agent creation fails.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @param data.userId Unique identifier of User making the request
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1036,6 +1242,10 @@ export class AgentService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/agents',
+      headers: {
+        'Organization-Id': data.organizationId,
+        'user-id': data.userId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -1049,9 +1259,10 @@ export class AgentService {
    * List all agents.
    * @param data The data for the request.
    * @param data.visibility Agent visibility
-   * @param data.organizationId Organization ID to filter results by
+   * @param data.orgId Organization ID to filter results by
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1061,9 +1272,12 @@ export class AgentService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/agents',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       query: {
         visibility: data.visibility,
-        organization_id: data.organizationId,
+        org_id: data.orgId,
         offset: data.offset,
         limit: data.limit,
       },
@@ -1081,6 +1295,7 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1092,6 +1307,9 @@ export class AgentService {
       url: '/v1/agents/{agent_id}',
       path: {
         agent_id: data.agentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1108,6 +1326,8 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @param data.userId Unique identifier of User making the request
    * @returns AgentPublic Successful Response
    * @throws ApiError
    */
@@ -1119,6 +1339,10 @@ export class AgentService {
       url: '/v1/agents/{agent_id}',
       path: {
         agent_id: data.agentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
+        'user-id': data.userId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1136,6 +1360,7 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteAgent Successful Response
    * @throws ApiError
    */
@@ -1147,6 +1372,9 @@ export class AgentService {
       url: '/v1/agents/{agent_id}',
       path: {
         agent_id: data.agentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1162,6 +1390,7 @@ export class AgentService {
    * HTTPException: If the agent with the given ID is not found.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeploymentDefinition Successful Response
    * @throws ApiError
    */
@@ -1173,6 +1402,9 @@ export class AgentService {
       url: '/v1/agents/{agent_id}/deployments',
       path: {
         agent_id: data.agentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1188,6 +1420,7 @@ export class AgentService {
    * HTTPException: If the agent tool metadata retrieval fails.
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
    */
@@ -1199,6 +1432,9 @@ export class AgentService {
       url: '/v1/agents/{agent_id}/tool-metadata',
       path: {
         agent_id: data.agentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1215,6 +1451,7 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns AgentToolMetadataPublic Successful Response
    * @throws ApiError
    */
@@ -1226,6 +1463,9 @@ export class AgentService {
       url: '/v1/agents/{agent_id}/tool-metadata',
       path: {
         agent_id: data.agentId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1246,6 +1486,7 @@ export class AgentService {
    * @param data.agentId Agent ID for agent in question
    * @param data.agentToolMetadataId Agent Tool Metadata ID for tool metadata in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns AgentToolMetadata Successful Response
    * @throws ApiError
    */
@@ -1258,6 +1499,9 @@ export class AgentService {
       path: {
         agent_id: data.agentId,
         agent_tool_metadata_id: data.agentToolMetadataId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1277,6 +1521,7 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.agentToolMetadataId Agent Tool Metadata ID for tool metadata in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteAgentToolMetadata Successful Response
    * @throws ApiError
    */
@@ -1290,6 +1535,9 @@ export class AgentService {
         agent_id: data.agentId,
         agent_tool_metadata_id: data.agentToolMetadataId,
       },
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1301,6 +1549,7 @@ export class AgentService {
    * Upload a batch of files
    * @param data The data for the request.
    * @param data.formData
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns UploadAgentFileResponse Successful Response
    * @throws ApiError
    */
@@ -1310,6 +1559,9 @@ export class AgentService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/agents/batch_upload_file',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       formData: data.formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -1327,6 +1579,7 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.fileId File ID for file in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns FileMetadata Successful Response
    * @throws ApiError
    */
@@ -1339,6 +1592,9 @@ export class AgentService {
       path: {
         agent_id: data.agentId,
         file_id: data.fileId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1355,6 +1611,7 @@ export class AgentService {
    * @param data The data for the request.
    * @param data.agentId Agent ID for agent in question
    * @param data.fileId File ID for file in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteAgentFileResponse Successful Response
    * @throws ApiError
    */
@@ -1368,6 +1625,9 @@ export class AgentService {
         agent_id: data.agentId,
         file_id: data.fileId,
       },
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1379,23 +1639,12 @@ export class SnapshotService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
-   * List Snapshots
-   * List all snapshots.
-   * @returns SnapshotWithLinks Successful Response
-   * @throws ApiError
-   */
-  public listSnapshotsV1SnapshotsGet(): CancelablePromise<ListSnapshotsV1SnapshotsGetResponse> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/snapshots',
-    });
-  }
-
-  /**
    * Create Snapshot
    * Create a new snapshot and snapshot link to share the conversation.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns CreateSnapshotResponse Successful Response
    * @throws ApiError
    */
@@ -1405,8 +1654,37 @@ export class SnapshotService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/snapshots',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Snapshots
+   * List all snapshots.
+   * @param data The data for the request.
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @returns SnapshotWithLinks Successful Response
+   * @throws ApiError
+   */
+  public listSnapshotsV1SnapshotsGet(
+    data: ListSnapshotsV1SnapshotsGetData = {}
+  ): CancelablePromise<ListSnapshotsV1SnapshotsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/snapshots',
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1418,6 +1696,8 @@ export class SnapshotService {
    * Get a snapshot by link ID.
    * @param data The data for the request.
    * @param data.linkId Link ID for the snapshot link in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns SnapshotPublic Successful Response
    * @throws ApiError
    */
@@ -1430,6 +1710,10 @@ export class SnapshotService {
       path: {
         link_id: data.linkId,
       },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1441,6 +1725,8 @@ export class SnapshotService {
    * Delete a snapshot link by ID.
    * @param data The data for the request.
    * @param data.linkId Link ID for the snapshot link in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteSnapshotLinkResponse Successful Response
    * @throws ApiError
    */
@@ -1453,6 +1739,10 @@ export class SnapshotService {
       path: {
         link_id: data.linkId,
       },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1464,6 +1754,8 @@ export class SnapshotService {
    * Delete a snapshot by ID.
    * @param data The data for the request.
    * @param data.snapshotId Snapshot ID for the snapshot in question
+   * @param data.userId Unique identifier of User making the request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteSnapshotResponse Successful Response
    * @throws ApiError
    */
@@ -1476,6 +1768,10 @@ export class SnapshotService {
       path: {
         snapshot_id: data.snapshotId,
       },
+      headers: {
+        'user-id': data.userId,
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1487,23 +1783,11 @@ export class OrganizationService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
 
   /**
-   * List Organizations
-   * List all available organizations.
-   * @returns Organization Successful Response
-   * @throws ApiError
-   */
-  public listOrganizationsV1OrganizationsGet(): CancelablePromise<ListOrganizationsV1OrganizationsGetResponse> {
-    return this.httpRequest.request({
-      method: 'GET',
-      url: '/v1/organizations',
-    });
-  }
-
-  /**
    * Create Organization
    * Create a new organization.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Organization Successful Response
    * @throws ApiError
    */
@@ -1513,8 +1797,34 @@ export class OrganizationService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/organizations',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
+      errors: {
+        422: 'Validation Error',
+      },
+    });
+  }
+
+  /**
+   * List Organizations
+   * List all available organizations.
+   * @param data The data for the request.
+   * @param data.organizationId Unique Identifier for the Organization making the request
+   * @returns Organization Successful Response
+   * @throws ApiError
+   */
+  public listOrganizationsV1OrganizationsGet(
+    data: ListOrganizationsV1OrganizationsGetData = {}
+  ): CancelablePromise<ListOrganizationsV1OrganizationsGetResponse> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v1/organizations',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       errors: {
         422: 'Validation Error',
       },
@@ -1525,19 +1835,23 @@ export class OrganizationService {
    * Update Organization
    * Update organization by ID.
    * @param data The data for the request.
-   * @param data.organizationId Organization ID for the organization in question
+   * @param data.orgId Organization ID for the organization in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Organization Successful Response
    * @throws ApiError
    */
-  public updateOrganizationV1OrganizationsOrganizationIdPut(
-    data: UpdateOrganizationV1OrganizationsOrganizationIdPutData
-  ): CancelablePromise<UpdateOrganizationV1OrganizationsOrganizationIdPutResponse> {
+  public updateOrganizationV1OrganizationsOrgIdPut(
+    data: UpdateOrganizationV1OrganizationsOrgIdPutData
+  ): CancelablePromise<UpdateOrganizationV1OrganizationsOrgIdPutResponse> {
     return this.httpRequest.request({
       method: 'PUT',
-      url: '/v1/organizations/{organization_id}',
+      url: '/v1/organizations/{org_id}',
       path: {
-        organization_id: data.organizationId,
+        org_id: data.orgId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1551,18 +1865,22 @@ export class OrganizationService {
    * Get Organization
    * Get a organization by ID.
    * @param data The data for the request.
-   * @param data.organizationId Organization ID for the organization in question
+   * @param data.orgId Organization ID for the organization in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Organization Successful Response
    * @throws ApiError
    */
-  public getOrganizationV1OrganizationsOrganizationIdGet(
-    data: GetOrganizationV1OrganizationsOrganizationIdGetData
-  ): CancelablePromise<GetOrganizationV1OrganizationsOrganizationIdGetResponse> {
+  public getOrganizationV1OrganizationsOrgIdGet(
+    data: GetOrganizationV1OrganizationsOrgIdGetData
+  ): CancelablePromise<GetOrganizationV1OrganizationsOrgIdGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/v1/organizations/{organization_id}',
+      url: '/v1/organizations/{org_id}',
       path: {
-        organization_id: data.organizationId,
+        org_id: data.orgId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1574,18 +1892,22 @@ export class OrganizationService {
    * Delete Organization
    * Delete a organization by ID.
    * @param data The data for the request.
-   * @param data.organizationId Organization ID for the organization in question
+   * @param data.orgId Organization ID for the organization in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteOrganization Successful Response
    * @throws ApiError
    */
-  public deleteOrganizationV1OrganizationsOrganizationIdDelete(
-    data: DeleteOrganizationV1OrganizationsOrganizationIdDeleteData
-  ): CancelablePromise<DeleteOrganizationV1OrganizationsOrganizationIdDeleteResponse> {
+  public deleteOrganizationV1OrganizationsOrgIdDelete(
+    data: DeleteOrganizationV1OrganizationsOrgIdDeleteData
+  ): CancelablePromise<DeleteOrganizationV1OrganizationsOrgIdDeleteResponse> {
     return this.httpRequest.request({
       method: 'DELETE',
-      url: '/v1/organizations/{organization_id}',
+      url: '/v1/organizations/{org_id}',
       path: {
-        organization_id: data.organizationId,
+        org_id: data.orgId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1597,18 +1919,22 @@ export class OrganizationService {
    * Get Organization Users
    * Get organization users by ID.
    * @param data The data for the request.
-   * @param data.organizationId Organization ID for the organization in question
+   * @param data.orgId Organization ID for the organization in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns backend__schemas__user__User Successful Response
    * @throws ApiError
    */
-  public getOrganizationUsersV1OrganizationsOrganizationIdUsersGet(
-    data: GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetData
-  ): CancelablePromise<GetOrganizationUsersV1OrganizationsOrganizationIdUsersGetResponse> {
+  public getOrganizationUsersV1OrganizationsOrgIdUsersGet(
+    data: GetOrganizationUsersV1OrganizationsOrgIdUsersGetData
+  ): CancelablePromise<GetOrganizationUsersV1OrganizationsOrgIdUsersGetResponse> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/v1/organizations/{organization_id}/users',
+      url: '/v1/organizations/{org_id}/users',
       path: {
-        organization_id: data.organizationId,
+        org_id: data.orgId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1625,6 +1951,7 @@ export class ModelService {
    * Create a new model.
    * @param data The data for the request.
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Model Successful Response
    * @throws ApiError
    */
@@ -1634,6 +1961,9 @@ export class ModelService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/v1/models',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
@@ -1648,6 +1978,7 @@ export class ModelService {
    * @param data The data for the request.
    * @param data.offset Offset for where request should start returning records from
    * @param data.limit Maximum number of records to return per request
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Model Successful Response
    * @throws ApiError
    */
@@ -1657,6 +1988,9 @@ export class ModelService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/v1/models',
+      headers: {
+        'Organization-Id': data.organizationId,
+      },
       query: {
         offset: data.offset,
         limit: data.limit,
@@ -1676,6 +2010,7 @@ export class ModelService {
    * @param data The data for the request.
    * @param data.modelId Model ID for the model in question
    * @param data.requestBody
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Model Successful Response
    * @throws ApiError
    */
@@ -1687,6 +2022,9 @@ export class ModelService {
       url: '/v1/models/{model_id}',
       path: {
         model_id: data.modelId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       body: data.requestBody,
       mediaType: 'application/json',
@@ -1701,6 +2039,7 @@ export class ModelService {
    * Get a model by ID.
    * @param data The data for the request.
    * @param data.modelId Model ID for the model in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns Model Successful Response
    * @throws ApiError
    */
@@ -1712,6 +2051,9 @@ export class ModelService {
       url: '/v1/models/{model_id}',
       path: {
         model_id: data.modelId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',
@@ -1727,6 +2069,7 @@ export class ModelService {
    * HTTPException: If the model with the given ID is not found.
    * @param data The data for the request.
    * @param data.modelId Model ID for the model in question
+   * @param data.organizationId Unique Identifier for the Organization making the request
    * @returns DeleteModel Successful Response
    * @throws ApiError
    */
@@ -1738,6 +2081,9 @@ export class ModelService {
       url: '/v1/models/{model_id}',
       path: {
         model_id: data.modelId,
+      },
+      headers: {
+        'Organization-Id': data.organizationId,
       },
       errors: {
         422: 'Validation Error',

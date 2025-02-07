@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING, is_authentication_enabled
@@ -77,6 +77,11 @@ def get_header_user_id(request: Request) -> str:
     if is_authentication_enabled():
         # Validation already performed, so just retrieve value
         authorization = request.headers.get("Authorization")
+        if not authorization:
+            raise HTTPException(
+                status_code=401,
+                detail="Authorization: Bearer <token> required in request headers.",
+            )
         _, token = authorization.split(" ")
         decoded = JWTService().decode_jwt(token)
 

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from backend.config.auth import is_authentication_enabled
 from backend.config.routers import RouterName
 from backend.crud import user as user_crud
 from backend.database_models import User as UserModel
@@ -9,6 +10,7 @@ from backend.schemas.params.shared import PaginationQueryParams
 from backend.schemas.params.user import UserIdPathParam
 from backend.schemas.user import CreateUser, DeleteUser, UpdateUser, User
 from backend.schemas.user import User as UserSchema
+from backend.services.auth.request_validators import validate_authorization
 from backend.services.context import get_context
 
 router = APIRouter(
@@ -16,6 +18,8 @@ router = APIRouter(
     tags=[RouterName.USER],
 )
 router.name = RouterName.USER
+
+auth_dependencies = [Depends(validate_authorization)] if is_authentication_enabled() else []
 
 
 @router.post("", response_model=User)
@@ -36,7 +40,11 @@ async def create_user(
     return db_user
 
 
-@router.get("", response_model=list[User])
+@router.get(
+    "",
+    response_model=list[User],
+    dependencies=auth_dependencies,
+)
 async def list_users(
     page_params: PaginationQueryParams,
     session: DBSessionDep,
@@ -48,7 +56,11 @@ async def list_users(
     return user_crud.get_users(session, offset=page_params.offset, limit=page_params.limit)
 
 
-@router.get("/{user_id}", response_model=User)
+@router.get(
+    "/{user_id}",
+    response_model=User,
+    dependencies=auth_dependencies,
+)
 async def get_user(
     user_id: UserIdPathParam,
     session: DBSessionDep,
@@ -72,7 +84,11 @@ async def get_user(
     return user
 
 
-@router.put("/{user_id}", response_model=User)
+@router.put(
+    "/{user_id}",
+    response_model=User,
+    dependencies=auth_dependencies,
+)
 async def update_user(
     user_id: UserIdPathParam,
     new_user: UpdateUser,
@@ -99,7 +115,10 @@ async def update_user(
     return user
 
 
-@router.delete("/{user_id}")
+@router.delete(
+    "/{user_id}",
+    dependencies=auth_dependencies,
+)
 async def delete_user(
     user_id: UserIdPathParam,
     session: DBSessionDep,
