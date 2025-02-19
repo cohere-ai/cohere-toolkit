@@ -113,7 +113,7 @@ def update_deployment(
     db: Session, deployment: Deployment, new_deployment: DeploymentUpdate
 ) -> Deployment:
     """
-    Update a deployment by ID.
+    Update a deployment.
 
     Args:
         db (Session): Database session.
@@ -125,8 +125,10 @@ def update_deployment(
     """
     for attr, value in new_deployment.model_dump(exclude_none=True).items():
         setattr(deployment, attr, value)
+
     db.commit()
     db.refresh(deployment)
+
     return deployment
 
 
