@@ -102,7 +102,7 @@ const ToolEvent: React.FC<ToolEventProps> = ({ plan, event, stream_search_result
       >
         {errorDocuments[errorDocuments.length - 1].text}
       </ToolErrorWrapper>
-    ) : toolName && toolName != TOOL_PYTHON_INTERPRETER_ID ? (
+    ) : (toolName && toolName != TOOL_PYTHON_INTERPRETER_ID) || artifacts.length > 0 ? (
       <ToolEventWrapper icon="book-open-text">
         {artifacts.length > 0 ? (
           <>
