@@ -31,7 +31,7 @@ To enable it, go to the `OAuth & Permissions` section of your Slack app settings
 
 More information about the OAuth flow can be found [here](https://api.slack.com/authentication/oauth-v2).
 
-## 3. Set Up Environment Variables
+## 3. Set up environment variables
 
 Then set the following environment variables. You can either set the below values in your `secrets.yaml` file:
 ```bash
@@ -44,6 +44,9 @@ or update your `.env` configuration to contain:
 SLACK_CLIENT_ID=<your_client_id from step 1>
 SLACK_CLIENT_SECRET=<your_client_secret from step 1>
 ```
+
+If `configuration.yaml` and `secrets.yaml` files are not present in the project, take a look at the [Toolkit Setup](/docs/setup.md) guide to create them.
+
 
 ## 4. Setup HTTPS for Local Development
 
@@ -63,31 +66,49 @@ and
 ```Dockerfile
 CMD uvicorn backend.main:app --reload --host 0.0.0.0 --port ${PORT} --timeout-keep-alive 300 --ssl-keyfile /workspace/key.pem --ssl-certfile /workspace/cert.pem
 ```
-Change NEXT_PUBLIC_API_HOSTNAME environment variable in the .env `https` protocol:
+Change the NEXT_PUBLIC_API_HOSTNAME environment variable in the .env file — set the protocol to https:
+
 ```bash
 NEXT_PUBLIC_API_HOSTNAME=https://localhost:8000
 ```
 
-or in the configurations.yaml file:
+or in the `configuration.yaml` file:
 
 ```yaml
 auth:
   backend_hostname: https://localhost:8000
 ```
-
 To run the Frontend with HTTPS, update the `start` script in the `package.json` file:
 
 ```json
 "scripts": {
-    "dev": "next dev --port 4000 --experimental-https",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev --port 4000 --experimental-https",
 ..........
 }
 ```
 
-Add the following line to the 'docker-compose.yml' file to the frontend environment variables:
+If HTTPS is not required in the frontend, you can omit the --experimental-https flag.
+```json
+"scripts": {
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev --port 4000",
+..........
+}
+```
+
+Add the following line to the `docker-compose.yml` file to the frontend environment variables:
 
 ```yaml
-    NEXT_PUBLIC_API_HOSTNAME=https://localhost:8000
+...........
+  frontend:
+    build:
+      target: ${BUILD_TARGET:-prod}
+      context: ./src/interfaces/assistants_web
+      dockerfile: Dockerfile
+    # Set environment variables directly in the docker-compose file
+    environment:
+      API_HOSTNAME: https://backend:8000
+      NEXT_PUBLIC_API_HOSTNAME: https://localhost:8000
+...........
 ```
 
 and change the API_HOSTNAME to
@@ -95,7 +116,7 @@ and change the API_HOSTNAME to
 ```yaml
     API_HOSTNAME: https://localhost:8000
 ```
-also change the src/interfaces/assistants_web/.env.development file env variables to use https.
+also change the `src/interfaces/assistants_web/.env.development` file env variables to use https.
 
 ## 5. Run the Backend and Frontend
 
@@ -104,6 +125,12 @@ run next command to start the backend and frontend:
 ```bash
 make dev
 ```
+
+After that, navigate to `https://localhost:8000/health`. As the self-signed certificate is used, 
+you will see a warning about the certificate. Click on the `Advanced` button and then `Proceed to localhost (unsafe)`.
+If you see the `{"status":"ok"}` response, the backend is running successfully. After that navigate to `https://localhost:4000` to see the frontend.
+
+ 
 
 ## 6. Troubleshooting
 
