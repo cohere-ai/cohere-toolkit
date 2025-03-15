@@ -113,7 +113,7 @@ def get_deployment_definitions(session: DBSessionDep) -> list[DeploymentDefiniti
 
     return [*db_deployments.values(), *installed_deployments]
 
-def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
+def update_db_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str, str]) -> DeploymentDefinition:
     logger.debug(event="update_config", deployment_id=deployment_id, env_vars=env_vars)
 
     db_deployment = deployment_crud.get_deployment(session, deployment_id)
@@ -128,3 +128,31 @@ def update_config(session: DBSessionDep, deployment_id: str, env_vars: dict[str,
         updated_deployment = get_deployment_definition(session, deployment_id)
 
     return updated_deployment
+
+def update_db_config_from_env(session: DBSessionDep):
+    try:
+        for deployment_name, deployment in AVAILABLE_MODEL_DEPLOYMENTS.items():
+            # Fetch local config
+            env_config = deployment.config()
+            # Fetch DB entity
+            db_deployment = deployment_crud.get_deployment_by_name(session, deployment_name)
+
+            # Skip to next if no config or no DB deployment found
+            if not env_config or not db_deployment:
+                logger.debug(event="Updating DB deployment config, no config or no DB deployment found.")
+                continue
+
+            db_config = dict(db_deployment.default_deployment_config)
+
+            for key, value in env_config.items():
+                db_config[key] = value
+
+            deployment_crud.update_deployment(
+                session,
+                db_deployment,
+                DeploymentUpdate(
+                    default_deployment_config=db_config
+                )
+            )
+    except Exception as e:
+        logger.error(event=f"Error while updating DB deployment config: {e}")

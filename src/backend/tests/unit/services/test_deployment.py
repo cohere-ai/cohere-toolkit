@@ -123,12 +123,12 @@ def test_get_deployment_definitions_with_db_deployments(session, mock_available_
     assert any(d.id == "db-mock-cohere-platform-id" for d in definitions)
 
 def test_update_config_db(session, db_deployment) -> None:
-    deployment_service.update_config(session, db_deployment.id, {"COHERE_API_KEY": "new-db-test-api-key"})
+    deployment_service.update_db_config(session, db_deployment.id, {"COHERE_API_KEY": "new-db-test-api-key"})
     updated_deployment = session.query(Deployment).get("db-mock-cohere-platform-id")
     assert updated_deployment.default_deployment_config == {"COHERE_API_KEY": "new-db-test-api-key"}
 
 def test_update_config_no_db_deployments(session, mock_available_model_deployments, clear_db_deployments) -> None:
     with patch("backend.services.deployment.update_env_file") as mock_update_env_file:
         with patch("backend.services.deployment.get_deployment_definition", return_value=MockCohereDeployment.to_deployment_definition()):
-            deployment_service.update_config(session, "some-deployment-id", {"API_KEY": "new-api-key"})
+            deployment_service.update_db_config(session, "some-deployment-id", {"API_KEY": "new-api-key"})
             mock_update_env_file.assert_called_with({"API_KEY": "new-api-key"})
