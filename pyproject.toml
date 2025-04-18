@@ -98,7 +98,7 @@ optional = true
 
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
-torch = "^2.3.0"
+torch = "^2.6.0"
 
 [tool.poetry.group.local-model]
 optional = true
