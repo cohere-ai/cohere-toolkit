@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from backend.chat.base import BaseChat
 from backend.chat.custom.tool_calls import async_call_tools
 from backend.chat.custom.utils import get_deployment
-from backend.chat.enums import StreamEvent
+from backend.chat.enums import FinishReason, StreamEvent
 from backend.config import Settings
 from backend.config.tools import get_available_tools
 from backend.database_models.file import File
@@ -87,7 +87,7 @@ class CustomChat(BaseChat):
             )
             yield {
                 "event_type": StreamEvent.STREAM_END,
-                "finish_reason": "ERROR",
+                "finish_reason": FinishReason.ERROR,
                 "error": str(e),
                 "status_code": 500,
             }

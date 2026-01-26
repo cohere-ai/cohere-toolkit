@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from backend.chat.enums import FinishReason
 from backend.database_models import get_session
 from backend.database_models.agent import Agent
 from backend.database_models.deployment import Deployment
@@ -204,7 +205,7 @@ def mock_event_stream(inject_events: list[dict]) -> list[dict]:
                 "search_results": [],
                 "search_queries": [],
             },
-            "finish_reason": "COMPLETE",
+            "finish_reason": FinishReason.COMPLETE,
         }
     ])
     return events

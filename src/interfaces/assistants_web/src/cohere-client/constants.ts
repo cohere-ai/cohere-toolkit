@@ -1,4 +1,5 @@
-// @todo: import from generated types when available
+// @todo: Once backend FinishReason enum is merged, run `make generate-client-web`
+// and remove this enum in favor of the generated type from backend
 export enum FinishReason {
   ERROR = 'ERROR',
   COMPLETE = 'COMPLETE',

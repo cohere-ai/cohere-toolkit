@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-from backend.chat.enums import StreamEvent
+from backend.chat.enums import FinishReason, StreamEvent
 from backend.schemas.citation import Citation
 from backend.schemas.document import Document
 from backend.schemas.search_query import SearchQuery
@@ -288,7 +288,7 @@ class StreamEnd(ChatResponse):
         title="Tool Calls",
         description="List of tool calls generated for custom tools",
     )
-    finish_reason: Optional[str] = Field(
+    finish_reason: Optional[FinishReason] = Field(
         None,
         title="Finish Reason",
         description="Reson why the model finished the request",
@@ -322,7 +322,7 @@ class NonStreamedChatResponse(ChatResponse):
         title="Chat History",
         description="A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message.",
     )
-    finish_reason: str = Field(
+    finish_reason: FinishReason = Field(
         ...,
         title="Finish Reason",
         description="Reason the chat stream ended",
