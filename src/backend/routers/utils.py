@@ -50,7 +50,7 @@ def get_default_deployment_model(session: DBSessionDep):
             (
                 model
                 for model in deployment_db.models
-                if model.name == 'command-r-plus'
+                if model.name == 'command-r-plus-08-2024'
             ),
             None,
         )

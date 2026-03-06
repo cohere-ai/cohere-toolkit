@@ -226,6 +226,6 @@ def mock_available_model_deployments(mock_event_stream: list[dict]):
 def mock_cohere_list_models():
     with patch(
         "backend.model_deployments.cohere_platform.CohereDeployment.list_models",
-        return_value=["command", "command-r", "command-r-plus", "command-light-nightly"]
+        return_value=["command", "command-r", "command-r-plus-08-2024", "command-light-nightly"]
     ) as mock:
         yield mock

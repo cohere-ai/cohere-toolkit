@@ -38,7 +38,7 @@ class CohereChatRequest(BaseChatRequest):
         """,
     )
     model: Optional[str] = Field(
-        "command-r-plus",
+        "command-r-plus-08-2024",
         title="Model",
         description="The model to use for generating the response.",
     )

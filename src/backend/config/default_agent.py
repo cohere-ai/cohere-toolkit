@@ -6,7 +6,7 @@ from backend.schemas.agent import AgentPublic
 
 DEFAULT_AGENT_ID = "default"
 DEFAULT_DEPLOYMENT = CohereDeployment.name()
-DEFAULT_MODEL = "command-r-plus"
+DEFAULT_MODEL = "command-r-plus-08-2024"
 
 def get_default_agent() -> AgentPublic:
     return AgentPublic(
