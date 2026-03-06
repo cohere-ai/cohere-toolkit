@@ -26,7 +26,7 @@ def test_create_agent(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
         "tools": [Tool.Calculator.value.ID, Tool.Search_File.value.ID, Tool.Read_File.value.ID],
     }
@@ -70,7 +70,7 @@ def test_create_agent_with_tool_metadata(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
         "tools": [Tool.Google_Drive.value.ID, Tool.Search_File.value.ID],
         "tools_metadata": [
@@ -127,7 +127,7 @@ def test_create_agent_missing_non_required_fields(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
     }
 
@@ -207,7 +207,7 @@ def test_create_agent_missing_name(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
     }
     response = session_client.post(
@@ -242,7 +242,7 @@ def test_create_agent_missing_deployment(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
     }
     response = session_client.post(
         "/v1/agents", json=request_json, headers={"User-Id": user.id}
@@ -256,7 +256,7 @@ def test_create_agent_missing_user_id_header(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
     }
     response = session_client.post("/v1/agents", json=request_json)
@@ -273,7 +273,7 @@ def test_create_agent_invalid_deployment(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": "not a real deployment",
     }
 
@@ -294,7 +294,7 @@ def test_create_agent_deployment_not_in_db(
         "description": "test description",
         "preamble": "test preamble",
         "temperature": 0.5,
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
     }
     cohere_deployment = deployment_crud.get_deployment_by_name(session, CohereDeployment.name())
@@ -308,7 +308,7 @@ def test_create_agent_deployment_not_in_db(
     deployment_models_list = [model.name for model in deployment_models]
     assert response.status_code == 200
     assert cohere_deployment
-    assert "command-r-plus" in deployment_models_list
+    assert "command-r-plus-08-2024" in deployment_models_list
 
 
 def test_create_agent_invalid_tool(
@@ -316,7 +316,7 @@ def test_create_agent_invalid_tool(
 ) -> None:
     request_json = {
         "name": "test agent",
-        "model": "command-r-plus",
+        "model": "command-r-plus-08-2024",
         "deployment": CohereDeployment.name(),
         "tools": [Tool.Calculator.value.ID, "fake_tool"],
     }

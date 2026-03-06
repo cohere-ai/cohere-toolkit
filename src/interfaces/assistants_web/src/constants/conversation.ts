@@ -1,7 +1,7 @@
 import { FileAccept } from '@/components/UI';
 
 export const DEFAULT_CONVERSATION_NAME = 'New Conversation';
-export const DEFAULT_AGENT_MODEL = 'command-r-plus';
+export const DEFAULT_AGENT_MODEL = 'command-r-plus-08-2024';
 export const DEFAULT_AGENT_ID = 'default';
 export const DEFAULT_AGENT_TEMPERATURE = 0.3;
 export const DEFAULT_TYPING_VELOCITY = 35;
