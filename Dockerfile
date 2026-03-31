@@ -57,14 +57,14 @@ COPY src/interfaces/assistants_web/.env.development .
 COPY src/interfaces/assistants_web/.env.production .
 
 ENV NEXT_PUBLIC_API_HOSTNAME='/api'
-RUN npm install \
+RUN npm ci \
     && npm run next:build
 
 # Terrarium
 WORKDIR /usr/src/app
 COPY --from=terrarium /usr/src/app/package*.json ./
 RUN npm install -g ts-node \
-    && npm install \
+    && npm ci \
     && npm prune --production
 COPY --from=terrarium /usr/src/app/. .
 ENV ENV_RUN_AS "docker"
