@@ -6,6 +6,7 @@ from community.tools import (
     ClinicalTrials,
     ConnectorRetriever,
     LlamaIndexUploadPDFRetriever,
+    LogosDBRetriever,
     PubMedRetriever,
     WolframAlpha,
 )
@@ -18,6 +19,7 @@ class CommunityTool(Enum):
     File_Upload_LlamaIndex = LlamaIndexUploadPDFRetriever
     Wolfram_Alpha = WolframAlpha
     ClinicalTrials = ClinicalTrials
+    LogosDB = LogosDBRetriever
 
 
 def get_community_tools() -> dict[str, ToolDefinition]:
