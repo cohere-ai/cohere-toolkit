@@ -99,6 +99,7 @@ optional = true
 [tool.poetry.group.community.dependencies]
 wolframalpha = "^5.0.0"
 torch = "^2.3.0"
+logosdb = ">=0.7.3"
 
 [tool.poetry.group.local-model]
 optional = true

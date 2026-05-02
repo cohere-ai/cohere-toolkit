@@ -163,6 +163,25 @@ class WolframAlphaSettings(BaseSettings, BaseModel):
     )
 
 
+class LogosDBSettings(BaseSettings, BaseModel):
+    model_config = SETTINGS_CONFIG
+    path: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("LOGOSDB_PATH", "path"),
+        description="Root directory for the LogosDB index (e.g. /data/logosdb).",
+    )
+    embed_model: str = Field(
+        default="embed-english-v3.0",
+        validation_alias=AliasChoices("LOGOSDB_EMBED_MODEL", "embed_model"),
+        description="Cohere embedding model used for indexing and querying.",
+    )
+    namespace: str = Field(
+        default="default",
+        validation_alias=AliasChoices("LOGOSDB_NAMESPACE", "namespace"),
+        description="Default collection name within the LogosDB index.",
+    )
+
+
 class GDriveSettings(BaseSettings, BaseModel):
     model_config = SETTINGS_CONFIG
     client_id: Optional[str] = Field(
@@ -295,6 +314,9 @@ class ToolSettings(BaseSettings, BaseModel):
     )
     wolfram_alpha: Optional[WolframAlphaSettings] = Field(
         default=WolframAlphaSettings()
+    )
+    logosdb: Optional[LogosDBSettings] = Field(
+        default=LogosDBSettings()
     )
     google_drive: Optional[GDriveSettings] = Field(default=GDriveSettings())
     tavily_web_search: Optional[TavilyWebSearchSettings] = Field(
