@@ -6256,7 +6256,13 @@
         "required": ["givenName", "familyName"],
         "title": "Name"
       },
-      "NonStreamedChatResponse": {
+      "FinishReason": {
+      "type": "string",
+      "enum": ["ERROR", "COMPLETE", "MAX_TOKENS"],
+      "title": "FinishReason",
+      "description": "Reasons why the model finished the request."
+    },
+    "NonStreamedChatResponse": {
         "properties": {
           "response_id": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
@@ -6280,10 +6286,10 @@
             "description": "A list of previous messages between the user and the model, meant to give the model conversational context for responding to the user's message."
           },
           "finish_reason": {
-            "type": "string",
-            "title": "Finish Reason",
-            "description": "Reason the chat stream ended"
-          },
+      "allOf": [{ "$ref": "#/components/schemas/FinishReason" }],
+      "title": "Finish Reason",
+      "description": "Reason the chat stream ended"
+    },
           "text": {
             "type": "string",
             "title": "Text",
@@ -6676,10 +6682,13 @@
             "default": []
           },
           "finish_reason": {
-            "anyOf": [{ "type": "string" }, { "type": "null" }],
-            "title": "Finish Reason",
-            "description": "Reson why the model finished the request"
-          },
+      "anyOf": [
+        { "$ref": "#/components/schemas/FinishReason" },
+        { "type": "null" }
+      ],
+      "title": "Finish Reason",
+      "description": "Reson why the model finished the request"
+    },
           "chat_history": {
             "anyOf": [
               {

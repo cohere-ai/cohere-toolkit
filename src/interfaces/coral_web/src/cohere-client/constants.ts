@@ -1,9 +1,5 @@
-// @todo: import from generated types when available
-export enum FinishReason {
-  ERROR = 'ERROR',
-  COMPLETE = 'COMPLETE',
-  MAX_TOKENS = 'MAX_TOKENS',
-}
+// FinishReason lives on the server and is generated into ./generated (re-exported from index).
+// Do not redefine it here; import { FinishReason } from '@/cohere-client'.
 
 // Chat
 export const COHERE_PLATFORM_DEPLOYMENT = 'Cohere Platform';
