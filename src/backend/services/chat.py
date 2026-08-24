@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 
 from backend.chat.collate import to_dict
-from backend.chat.enums import StreamEvent
+from backend.chat.enums import FinishReason, StreamEvent
 from backend.config.tools import get_available_tools
 from backend.crud import agent_tool_metadata as agent_tool_metadata_crud
 from backend.crud import conversation as conversation_crud
@@ -648,7 +648,7 @@ async def generate_chat_response(
                 response_id=response_id,
                 generation_id=generation_id,
                 chat_history=data.get("chat_history", []),
-                finish_reason=data.get("finish_reason", ""),
+                finish_reason=FinishReason(data["finish_reason"]) if data.get("finish_reason") else FinishReason.COMPLETE,
                 citations=data.get("citations", []),
                 search_queries=data.get("search_queries", []),
                 documents=data.get("documents", []),

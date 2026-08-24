@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from backend.chat.enums import StreamEvent
+from backend.chat.enums import FinishReason, StreamEvent
 from backend.database_models.conversation import Conversation
 from backend.database_models.message import Message, MessageAgent
 from backend.database_models.user import User
@@ -1110,7 +1110,7 @@ def validate_stream_end_event(
     assert is_valid_uuid(data["response_id"])
     assert is_valid_uuid(data["conversation_id"])
     assert is_valid_uuid(data["generation_id"])
-    assert data["finish_reason"] == "COMPLETE" or data["finish_reason"] == "MAX_TOKENS"
+    assert data["finish_reason"] == FinishReason.COMPLETE or data["finish_reason"] == FinishReason.MAX_TOKENS
 
     return data["conversation_id"]
 

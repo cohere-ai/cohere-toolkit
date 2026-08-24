@@ -4135,3 +4135,10 @@ export const $backend__schemas__user__User = {
   title: 'User',
   description: 'User schema',
 } as const;
+
+export const $FinishReason = {
+  type: 'string',
+  enum: ['ERROR', 'COMPLETE', 'MAX_TOKENS'],
+  title: 'FinishReason',
+  description: 'Reasons why the model finished the request.',
+} as const;

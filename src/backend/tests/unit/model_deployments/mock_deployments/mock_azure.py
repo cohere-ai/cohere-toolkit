@@ -2,6 +2,7 @@ from typing import Any, Generator
 
 from cohere.types import StreamedChatResponse
 
+from backend.chat.enums import FinishReason
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.context import Context
 from backend.tests.unit.model_deployments.mock_deployments.mock_base import (
@@ -51,7 +52,7 @@ class MockAzureDeployment(MockDeployment):
             "is_search_required": None,
             "search_queries": None,
             "search_results": None,
-            "finish_reason": "MAX_TOKENS",
+            "finish_reason": FinishReason.MAX_TOKENS,
             "tool_calls": None,
             "chat_history": [
                 {"role": "USER", "message": "Hello"},

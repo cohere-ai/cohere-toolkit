@@ -16,3 +16,12 @@ class StreamEvent(StrEnum):
     NON_STREAMED_CHAT_RESPONSE = "non-streamed-chat-response"
     TOOL_CALLS_GENERATION = "tool-calls-generation"
     TOOL_CALLS_CHUNK = "tool-calls-chunk"
+
+
+class FinishReason(StrEnum):
+    """
+    Reasons why the model finished the request.
+    """
+    ERROR = "ERROR"
+    COMPLETE = "COMPLETE"
+    MAX_TOKENS = "MAX_TOKENS"
